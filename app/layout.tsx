@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
-
+import AuthProvider from "../components/auth/AuthProvider";
 import { QueryProvider } from "./providers/query-provider";
 import { MuiThemeProvider } from "./providers/theme-provider";
 
@@ -33,7 +33,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
           <MuiThemeProvider>
-            <QueryProvider config={queryConfig}>{children}</QueryProvider>
+            <QueryProvider config={queryConfig}>
+              <AuthProvider>{children}</AuthProvider>
+            </QueryProvider>
           </MuiThemeProvider>
         </AppRouterCacheProvider>
       </body>

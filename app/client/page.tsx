@@ -33,11 +33,14 @@ function ClientPageContent() {
       return;
     }
 
-    const selectedClient = clients.find((client) => Number(client.clientId) === Number(clientId));
+    const selectedClient = clients.find(
+      (client) => Number(client.clientId) === Number(clientId),
+    );
     if (!selectedClient?._id) return;
 
     const selectedStaff = staffs.find(
-      (staff) => String(staff._id ?? staff.id ?? staff.staffId) === String(staffId),
+      (staff) =>
+        String(staff._id ?? staff.id ?? staff.staffId) === String(staffId),
     );
 
     if (!selectedStaff) return;
