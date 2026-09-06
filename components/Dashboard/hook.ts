@@ -19,7 +19,7 @@ export function useDashboardStats() {
     queryKey: ["dashboard-stats"],
     queryFn: async (): Promise<DashboardStat[]> => {
       const [staffResponse, clientResponse] = await Promise.all([
-        api.get("/staff"),
+        api.get("/staff/staff"),
         api.get("/clients/clients"),
       ]);
 

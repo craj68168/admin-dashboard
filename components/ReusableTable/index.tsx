@@ -24,6 +24,7 @@ type ClientTableProps = {
   staffs?: Array<{ id?: number | string; name: string; _id?: string }>;
   canManageAssignments?: boolean;
   canEditClients?: boolean;
+  canEditClient?: (client: ClientTableRow) => boolean;
   canUpdateClientStatus?: boolean;
   onAssignClient?: (clientId: number, staffId: number | string) => void;
   onUpdateClientField?: (
@@ -69,6 +70,7 @@ export default function ClientTable({
   staffs = [],
   canManageAssignments = false,
   canEditClients = true,
+  canEditClient,
   canUpdateClientStatus = true,
   onAssignClient,
   onUpdateClientField,
@@ -113,6 +115,7 @@ export default function ClientTable({
             )}
 
             {clients.map((client) => {
+              const clientCanEdit = canEditClient?.(client) ?? canEditClients;
               const assignedStaff = staffs.find(
                 (staff) =>
                   String(staff.id) === String(client.assignedStaffId ?? "") ||
@@ -176,13 +179,13 @@ export default function ClientTable({
                     {isStaffVariant ? (
                       <Link
                         href={
-                          canEditClients
+                          clientCanEdit
                             ? `/client/edit?clientId=${client.clientId}`
                             : `/client/clientDetailPage?clientId=${client.clientId}`
                         }
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
                       >
-                        {canEditClients ? "Edit" : "View"}
+                        {clientCanEdit ? "Edit" : "View"}
                       </Link>
                     ) : canManageAssignments ? (
                       <AssignmentSelect

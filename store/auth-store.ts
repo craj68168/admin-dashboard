@@ -1,19 +1,13 @@
 import { create } from "zustand";
-
-type User = {
-  id?: number;
-  name?: string;
-  email?: string;
-  role?: string;
-};
+import type { AuthUser } from "./type";
 
 type AuthState = {
-  user: User | null;
+  user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
   initialized: boolean;
 
-  setAuth: (user: User | null, token: string | null) => void;
+  setAuth: (user: AuthUser | null, token: string | null) => void;
   initializeAuth: (token: string | null) => void;
   logout: () => void;
 };

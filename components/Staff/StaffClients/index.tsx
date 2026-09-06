@@ -94,7 +94,7 @@ function StaffClientsContent() {
               name: staff.name,
               _id: staff._id,
             }))}
-            canEditClients={clients.every((client) => canEditClient(user, client))}
+            canEditClient={(client) => canEditClient(user, client)}
             canUpdateClientStatus={clients.every((client) =>
               canUpdateClientStatus(user, client),
             )}

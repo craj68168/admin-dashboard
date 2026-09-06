@@ -10,7 +10,7 @@ export function useClientPageData() {
     queryKey: ["client-page-data"],
     queryFn: async () => {
       const [staffResponse, clientResponse] = await Promise.all([
-        api.get<ClientStaffRecord[] | { data?: ClientStaffRecord[] }>("/staff"),
+        api.get<ClientStaffRecord[] | { data?: ClientStaffRecord[] }>("/staff/staff"),
         api.get<ClientApiResponse[] | { data?: ClientApiResponse[] }>("/clients/clients"),
       ]);
 
