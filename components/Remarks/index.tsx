@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRemarks } from "./hook";
 import { useSaveRemark } from "./useSaveRemark";
 import type { RemarksProps } from "./type";
@@ -27,13 +27,11 @@ export default function Remarks({
 
   const { saveRemark, isSaving, error } = useSaveRemark();
 
-  const [date, setDate] = useState(defaultRemarkDate);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [medium, setMedium] = useState("");
   const [text, setText] = useState("");
 
-  useEffect(() => {
-    setDate(defaultRemarkDate);
-  }, [defaultRemarkDate]);
+  const date = selectedDate ?? defaultRemarkDate;
 
   const canSave = Boolean(clientId) && Boolean(date) && Boolean(medium) && Boolean(text.trim());
 
@@ -51,7 +49,7 @@ export default function Remarks({
         medium: saved.medium,
       });
 
-      setDate(defaultRemarkDate);
+      setSelectedDate(null);
       setMedium("");
       setText("");
     }
@@ -128,7 +126,7 @@ export default function Remarks({
                   name="remarksDate"
                   type="date"
                   value={date}
-                  onChange={(event) => setDate(event.target.value)}
+                  onChange={(event) => setSelectedDate(event.target.value)}
                   className="mt-1 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition-colors hover:border-gray-300 focus:border-blue-500"
                 />
               </label>
