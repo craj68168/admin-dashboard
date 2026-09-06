@@ -19,40 +19,40 @@ type StaffApiResponse = {
   name: string;
 };
 
-type ClientApiResponse = {
-  _id?: string;
-  clientId?: number | string;
-  fullName?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  nationality?: string;
-  passportNumber?: string;
-  passportExpiryDate?: string;
-  visaType?: string;
-  statusOfResidence?: string;
-  lastQualification?: string;
-  japaneseLanguageLevel?: string;
-  schoolName?: string;
-  course?: string;
-  intake?: string;
-  jobCategory?: string;
-  jobTitle?: string;
-  companyName?: string;
-  workLocation?: string;
-  sponsorName?: string;
-  sponsorRelationship?: string;
-  sponsorStatusOfResidence?: string;
-  coeStatus?: string;
-  visaStatus?: string;
-  clientStatus?: string;
-  assignedStaff?: StaffApiResponse | string | null;
-  remarks?: string;
-  clientImage?: string;
-  cv?: string;
-};
+// type ClientApiResponse = {
+//   _id?: string;
+//   clientId?: number | string;
+//   fullName?: string;
+//   dateOfBirth?: string;
+//   gender?: string;
+//   phone?: string;
+//   email?: string;
+//   address?: string;
+//   nationality?: string;
+//   passportNumber?: string;
+//   passportExpiryDate?: string;
+//   visaType?: string;
+//   statusOfResidence?: string;
+//   lastQualification?: string;
+//   japaneseLanguageLevel?: string;
+//   schoolName?: string;
+//   course?: string;
+//   intake?: string;
+//   jobCategory?: string;
+//   jobTitle?: string;
+//   companyName?: string;
+//   workLocation?: string;
+//   sponsorName?: string;
+//   sponsorRelationship?: string;
+//   sponsorStatusOfResidence?: string;
+//   coeStatus?: string;
+//   visaStatus?: string;
+//   clientStatus?: string;
+//   assignedStaff?: StaffApiResponse | string | null;
+//   remarks?: string;
+//   clientImage?: string;
+//   cv?: string;
+// };
 
 export default function EditClientPage() {
   return (

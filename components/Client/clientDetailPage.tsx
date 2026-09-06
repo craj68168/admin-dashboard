@@ -134,8 +134,8 @@ function ClientDetailPageContent() {
   const clientId = Number(searchParams.get("clientId") ?? 0);
   const { data, isLoading, isError } = useClientPageData();
   const createClient = useCreateClient();
-  const staffs = data?.staffs ?? [];
-  const client = useMemo(
+const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
+const client = useMemo(
     () =>
       mode === "create"
         ? null
