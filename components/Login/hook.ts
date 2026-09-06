@@ -32,6 +32,7 @@ export const useLoginHook = () => {
         name: backendUser?.name ?? backendUser?.fullName ?? "Super Admin",
         email: backendUser?.email ?? "admin@example.com",
         role: (backendUser?.role ?? data?.role ?? "superadmin") as UserRole,
+        location: backendUser?.location,
       };
 
       if (token) {

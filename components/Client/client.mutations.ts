@@ -16,7 +16,7 @@ export function useAssignClient() {
 
   return useMutation({
     mutationFn: ({ clientId, staffId }: { clientId: string; staffId: number | string }) =>
-      api.put(`/clients/assign/${clientId}`, { staffId }),
+      api.put(`/clients/clients/assign/${clientId}`, { staffId }),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
@@ -25,7 +25,7 @@ export function useCreateClient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ClientPayload) => api.post("/clients", payload),
+    mutationFn: (payload: ClientPayload) => api.post("/clients/clients", payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
@@ -35,7 +35,7 @@ export function useUpdateClient() {
 
   return useMutation({
     mutationFn: ({ recordId, payload }: { recordId: string; payload: ClientPayload }) =>
-      api.put(`/clients/${recordId}`, payload),
+      api.put(`/clients/clients/${recordId}`, payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
@@ -52,7 +52,7 @@ export function useUpdateClientField() {
       recordId: string;
       field: ClientStatusField;
       value: string;
-    }) => api.put(`/clients/${recordId}`, { [field]: value }),
+    }) => api.put(`/clients/clients/${recordId}`, { [field]: value }),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }

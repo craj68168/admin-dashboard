@@ -208,6 +208,7 @@ function EditClientPageContent() {
             <Remarks
               mode="edit"
               value={client.remarks}
+              staffLocation={user?.location}
               staffName={user?.name}
             />
           </ReusableForm>

@@ -2,6 +2,7 @@ import type { ReusableFormField } from ".";
 
 const visaTypeOptions = ["Student", "Working", "Dependent"];
 const genderOptions = ["Male", "Female", "Other"];
+const locationOptions = ["Nepal", "Japan", "USA"];
 const coeStatusOptions = [
   "Not Applied",
   "Applied",
@@ -36,7 +37,13 @@ function toSelectOptions(options: string[]) {
 export const staffFormFields: ReusableFormField[] = [
   { name: "name", label: "Name", required: true },
   { name: "phone", label: "Phone", type: "tel", required: true },
-  { name: "location", label: "Location", required: true },
+  {
+    name: "location",
+    label: "Location",
+    type: "select",
+    required: true,
+    options: toSelectOptions(locationOptions),
+  },
   { name: "email", label: "Email", type: "email", required: true },
   { name: "password", label: "Password", type: "password", required: true },
 ];

@@ -21,7 +21,7 @@ export function useStaffClients(staffId: string) {
       );
       const clientResponse = await api.get<
         ClientApiResponse[] | { data?: ClientApiResponse[] }
-      >(`/clients/staff/${selectedStaff?._id ?? staffId}`);
+      >(`/clients/clients/staff/${selectedStaff?._id ?? staffId}`);
 
       return {
         staffs,

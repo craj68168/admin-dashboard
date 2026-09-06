@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { RemarkEntry } from "./type";
+import { getTimezoneForLocation } from "@/lib/timezone";
 
 const staticRemarks: RemarkEntry[] = [
   {
@@ -24,9 +25,12 @@ const staticRemarks: RemarkEntry[] = [
   },
 ];
 
-export function useRemarks(remarks: RemarkEntry[] = []) {
-  const remarkHistory = remarks.length > 0 ? remarks : staticRemarks;
-  const [defaultRemarkDate] = useState(() => getJapanDateInputValue());
+export function useRemarks(remarks: RemarkEntry[] = [], staffLocation?: string) {
+  const [remarkHistory, setRemarkHistory] = useState<RemarkEntry[]>(
+    remarks.length > 0 ? remarks : staticRemarks,
+  );
+  const timezone = getTimezoneForLocation(staffLocation);
+  const defaultRemarkDate = useMemo(() => getDateInputValue(timezone), [timezone]);
   const [selectedRemarkId, setSelectedRemarkId] = useState<string | undefined>(
     () => remarkHistory[0]?.id,
   );
@@ -36,18 +40,25 @@ export function useRemarks(remarks: RemarkEntry[] = []) {
     [remarkHistory, selectedRemarkId],
   );
 
+  const addRemark = (remark: RemarkEntry) => {
+    setRemarkHistory((prev) => [remark, ...prev]);
+    setSelectedRemarkId(remark.id);
+  };
+
   return {
     defaultRemarkDate,
+    timezone,
     remarkHistory,
     selectedRemarkId,
     setSelectedRemarkId,
     selectedRemark,
+    addRemark,
   };
 }
 
-function getJapanDateInputValue() {
+function getDateInputValue(timezone: string) {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Tokyo",
+    timeZone: timezone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
