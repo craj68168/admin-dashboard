@@ -81,11 +81,13 @@ function EditClientPageContent() {
   const defaultValues = useMemo(
     () => {
       const {
-        _id: _recordId,
         assignedStaffId: _assignedStaffId,
         assignedStaffName: _assignedStaffName,
         ...clientValues
       } = client ?? {};
+
+      void _assignedStaffId;
+      void _assignedStaffName;
 
       return {
         ...clientFormDefaults,
