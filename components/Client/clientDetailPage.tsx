@@ -18,13 +18,6 @@ type DetailField = {
   value?: string | number;
 };
 
-type StaffApiResponse = {
-  _id?: string;
-  staffId?: number | string;
-  name: string;
-  email?: string;
-};
-
 export default function ClientDetailPage() {
   return (
     <Suspense fallback={<ClientDetailFallback />}>
