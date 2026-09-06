@@ -20,6 +20,7 @@ export const useLoginHook = () => {
   } = useMutation({
     mutationFn: async (payload: LoginPayload) => {
       const response = await api.post("/auth/login", payload);
+
       return response.data;
     },
 
