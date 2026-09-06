@@ -459,41 +459,41 @@ function DetailValue({ label, value }: DetailField) {
   );
 }
 
-function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
-  return {
-    _id: client._id,
-    clientId: Number(client.clientId ?? 0),
-    fullName: client.fullName ?? "Unknown Client",
-    dateOfBirth: client.dateOfBirth,
-    gender: client.gender,
-    phone: client.phone ?? "N/A",
-    email: client.email,
-    address: client.address,
-    nationality: client.nationality ?? "Nepali",
-    passportNumber: client.passportNumber,
-    passportExpiryDate: client.passportExpiryDate,
-    visaType: client.visaType ?? "Student",
-    statusOfResidence: client.statusOfResidence,
-    lastQualification: client.lastQualification,
-    japaneseLanguageLevel: client.japaneseLanguageLevel,
-    schoolName: client.schoolName,
-    course: client.course,
-    intake: client.intake,
-    jobCategory: client.jobCategory,
-    jobTitle: client.jobTitle,
-    companyName: client.companyName,
-    workLocation: client.workLocation,
-    sponsorName: client.sponsorName,
-    sponsorRelationship: client.sponsorRelationship,
-    sponsorStatusOfResidence: client.sponsorStatusOfResidence,
-    coeStatus: client.coeStatus ?? "Not Applied",
-    visaStatus: client.visaStatus ?? "Not Applied",
-    clientStatus: client.clientStatus ?? "New",
-    assignedStaff: client.assignedStaff ?? null,
-    remarks: client.remarks,
-    cv: client.cv,
-  };
-}
+// function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
+//   return {
+//     _id: client._id,
+//     clientId: Number(client.clientId ?? 0),
+//     fullName: client.fullName ?? "Unknown Client",
+//     dateOfBirth: client.dateOfBirth,
+//     gender: client.gender,
+//     phone: client.phone ?? "N/A",
+//     email: client.email,
+//     address: client.address,
+//     nationality: client.nationality ?? "Nepali",
+//     passportNumber: client.passportNumber,
+//     passportExpiryDate: client.passportExpiryDate,
+//     visaType: client.visaType ?? "Student",
+//     statusOfResidence: client.statusOfResidence,
+//     lastQualification: client.lastQualification,
+//     japaneseLanguageLevel: client.japaneseLanguageLevel,
+//     schoolName: client.schoolName,
+//     course: client.course,
+//     intake: client.intake,
+//     jobCategory: client.jobCategory,
+//     jobTitle: client.jobTitle,
+//     companyName: client.companyName,
+//     workLocation: client.workLocation,
+//     sponsorName: client.sponsorName,
+//     sponsorRelationship: client.sponsorRelationship,
+//     sponsorStatusOfResidence: client.sponsorStatusOfResidence,
+//     coeStatus: client.coeStatus ?? "Not Applied",
+//     visaStatus: client.visaStatus ?? "Not Applied",
+//     clientStatus: client.clientStatus ?? "New",
+//     assignedStaff: client.assignedStaff ?? null,
+//     remarks: client.remarks,
+//     cv: client.cv,
+//   };
+// }
 
 function compactPayload(payload: Record<string, string | number | undefined>) {
   return Object.fromEntries(

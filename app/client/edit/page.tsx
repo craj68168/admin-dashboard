@@ -13,11 +13,11 @@ import { useClientPageData } from "@/components/Client/client.queries";
 import { useAuthStore } from "@/store/auth-store";
 import { canAssignClient, canEditClient } from "@/lib/permissions";
 
-type StaffApiResponse = {
-  _id?: string;
-  staffId?: number | string;
-  name: string;
-};
+// type StaffApiResponse = {
+//   _id?: string;
+//   staffId?: number | string;
+//   name: string;
+// };
 
 // type ClientApiResponse = {
 //   _id?: string;
