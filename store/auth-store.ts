@@ -1,5 +1,3 @@
-// store/auth-store.ts
-
 import { create } from "zustand";
 
 type User = {
@@ -13,8 +11,10 @@ type AuthState = {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  initialized: boolean;
 
   setAuth: (user: User | null, token: string | null) => void;
+  initializeAuth: (token: string | null) => void;
   logout: () => void;
 };
 
@@ -22,12 +22,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
+  initialized: false,
 
   setAuth: (user, token) =>
     set({
       user,
       token,
-      isAuthenticated: !!token,
+      isAuthenticated: Boolean(token),
+      initialized: true,
+    }),
+
+  initializeAuth: (token) =>
+    set({
+      token,
+      isAuthenticated: Boolean(token),
+      initialized: true,
     }),
 
   logout: () =>
@@ -35,5 +44,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+      initialized: true,
     }),
 }));
