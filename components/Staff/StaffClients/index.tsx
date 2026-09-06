@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import ReusableTable from "@/components/ReusableTable";
 import Navbar from "@/components/Navbar";
@@ -20,7 +20,7 @@ export default function StaffClients() {
 }
 
 function StaffClientsContent() {
-  const router = useRouter();
+ 
   const params = useParams<{ staffId: string }>();
   const staffId = params.staffId;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -94,7 +94,7 @@ function StaffClientsContent() {
               name: staff.name,
               _id: staff._id,
             }))}
-            canEditClients={clients.every((client) => canEditClient(user, client))}
+            canEditClient={(client) => canEditClient(user, client)}
             canUpdateClientStatus={clients.every((client) =>
               canUpdateClientStatus(user, client),
             )}

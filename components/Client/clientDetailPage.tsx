@@ -18,103 +18,6 @@ type DetailField = {
   value?: string | number;
 };
 
-type StaffApiResponse = {
-  _id?: string;
-  staffId?: number | string;
-  name: string;
-  email?: string;
-};
-
-type ClientApiResponse = {
-  _id?: string;
-  clientId?: number | string;
-  fullName?: string;
-  dateOfBirth?: string;
-  gender?: "Male" | "Female" | "Other";
-  phone?: string;
-  email?: string;
-  address?: string;
-  nationality?: string;
-  passportNumber?: string;
-  passportExpiryDate?: string;
-  visaType?: "Student" | "Working" | "Dependent";
-  statusOfResidence?: string;
-  lastQualification?: string;
-  japaneseLanguageLevel?: string;
-  schoolName?: string;
-  course?: string;
-  intake?: string;
-  jobCategory?: string;
-  jobTitle?: string;
-  companyName?: string;
-  workLocation?: string;
-  sponsorName?: string;
-  sponsorRelationship?: string;
-  sponsorStatusOfResidence?: string;
-  coeStatus?: "Not Applied" | "Applied" | "Processing" | "Received" | "Rejected";
-  visaStatus?: "Not Applied" | "Applied" | "Processing" | "Approved" | "Rejected";
-  clientStatus?:
-    | "New"
-    | "Document Collection"
-    | "Processing"
-    | "COE Applied"
-    | "COE Received"
-    | "Visa Applied"
-    | "Visa Approved"
-    | "Visa Rejected"
-    | "Departed"
-    | "Arrived in Japan";
-  assignedStaff?: StaffApiResponse | string | null;
-  remarks?: string;
-  clientImage?: string;
-  cv?: string;
-};
-
-type ClientDetailRecord = {
-  _id?: string;
-  clientId: number;
-  fullName: string;
-  phone: string;
-  visaType: "Student" | "Working" | "Dependent";
-  coeStatus: "Not Applied" | "Applied" | "Processing" | "Received" | "Rejected";
-  visaStatus: "Not Applied" | "Applied" | "Processing" | "Approved" | "Rejected";
-  clientStatus:
-    | "New"
-    | "Document Collection"
-    | "Processing"
-    | "COE Applied"
-    | "COE Received"
-    | "Visa Applied"
-    | "Visa Approved"
-    | "Visa Rejected"
-    | "Departed"
-    | "Arrived in Japan";
-  assignedStaff?: StaffApiResponse | string | null;
-  dateOfBirth?: string;
-  gender?: "Male" | "Female" | "Other";
-  email?: string;
-  address?: string;
-  nationality?: string;
-  passportNumber?: string;
-  passportExpiryDate?: string;
-  statusOfResidence?: string;
-  lastQualification?: string;
-  japaneseLanguageLevel?: string;
-  schoolName?: string;
-  course?: string;
-  intake?: string;
-  jobCategory?: string;
-  jobTitle?: string;
-  companyName?: string;
-  workLocation?: string;
-  sponsorName?: string;
-  sponsorRelationship?: string;
-  sponsorStatusOfResidence?: string;
-  remarks?: string;
-  clientImage?: string;
-  cv?: string;
-};
-
 export default function ClientDetailPage() {
   return (
     <Suspense fallback={<ClientDetailFallback />}>
@@ -134,8 +37,8 @@ function ClientDetailPageContent() {
   const clientId = Number(searchParams.get("clientId") ?? 0);
   const { data, isLoading, isError } = useClientPageData();
   const createClient = useCreateClient();
-  const staffs = data?.staffs ?? [];
-  const client = useMemo(
+const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
+const client = useMemo(
     () =>
       mode === "create"
         ? null
@@ -380,7 +283,6 @@ function ClientDetailPageContent() {
         <DetailSection
           title="Files"
           fields={[
-            { label: "Client Image", value: client.clientImage },
             { label: "CV", value: client.cv },
           ]}
         />
@@ -460,42 +362,41 @@ function DetailValue({ label, value }: DetailField) {
   );
 }
 
-function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
-  return {
-    _id: client._id,
-    clientId: Number(client.clientId ?? 0),
-    fullName: client.fullName ?? "Unknown Client",
-    dateOfBirth: client.dateOfBirth,
-    gender: client.gender,
-    phone: client.phone ?? "N/A",
-    email: client.email,
-    address: client.address,
-    nationality: client.nationality ?? "Nepali",
-    passportNumber: client.passportNumber,
-    passportExpiryDate: client.passportExpiryDate,
-    visaType: client.visaType ?? "Student",
-    statusOfResidence: client.statusOfResidence,
-    lastQualification: client.lastQualification,
-    japaneseLanguageLevel: client.japaneseLanguageLevel,
-    schoolName: client.schoolName,
-    course: client.course,
-    intake: client.intake,
-    jobCategory: client.jobCategory,
-    jobTitle: client.jobTitle,
-    companyName: client.companyName,
-    workLocation: client.workLocation,
-    sponsorName: client.sponsorName,
-    sponsorRelationship: client.sponsorRelationship,
-    sponsorStatusOfResidence: client.sponsorStatusOfResidence,
-    coeStatus: client.coeStatus ?? "Not Applied",
-    visaStatus: client.visaStatus ?? "Not Applied",
-    clientStatus: client.clientStatus ?? "New",
-    assignedStaff: client.assignedStaff ?? null,
-    remarks: client.remarks,
-    clientImage: client.clientImage,
-    cv: client.cv,
-  };
-}
+// function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
+//   return {
+//     _id: client._id,
+//     clientId: Number(client.clientId ?? 0),
+//     fullName: client.fullName ?? "Unknown Client",
+//     dateOfBirth: client.dateOfBirth,
+//     gender: client.gender,
+//     phone: client.phone ?? "N/A",
+//     email: client.email,
+//     address: client.address,
+//     nationality: client.nationality ?? "Nepali",
+//     passportNumber: client.passportNumber,
+//     passportExpiryDate: client.passportExpiryDate,
+//     visaType: client.visaType ?? "Student",
+//     statusOfResidence: client.statusOfResidence,
+//     lastQualification: client.lastQualification,
+//     japaneseLanguageLevel: client.japaneseLanguageLevel,
+//     schoolName: client.schoolName,
+//     course: client.course,
+//     intake: client.intake,
+//     jobCategory: client.jobCategory,
+//     jobTitle: client.jobTitle,
+//     companyName: client.companyName,
+//     workLocation: client.workLocation,
+//     sponsorName: client.sponsorName,
+//     sponsorRelationship: client.sponsorRelationship,
+//     sponsorStatusOfResidence: client.sponsorStatusOfResidence,
+//     coeStatus: client.coeStatus ?? "Not Applied",
+//     visaStatus: client.visaStatus ?? "Not Applied",
+//     clientStatus: client.clientStatus ?? "New",
+//     assignedStaff: client.assignedStaff ?? null,
+//     remarks: client.remarks,
+//     cv: client.cv,
+//   };
+// }
 
 function compactPayload(payload: Record<string, string | number | undefined>) {
   return Object.fromEntries(

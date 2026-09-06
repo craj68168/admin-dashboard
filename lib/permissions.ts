@@ -64,7 +64,14 @@ export function isAssignedToCurrentStaff(
   }
 
   const assignedStaffId = getClientAssignedStaffId(client);
-  return assignedStaffId ? String(assignedStaffId) === String(user.staffId) : false;
+  const currentStaffIds = [user.id, user.staffId].filter(
+    (value): value is string | number => value !== undefined && value !== null,
+  );
+
+  return Boolean(
+    assignedStaffId &&
+      currentStaffIds.some((currentStaffId) => String(assignedStaffId) === String(currentStaffId)),
+  );
 }
 
 function getClientAssignedStaffId(client: {

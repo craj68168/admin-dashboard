@@ -27,7 +27,7 @@ export function useStaffList() {
 	return useQuery({
 		queryKey: ["staff"],
 		queryFn: async () => {
-			const response = await api.get<StaffListResponse>("/staff");
+			const response = await api.get<StaffListResponse>("/staff/staff");
 			return (response.data.data ?? []).map(mapStaff);
 		},
 	});

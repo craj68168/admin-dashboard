@@ -13,46 +13,46 @@ import { useClientPageData } from "@/components/Client/client.queries";
 import { useAuthStore } from "@/store/auth-store";
 import { canAssignClient, canEditClient } from "@/lib/permissions";
 
-type StaffApiResponse = {
-  _id?: string;
-  staffId?: number | string;
-  name: string;
-};
+// type StaffApiResponse = {
+//   _id?: string;
+//   staffId?: number | string;
+//   name: string;
+// };
 
-type ClientApiResponse = {
-  _id?: string;
-  clientId?: number | string;
-  fullName?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  nationality?: string;
-  passportNumber?: string;
-  passportExpiryDate?: string;
-  visaType?: string;
-  statusOfResidence?: string;
-  lastQualification?: string;
-  japaneseLanguageLevel?: string;
-  schoolName?: string;
-  course?: string;
-  intake?: string;
-  jobCategory?: string;
-  jobTitle?: string;
-  companyName?: string;
-  workLocation?: string;
-  sponsorName?: string;
-  sponsorRelationship?: string;
-  sponsorStatusOfResidence?: string;
-  coeStatus?: string;
-  visaStatus?: string;
-  clientStatus?: string;
-  assignedStaff?: StaffApiResponse | string | null;
-  remarks?: string;
-  clientImage?: string;
-  cv?: string;
-};
+// type ClientApiResponse = {
+//   _id?: string;
+//   clientId?: number | string;
+//   fullName?: string;
+//   dateOfBirth?: string;
+//   gender?: string;
+//   phone?: string;
+//   email?: string;
+//   address?: string;
+//   nationality?: string;
+//   passportNumber?: string;
+//   passportExpiryDate?: string;
+//   visaType?: string;
+//   statusOfResidence?: string;
+//   lastQualification?: string;
+//   japaneseLanguageLevel?: string;
+//   schoolName?: string;
+//   course?: string;
+//   intake?: string;
+//   jobCategory?: string;
+//   jobTitle?: string;
+//   companyName?: string;
+//   workLocation?: string;
+//   sponsorName?: string;
+//   sponsorRelationship?: string;
+//   sponsorStatusOfResidence?: string;
+//   coeStatus?: string;
+//   visaStatus?: string;
+//   clientStatus?: string;
+//   assignedStaff?: StaffApiResponse | string | null;
+//   remarks?: string;
+//   clientImage?: string;
+//   cv?: string;
+// };
 
 export default function EditClientPage() {
   return (
@@ -81,11 +81,13 @@ function EditClientPageContent() {
   const defaultValues = useMemo(
     () => {
       const {
-        _id: _recordId,
         assignedStaffId: _assignedStaffId,
         assignedStaffName: _assignedStaffName,
         ...clientValues
       } = client ?? {};
+
+      void _assignedStaffId;
+      void _assignedStaffName;
 
       return {
         ...clientFormDefaults,
@@ -208,6 +210,7 @@ function EditClientPageContent() {
             <Remarks
               mode="edit"
               value={client.remarks}
+              staffLocation={user?.location}
               staffName={user?.name}
             />
           </ReusableForm>

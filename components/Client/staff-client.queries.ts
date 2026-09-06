@@ -11,7 +11,7 @@ export function useStaffClients(staffId: string) {
     queryFn: async () => {
       const staffResponse = await api.get<
         ClientStaffRecord[] | { data?: ClientStaffRecord[] }
-      >("/staff");
+      >("/staff/staff");
       const staffs = getClientList(staffResponse.data).map(mapClientStaff);
       const selectedStaff = staffs.find(
         (staff) =>
@@ -21,15 +21,14 @@ export function useStaffClients(staffId: string) {
       );
       const clientResponse = await api.get<
         ClientApiResponse[] | { data?: ClientApiResponse[] }
-      >(`/clients/staff/${selectedStaff?._id ?? staffId}`);
+      >(`/clients/clients/staff/${selectedStaff?._id ?? staffId}`);
 
       return {
         staffs,
         selectedStaff: selectedStaff ?? null,
         clients: getClientList(clientResponse.data).map((client) => ({
           ...mapClient(client),
-          assignedStaffId: selectedStaff?._id ?? staffId,
-          assignedStaffName: selectedStaff?.name ?? "Assigned Staff",
+          assignedStaffName: mapClient(client).assignedStaffName ?? selectedStaff?.name ?? "Assigned Staff",
         })),
       };
     },
