@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { sidebarItems, type SidebarItem } from "./sidebar.type";
+import { useLogout } from "@/hooks/logout";
 
 type SidebarProps = {
   selected: SidebarItem;
@@ -20,7 +21,7 @@ export default function Sidebar({
   onToggle,
 }: SidebarProps) {
   const router = useRouter();
-
+  const { logout } = useLogout();
   return (
     <aside
       className={`${collapsed ? "w-20" : "w-64"} min-h-screen bg-white shadow-lg p-4 transition-all duration-300`}
@@ -63,6 +64,9 @@ export default function Sidebar({
               onSelect={() => router.push(routeMap[item])}
             />
           ))}
+          <li className="mt-4 pointer">
+            <button onClick={logout}>Logout</button>
+          </li>
         </ul>
       </nav>
     </aside>

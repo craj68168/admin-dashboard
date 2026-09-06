@@ -20,7 +20,7 @@ import { LoginFormValues, loginSchema } from "./type";
 import { useLoginHook } from "./hook";
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-export const LoginComponent = () => {
+const LoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { loginAsync, loading, error: loginError } = useLoginHook();
@@ -139,7 +139,7 @@ export const LoginComponent = () => {
                   lineHeight: 1.2,
                 }}
               >
-                {loginError}
+                {/* {loginError} */}
               </Box>
             )}
 
@@ -298,3 +298,4 @@ export const LoginComponent = () => {
     </Box>
   );
 };
+export default LoginComponent;
