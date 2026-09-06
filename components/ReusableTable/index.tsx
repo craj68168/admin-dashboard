@@ -23,6 +23,8 @@ type ClientTableProps = {
   variant?: ClientTableVariant;
   staffs?: Array<{ id?: number | string; name: string; _id?: string }>;
   canManageAssignments?: boolean;
+  canEditClients?: boolean;
+  canUpdateClientStatus?: boolean;
   onAssignClient?: (clientId: number, staffId: number | string) => void;
   onUpdateClientField?: (
     clientId: number,
@@ -66,6 +68,8 @@ export default function ClientTable({
   variant = "compact",
   staffs = [],
   canManageAssignments = false,
+  canEditClients = true,
+  canUpdateClientStatus = true,
   onAssignClient,
   onUpdateClientField,
 }: ClientTableProps) {
@@ -127,31 +131,43 @@ export default function ClientTable({
                       <td className="p-3 text-gray-600">{client.phone ?? "-"}</td>
                       <td className="p-3 text-gray-600">{client.visaType ?? "-"}</td>
                       <td className="p-3">
-                        <StatusSelect
-                          value={client.coeStatus ?? "Not Applied"}
-                          options={coeStatusOptions}
-                          onChange={(value) =>
-                            onUpdateClientField?.(client.clientId, "coeStatus", value)
-                          }
-                        />
+                        {canUpdateClientStatus ? (
+                          <StatusSelect
+                            value={client.coeStatus ?? "Not Applied"}
+                            options={coeStatusOptions}
+                            onChange={(value) =>
+                              onUpdateClientField?.(client.clientId, "coeStatus", value)
+                            }
+                          />
+                        ) : (
+                          <StatusBadge value={client.coeStatus ?? "Not Applied"} />
+                        )}
                       </td>
                       <td className="p-3">
-                        <StatusSelect
-                          value={client.visaStatus ?? "Not Applied"}
-                          options={visaStatusOptions}
-                          onChange={(value) =>
-                            onUpdateClientField?.(client.clientId, "visaStatus", value)
-                          }
-                        />
+                        {canUpdateClientStatus ? (
+                          <StatusSelect
+                            value={client.visaStatus ?? "Not Applied"}
+                            options={visaStatusOptions}
+                            onChange={(value) =>
+                              onUpdateClientField?.(client.clientId, "visaStatus", value)
+                            }
+                          />
+                        ) : (
+                          <StatusBadge value={client.visaStatus ?? "Not Applied"} />
+                        )}
                       </td>
                       <td className="p-3">
-                        <StatusSelect
-                          value={client.clientStatus ?? "New"}
-                          options={clientStatusOptions}
-                          onChange={(value) =>
-                            onUpdateClientField?.(client.clientId, "clientStatus", value)
-                          }
-                        />
+                        {canUpdateClientStatus ? (
+                          <StatusSelect
+                            value={client.clientStatus ?? "New"}
+                            options={clientStatusOptions}
+                            onChange={(value) =>
+                              onUpdateClientField?.(client.clientId, "clientStatus", value)
+                            }
+                          />
+                        ) : (
+                          <StatusBadge value={client.clientStatus ?? "New"} />
+                        )}
                       </td>
                     </>
                   )}
@@ -159,26 +175,21 @@ export default function ClientTable({
                   <td className="p-3">
                     {isStaffVariant ? (
                       <Link
-                        href={`/client/edit?clientId=${client.clientId}`}
+                        href={
+                          canEditClients
+                            ? `/client/edit?clientId=${client.clientId}`
+                            : `/client/clientDetailPage?clientId=${client.clientId}`
+                        }
                         className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
                       >
-                        Edit
+                        {canEditClients ? "Edit" : "View"}
                       </Link>
                     ) : canManageAssignments ? (
-                      <select
+                      <AssignmentSelect
                         value={String(client.assignedStaffId ?? "")}
-                        onChange={(event) =>
-                          onAssignClient?.(client.clientId, event.target.value)
-                        }
-                        className="min-w-44 rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-700 outline-none transition-colors hover:border-gray-300 focus:border-blue-500"
-                      >
-                        <option value="">Unassigned</option>
-                        {staffs.map((staff) => (
-                          <option key={String(staff.id ?? staff._id)} value={String(staff.id ?? staff._id)}>
-                            {staff.name}
-                          </option>
-                        ))}
-                      </select>
+                        staffs={staffs}
+                        onSave={(staffId) => onAssignClient?.(client.clientId, staffId)}
+                      />
                     ) : (
                       <span className="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">
                         {assignedStaff?.name ?? client.assignedStaffName ?? "Unassigned"}
@@ -203,6 +214,52 @@ function ClientNameLink({ client }: { client: ClientTableRow }) {
     >
       {client.fullName}
     </Link>
+  );
+}
+
+function StatusBadge({ value }: { value: string }) {
+  return (
+    <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+      {value}
+    </span>
+  );
+}
+
+function AssignmentSelect({
+  value,
+  staffs,
+  onSave,
+}: {
+  value: string;
+  staffs: Array<{ id?: number | string; name: string; _id?: string }>;
+  onSave: (staffId: string) => void;
+}) {
+  const [pending, setPending] = useState(value);
+  const hasChanged = pending !== value;
+
+  return (
+    <div className="flex items-center gap-2">
+      <select
+        value={pending}
+        onChange={(event) => setPending(event.target.value)}
+        className="min-w-44 rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-700 outline-none transition-colors hover:border-gray-300 focus:border-blue-500"
+      >
+        <option value="">Unassigned</option>
+        {staffs.map((staff) => (
+          <option key={String(staff.id ?? staff._id)} value={String(staff.id ?? staff._id)}>
+            {staff.name}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        disabled={!hasChanged}
+        onClick={() => onSave(pending)}
+        className="shrink-0 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Save
+      </button>
+    </div>
   );
 }
 

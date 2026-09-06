@@ -23,7 +23,11 @@ export function useDashboardStats() {
         api.get("/clients"),
       ]);
 
-      const staffList = Array.isArray(staffResponse.data) ? staffResponse.data : [];
+      const staffList = Array.isArray(staffResponse.data?.data)
+        ? staffResponse.data.data
+        : Array.isArray(staffResponse.data)
+          ? staffResponse.data
+          : [];
       const clientList = Array.isArray(clientResponse.data?.data)
         ? clientResponse.data.data
         : Array.isArray(clientResponse.data)

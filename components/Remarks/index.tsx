@@ -22,7 +22,7 @@ export default function Remarks({
       <section className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
         <h4 className="text-lg font-semibold text-gray-900">Remarks</h4>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,320px)_1fr]">
+        <div className="mt-4 grid gap-4 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
           {/* Left: remark history list */}
           <div className="flex flex-col rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-4 py-3">

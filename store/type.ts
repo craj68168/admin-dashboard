@@ -1,10 +1,11 @@
-export type UserRole = "admin" | "superadmin" | "manager" | "staff" | "user";
+export type UserRole = "superadmin" | "staff";
 
 export interface AuthUser {
-  id: number;
+  id: number | string;
   name: string;
   email: string;
   role: UserRole;
+  staffId?: number | string;
 }
 
 export interface AuthState {
