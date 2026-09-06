@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRemarks } from "./hook";
 import { useSaveRemark } from "./useSaveRemark";
-import type { RemarksProps } from "./type";
+import type { RemarkEntry, RemarksProps } from "./type";
 
-const remarkMediumOptions = ["WhatsApp", "Phone Call", "Company Visit"];
+const remarkMediumOptions = ["WhatsApp", "Meeting", "Company Visit", "Other"];
 
 export default function Remarks({
   mode = "view",
@@ -38,7 +38,12 @@ export default function Remarks({
   const handleSave = async () => {
     if (!clientId) return;
 
-    const saved = await saveRemark({ clientId, date, medium, text });
+    const saved = await saveRemark({
+      clientId,
+      staffName: staffName ?? "Current Staff",
+      medium: medium as NonNullable<RemarkEntry["medium"]>,
+      text,
+    });
 
     if (saved) {
       addRemark({

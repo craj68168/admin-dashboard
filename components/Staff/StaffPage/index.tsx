@@ -15,14 +15,14 @@ export default function StaffPage() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <Sidebar
         selected="Staff"
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <main className="flex-1 p-8">
+      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8 pt-2">
         <Navbar title="Staff" />
 
         <div className="mb-6">

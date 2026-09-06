@@ -25,7 +25,7 @@ export function useCreateClient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ClientPayload) => api.post("/clients/clients", payload),
+    mutationFn: (payload: ClientPayload) => api.post("/clients", payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }

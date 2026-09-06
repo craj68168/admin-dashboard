@@ -57,14 +57,14 @@ function ClientPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen bg-gray-100">
+      <div className="flex h-screen overflow-hidden bg-gray-100">
         <Sidebar
           selected="Clients"
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed((prev) => !prev)}
         />
 
-        <main className="flex-1 p-8">
+        <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
           <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600 shadow-sm">
             Loading clients...
           </div>
@@ -74,14 +74,14 @@ function ClientPageContent() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <Sidebar
         selected="Clients"
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <main className="flex-1 p-8">
+      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
         <Navbar title="Clients" />
 
         <div className="mb-6">
@@ -136,9 +136,9 @@ function ClientPageContent() {
 
 function ClientPageFallback() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <aside className="w-64 bg-white shadow-lg p-5">Loading...</aside>
-      <main className="flex-1 p-8">
+      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
         <div className="h-16 rounded bg-white shadow" />
       </main>
     </div>
