@@ -1,24 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-import LoginComponent from "@/components/Login";
 
-export default function LoginPage() {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/admin/dashboard");
+    if (!isAuthenticated) {
+      router.replace("/login");
     }
   }, [isAuthenticated, router]);
 
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     return null;
   }
 
-  return <LoginComponent />;
+  return <>{children}</>;
 }

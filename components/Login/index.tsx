@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -8,26 +12,25 @@ import InputAdornment from "@mui/material/InputAdornment";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Image from "next/image";
-import { type FC, type JSX, useState } from "react";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import Link from "next/link";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { LoginFormValues, loginSchema } from "./type";
 import { useLoginHook } from "./hook";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
 
-export const LoginComponent: FC = (): JSX.Element => {
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+const LoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
+
   const { loginAsync, loading, error: loginError } = useLoginHook();
 
   const {
-    control,
+    register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-
     defaultValues: {
       email: "",
       password: "",
@@ -35,68 +38,81 @@ export const LoginComponent: FC = (): JSX.Element => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    try {
-      await loginAsync(data);
-    } catch (error) {
-      console.error(error);
-    }
+    await loginAsync(data);
   };
+
+  const submitting = isSubmitting || loading;
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#EDEDED",
         py: { xs: 2, sm: 3, md: 4 },
         px: { xs: 0, sm: 3, md: 0 },
-        backgroundColor: "#EDEDED",
       }}
     >
       <Container
         maxWidth="xs"
         sx={{
-          width: { xs: "100%", sm: "85%", md: "100%" },
-          maxWidth: { xs: "100%", sm: "480px", md: "580px" },
+          width: "100%",
+          maxWidth: {
+            xs: "100%",
+            sm: "480px",
+          },
         }}
       >
+        {/* Logo */}
         <Box
           sx={{
-            width: "100%",
             display: "flex",
             justifyContent: "center",
-            mb: { sm: 4, xs: 3 },
-            mx: { sm: "auto", xs: 0 },
+            mb: { xs: 3, sm: 4 },
           }}
         >
           <Image
-            src={"/assets/images/logo.webp"}
-            alt={"Logo"}
+            src="/assets/images/logo.jpg"
+            alt="Logo"
             width={120}
             height={50}
-            loading="eager"
+            priority
+            sizes="120px"
           />
         </Box>
+
         <Paper
+          elevation={1}
           sx={{
-            p: { xs: 0, sm: "40px" },
-            borderRadius: { sm: 3, xs: 0 },
-            backgroundColor: { sm: "#fff", xs: "transparent" },
+            p: {
+              xs: 2,
+              sm: 5,
+            },
+            borderRadius: {
+              xs: 0,
+              sm: 3,
+            },
+            backgroundColor: {
+              xs: "transparent",
+              sm: "#fff",
+            },
           }}
         >
           <Typography
+            component="h1"
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: { xs: "18px", sm: "22px" },
-              fontWeight: "bold",
+              textAlign: "center",
+              fontSize: {
+                xs: "18px",
+                sm: "22px",
+              },
+              fontWeight: 700,
               mb: 3,
               textTransform: "uppercase",
             }}
           >
-            {"Login"}
+            Login
           </Typography>
 
           <Box
@@ -106,34 +122,35 @@ export const LoginComponent: FC = (): JSX.Element => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: "1rem",
+              gap: 2,
             }}
           >
-            {/* backend error */}
+            {/* Backend error */}
             {loginError && (
               <Box
+                role="alert"
                 sx={{
-                  background: "#BF1D391A",
+                  backgroundColor: "#BF1D391A",
                   borderLeft: "2px solid #BF1D39",
-                  p: "6px",
+                  p: 1,
                   fontSize: "12px",
                   fontWeight: 500,
                   color: "#BF1D39",
-                  lineHeight: "120%",
-                  fontFamily: "Noto Sans JP, sans-serif",
+                  lineHeight: 1.2,
                 }}
               >
-                {loginError.message}
+                {/* {loginError} */}
               </Box>
             )}
 
+            {/* Email */}
             <Box>
               <Typography
                 component="label"
                 htmlFor="email"
                 sx={{
                   display: "block",
-                  mb: "6px",
+                  mb: 0.75,
                   fontSize: "14px",
                   fontWeight: 600,
                   color: "#333",
@@ -142,37 +159,30 @@ export const LoginComponent: FC = (): JSX.Element => {
                 Email
               </Typography>
 
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <OutlinedInput
-                    {...field}
-                    fullWidth
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    autoFocus
-                    placeholder="yamada@example.com"
-                    size="medium"
-                    error={!!errors.email}
-                    sx={{
-                      backgroundColor: {
-                        sm: "#fff",
-                        xs: "#EDEDED",
-                        height: "40px",
-                      },
-                    }}
-                  />
-                )}
+              <OutlinedInput
+                {...register("email")}
+                id="email"
+                type="email"
+                fullWidth
+                autoComplete="email"
+                autoFocus
+                placeholder="yamada@example.com"
+                error={Boolean(errors.email)}
+                aria-invalid={Boolean(errors.email)}
+                sx={{
+                  height: "40px",
+                  backgroundColor: {
+                    xs: "#EDEDED",
+                    sm: "#fff",
+                  },
+                }}
               />
-
-              {/* Email Validation Error */}
 
               {errors.email?.message && (
                 <Typography
+                  role="alert"
                   sx={{
-                    mt: "5px",
+                    mt: 0.5,
                     fontSize: "12px",
                     color: "error.main",
                   }}
@@ -182,15 +192,14 @@ export const LoginComponent: FC = (): JSX.Element => {
               )}
             </Box>
 
-            {/* PASSWORD */}
-
+            {/* Password */}
             <Box>
               <Typography
                 component="label"
                 htmlFor="password"
                 sx={{
                   display: "block",
-                  mb: "6px",
+                  mb: 0.75,
                   fontSize: "14px",
                   fontWeight: 600,
                   color: "#333",
@@ -199,59 +208,52 @@ export const LoginComponent: FC = (): JSX.Element => {
                 Password
               </Typography>
 
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <OutlinedInput
-                    {...field}
-                    fullWidth
-                    id="password"
-                    autoComplete="current-password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="**************"
-                    error={!!errors.password}
-                    size="medium"
-                    sx={{
-                      backgroundColor: {
-                        sm: "#fff",
-                        xs: "#EDEDED",
-                        height: "40px",
-                      },
+              <OutlinedInput
+                {...register("password")}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                fullWidth
+                autoComplete="current-password"
+                placeholder="**************"
+                error={Boolean(errors.password)}
+                aria-invalid={Boolean(errors.password)}
+                sx={{
+                  height: "40px",
+                  backgroundColor: {
+                    xs: "#EDEDED",
+                    sm: "#fff",
+                  },
 
-                      "& .MuiOutlinedInput-input": {
-                        letterSpacing: "inherit",
-                        minHeight: "21px",
-                      },
-                    }}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          type="button"
-                          aria-label={
-                            showPassword ? "Hide password" : "Show password"
-                          }
-                          onClick={() => setShowPassword((show) => !show)}
-                          edge="end"
-                        >
-                          {showPassword ? (
-                            <AiOutlineEye />
-                          ) : (
-                            <AiOutlineEyeInvisible />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                  />
-                )}
+                  "& .MuiOutlinedInput-input": {
+                    minHeight: "21px",
+                  },
+                }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      type="button"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      onClick={() => setShowPassword((previous) => !previous)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showPassword ? (
+                        <AiOutlineEye />
+                      ) : (
+                        <AiOutlineEyeInvisible />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                }
               />
-
-              {/* Password Validation Error */}
 
               {errors.password?.message && (
                 <Typography
+                  role="alert"
                   sx={{
-                    mt: "5px",
+                    mt: 0.5,
                     fontSize: "12px",
                     color: "error.main",
                   }}
@@ -261,33 +263,32 @@ export const LoginComponent: FC = (): JSX.Element => {
               )}
             </Box>
 
+            {/* Actions */}
             <Box>
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                size="large"
+                disabled={submitting}
                 sx={{
-                  mt: { xs: 1, sm: 1 },
-                  mb: { xs: "14px", sm: 2 },
-                  py: { xs: 1, sm: 1.5 },
+                  mt: 1,
+                  mb: 2,
                   height: "45px",
                 }}
-                disabled={isSubmitting || loading}
               >
-                {"Login"}
+                {submitting ? "Logging in..." : "Login"}
               </Button>
+
               <Box sx={{ textAlign: "center" }}>
                 <Link
-                  href={"#"}
+                  href="/forgot-password"
                   style={{
                     textDecoration: "underline",
                     fontWeight: 600,
-                    fontFamily: "Noto Sans JP, sans-serif",
                     color: "#06428A",
                   }}
                 >
-                  {"Forgot password"}
+                  Forgot password
                 </Link>
               </Box>
             </Box>
@@ -297,3 +298,4 @@ export const LoginComponent: FC = (): JSX.Element => {
     </Box>
   );
 };
+export default LoginComponent;
