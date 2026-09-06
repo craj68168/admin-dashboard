@@ -1,46 +1,61 @@
 "use client";
 
+import { ReactNode, useState } from "react";
+
 import {
   QueryClient,
   QueryClientProvider,
+  QueryCache,
+  MutationCache,
   DefaultOptions,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ReactNode, useState } from "react";
+
+import { getApiErrorMessage, getApiSuccessMessage } from "@/lib/api-message";
+
+import { useNotificationStore } from "@/store/notification-store";
 
 type QueryProviderProps = {
   children: ReactNode;
   config?: DefaultOptions;
 };
 
-const defaultConfig: DefaultOptions = {
-  queries: {
-    staleTime: 60 * 1000,
-    retry: 1,
-    refetchOnWindowFocus: false,
-  },
-  mutations: {
-    retry: 1,
-  },
-};
-
-export function QueryProvider({ children, config }: QueryProviderProps) {
+export const QueryProvider = ({ children, config }: QueryProviderProps) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: {
-          ...defaultConfig,
-          ...config,
-        },
+        defaultOptions: config,
+
+        // GET / fetch errors
+        queryCache: new QueryCache({
+          onError: (error) => {
+            const message = getApiErrorMessage(error);
+
+            useNotificationStore.getState().showNotification(message, "error");
+          },
+        }),
+
+        // POST / PUT / PATCH / DELETE
+        mutationCache: new MutationCache({
+          onError: (error) => {
+            const message = getApiErrorMessage(error);
+
+            useNotificationStore.getState().showNotification(message, "error");
+          },
+
+          onSuccess: (data) => {
+            const message = getApiSuccessMessage(data);
+
+            if (message) {
+              useNotificationStore
+                .getState()
+                .showNotification(message, "success");
+            }
+          },
+        }),
       }),
   );
 
-  const showDevtools = process.env.NODE_ENV === "development";
-
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {showDevtools && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
-}
+};

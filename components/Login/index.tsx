@@ -23,7 +23,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 const LoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loginAsync, loading, error: loginError } = useLoginHook();
+  const { loginAsync, loading } = useLoginHook();
 
   const {
     register,
@@ -125,24 +125,6 @@ const LoginComponent = () => {
               gap: 2,
             }}
           >
-            {/* Backend error */}
-            {loginError && (
-              <Box
-                role="alert"
-                sx={{
-                  backgroundColor: "#BF1D391A",
-                  borderLeft: "2px solid #BF1D39",
-                  p: 1,
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  color: "#BF1D39",
-                  lineHeight: 1.2,
-                }}
-              >
-                {/* {loginError} */}
-              </Box>
-            )}
-
             {/* Email */}
             <Box>
               <Typography
