@@ -4,7 +4,6 @@ import { sidebarItems, type SidebarItem } from "./sidebar.type";
 
 type SidebarProps = {
   selected: SidebarItem;
-  onSelect: (item: SidebarItem) => void;
   collapsed: boolean;
   onToggle: () => void;
 };
@@ -17,7 +16,6 @@ const routeMap: Record<SidebarItem, string> = {
 
 export default function Sidebar({
   selected,
-  onSelect,
   collapsed,
   onToggle,
 }: SidebarProps) {
@@ -62,10 +60,7 @@ export default function Sidebar({
               item={item}
               active={selected === item}
               collapsed={collapsed}
-              onSelect={() => {
-                onSelect(item);
-                router.push(routeMap[item]);
-              }}
+              onSelect={() => router.push(routeMap[item])}
             />
           ))}
         </ul>

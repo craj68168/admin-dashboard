@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
@@ -8,9 +8,10 @@ import Remarks from "@/components/Remarks";
 import ReusableForm from "@/components/ReusableForm";
 import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
 import Sidebar from "@/components/Sidebar";
-import type { SidebarItem } from "@/components/Sidebar/sidebar.type";
-import { api } from "@/lib/axios";
+import { useCreateClient } from "@/components/Client/client.mutations";
+import { useClientPageData } from "@/components/Client/client.queries";
 import { useAuthStore } from "@/store/auth-store";
+import { canAssignClient } from "@/lib/permissions";
 
 type DetailField = {
   label: string;
@@ -126,59 +127,21 @@ function ClientDetailPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [staffs, setStaffs] = useState<Array<{ _id?: string; id: number; name: string }>>([]);
-  const [client, setClient] = useState<ClientDetailRecord | null>(null);
-  const [loadingClient, setLoadingClient] = useState(true);
   const [formError, setFormError] = useState("");
-  const [saving, setSaving] = useState(false);
   const [defaultClientId] = useState(() => Date.now());
   const user = useAuthStore((state) => state.user);
   const mode = searchParams.get("mode");
   const clientId = Number(searchParams.get("clientId") ?? 0);
-  const isSuperAdmin = user?.role === "superadmin";
-
-  useEffect(() => {
-    const loadPageData = async () => {
-      try {
-        setLoadingClient(mode !== "create");
-
-        const staffResponse = await api.get("/staff");
-        const staffList = Array.isArray(staffResponse.data) ? staffResponse.data : [];
-        const mappedStaffs = staffList.map((staff: StaffApiResponse) => ({
-            _id: staff._id,
-            id: Number(staff.staffId ?? 0),
-            name: staff.name,
-          }));
-
-        setStaffs(mappedStaffs);
-
-        if (mode === "create") {
-          setClient(null);
-          return;
-        }
-
-        const clientResponse = await api.get("/clients");
-        const rawClients = Array.isArray(clientResponse.data?.data)
-          ? clientResponse.data.data
-          : Array.isArray(clientResponse.data)
-            ? clientResponse.data
-            : [];
-        const matchedClient = rawClients.find(
-          (item: ClientApiResponse) => Number(item.clientId ?? 0) === clientId,
-        );
-
-        setClient(matchedClient ? mapClientDetail(matchedClient) : null);
-      } catch (error) {
-        console.error("Failed to load client detail data", error);
-        setClient(null);
-        setStaffs([]);
-      } finally {
-        setLoadingClient(false);
-      }
-    };
-
-    loadPageData();
-  }, [clientId, mode]);
+  const { data, isLoading, isError } = useClientPageData();
+  const createClient = useCreateClient();
+  const staffs = data?.staffs ?? [];
+  const client = useMemo(
+    () =>
+      mode === "create"
+        ? null
+        : data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
+    [clientId, data?.clients, mode],
+  );
 
   const assignedStaff = useMemo(() => {
     if (!client?.assignedStaff) {
@@ -195,39 +158,22 @@ function ClientDetailPageContent() {
     );
   }, [client, staffs]);
 
-  const handleSidebarSelect = (item: SidebarItem) => {
-    if (item === "Dashboard") {
-      router.push("/admin/dashboard");
-      return;
-    }
-
-    if (item === "Staff") {
-      router.push("/staff");
-      return;
-    }
-
-    router.push("/client");
-  };
-
   const handleCreateClient = async (values: Record<string, string>) => {
-    setSaving(true);
     setFormError("");
 
     try {
       const payload = compactPayload({
         ...values,
         clientId: Number(values.clientId),
-        assignedStaff: isSuperAdmin ? values.assignedStaff || undefined : undefined,
+        assignedStaff: canAssignClient(user) ? values.assignedStaff || undefined : undefined,
       });
 
-      await api.post("/clients", payload);
+      await createClient.mutateAsync(payload);
 
       router.push("/client");
     } catch (error) {
       console.error("Failed to create client", error);
       setFormError("Failed to create client.");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -237,7 +183,6 @@ function ClientDetailPageContent() {
         title="Add Client"
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-        onSidebarSelect={handleSidebarSelect}
       >
         <Breadcrumb
           items={[
@@ -255,14 +200,14 @@ function ClientDetailPageContent() {
                 label: staff.name,
                 value: String(staff._id ?? staff.id),
               })),
-              isSuperAdmin,
+              canAssignClient(user),
             )}
             defaultValues={{
               ...clientFormDefaults,
               clientId: defaultClientId,
             }}
             submitLabel="Save Client"
-            loading={saving}
+            loading={createClient.isPending}
             error={formError}
             onSubmit={handleCreateClient}
             onCancel={() => router.push("/client")}
@@ -272,16 +217,29 @@ function ClientDetailPageContent() {
     );
   }
 
-  if (loadingClient) {
+  if (isLoading && mode !== "create") {
     return (
       <PageShell
         title="Client Details"
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-        onSidebarSelect={handleSidebarSelect}
       >
         <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600 shadow-sm">
           Loading client details...
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageShell
+        title="Client Details"
+        sidebarCollapsed={sidebarCollapsed}
+        onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
+      >
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
+          Failed to load client details.
         </div>
       </PageShell>
     );
@@ -293,7 +251,6 @@ function ClientDetailPageContent() {
         title="Client Details"
         sidebarCollapsed={sidebarCollapsed}
         onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-        onSidebarSelect={handleSidebarSelect}
       >
         <Breadcrumb
           items={[
@@ -318,7 +275,6 @@ function ClientDetailPageContent() {
       title={client.fullName}
       sidebarCollapsed={sidebarCollapsed}
       onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-      onSidebarSelect={handleSidebarSelect}
     >
       <Breadcrumb
         items={[
@@ -450,20 +406,17 @@ function PageShell({
   title,
   sidebarCollapsed,
   onToggleSidebar,
-  onSidebarSelect,
   children,
 }: {
   title: string;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
-  onSidebarSelect: (item: SidebarItem) => void;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar
         selected="Clients"
-        onSelect={onSidebarSelect}
         collapsed={sidebarCollapsed}
         onToggle={onToggleSidebar}
       />

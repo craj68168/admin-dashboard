@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
@@ -8,9 +8,10 @@ import ReusableForm from "@/components/ReusableForm";
 import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
 import Remarks from "@/components/Remarks";
 import Sidebar from "@/components/Sidebar";
-import type { SidebarItem } from "@/components/Sidebar/sidebar.type";
-import { api } from "@/lib/axios";
+import { useUpdateClient } from "@/components/Client/client.mutations";
+import { useClientPageData } from "@/components/Client/client.queries";
 import { useAuthStore } from "@/store/auth-store";
+import { canAssignClient, canEditClient } from "@/lib/permissions";
 
 type StaffApiResponse = {
   _id?: string;
@@ -65,82 +66,41 @@ function EditClientPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [staffs, setStaffs] = useState<Array<{ _id?: string; id: number; name: string }>>([]);
-  const [client, setClient] = useState<ClientApiResponse | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const user = useAuthStore((state) => state.user);
   const clientId = Number(searchParams.get("clientId") ?? 0);
-  const isSuperAdmin = user?.role === "superadmin";
-
-  useEffect(() => {
-    const loadEditData = async () => {
-      try {
-        const [staffResponse, clientResponse] = await Promise.all([
-          api.get("/staff"),
-          api.get("/clients"),
-        ]);
-
-        const staffList = Array.isArray(staffResponse.data) ? staffResponse.data : [];
-        const rawClients = Array.isArray(clientResponse.data?.data)
-          ? clientResponse.data.data
-          : Array.isArray(clientResponse.data)
-            ? clientResponse.data
-            : [];
-
-        setStaffs(
-          staffList.map((staff: StaffApiResponse) => ({
-            _id: staff._id,
-            id: Number(staff.staffId ?? 0),
-            name: staff.name,
-          })),
-        );
-        setClient(
-          rawClients.find(
-            (item: ClientApiResponse) => Number(item.clientId ?? 0) === clientId,
-          ) ?? null,
-        );
-      } catch (error) {
-        console.error("Failed to load client edit data", error);
-        setClient(null);
-        setStaffs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEditData();
-  }, [clientId]);
-
-  const defaultValues = useMemo(
-    () => ({
-      ...clientFormDefaults,
-      ...client,
-      clientId: Number(client?.clientId ?? clientId),
-      dateOfBirth: formatInputDate(client?.dateOfBirth),
-      passportExpiryDate: formatInputDate(client?.passportExpiryDate),
-      assignedStaff:
-        typeof client?.assignedStaff === "object" && client.assignedStaff
-          ? client.assignedStaff._id
-          : client?.assignedStaff ?? "",
-    }),
-    [client, clientId],
+  const { data, isLoading, isError } = useClientPageData();
+  const updateClient = useUpdateClient();
+  const staffs = data?.staffs ?? [];
+  const client = useMemo(
+    () => data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
+    [clientId, data?.clients],
   );
 
-  const handleSidebarSelect = (item: SidebarItem) => {
-    if (item === "Dashboard") {
-      router.push("/admin/dashboard");
-      return;
-    }
+  const defaultValues = useMemo(
+    () => {
+      const {
+        _id: _recordId,
+        assignedStaffId: _assignedStaffId,
+        assignedStaffName: _assignedStaffName,
+        ...clientValues
+      } = client ?? {};
 
-    if (item === "Staff") {
-      router.push("/staff");
-      return;
-    }
-
-    router.push("/client");
-  };
+      return {
+        ...clientFormDefaults,
+        ...clientValues,
+        clientId: Number(client?.clientId ?? clientId),
+        dateOfBirth: formatInputDate(client?.dateOfBirth),
+        passportExpiryDate: formatInputDate(client?.passportExpiryDate),
+        assignedStaff:
+          typeof client?.assignedStaff === "object" && client.assignedStaff
+            ? client.assignedStaff._id
+            : client?.assignedStaff ?? "",
+      };
+    },
+    [client, clientId],
+  );
 
   const handleUpdateClient = async (values: Record<string, string>) => {
     if (!client?._id) {
@@ -161,14 +121,14 @@ function EditClientPageContent() {
       const payload = compactPayload({
         ...values,
         clientId: Number(values.clientId),
-        assignedStaff: isSuperAdmin ? values.assignedStaff || undefined : undefined,
+        assignedStaff: canAssignClient(user) ? values.assignedStaff || undefined : undefined,
         remarks,
         remarksDate: undefined,
         remarksBy: undefined,
         remarksText: undefined,
       });
 
-      await api.put(`/clients/${client._id}`, payload);
+      await updateClient.mutateAsync({ recordId: client._id, payload });
       router.push(`/client/clientDetailPage?clientId=${values.clientId}`);
     } catch (error) {
       console.error("Failed to update client", error);
@@ -182,7 +142,6 @@ function EditClientPageContent() {
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar
         selected="Clients"
-        onSelect={handleSidebarSelect}
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((prev) => !prev)}
       />
@@ -204,15 +163,28 @@ function EditClientPageContent() {
           />
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600 shadow-sm">
             Loading client form...
+          </div>
+        ) : isError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
+            Failed to load client form.
           </div>
         ) : !client ? (
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900">Client not found</h3>
             <p className="mt-2 text-sm text-gray-600">
               The selected client record does not exist.
+            </p>
+          </div>
+        ) : !canEditClient(user, {
+          assignedStaff: client.assignedStaff,
+        }) ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-gray-900">Read only</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              You can view this client, but only the assigned staff or super admin can edit it.
             </p>
           </div>
         ) : (
@@ -223,7 +195,7 @@ function EditClientPageContent() {
                 label: staff.name,
                 value: String(staff._id ?? staff.id),
               })),
-              isSuperAdmin,
+              canAssignClient(user),
               false,
             )}
             defaultValues={defaultValues}
@@ -235,7 +207,7 @@ function EditClientPageContent() {
           >
             <Remarks
               mode="edit"
-              defaultValue={client.remarks}
+              value={client.remarks}
               staffName={user?.name}
             />
           </ReusableForm>
