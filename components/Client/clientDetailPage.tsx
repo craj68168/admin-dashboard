@@ -380,7 +380,6 @@ function ClientDetailPageContent() {
         <DetailSection
           title="Files"
           fields={[
-            { label: "Client Image", value: client.clientImage },
             { label: "CV", value: client.cv },
           ]}
         />
@@ -492,7 +491,6 @@ function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
     clientStatus: client.clientStatus ?? "New",
     assignedStaff: client.assignedStaff ?? null,
     remarks: client.remarks,
-    clientImage: client.clientImage,
     cv: client.cv,
   };
 }
