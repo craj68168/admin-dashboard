@@ -8,5 +8,5 @@ export const useClientListHook = () => {
       return api.get("/clients/clients").then((res) => res.data);
     },
   });
-  return { data };
+  return { clientData: data?.data };
 };

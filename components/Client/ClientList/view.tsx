@@ -4,12 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import {
-  DataGrid,
-  GridCell,
-  type GridCellProps,
-  type GridColDef,
-} from "@mui/x-data-grid";
 
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAssignClient } from "@/components/Client/client.mutations";
@@ -17,7 +11,6 @@ import { useClientPageData } from "@/components/Client/client.queries";
 import { canAssignClient, canCreateClient } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 import { useClientListHook } from "./hook";
-import Paper from "@mui/material/Paper";
 
 const ClientListPage = () => {
   const router = useRouter();
@@ -27,29 +20,6 @@ const ClientListPage = () => {
   const assignClient = useAssignClient();
   const staffs = data?.staffs ?? [];
   const clients = data?.clients ?? [];
-
-  const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "firstName", headerName: "First name", width: 130 },
-    { field: "lastName", headerName: "Last name", width: 130 },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      width: 90,
-    },
-    {
-      field: "fullName",
-      headerName: "Full name",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false,
-      width: 160,
-      valueGetter: (value, row) =>
-        `${row.firstName || ""} ${row.lastName || ""}`,
-    },
-  ];
-
-  const { data: clientListData } = useClientListHook();
 
   const handleAssignClient = (clientId: number, staffId: number | string) => {
     if (!canAssignClient(user)) {
@@ -127,17 +97,6 @@ const ClientListPage = () => {
           canManageAssignments={canAssignClient(user)}
           onAssignClient={handleAssignClient}
         /> */}
-        <Paper sx={{ height: 400, width: "100%" }}>
-          <DataGrid
-            rows={data?.data ?? []}
-            columns={columns}
-            // initialState={{ pagination: { paginationModel } }}
-            pageSizeOptions={[5, 10]}
-            checkboxSelection
-            // slots={{ cell: renderRowHeaderCell }}
-            sx={{ border: 0 }}
-          />
-        </Paper>
       </main>
     </div>
   );
