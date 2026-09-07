@@ -107,7 +107,6 @@ export function getClientFormFields(
       type: "select",
       options: toSelectOptions(clientStatusOptions),
     },
-    { name: "clientImage", label: "Client Image Path" },
     { name: "cv", label: "CV Upload", type: "file", accept: ".pdf,.doc,.docx" },
   ];
 

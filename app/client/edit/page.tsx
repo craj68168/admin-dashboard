@@ -10,6 +10,7 @@ import Remarks from "@/components/Remarks";
 import Sidebar from "@/components/Sidebar";
 import { useUpdateClient } from "@/components/Client/client.mutations";
 import { useClientPageData } from "@/components/Client/client.queries";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useAuthStore } from "@/store/auth-store";
 import { canAssignClient, canEditClient } from "@/lib/permissions";
 
@@ -72,7 +73,7 @@ function EditClientPageContent() {
   const clientId = Number(searchParams.get("clientId") ?? 0);
   const { data, isLoading, isError } = useClientPageData();
   const updateClient = useUpdateClient();
-  const staffs = data?.staffs ?? [];
+  const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
   const client = useMemo(
     () => data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
     [clientId, data?.clients],
@@ -104,6 +105,19 @@ function EditClientPageContent() {
     [client, clientId],
   );
 
+  const editableClientFields = useMemo(
+    () =>
+      getClientFormFields(
+        staffs.map((staff) => ({
+          label: staff.name,
+          value: String(staff._id ?? staff.id),
+        })),
+        canAssignClient(user),
+        false,
+      ),
+    [staffs, user],
+  );
+
   const handleUpdateClient = async (values: Record<string, string>) => {
     if (!client?._id) {
       setFormError("Client record id is missing.");
@@ -127,6 +141,7 @@ function EditClientPageContent() {
         remarks,
         remarksDate: undefined,
         remarksBy: undefined,
+        remarksMedium: undefined,
         remarksText: undefined,
       });
 
@@ -134,21 +149,21 @@ function EditClientPageContent() {
       router.push(`/client/clientDetailPage?clientId=${values.clientId}`);
     } catch (error) {
       console.error("Failed to update client", error);
-      setFormError("Client update API is not available yet.");
+      setFormError(getApiErrorMessage(error));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <Sidebar
         selected="Clients"
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <main className="flex-1 p-8">
+      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
         <Navbar title="Edit Client" />
 
         <div className="mb-6">
@@ -192,14 +207,7 @@ function EditClientPageContent() {
         ) : (
           <ReusableForm
             title="Client Information"
-            fields={getClientFormFields(
-              staffs.map((staff) => ({
-                label: staff.name,
-                value: String(staff._id ?? staff.id),
-              })),
-              canAssignClient(user),
-              false,
-            )}
+            fields={editableClientFields}
             defaultValues={defaultValues}
             submitLabel="Update Client"
             loading={saving}
@@ -210,6 +218,7 @@ function EditClientPageContent() {
             <Remarks
               mode="edit"
               value={client.remarks}
+              clientId={client._id}
               staffLocation={user?.location}
               staffName={user?.name}
             />
@@ -222,9 +231,9 @@ function EditClientPageContent() {
 
 function EditClientFallback() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <aside className="w-64 bg-white p-5 shadow-lg">Loading...</aside>
-      <main className="flex-1 p-8">
+      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
         <div className="h-16 rounded bg-white shadow" />
       </main>
     </div>
@@ -235,6 +244,14 @@ function compactPayload(payload: Record<string, string | number | undefined>) {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value !== "" && value !== undefined),
   );
+}
+
+function formatInputDate(value?: string) {
+  if (!value) {
+    return "";
+  }
+
+  return new Date(value).toISOString().slice(0, 10);
 }
 
 function buildRemarksValue({
@@ -261,12 +278,4 @@ function buildRemarksValue({
   ].join("\n");
 
   return existingRemarks ? `${existingRemarks}\n\n${newRemark}` : newRemark;
-}
-
-function formatInputDate(value?: string) {
-  if (!value) {
-    return "";
-  }
-
-  return new Date(value).toISOString().slice(0, 10);
 }

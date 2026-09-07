@@ -1,13 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/lib/axios";
 import type { RemarkEntry } from "./type";
 
 type SaveRemarkInput = {
   clientId: string | number;
-  date: string;
-  medium: string;
+  staffName: string;
+  medium: RemarkEntry["medium"];
   text: string;
+};
+
+type ApiRemark = {
+  _id: string;
+  staffName: string;
+  remarks: string;
+  medium: NonNullable<RemarkEntry["medium"]>;
+  createdAt: string;
 };
 
 export function useSaveRemark() {
@@ -19,21 +28,21 @@ export function useSaveRemark() {
     setError("");
 
     try {
-      const response = await fetch(`/api/clients/${input.clientId}/remarks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: input.date,
-          medium: input.medium,
-          text: input.text,
-        }),
+      const response = await api.post<{ data: ApiRemark }>("/remarks", {
+        clientId: input.clientId,
+        staffName: input.staffName,
+        remarks: input.text,
+        medium: input.medium,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save remark");
-      }
-
-      return (await response.json()) as RemarkEntry;
+      const saved = response.data.data;
+      return {
+        id: saved._id,
+        date: saved.createdAt,
+        staffName: saved.staffName,
+        text: saved.remarks,
+        medium: saved.medium,
+      };
     } catch (err) {
       console.error("Failed to save remark", err);
       setError("Failed to save remark.");
