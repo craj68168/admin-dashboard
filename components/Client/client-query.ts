@@ -121,10 +121,10 @@ export function useClientPageData() {
     queryFn: async () => {
       const [staffResponse, clientResponse] = await Promise.all([
         api.get<ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>>(
-          "/staff/staff",
+          "/staff",
         ),
         api.get<ClientApiResponse[] | ClientListApiResponse<ClientApiResponse>>(
-          "/clients/clients",
+          "/clients",
         ),
       ]);
 

@@ -19,7 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "./type";
 import { useLoginHook } from "./hook";
 
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 const LoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -73,7 +74,7 @@ const LoginComponent = () => {
           }}
         >
           <Image
-            src="/assets/images/logo.jpg"
+            src="/company_logo.png"
             alt="Logo"
             width={120}
             height={50}
@@ -222,9 +223,9 @@ const LoginComponent = () => {
                       size="small"
                     >
                       {showPassword ? (
-                        <AiOutlineEye />
+                        <VisibilityOutlinedIcon fontSize="small" />
                       ) : (
-                        <AiOutlineEyeInvisible />
+                        <VisibilityOffOutlinedIcon fontSize="small" />
                       )}
                     </IconButton>
                   </InputAdornment>
