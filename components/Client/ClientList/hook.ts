@@ -2,83 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import {
   canAssignClient as canAssignClientPermission,
   canCreateClient as canCreateClientPermission,
 } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
+import { invalidateClientData, useClientPageData } from "../client-query";
 import type {
-  ClientApiResponse,
-  ClientListApiResponse,
-  ClientListData,
   ClientListViewState,
-  ClientRecord,
-  ClientStaffRecord,
 } from "./type";
-
-function getClientList<T>(response: ClientListApiResponse<T> | T[] | undefined): T[] {
-  if (Array.isArray(response)) {
-    return response;
-  }
-
-  return response?.data ?? [];
-}
-
-function mapClientStaff(staff: ClientStaffRecord): ClientStaffRecord {
-  return {
-    ...staff,
-    id: staff.staffId ?? staff._id ?? 0,
-  };
-}
-
-function mapClient(client: ClientApiResponse): ClientRecord {
-  const assignedStaff = client.assignedStaff;
-  const assignedStaffId =
-    typeof assignedStaff === "object" && assignedStaff
-      ? assignedStaff._id ?? assignedStaff.staffId ?? null
-      : assignedStaff ?? null;
-
-  return {
-    ...client,
-    clientId: Number(client.clientId ?? 0),
-    fullName: client.fullName ?? "Unknown Client",
-    assignedStaffId,
-    assignedStaffName:
-      typeof assignedStaff === "object" && assignedStaff
-        ? assignedStaff.name ?? "Unassigned"
-        : "Unassigned",
-  };
-}
-
-function invalidateClientData(queryClient: ReturnType<typeof useQueryClient>) {
-  void queryClient.invalidateQueries({ queryKey: ["client-page-data"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff-clients"] });
-  void queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff"] });
-}
-
-function useClientListData() {
-  return useQuery<ClientListData>({
-    queryKey: ["client-page-data"],
-    queryFn: async () => {
-      const [staffResponse, clientResponse] = await Promise.all([
-        api.get<ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>>(
-          "/staff/staff",
-        ),
-        api.get<ClientApiResponse[] | ClientListApiResponse<ClientApiResponse>>(
-          "/clients/clients",
-        ),
-      ]);
-
-      return {
-        staffs: getClientList(staffResponse.data).map(mapClientStaff),
-        clients: getClientList(clientResponse.data).map(mapClient),
-      };
-    },
-  });
-}
 
 function useAssignClient() {
   const queryClient = useQueryClient();
@@ -94,7 +28,7 @@ export function useClientListHook(): ClientListViewState {
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isError } = useClientListData();
+  const { data, isLoading, isError } = useClientPageData();
   const assignClient = useAssignClient();
   const staffs = data?.staffs ?? [];
   const clients = data?.clients ?? [];

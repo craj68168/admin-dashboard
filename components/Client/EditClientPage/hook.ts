@@ -2,59 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
 import { getApiErrorMessage } from "@/lib/api-message";
 import { api } from "@/lib/axios";
 import { canAssignClient, canEditClient } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
+import {
+  compactPayload,
+  invalidateClientData,
+  useClientPageData,
+} from "../client-query";
 import type {
-  ClientApiResponse,
-  ClientListApiResponse,
-  ClientRecord,
-  ClientStaffRecord,
   EditClientViewState,
 } from "./type";
-
-function getClientList<T>(response: ClientListApiResponse<T> | T[] | undefined): T[] {
-  if (Array.isArray(response)) {
-    return response;
-  }
-
-  return response?.data ?? [];
-}
-
-function mapClientStaff(staff: ClientStaffRecord): ClientStaffRecord {
-  return {
-    ...staff,
-    id: staff.staffId ?? staff._id ?? 0,
-  };
-}
-
-function mapClient(client: ClientApiResponse): ClientRecord {
-  const assignedStaff = client.assignedStaff;
-  const assignedStaffId =
-    typeof assignedStaff === "object" && assignedStaff
-      ? assignedStaff._id ?? assignedStaff.staffId ?? null
-      : assignedStaff ?? null;
-
-  return {
-    ...client,
-    clientId: Number(client.clientId ?? 0),
-    fullName: client.fullName ?? "Unknown Client",
-    assignedStaffId,
-    assignedStaffName:
-      typeof assignedStaff === "object" && assignedStaff
-        ? assignedStaff.name ?? "Unassigned"
-        : "Unassigned",
-  };
-}
-
-function compactPayload(payload: Record<string, string | number | undefined>) {
-  return Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== "" && value !== undefined),
-  );
-}
 
 function formatInputDate(value?: string) {
   if (!value) {
@@ -90,34 +51,6 @@ function buildRemarksValue({
   return existingRemarks ? `${existingRemarks}\n\n${newRemark}` : newRemark;
 }
 
-function invalidateClientData(queryClient: ReturnType<typeof useQueryClient>) {
-  void queryClient.invalidateQueries({ queryKey: ["client-page-data"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff-clients"] });
-  void queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff"] });
-}
-
-function useEditClientData() {
-  return useQuery({
-    queryKey: ["client-page-data"],
-    queryFn: async () => {
-      const [staffResponse, clientResponse] = await Promise.all([
-        api.get<ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>>(
-          "/staff/staff",
-        ),
-        api.get<ClientApiResponse[] | ClientListApiResponse<ClientApiResponse>>(
-          "/clients/clients",
-        ),
-      ]);
-
-      return {
-        staffs: getClientList(staffResponse.data).map(mapClientStaff),
-        clients: getClientList(clientResponse.data).map(mapClient),
-      };
-    },
-  });
-}
-
 function useUpdateClient() {
   const queryClient = useQueryClient();
 
@@ -141,7 +74,7 @@ export function useEditClientPage(): EditClientViewState {
   const [formError, setFormError] = useState("");
   const user = useAuthStore((state) => state.user);
   const clientId = Number(searchParams.get("clientId") ?? 0);
-  const { data, isLoading, isError } = useEditClientData();
+  const { data, isLoading, isError } = useClientPageData();
   const updateClient = useUpdateClient();
   const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
   const client = useMemo(

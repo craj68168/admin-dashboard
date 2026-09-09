@@ -1,37 +1,11 @@
-export type ClientStaffRecord = {
-  _id?: string;
-  staffId?: number | string;
-  id?: number | string;
-  name: string;
-  email?: string;
-  phone?: string;
-  location?: string;
-};
+import type { ClientRecord, ClientStaffRecord } from "@/components/Client/client-query";
 
-export type ClientRecord = {
-  _id?: string;
-  clientId: number;
-  fullName: string;
-  phone?: string;
-  visaType?: string;
-  coeStatus?: string;
-  visaStatus?: string;
-  clientStatus?: string;
-  assignedStaff?: ClientStaffRecord | string | null;
-  assignedStaffId?: number | string | null;
-  assignedStaffName?: string;
-};
-
-export type ClientApiResponse = Omit<
+export type {
+  ClientApiResponse,
+  ClientListApiResponse,
   ClientRecord,
-  "clientId" | "assignedStaffId" | "assignedStaffName"
-> & {
-  clientId?: number | string;
-};
-
-export type ClientListApiResponse<T> = {
-  data?: T[];
-};
+  ClientStaffRecord,
+} from "@/components/Client/client-query";
 
 export type ClientStatusField = "coeStatus" | "visaStatus" | "clientStatus";
 

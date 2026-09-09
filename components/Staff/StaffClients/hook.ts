@@ -3,58 +3,22 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getClientList,
+  invalidateClientData,
+  mapClient,
+  mapClientStaff,
+} from "@/components/Client/client-query";
 import { api } from "@/lib/axios";
 import { canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 import type {
   ClientApiResponse,
   ClientListApiResponse,
-  ClientRecord,
   ClientStaffRecord,
   ClientStatusField,
   StaffClientsViewState,
 } from "./type";
-
-function getClientList<T>(response: ClientListApiResponse<T> | T[] | undefined): T[] {
-  if (Array.isArray(response)) {
-    return response;
-  }
-
-  return response?.data ?? [];
-}
-
-function mapClientStaff(staff: ClientStaffRecord) {
-  return {
-    ...staff,
-    id: staff.staffId ?? staff._id ?? 0,
-  };
-}
-
-function mapClient(client: ClientApiResponse): ClientRecord {
-  const assignedStaff = client.assignedStaff;
-  const assignedStaffId =
-    typeof assignedStaff === "object" && assignedStaff
-      ? assignedStaff._id ?? assignedStaff.staffId ?? null
-      : assignedStaff ?? null;
-
-  return {
-    ...client,
-    clientId: Number(client.clientId ?? 0),
-    fullName: client.fullName ?? "Unknown Client",
-    assignedStaffId,
-    assignedStaffName:
-      typeof assignedStaff === "object" && assignedStaff
-        ? assignedStaff.name ?? "Unassigned"
-        : "Unassigned",
-  };
-}
-
-function invalidateClientData(queryClient: ReturnType<typeof useQueryClient>) {
-  void queryClient.invalidateQueries({ queryKey: ["client-page-data"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff-clients"] });
-  void queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
-  void queryClient.invalidateQueries({ queryKey: ["staff"] });
-}
 
 function useStaffClients(staffId: string) {
   return useQuery({
