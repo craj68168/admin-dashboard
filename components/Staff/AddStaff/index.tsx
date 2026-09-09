@@ -1,40 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
-import ReusableForm from "@/components/ReusableForm";
-import { staffFormFields } from "@/components/ReusableForm/form-configs";
 import Sidebar from "@/components/Sidebar";
-import { useCreateStaff } from "@/components/Staff/hook";
-import { useAuthStore } from "@/store/auth-store";
-import { canAddStaff } from "@/lib/permissions";
+import { useStaffAddHook } from "./hook";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Typography from "@mui/material/Typography";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Link from "next/link";
+import { StaffAddFormValues, staffAddSchema } from "./types";
 
 export default function AddStaff() {
-  const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [formError, setFormError] = useState("");
-  const user = useAuthStore((state) => state.user);
-  const createStaff = useCreateStaff();
+  const { mutate, isPending } = useStaffAddHook();
 
-  const handleCreateStaff = async (values: Record<string, string>) => {
-    setFormError("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<StaffAddFormValues>({
+    resolver: zodResolver(staffAddSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  });
 
-    try {
-      await createStaff.mutateAsync({
-        name: values.name,
-        phone: values.phone,
-        location: values.location,
-        email: values.email,
-        password: values.password,
-      });
-
-      router.push("/staff");
-    } catch (error) {
-      console.error("Failed to create staff", error);
-      setFormError("Failed to create staff.");
-    }
+  const onSubmit = async (data) => {
+    await mutate(data);
   };
 
   return (
@@ -57,26 +54,142 @@ export default function AddStaff() {
             ]}
           />
         </div>
-
-        {!canAddStaff(user) ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900">Access denied</h3>
-            <p className="mt-2 text-sm text-gray-600">
-              Only super admin can add staff.
-            </p>
-          </div>
-        ) : (
-          <ReusableForm
-            title="Staff Information"
-            fields={staffFormFields}
-            submitLabel="Save Staff"
-            loading={createStaff.isPending}
-            error={formError}
-            onSubmit={handleCreateStaff}
-            onCancel={() => router.push("/staff")}
-          />
-        )}
       </main>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        {/* name */}
+        <Box>
+          <Typography
+            component="label"
+            htmlFor="name"
+            sx={{
+              display: "block",
+              mb: 0.75,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#333",
+            }}
+          >
+            name
+          </Typography>
+
+          <OutlinedInput
+            {...register("name")}
+            id="name"
+            type="name"
+            fullWidth
+            autoComplete="name"
+            autoFocus
+            placeholder="yamada@example.com"
+            error={Boolean(errors.name)}
+            aria-invalid={Boolean(errors.name)}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          />
+
+          {errors.name?.message && (
+            <Typography
+              role="alert"
+              sx={{
+                mt: 0.5,
+                fontSize: "12px",
+                color: "error.main",
+              }}
+            >
+              {errors.name.message}
+            </Typography>
+          )}
+        </Box>
+        {/* Email */}
+        <Box>
+          <Typography
+            component="label"
+            htmlFor="email"
+            sx={{
+              display: "block",
+              mb: 0.75,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#333",
+            }}
+          >
+            Email
+          </Typography>
+
+          <OutlinedInput
+            {...register("email")}
+            id="email"
+            type="email"
+            fullWidth
+            autoComplete="email"
+            placeholder="yamada@example.com"
+            error={Boolean(errors.email)}
+            aria-invalid={Boolean(errors.email)}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          />
+
+          {errors.email?.message && (
+            <Typography
+              role="alert"
+              sx={{
+                mt: 0.5,
+                fontSize: "12px",
+                color: "error.main",
+              }}
+            >
+              {errors.email.message}
+            </Typography>
+          )}
+        </Box>
+        {/* Actions */}
+        <Box>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={isPending}
+            sx={{
+              mt: 1,
+              mb: 2,
+              height: "45px",
+            }}
+          >
+            {"Save"}
+          </Button>
+
+          <Box sx={{ textAlign: "center" }}>
+            <Link
+              href="/forgot-password"
+              style={{
+                textDecoration: "underline",
+                fontWeight: 600,
+                color: "#06428A",
+              }}
+            >
+              Forgot password
+            </Link>
+          </Box>
+        </Box>
+      </Box>
     </div>
   );
 }
