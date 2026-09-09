@@ -26,7 +26,7 @@ function useStaffClients(staffId: string) {
     queryFn: async () => {
       const staffResponse = await api.get<
         ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>
-      >("/staff/staff");
+      >("/staff");
       const staffs = getClientList(staffResponse.data).map(mapClientStaff);
       const selectedStaff = staffs.find(
         (staff) =>
@@ -36,7 +36,7 @@ function useStaffClients(staffId: string) {
       );
       const clientResponse = await api.get<
         ClientApiResponse[] | ClientListApiResponse<ClientApiResponse>
-      >(`/clients/clients/staff/${selectedStaff?._id ?? staffId}`);
+      >(`/clients/staff/${selectedStaff?._id ?? staffId}`);
 
       return {
         staffs,
@@ -68,7 +68,7 @@ function useUpdateClientField() {
       recordId: string;
       field: ClientStatusField;
       value: string;
-    }) => api.put(`/clients/clients/${recordId}`, { [field]: value }),
+    }) => api.put(`/clients/${recordId}`, { [field]: value }),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }

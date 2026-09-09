@@ -61,7 +61,7 @@ function useUpdateClient() {
     }: {
       recordId: string;
       payload: Record<string, string | number | undefined>;
-    }) => api.put(`/clients/clients/${recordId}`, payload),
+    }) => api.put(`/clients/${recordId}`, payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }

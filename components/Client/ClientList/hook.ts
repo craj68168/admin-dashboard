@@ -19,7 +19,7 @@ function useAssignClient() {
 
   return useMutation({
     mutationFn: ({ clientId, staffId }: { clientId: string; staffId: number | string }) =>
-      api.put(`/clients/clients/assign/${clientId}`, { staffId }),
+      api.put(`/clients/assign/${clientId}`, { staffId }),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
