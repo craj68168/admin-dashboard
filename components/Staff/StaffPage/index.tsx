@@ -5,23 +5,14 @@ import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import StaffTable from "@/components/Staff";
 import { useAuthStore } from "@/store/auth-store";
 import { useStaffHook } from "./hook";
 import Link from "next/link";
-import Button from '@mui/material/Button';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import Box from '@mui/material/Box';
-
-
-import {
-  DataGrid,
-  GridCell,
-  type GridCellProps,
-  type GridColDef,
-} from '@mui/x-data-grid';
-import Paper from '@mui/material/Paper';
+import Button from "@mui/material/Button";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import Box from "@mui/material/Box";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import Paper from "@mui/material/Paper";
 
 export default function StaffPage() {
   const router = useRouter();
@@ -29,30 +20,31 @@ export default function StaffPage() {
   const role = useAuthStore((state) => state.user?.role);
 
 
-  const { isLoading, staffData } = useStaffHook()
+  const { isLoading, staffData } = useStaffHook();
 
   const columns: GridColDef[] = [
-    { field: 'staffId', headerName: 'ID', width: 170 },
-    { field: 'name', headerName: 'Full name', width: 170, 
+    { field: "staffId", headerName: "ID", width: 170 },
+    { field: "name", headerName: "Full name", width: 170,
       renderCell: (params) => (
       <Link href={`/staff/${params.row.staffId}/clients`}>
         {params.row.name}
       </Link>
     ), },
-     { field: 'email', headerName: 'Email', width: 170 },
-    { field: 'location', headerName: 'Location', width: 170 },
-     { field: 'createdAt', headerName: 'Created At', width: 170 },
-    { field: '', headerName: 'Action', width: 170, 
-      renderCell: ()=>{
-        return <Box sx={{display:"flex", alignItems:"center"}}>
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-<Button variant={"text"}><RemoveRedEyeIcon/></Button>
+    { field: "email", headerName: "Email", width: 170 },
+    { field: "location", headerName: "Location", width: 170 },
+    { field: "createdAt", headerName: "Created At", width: 170 },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 170,
+      renderCell: () => (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Button variant="text" aria-label="View staff">
+            <RemoveRedEyeIcon />
+          </Button>
         </Box>
-      }
-       },
-
-
+      ),
+    },
   ];
 
   return (
@@ -77,7 +69,7 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 
         {role === "superadmin" && (
           <div className="mb-6 flex justify-end">
-             <Button variant="contained" onClick={()=> router.push("/staff/add")}>Add Staff</Button>
+             <Button variant="contained" onClick={() => router.push("/staff/add")}>Add Staff</Button>
           </div>
         )}
 
@@ -89,12 +81,10 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
             disableColumnMenu
             // initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
-            
             // slots={{ cell: renderRowHeaderCell }}
-           
             sx={{ border: 0 }}
             loading={isLoading}
-          hideFooter
+            hideFooter
           />
         </Paper>
       </main>
