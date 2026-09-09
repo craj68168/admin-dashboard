@@ -1,6 +1,7 @@
 export type ClientStaffRecord = {
   _id?: string;
   staffId?: number | string;
+  id?: number | string;
   name: string;
   email?: string;
   phone?: string;
@@ -51,10 +52,29 @@ export type ClientApiResponse = Omit<
   clientId?: number | string;
 };
 
-export type ApiResponse<T> = {
+export type ClientListApiResponse<T> = {
   data?: T[];
 };
 
-export type ClientPayload = Record<string, string | number | undefined>;
+export type DetailField = {
+  label: string;
+  value?: string | number;
+};
 
-export type ClientStatusField = "coeStatus" | "visaStatus" | "clientStatus";
+export type ClientDetailViewState = {
+  mode: string | null;
+  clientId: number;
+  client: ClientRecord | null;
+  staffs: ClientStaffRecord[];
+  assignedStaff: ClientStaffRecord | null;
+  sidebarCollapsed: boolean;
+  defaultClientId: number;
+  isLoading: boolean;
+  isError: boolean;
+  isCreating: boolean;
+  formError: string;
+  canAssignClient: boolean;
+  setSidebarCollapsed: (value: boolean | ((previous: boolean) => boolean)) => void;
+  handleCreateClient: (values: Record<string, string>) => Promise<void>;
+  handleCancel: () => void;
+};

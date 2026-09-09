@@ -1,19 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
-import {
-  canAssignClient as canAssignClientPermission,
-  canCreateClient as canCreateClientPermission,
-} from "@/lib/permissions";
+import { canAssignClient as canAssignClientPermission } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 import type {
   ClientApiResponse,
+  ClientDetailViewState,
   ClientListApiResponse,
-  ClientListData,
-  ClientListViewState,
   ClientRecord,
   ClientStaffRecord,
 } from "./type";
@@ -52,6 +48,12 @@ function mapClient(client: ClientApiResponse): ClientRecord {
   };
 }
 
+function compactPayload(payload: Record<string, string | number | undefined>) {
+  return Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== "" && value !== undefined),
+  );
+}
+
 function invalidateClientData(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: ["client-page-data"] });
   void queryClient.invalidateQueries({ queryKey: ["staff-clients"] });
@@ -59,8 +61,8 @@ function invalidateClientData(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: ["staff"] });
 }
 
-function useClientListData() {
-  return useQuery<ClientListData>({
+function useClientDetailData() {
+  return useQuery({
     queryKey: ["client-page-data"],
     queryFn: async () => {
       const [staffResponse, clientResponse] = await Promise.all([
@@ -80,69 +82,85 @@ function useClientListData() {
   });
 }
 
-function useAssignClient() {
+function useCreateClient() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ clientId, staffId }: { clientId: string; staffId: number | string }) =>
-      api.put(`/clients/clients/assign/${clientId}`, { staffId }),
+    mutationFn: (payload: Record<string, string | number | undefined>) =>
+      api.post("/clients", payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
 
-export function useClientListHook(): ClientListViewState {
+export function useClientDetailPage(): ClientDetailViewState {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [defaultClientId] = useState(() => Date.now());
   const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isError } = useClientListData();
-  const assignClient = useAssignClient();
-  const staffs = data?.staffs ?? [];
-  const clients = data?.clients ?? [];
-  const canCreateClient = canCreateClientPermission(user);
+  const mode = searchParams.get("mode");
+  const clientId = Number(searchParams.get("clientId") ?? 0);
+  const { data, isLoading, isError } = useClientDetailData();
+  const createClient = useCreateClient();
+  const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
+  const client = useMemo(
+    () =>
+      mode === "create"
+        ? null
+        : data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
+    [clientId, data?.clients, mode],
+  );
   const canAssignClient = canAssignClientPermission(user);
 
-  const handleCreateClient = () => {
-    router.push("/client/clientDetailPage?mode=create");
-  };
-
-  const handleAssignClient = (clientId: number, staffId: number | string) => {
-    if (!canAssignClient) {
-      return;
+  const assignedStaff = useMemo(() => {
+    if (!client?.assignedStaff) {
+      return null;
     }
 
-    const selectedClient = clients.find(
-      (client) => Number(client.clientId) === Number(clientId),
+    if (typeof client.assignedStaff === "object") {
+      return client.assignedStaff;
+    }
+
+    return (
+      staffs.find((staff) => String(staff._id) === String(client.assignedStaff)) ??
+      null
     );
+  }, [client, staffs]);
 
-    if (!selectedClient?._id) {
-      return;
+  const handleCreateClient = async (values: Record<string, string>) => {
+    setFormError("");
+
+    try {
+      const payload = compactPayload({
+        ...values,
+        clientId: Number(values.clientId),
+        assignedStaff: canAssignClient ? values.assignedStaff || undefined : undefined,
+      });
+
+      await createClient.mutateAsync(payload);
+      router.push("/client");
+    } catch (error) {
+      console.error("Failed to create client", error);
+      setFormError("Failed to create client.");
     }
-
-    const selectedStaff = staffs.find(
-      (staff) =>
-        String(staff._id ?? staff.id ?? staff.staffId) === String(staffId),
-    );
-
-    if (!selectedStaff) {
-      return;
-    }
-
-    assignClient.mutate({
-      clientId: selectedClient._id,
-      staffId: selectedStaff._id ?? selectedStaff.id ?? selectedStaff.staffId ?? 0,
-    });
   };
 
   return {
-    sidebarCollapsed,
-    setSidebarCollapsed,
+    mode,
+    clientId,
+    client,
     staffs,
-    clients,
+    assignedStaff,
+    sidebarCollapsed,
+    defaultClientId,
     isLoading,
     isError,
-    canCreateClient,
+    isCreating: createClient.isPending,
+    formError,
     canAssignClient,
+    setSidebarCollapsed,
     handleCreateClient,
-    handleAssignClient,
+    handleCancel: () => router.push("/client"),
   };
 }
