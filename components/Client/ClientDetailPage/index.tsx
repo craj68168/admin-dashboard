@@ -1,22 +1,17 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, type ReactNode } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
 import Remarks from "@/components/Remarks";
 import ReusableForm from "@/components/ReusableForm";
-import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
+import {
+  clientFormDefaults,
+  getClientFormFields,
+} from "@/components/ReusableForm/form-configs";
 import Sidebar from "@/components/Sidebar";
-import { useCreateClient } from "@/components/Client/client.mutations";
-import { useClientPageData } from "@/components/Client/client.queries";
-import { useAuthStore } from "@/store/auth-store";
-import { canAssignClient } from "@/lib/permissions";
-
-type DetailField = {
-  label: string;
-  value?: string | number;
-};
+import { useClientDetailPage } from "./hook";
+import type { DetailField } from "./type";
 
 export default function ClientDetailPage() {
   return (
@@ -27,58 +22,22 @@ export default function ClientDetailPage() {
 }
 
 function ClientDetailPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [defaultClientId] = useState(() => Date.now());
-  const user = useAuthStore((state) => state.user);
-  const mode = searchParams.get("mode");
-  const clientId = Number(searchParams.get("clientId") ?? 0);
-  const { data, isLoading, isError } = useClientPageData();
-  const createClient = useCreateClient();
-const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
-const client = useMemo(
-    () =>
-      mode === "create"
-        ? null
-        : data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
-    [clientId, data?.clients, mode],
-  );
-
-  const assignedStaff = useMemo(() => {
-    if (!client?.assignedStaff) {
-      return null;
-    }
-
-    if (typeof client.assignedStaff === "object") {
-      return client.assignedStaff;
-    }
-
-    return (
-      staffs.find((staff) => String(staff._id) === String(client.assignedStaff)) ??
-      null
-    );
-  }, [client, staffs]);
-
-  const handleCreateClient = async (values: Record<string, string>) => {
-    setFormError("");
-
-    try {
-      const payload = compactPayload({
-        ...values,
-        clientId: Number(values.clientId),
-        assignedStaff: canAssignClient(user) ? values.assignedStaff || undefined : undefined,
-      });
-
-      await createClient.mutateAsync(payload);
-
-      router.push("/client");
-    } catch (error) {
-      console.error("Failed to create client", error);
-      setFormError("Failed to create client.");
-    }
-  };
+  const {
+    mode,
+    client,
+    staffs,
+    assignedStaff,
+    sidebarCollapsed,
+    defaultClientId,
+    isLoading,
+    isError,
+    isCreating,
+    formError,
+    canAssignClient,
+    setSidebarCollapsed,
+    handleCreateClient,
+    handleCancel,
+  } = useClientDetailPage();
 
   if (mode === "create") {
     return (
@@ -103,24 +62,24 @@ const client = useMemo(
                 label: staff.name,
                 value: String(staff._id ?? staff.id),
               })),
-              canAssignClient(user),
+              canAssignClient,
             )}
             defaultValues={{
               ...clientFormDefaults,
               clientId: defaultClientId,
             }}
             submitLabel="Save Client"
-            loading={createClient.isPending}
+            loading={isCreating}
             error={formError}
             onSubmit={handleCreateClient}
-            onCancel={() => router.push("/client")}
+            onCancel={handleCancel}
           />
         </div>
       </PageShell>
     );
   }
 
-  if (isLoading && mode !== "create") {
+  if (isLoading) {
     return (
       <PageShell
         title="Client Details"
@@ -280,12 +239,7 @@ const client = useMemo(
           ]}
         />
 
-        <DetailSection
-          title="Files"
-          fields={[
-            { label: "CV", value: client.cv },
-          ]}
-        />
+        <DetailSection title="Files" fields={[{ label: "CV", value: client.cv }]} />
 
         <Remarks value={client.remarks} />
       </div>
@@ -313,7 +267,7 @@ function PageShell({
   title: string;
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
@@ -338,7 +292,7 @@ function DetailSection({
 }: {
   title: string;
   fields: DetailField[];
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -359,48 +313,6 @@ function DetailValue({ label, value }: DetailField) {
       <p className="text-xs font-semibold uppercase text-gray-500">{label}</p>
       <p className="mt-1 text-sm text-gray-900">{value || "-"}</p>
     </div>
-  );
-}
-
-// function mapClientDetail(client: ClientApiResponse): ClientDetailRecord {
-//   return {
-//     _id: client._id,
-//     clientId: Number(client.clientId ?? 0),
-//     fullName: client.fullName ?? "Unknown Client",
-//     dateOfBirth: client.dateOfBirth,
-//     gender: client.gender,
-//     phone: client.phone ?? "N/A",
-//     email: client.email,
-//     address: client.address,
-//     nationality: client.nationality ?? "Nepali",
-//     passportNumber: client.passportNumber,
-//     passportExpiryDate: client.passportExpiryDate,
-//     visaType: client.visaType ?? "Student",
-//     statusOfResidence: client.statusOfResidence,
-//     lastQualification: client.lastQualification,
-//     japaneseLanguageLevel: client.japaneseLanguageLevel,
-//     schoolName: client.schoolName,
-//     course: client.course,
-//     intake: client.intake,
-//     jobCategory: client.jobCategory,
-//     jobTitle: client.jobTitle,
-//     companyName: client.companyName,
-//     workLocation: client.workLocation,
-//     sponsorName: client.sponsorName,
-//     sponsorRelationship: client.sponsorRelationship,
-//     sponsorStatusOfResidence: client.sponsorStatusOfResidence,
-//     coeStatus: client.coeStatus ?? "Not Applied",
-//     visaStatus: client.visaStatus ?? "Not Applied",
-//     clientStatus: client.clientStatus ?? "New",
-//     assignedStaff: client.assignedStaff ?? null,
-//     remarks: client.remarks,
-//     cv: client.cv,
-//   };
-// }
-
-function compactPayload(payload: Record<string, string | number | undefined>) {
-  return Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== "" && value !== undefined),
   );
 }
 

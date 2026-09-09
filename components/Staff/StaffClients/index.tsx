@@ -1,68 +1,49 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useParams } from "next/navigation";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Paper from "@mui/material/Paper";
 import Breadcrumb from "@/components/Breadcrumb";
-import ReusableTable from "@/components/ReusableTable";
+import ReusableTable from "@/components/ReusableTable/index";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import { useUpdateClientField } from "@/components/Client/client.mutations";
-import { useStaffClients } from "@/components/Client/staff-client.queries";
 import { canEditClient, canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
+import { useStaffClientsPage } from "./hook";
+import type { ClientTableRow } from "@/components/ReusableTable/type";
 
 export default function StaffClients() {
-  return (
-    <Suspense fallback={<StaffClientsFallback />}>
-      <StaffClientsContent />
-    </Suspense>
-  );
+  return <StaffClientsContent />;
 }
 
 function StaffClientsContent() {
- 
-  const params = useParams<{ staffId: string }>();
-  const staffId = params.staffId;
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isError } = useStaffClients(staffId);
-  const staffs = data?.staffs ?? [];
-  const clients = data?.clients ?? [];
-  const selectedStaff = data?.selectedStaff ?? null;
-  const updateClientField = useUpdateClientField();
-
-  const handleUpdateClientField = (
-    clientId: number,
-    field: "coeStatus" | "visaStatus" | "clientStatus",
-    value: string,
-  ) => {
-    const selectedClient = clients.find((client) => client.clientId === clientId);
-
-    if (!selectedClient || !canUpdateClientStatus(user, selectedClient)) {
-      return;
-    }
-
-    if (!selectedClient._id) return;
-
-    updateClientField.mutate({
-      recordId: selectedClient._id,
-      field,
-      value,
-    });
-  };
+  const {
+    staffId,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    staffs,
+    clients,
+    selectedStaff,
+    isLoading,
+    isError,
+    handleUpdateClientField,
+  } = useStaffClientsPage();
+  const pageTitle = `${selectedStaff?.name ?? "Staff"} Clients`;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "#f3f4f6" }}>
       <Sidebar
         selected="Staff"
         collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((prev) => !prev)}
+        onToggle={() => setSidebarCollapsed((previous) => !previous)}
       />
 
-      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <Navbar title={`${selectedStaff?.name ?? "Staff"} Clients`} />
+      <Box component="main" sx={{ flex: 1, height: "100vh", overflowY: "auto", px: 4, pb: 4 }}>
+        <Navbar title={pageTitle} />
 
-        <div className="mb-6">
+        <Box sx={{ mb: 3 }}>
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/admin/dashboard" },
@@ -74,45 +55,47 @@ function StaffClientsContent() {
               },
             ]}
           />
-        </div>
+        </Box>
 
         {isLoading ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-6 text-gray-600 shadow-sm">
-            Loading assigned clients...
-          </div>
+          <LoadingState />
         ) : isError ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-sm">
-            Failed to load assigned clients.
-          </div>
+          <Alert severity="error">Failed to load assigned clients.</Alert>
         ) : (
           <ReusableTable
-            title={`${selectedStaff?.name ?? "Staff"} Clients`}
+            title={pageTitle}
             variant="staff"
             clients={clients}
-            staffs={staffs.map((staff) => ({
-              id: staff._id ?? staff.id ?? staff.staffId ?? 0,
-              name: staff.name,
-              _id: staff._id,
-            }))}
-            canEditClient={(client) => canEditClient(user, client)}
+            staffs={staffs}
+            canEditClient={(client: ClientTableRow) => canEditClient(user, client)}
             canUpdateClientStatus={clients.every((client) =>
               canUpdateClientStatus(user, client),
             )}
             onUpdateClientField={handleUpdateClientField}
           />
         )}
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
-function StaffClientsFallback() {
+function LoadingState() {
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
-      <aside className="w-64 bg-white p-5 shadow-lg">Loading...</aside>
-      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <div className="h-16 rounded bg-white shadow" />
-      </main>
-    </div>
+    <Paper
+      elevation={0}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        border: "1px solid #e5e7eb",
+        borderRadius: 3,
+        p: 3,
+        color: "text.secondary",
+      }}
+    >
+      <CircularProgress size={20} />
+      Loading assigned clients...
+    </Paper>
   );
 }
+

@@ -1,48 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
-
 import Breadcrumb from "@/components/Breadcrumb";
-import { useAssignClient } from "@/components/Client/client.mutations";
-import { useClientPageData } from "@/components/Client/client.queries";
-import { canAssignClient, canCreateClient } from "@/lib/permissions";
-import { useAuthStore } from "@/store/auth-store";
+import Navbar from "@/components/Navbar";
+import ReusableTable from "@/components/ReusableTable";
+import Sidebar from "@/components/Sidebar";
 import { useClientListHook } from "./hook";
 
 const ClientListPage = () => {
-  const router = useRouter();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isError } = useClientPageData();
-  const assignClient = useAssignClient();
-  const staffs = data?.staffs ?? [];
-  const clients = data?.clients ?? [];
-
-  const handleAssignClient = (clientId: number, staffId: number | string) => {
-    if (!canAssignClient(user)) {
-      return;
-    }
-
-    const selectedClient = clients.find(
-      (client) => Number(client.clientId) === Number(clientId),
-    );
-    if (!selectedClient?._id) return;
-
-    const selectedStaff = staffs.find(
-      (staff) =>
-        String(staff._id ?? staff.id ?? staff.staffId) === String(staffId),
-    );
-
-    if (!selectedStaff) return;
-
-    assignClient.mutate({
-      clientId: selectedClient._id,
-      staffId: selectedStaff._id ?? selectedStaff.id,
-    });
-  };
+  const {
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    staffs,
+    clients,
+    isError,
+    canCreateClient,
+    canAssignClient,
+    handleCreateClient,
+    handleAssignClient,
+  } = useClientListHook();
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
@@ -70,13 +45,11 @@ const ClientListPage = () => {
           </div>
         )}
 
-        {canCreateClient(user) && (
+        {canCreateClient && (
           <div className="mb-6 flex justify-end">
             <button
               type="button"
-              onClick={() =>
-                router.push("/client/clientDetailPage?mode=create")
-              }
+              onClick={handleCreateClient}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <span aria-hidden="true">+</span>
@@ -85,7 +58,7 @@ const ClientListPage = () => {
           </div>
         )}
 
-        {/* <ReusableTable
+        <ReusableTable
           title="All Clients"
           variant="compact"
           clients={clients.map((client) => ({
@@ -94,9 +67,10 @@ const ClientListPage = () => {
             assignedStaffId: client.assignedStaffId,
             assignedStaffName: client.assignedStaffName,
           }))}
-          canManageAssignments={canAssignClient(user)}
+          staffs={staffs}
+          canManageAssignments={canAssignClient}
           onAssignClient={handleAssignClient}
-        /> */}
+        />
       </main>
     </div>
   );
