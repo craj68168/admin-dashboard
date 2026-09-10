@@ -42,8 +42,8 @@ export const useClientHook = () =>{
       clientId: number | string;
       staffId: number | string;
     }) =>
-      api.patch(`/clients/${clientId}`, {
-        assignedStaff: staffId,
+      api.put(`/clients/assign/${clientId}`, {
+        staffId,
       }),
 
     onSuccess: () => {
@@ -66,7 +66,7 @@ export function useClientListHook() {
   const canAssignClient = canAssignClientPermission(user);
 
   const handleCreateClient = () => {
-    router.push("/client/clientDetailPage?mode=create");
+    router.push("/client/add");
   };
 
   const handleAssignClient = (clientId: number | string, staffId: number | string) => {

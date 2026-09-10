@@ -13,6 +13,33 @@ export type ClientStaffRecord = {
   location?: string;
 };
 
+export type ClientProfileRecord = {
+  dateOfBirth?: string;
+  gender?: string;
+  email?: string;
+  address?: string;
+  nationality?: string;
+  passportNumber?: string;
+  passportExpiryDate?: string;
+  statusOfResidence?: string;
+  lastQualification?: string;
+  japaneseLanguageLevel?: string;
+  schoolName?: string;
+  course?: string;
+  intake?: string;
+  jobCategory?: string;
+  jobTitle?: string;
+  companyName?: string;
+  workLocation?: string;
+  sponsorName?: string;
+  sponsorRelationship?: string;
+  sponsorStatusOfResidence?: string;
+  visaStatus?: string;
+  remark?: string;
+  clientImage?: string;
+  cv?: string;
+};
+
 export type ClientRecord = {
   _id?: string;
   clientId: number | string;
@@ -46,8 +73,10 @@ export type ClientRecord = {
   clientImage?: string;
   cv?: string;
   assignedStaff?: ClientStaffRecord | string | null;
+  assignedStaffDetails?: ClientStaffRecord | null;
   assignedStaffId?: number | string | null;
   assignedStaffName?: string;
+  profile?: ClientProfileRecord | null;
 };
 
 export type ClientApiResponse = Omit<

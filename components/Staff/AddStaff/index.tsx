@@ -36,7 +36,7 @@ export default function AddStaff() {
   });
 
   const onSubmit = async (data: StaffAddFormValues) => {
-    mutate(data);
+    await mutate(data);
   };
 
   return (
@@ -59,31 +59,6 @@ export default function AddStaff() {
             ]}
           />
         </div>
-           <Box
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        {/* name */}
-        <Box>
-          <Typography
-            component="label"
-            htmlFor="name"
-            sx={{
-              display: "block",
-              mb: 0.75,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#333",
-            }}
-          >
-            name
-          </Typography>
 
         <Box
           component="form"
@@ -361,8 +336,6 @@ export default function AddStaff() {
               {isPending ? "Saving..." : "Save"}
             </Button>
           </Box>
-        </Box>
-        </Box>
         </Box>
       </main>
    

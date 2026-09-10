@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
 import { getApiErrorMessage } from "@/lib/api-message";
 import { api } from "@/lib/axios";
@@ -10,10 +10,13 @@ import { canAssignClient, canEditClient } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 import {
   compactPayload,
+  getClientList,
   invalidateClientData,
-  useClientPageData,
 } from "../client-query";
 import type {
+  ClientListApiResponse,
+  ClientRecord,
+  ClientStaffRecord,
   EditClientViewState,
 } from "./type";
 
@@ -56,13 +59,38 @@ function useUpdateClient() {
 
   return useMutation({
     mutationFn: ({
-      recordId,
+      clientId,
       payload,
     }: {
-      recordId: string;
+      clientId: number | string;
       payload: Record<string, string | number | undefined>;
-    }) => api.put(`/clients/${recordId}`, payload),
+    }) => api.patch(`/clients/${clientId}`, payload),
     onSuccess: () => invalidateClientData(queryClient),
+  });
+}
+
+function useStaffQuery() {
+  return useQuery({
+    queryKey: ["staff"],
+    queryFn: async () => {
+      const response = await api.get<ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>>(
+        "/staff",
+      );
+
+      return getClientList(response.data);
+    },
+  });
+}
+
+function useClientDetailsQuery(clientId: string) {
+  return useQuery({
+    queryKey: ["client-details", clientId],
+    queryFn: async () => {
+      const response = await api.get<{ data?: ClientRecord }>(`/clients/${clientId}`);
+
+      return response.data;
+    },
+    enabled: Boolean(clientId),
   });
 }
 
@@ -74,33 +102,55 @@ export function useEditClientPage(): EditClientViewState {
   const [formError, setFormError] = useState("");
   const user = useAuthStore((state) => state.user);
   const clientId = searchParams.get("clientId") ?? "";
-  const { data, isLoading, isError } = useClientPageData();
+  const staffQuery = useStaffQuery();
+  const clientDetailsQuery = useClientDetailsQuery(clientId);
   const updateClient = useUpdateClient();
-  const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
-  const client = useMemo(
-    () => data?.clients.find((item) => String(item.clientId) === String(clientId)) ?? null,
-    [clientId, data?.clients],
-  );
+  const staffs = useMemo(() => staffQuery.data ?? [], [staffQuery.data]);
+  const client = clientDetailsQuery.data?.data ?? null;
 
   const defaultValues = useMemo(() => {
     const {
       assignedStaffId: _assignedStaffId,
       assignedStaffName: _assignedStaffName,
+      assignedStaffDetails: _assignedStaffDetails,
+      profile: _profile,
       ...clientValues
     } = client ?? {};
 
     void _assignedStaffId;
     void _assignedStaffName;
+    void _assignedStaffDetails;
+    void _profile;
 
     return {
       ...clientFormDefaults,
       ...clientValues,
       clientId: client?.clientId ?? clientId,
-      dateOfBirth: formatInputDate(client?.dateOfBirth),
-      passportExpiryDate: formatInputDate(client?.passportExpiryDate),
+      dateOfBirth: formatInputDate(client?.profile?.dateOfBirth),
+      passportExpiryDate: formatInputDate(client?.profile?.passportExpiryDate),
+      gender: client?.profile?.gender,
+      email: client?.profile?.email,
+      address: client?.profile?.address,
+      nationality: client?.profile?.nationality,
+      passportNumber: client?.profile?.passportNumber,
+      statusOfResidence: client?.profile?.statusOfResidence,
+      lastQualification: client?.profile?.lastQualification,
+      japaneseLanguageLevel: client?.profile?.japaneseLanguageLevel,
+      schoolName: client?.profile?.schoolName,
+      course: client?.profile?.course,
+      intake: client?.profile?.intake,
+      jobCategory: client?.profile?.jobCategory,
+      jobTitle: client?.profile?.jobTitle,
+      companyName: client?.profile?.companyName,
+      workLocation: client?.profile?.workLocation,
+      sponsorName: client?.profile?.sponsorName,
+      sponsorRelationship: client?.profile?.sponsorRelationship,
+      sponsorStatusOfResidence: client?.profile?.sponsorStatusOfResidence,
+      visaStatus: client?.profile?.visaStatus,
+      cv: client?.profile?.cv,
       assignedStaff:
         typeof client?.assignedStaff === "object" && client.assignedStaff
-          ? client.assignedStaff._id
+          ? client.assignedStaff.staffId
           : client?.assignedStaff ?? "",
     };
   }, [client, clientId]);
@@ -110,7 +160,7 @@ export function useEditClientPage(): EditClientViewState {
       getClientFormFields(
         staffs.map((staff) => ({
           label: staff.name,
-          value: String(staff._id ?? staff.id),
+          value: String(staff.staffId),
         })),
         canAssignClient(user),
         false,
@@ -145,7 +195,7 @@ export function useEditClientPage(): EditClientViewState {
         remarksText: undefined,
       });
 
-      await updateClient.mutateAsync({ recordId: client._id, payload });
+      await updateClient.mutateAsync({ clientId: client.clientId, payload });
       router.push(`/client/clientDetailPage?clientId=${values.clientId}`);
     } catch (error) {
       console.error("Failed to update client", error);
@@ -160,8 +210,8 @@ export function useEditClientPage(): EditClientViewState {
     client,
     user,
     sidebarCollapsed,
-    isLoading,
-    isError,
+    isLoading: clientDetailsQuery.isLoading || staffQuery.isLoading,
+    isError: clientDetailsQuery.isError || staffQuery.isError,
     saving,
     formError,
     defaultValues,

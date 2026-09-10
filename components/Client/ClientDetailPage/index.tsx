@@ -4,11 +4,6 @@ import { Suspense, type ReactNode } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
 import Remarks from "@/components/Remarks";
-import ReusableForm from "@/components/ReusableForm";
-import {
-  clientFormDefaults,
-  getClientFormFields,
-} from "@/components/ReusableForm/form-configs";
 import Sidebar from "@/components/Sidebar";
 import { useClientDetailPage } from "./hook";
 import type { DetailField } from "./type";
@@ -23,61 +18,13 @@ export default function ClientDetailPage() {
 
 function ClientDetailPageContent() {
   const {
-    mode,
     client,
-    staffs,
     assignedStaff,
     sidebarCollapsed,
-    defaultClientId,
     isLoading,
     isError,
-    isCreating,
-    formError,
-    canAssignClient,
     setSidebarCollapsed,
-    handleCreateClient,
-    handleCancel,
   } = useClientDetailPage();
-
-  if (mode === "create") {
-    return (
-      <PageShell
-        title="Add Client"
-        sidebarCollapsed={sidebarCollapsed}
-        onToggleSidebar={() => setSidebarCollapsed((prev) => !prev)}
-      >
-        <Breadcrumb
-          items={[
-            { label: "Dashboard", href: "/admin/dashboard" },
-            { label: "Clients", href: "/client" },
-            { label: "Add Client", current: true },
-          ]}
-        />
-
-        <div className="mt-6">
-          <ReusableForm
-            title="Client Information"
-            fields={getClientFormFields(
-              staffs.map((staff) => ({
-                label: staff.name,
-                value: String(staff._id ?? staff.id),
-              })),
-              canAssignClient,
-            )}
-            defaultValues={{
-              ...clientFormDefaults,
-              clientId: defaultClientId,
-            }}
-            submitLabel="Save Client"
-            loading={isCreating}
-            error={formError}
-            onSubmit={handleCreateClient}
-            onCancel={handleCancel}
-          />
-        </div>
-      </PageShell>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -132,6 +79,8 @@ function ClientDetailPageContent() {
     );
   }
 
+  const profile = client.profile;
+
   return (
     <PageShell
       title={client.fullName}
@@ -142,11 +91,11 @@ function ClientDetailPageContent() {
         items={[
           { label: "Dashboard", href: "/admin/dashboard" },
           { label: "Clients", href: "/client" },
-          ...(assignedStaff?._id
+          ...(assignedStaff?.staffId
             ? [
                 {
                   label: assignedStaff.name,
-                  href: `/staff/${assignedStaff._id}/clients`,
+                  href: `/staff/${assignedStaff.staffId}/clients`,
                 },
               ]
             : []),
@@ -172,76 +121,56 @@ function ClientDetailPageContent() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <DetailValue label="Visa Type" value={client.visaType} />
               <DetailValue label="COE Status" value={client.coeStatus} />
-              <DetailValue label="Visa Status" value={client.visaStatus} />
+              <DetailValue label="Visa Status" value={profile?.visaStatus} />
               <DetailValue label="Client Status" value={client.clientStatus} />
             </div>
           </div>
         </section>
 
         <DetailSection
-          title="Personal Information"
+          title="Client Details"
           fields={[
+            { label: "Client ID", value: client.clientId },
             { label: "Full Name", value: client.fullName },
-            { label: "Date of Birth", value: formatDate(client.dateOfBirth) },
-            { label: "Gender", value: client.gender },
             { label: "Phone", value: client.phone },
-            { label: "Email", value: client.email },
-            { label: "Address", value: client.address },
-            { label: "Nationality", value: client.nationality ?? "Nepali" },
-          ]}
-        />
-
-        <DetailSection
-          title="Passport and Visa"
-          fields={[
-            { label: "Passport Number", value: client.passportNumber },
+            { label: "Email", value: profile?.email },
+            { label: "Date of Birth", value: formatDate(profile?.dateOfBirth) },
+            { label: "Gender", value: profile?.gender },
+            { label: "Address", value: profile?.address },
+            { label: "Nationality", value: profile?.nationality ?? "Nepali" },
+            { label: "Visa Type", value: client.visaType },
+            { label: "COE Status", value: client.coeStatus },
+            { label: "Visa Status", value: profile?.visaStatus },
+            { label: "Client Status", value: client.clientStatus },
+            { label: "Passport Number", value: profile?.passportNumber },
             {
               label: "Passport Expiry Date",
-              value: formatDate(client.passportExpiryDate),
+              value: formatDate(profile?.passportExpiryDate),
             },
-            { label: "Status of Residence", value: client.statusOfResidence },
-          ]}
-        />
-
-        <DetailSection
-          title="Student Details"
-          fields={[
-            { label: "Last Qualification", value: client.lastQualification },
+            { label: "Status of Residence", value: profile?.statusOfResidence },
+            { label: "Last Qualification", value: profile?.lastQualification },
             {
               label: "Japanese Language Level",
-              value: client.japaneseLanguageLevel,
+              value: profile?.japaneseLanguageLevel,
             },
-            { label: "School Name", value: client.schoolName },
-            { label: "Course", value: client.course },
-            { label: "Intake", value: client.intake },
-          ]}
-        />
-
-        <DetailSection
-          title="Working Details"
-          fields={[
-            { label: "Job Category", value: client.jobCategory },
-            { label: "Job Title", value: client.jobTitle },
-            { label: "Company Name", value: client.companyName },
-            { label: "Work Location", value: client.workLocation },
-          ]}
-        />
-
-        <DetailSection
-          title="Sponsor Details"
-          fields={[
-            { label: "Sponsor Name", value: client.sponsorName },
-            { label: "Sponsor Relationship", value: client.sponsorRelationship },
+            { label: "School Name", value: profile?.schoolName },
+            { label: "Course", value: profile?.course },
+            { label: "Intake", value: profile?.intake },
+            { label: "Job Category", value: profile?.jobCategory },
+            { label: "Job Title", value: profile?.jobTitle },
+            { label: "Company Name", value: profile?.companyName },
+            { label: "Work Location", value: profile?.workLocation },
+            { label: "Sponsor Name", value: profile?.sponsorName },
+            { label: "Sponsor Relationship", value: profile?.sponsorRelationship },
             {
               label: "Sponsor Status of Residence",
-              value: client.sponsorStatusOfResidence,
+              value: profile?.sponsorStatusOfResidence,
             },
+            { label: "CV", value: profile?.cv },
           ]}
         />
 
-        <DetailSection title="Files" fields={[{ label: "CV", value: client.cv }]} />
-
-        <Remarks value={client.remarks} />
+        <Remarks value={profile?.remark ?? client.remarks} />
       </div>
     </PageShell>
   );

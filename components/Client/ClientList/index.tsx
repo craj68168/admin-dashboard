@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar";
 import { useClientListHook,useClientHook } from "./hook";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Paper } from "@mui/material";
+import Link from "next/link";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
@@ -40,7 +41,23 @@ console.log("staffData", staffData);
        width: 270,
        resizable: false,
        disableColumnMenu: true,
+       renderCell: ({ row }) => (
+         <Link
+           href={`/client/clientDetailPage?clientId=${row.clientId}`}
+           className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+         >
+           {row.fullName}
+         </Link>
+       ),
      },
+     {
+       field: "phone",
+       headerName: "Phone",
+       width: 150,
+       resizable: false,
+       disableColumnMenu: true,
+     },
+     
    
      {
        field: "",
@@ -70,11 +87,11 @@ console.log("staffData", staffData);
               },
             }}
           >
-           {staffData?.data?.map((val:Staff) => (
-  <MenuItem key={row?.clientId} value={val?.staffId}>
-    {val?.name}
-  </MenuItem>
-))}
+          {staffData?.data?.map((staff: Staff) => (
+        <MenuItem key={staff.staffId} value={staff.staffId}>
+          {staff.name}
+        </MenuItem>
+      ))}
           </Select>
           <Button disabled={isStaffAdding} onClick={() =>  staffAdd({
             clientId: row.clientId,
