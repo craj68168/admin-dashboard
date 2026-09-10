@@ -1,5 +1,5 @@
-import StaffClients from "@/components/Staff/StaffClients";
+import StaffClientsContent from "@/components/Staff/StaffClients";
 
 export default function StaffClientsPage() {
-  return <StaffClients />;
+  return <StaffClientsContent />;
 }

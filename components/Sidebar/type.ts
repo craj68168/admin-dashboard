@@ -1,7 +1,7 @@
 export type SidebarItem = "Dashboard" | "Staff" | "Clients";
 
 export type SidebarProps = {
-  selected: SidebarItem;
+  selected: SidebarItem | "";
   collapsed: boolean;
   onToggle: () => void;
 };

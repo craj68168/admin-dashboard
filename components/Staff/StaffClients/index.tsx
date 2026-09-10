@@ -1,33 +1,65 @@
 "use client";
-
-import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
 import Breadcrumb from "@/components/Breadcrumb";
-import ReusableTable from "@/components/ReusableTable/index";
-import { canEditClient, canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
-import { useStaffClientsPage } from "./hook";
-import type { ClientTableRow } from "@/components/ReusableTable/type";
 
-export default function StaffClients() {
-  return <StaffClientsContent />;
-}
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useStaffClients } from "./hook";
 
 function StaffClientsContent() {
   const user = useAuthStore((state) => state.user);
-  const {
-    staffId,
-    staffs,
-    clients,
-    selectedStaff,
-    isLoading,
-    isError,
-    handleUpdateClientField,
-  } = useStaffClientsPage();
-  const pageTitle = `${selectedStaff?.name ?? "Staff"} Clients`;
-
+  const { data, isPending, isError } = useStaffClients();
+  const columns: GridColDef[] = [
+    {
+      field: "clientId",
+      headerName: "ID",
+      width: 170,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "clientStatus",
+      headerName: "Status",
+      width: 270,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "fullName",
+      headerName: "Full Name",
+      width: 200,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      width: 170,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "visaType",
+      headerName: "Visa Type",
+      width: 170,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      width: 270,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+    {
+      field: "",
+      headerName: "Action",
+      resizable: false,
+      width: 135,
+      disableColumnMenu: true,
+    },
+  ];
   return (
     <Box
       sx={{
@@ -46,55 +78,51 @@ function StaffClientsContent() {
             items={[
               { label: "Dashboard", href: "/admin/dashboard" },
               { label: "Staff", href: "/staff" },
-              {
-                label: selectedStaff?.name ?? "Staff Clients",
-                href: `/staff/${staffId}/clients`,
-                current: true,
-              },
             ]}
           />
         </Box>
 
-        {isLoading ? (
-          <LoadingState />
-        ) : isError ? (
-          <Alert severity="error">Failed to load assigned clients.</Alert>
-        ) : (
-          <ReusableTable
-            title={pageTitle}
-            variant="staff"
-            clients={clients}
-            staffs={staffs}
-            canEditClient={(client: ClientTableRow) =>
-              canEditClient(user, client)
-            }
-            canUpdateClientStatus={clients.every((client) =>
-              canUpdateClientStatus(user, client),
-            )}
-            onUpdateClientField={handleUpdateClientField}
-          />
-        )}
+        <DataGrid
+          rows={data?.data || []}
+          getRowId={(row) => row.clientId}
+          columns={columns}
+          disableColumnMenu
+          // initialState={{ pagination: { paginationModel } }}
+          pageSizeOptions={[5, 10]}
+          // slots={{ cell: renderRowHeaderCell }}
+
+          loading={isPending}
+          hideFooter
+          sx={{
+            border: 0,
+
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "primary.main",
+              color: "primary.contrastText",
+            },
+
+            "& .MuiDataGrid-columnHeader": {
+              backgroundColor: "primary.main",
+            },
+
+            "& .MuiDataGrid-columnHeaderTitle": {
+              fontWeight: 600,
+            },
+
+            "& .action-column-cell": {
+              backgroundColor: "#fff",
+            },
+            "& .MuiDataGrid-cell:focus": {
+              outline: "none",
+            },
+
+            "& .MuiDataGrid-cell:focus-within": {
+              outline: "none",
+            },
+          }}
+        />
       </Box>
     </Box>
   );
 }
-
-function LoadingState() {
-  return (
-    <Paper
-      elevation={0}
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 1.5,
-        border: "1px solid #e5e7eb",
-        borderRadius: 3,
-        p: 3,
-        color: "text.secondary",
-      }}
-    >
-      <CircularProgress size={20} />
-      Loading assigned clients...
-    </Paper>
-  );
-}
+export default StaffClientsContent;
