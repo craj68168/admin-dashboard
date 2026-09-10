@@ -11,6 +11,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import {Staff} from "./type"
 
 const ClientListPage = () => {
   const {
@@ -69,7 +70,7 @@ console.log("staffData", staffData);
               },
             }}
           >
-           {staffData?.data?.map((val:any) => (
+           {staffData?.data?.map((val:Staff) => (
   <MenuItem key={row?.clientId} value={val?.staffId}>
     {val?.name}
   </MenuItem>

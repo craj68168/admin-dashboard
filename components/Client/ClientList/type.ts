@@ -38,3 +38,31 @@ export type ClientListViewState = {
   handleCreateClient: () => void;
   handleAssignClient: (clientId: number | string, staffId: number | string) => void;
 };
+
+export type Client = {
+  assignedStaff: string;
+  clientId: string;
+  clientStatus: string;
+  coeStatus: string;
+  createdAt: string;
+  fullName: string;
+  phone: string;
+  updatedAt: string;
+  visaType: string;
+  __v: number;
+  _id: string;
+};
+export type Staff = {
+  _id: string;
+  staffId: string;
+  name: string;
+  phone: string;
+  email: string;
+  location: string;
+  role: string;
+  isActive: boolean;
+  totalClients: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
