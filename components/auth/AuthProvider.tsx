@@ -19,7 +19,11 @@ export default function AuthProvider({ children }: Props) {
   }, [initializeAuth]);
 
   if (!initialized) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 text-sm font-medium text-gray-600">
+        Loading...
+      </div>
+    );
   }
 
   return children;

@@ -1,6 +1,6 @@
 export type ClientTableRow = {
   id?: number | string;
-  clientId: number;
+  clientId: number | string;
   fullName: string;
   phone?: string;
   visaType?: string;
@@ -45,10 +45,10 @@ export type ClientTableProps = {
   canEditClients?: boolean;
   canEditClient?: (client: ClientTableRow) => boolean;
   canUpdateClientStatus?: boolean;
-  onAssignClient?: (clientId: number, staffId: number | string) => void;
+  onAssignClient?: (clientId: number | string, staffId: number | string) => void;
   onViewStaffClients?: (staff: StaffTableRow) => void;
   onUpdateClientField?: (
-    clientId: number,
+    clientId: number | string,
     field: StatusField,
     value: string,
   ) => void;

@@ -8,7 +8,7 @@ export type {
 } from "../client-query";
 
 export type EditClientViewState = {
-  clientId: number;
+  clientId: number | string;
   client: ClientRecord | null;
   user: ReturnType<typeof import("@/store/auth-store").useAuthStore.getState>["user"];
   sidebarCollapsed: boolean;

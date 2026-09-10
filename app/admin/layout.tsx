@@ -16,7 +16,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 text-sm font-medium text-gray-600">
+        Redirecting to login...
+      </div>
+    );
   }
 
   return <>{children}</>;

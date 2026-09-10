@@ -73,12 +73,12 @@ export function useEditClientPage(): EditClientViewState {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const user = useAuthStore((state) => state.user);
-  const clientId = Number(searchParams.get("clientId") ?? 0);
+  const clientId = searchParams.get("clientId") ?? "";
   const { data, isLoading, isError } = useClientPageData();
   const updateClient = useUpdateClient();
   const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
   const client = useMemo(
-    () => data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
+    () => data?.clients.find((item) => String(item.clientId) === String(clientId)) ?? null,
     [clientId, data?.clients],
   );
 
@@ -95,7 +95,7 @@ export function useEditClientPage(): EditClientViewState {
     return {
       ...clientFormDefaults,
       ...clientValues,
-      clientId: Number(client?.clientId ?? clientId),
+      clientId: client?.clientId ?? clientId,
       dateOfBirth: formatInputDate(client?.dateOfBirth),
       passportExpiryDate: formatInputDate(client?.passportExpiryDate),
       assignedStaff:
@@ -136,7 +136,7 @@ export function useEditClientPage(): EditClientViewState {
       });
       const payload = compactPayload({
         ...values,
-        clientId: Number(values.clientId),
+        clientId: values.clientId,
         assignedStaff: canAssignClient(user) ? values.assignedStaff || undefined : undefined,
         remarks,
         remarksDate: undefined,

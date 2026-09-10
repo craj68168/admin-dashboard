@@ -54,7 +54,7 @@ export function getClientFormFields(
   includeRemarks = true,
 ): ReusableFormField[] {
   const fields: ReusableFormField[] = [
-    { name: "clientId", label: "Client ID", type: "number", required: true },
+    { name: "clientId", label: "Client ID", required: true },
     { name: "fullName", label: "Full Name", required: true },
     { name: "dateOfBirth", label: "Date of Birth", type: "date" },
     {

@@ -15,7 +15,7 @@ export type ClientStaffRecord = {
 
 export type ClientRecord = {
   _id?: string;
-  clientId: number;
+  clientId: number | string;
   fullName: string;
   dateOfBirth?: string;
   gender?: string;
@@ -92,7 +92,7 @@ export function mapClient(client: ClientApiResponse): ClientRecord {
 
   return {
     ...client,
-    clientId: Number(client.clientId ?? 0),
+    clientId: String(client.clientId ?? ""),
     fullName: client.fullName ?? "Unknown Client",
     assignedStaffId,
     assignedStaffName:

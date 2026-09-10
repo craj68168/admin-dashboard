@@ -20,40 +20,17 @@ import type {
   StaffClientsViewState,
 } from "./type";
 
-function useStaffClients(staffId: string) {
-  return useQuery({
+export function useStaffClients() {
+  const params = useParams<{ staffId: string }>();
+  const staffId = params.staffId;
+  const { isPending, data } =  useQuery({
     queryKey: ["staff-clients", staffId],
     queryFn: async () => {
-      const staffResponse = await api.get<
-        ClientStaffRecord[] | ClientListApiResponse<ClientStaffRecord>
-      >("/staff");
-      const staffs = getClientList(staffResponse.data).map(mapClientStaff);
-      const selectedStaff = staffs.find(
-        (staff) =>
-          String(staff._id) === staffId ||
-          String(staff.staffId) === staffId ||
-          String(staff.id) === staffId,
-      );
-      const clientResponse = await api.get<
-        ClientApiResponse[] | ClientListApiResponse<ClientApiResponse>
-      >(`/clients/staff/${selectedStaff?._id ?? staffId}`);
-
-      return {
-        staffs,
-        selectedStaff: selectedStaff ?? null,
-        clients: getClientList(clientResponse.data).map((client) => {
-          const mappedClient = mapClient(client);
-
-          return {
-            ...mappedClient,
-            assignedStaffName:
-              mappedClient.assignedStaffName ?? selectedStaff?.name ?? "Assigned Staff",
-          };
-        }),
-      };
+      return await api.get(`/clients/staff/${staffId}`);
     },
-    enabled: Boolean(staffId),
+    enabled: !!staffId,
   });
+  { data}
 }
 
 function useUpdateClientField() {
@@ -76,6 +53,8 @@ function useUpdateClientField() {
 export function useStaffClientsPage(): StaffClientsViewState {
   const params = useParams<{ staffId: string }>();
   const staffId = params.staffId;
+
+  console.log("",staffId);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const user = useAuthStore((state) => state.user);
   const { data, isLoading, isError } = useStaffClients(staffId);
@@ -87,11 +66,13 @@ export function useStaffClientsPage(): StaffClientsViewState {
   }));
 
   const handleUpdateClientField = (
-    clientId: number,
+    clientId: number | string,
     field: "coeStatus" | "visaStatus" | "clientStatus",
     value: string,
   ) => {
-    const selectedClient = clients.find((client) => client.clientId === clientId);
+    const selectedClient = clients.find(
+      (client) => String(client.clientId) === String(clientId),
+    );
 
     if (!selectedClient || !canUpdateClientStatus(user, selectedClient) || !selectedClient._id) {
       return;

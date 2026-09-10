@@ -2,22 +2,94 @@
 
 import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
-import ReusableTable from "@/components/ReusableTable";
+import Box from "@mui/material/Box";
 import Sidebar from "@/components/Sidebar";
-import { useClientListHook } from "./hook";
+import { useClientListHook,useClientHook } from "./hook";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Paper } from "@mui/material";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+import { useState } from "react";
+import {Staff} from "./type"
 
 const ClientListPage = () => {
   const {
     sidebarCollapsed,
     setSidebarCollapsed,
-    staffs,
-    clients,
-    isError,
     canCreateClient,
-    canAssignClient,
     handleCreateClient,
-    handleAssignClient,
   } = useClientListHook();
+
+ const {isClientLoading,clientData,staffData,staffAdd,isStaffAdding} =  useClientHook()
+ const [selectedStaff, setSelectedStaff] = useState<
+  Record<string, string>
+>({});
+console.log("staffData", staffData);
+  const columns: GridColDef[] = [
+     {
+       field: "clientId",
+       headerName: "ID",
+       width: 170,
+       resizable: false,
+       disableColumnMenu: true,
+     },
+     {
+       field: "fullName",
+       headerName: "Full name",
+       width: 270,
+       resizable: false,
+       disableColumnMenu: true,
+     },
+   
+     {
+       field: "",
+       headerName: "Assign To",
+       flex: 1,
+  minWidth: 470,
+       resizable: false,
+       disableColumnMenu: true,
+        renderCell: ({row}) => (
+       <Box sx={{display:"flex",gap:"4px", alignItems:"center"}}>
+         <Select
+            id="staff"
+            fullWidth
+             value={ selectedStaff[row.clientId] || row?.assignedStaff || ""}
+        displayEmpty
+        onChange={(e) => {
+          setSelectedStaff((prev) => ({
+            ...prev,
+            [row.clientId]: e.target.value,
+          }));
+        }}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          >
+           {staffData?.data?.map((val:Staff) => (
+  <MenuItem key={row?.clientId} value={val?.staffId}>
+    {val?.name}
+  </MenuItem>
+))}
+          </Select>
+          <Button disabled={isStaffAdding} onClick={() =>  staffAdd({
+            clientId: row.clientId,
+            staffId:
+              selectedStaff[row.clientId] ||
+              row?.assignedStaff ||
+              "",
+          })}>Add</Button>
+       </Box>
+       ),
+     },
+
+   ];
+ 
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
@@ -39,11 +111,7 @@ const ClientListPage = () => {
           />
         </div>
 
-        {isError && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            Failed to load clients.
-          </div>
-        )}
+ 
 
         {canCreateClient && (
           <div className="mb-6 flex justify-end">
@@ -58,19 +126,47 @@ const ClientListPage = () => {
           </div>
         )}
 
-        <ReusableTable
-          title="All Clients"
-          variant="compact"
-          clients={clients.map((client) => ({
-            clientId: Number(client.clientId ?? 0),
-            fullName: client.fullName,
-            assignedStaffId: client.assignedStaffId,
-            assignedStaffName: client.assignedStaffName,
-          }))}
-          staffs={staffs}
-          canManageAssignments={canAssignClient}
-          onAssignClient={handleAssignClient}
-        />
+       <Paper sx={{ width: "100%" }}>
+          <DataGrid
+            rows={clientData?.data || []}
+            getRowId={(row) => row.clientId}
+            columns={columns}
+            disableColumnMenu
+            // initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[5, 10]}
+            // slots={{ cell: renderRowHeaderCell }}
+
+            loading={isClientLoading}
+            hideFooter
+            sx={{
+              border: 0,
+
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: "primary.main",
+                color: "primary.contrastText",
+              },
+
+              "& .MuiDataGrid-columnHeader": {
+                backgroundColor: "primary.main",
+              },
+
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 600,
+              },
+
+              "& .action-column-cell": {
+                backgroundColor: "#fff",
+              },
+              "& .MuiDataGrid-cell:focus": {
+                outline: "none",
+              },
+
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none",
+              },
+            }}
+          />
+        </Paper>
       </main>
     </div>
   );

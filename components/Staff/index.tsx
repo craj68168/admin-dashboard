@@ -1,31 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import ReusableTable from "@/components/ReusableTable";
 import { useStaffList } from "./hook";
-import type { StaffRowItem } from "./staff.type";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import Paper from "@mui/material/Paper";
 
 export default function StaffTable() {
-  const router = useRouter();
-  const { data: staffs = [], isLoading: loading } = useStaffList();
-
-  const goToClients = (staff: StaffRowItem) =>
-    router.push(`/staff/${staff.recordId ?? staff.id}/clients`);
+  const columns: GridColDef[] = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "name", headerName: "Full name", width: 130 },
+    { field: "location", headerName: "Location", width: 130 },
+  ];
+  const { data: staffData = [], isLoading } = useStaffList();
 
   return (
-    <>
-      {loading ? (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-          Loading staff...
-        </div>
-      ) : (
-        <ReusableTable
-          title="Staff List"
-          variant="staff-list"
-          staffRows={staffs}
-          onViewStaffClients={goToClients}
-        />
-      )}
-    </>
+    <Paper sx={{ height: 400, width: "100%" }}>
+      <DataGrid
+        rows={staffData}
+        getRowId={(row) => row.id}
+        columns={columns}
+        pageSizeOptions={[5, 10]}
+        loading={isLoading}
+        checkboxSelection
+        sx={{ border: 0 }}
+      />
+    </Paper>
   );
 }
