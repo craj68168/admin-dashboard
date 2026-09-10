@@ -61,12 +61,7 @@ const ClientListPage = () => {
         <ReusableTable
           title="All Clients"
           variant="compact"
-          clients={clients.map((client) => ({
-            clientId: client.clientId,
-            fullName: client.fullName,
-            assignedStaffId: client.assignedStaffId,
-            assignedStaffName: client.assignedStaffName,
-          }))}
+          clients={clients}
           staffs={staffs}
           canManageAssignments={canAssignClient}
           onAssignClient={handleAssignClient}
