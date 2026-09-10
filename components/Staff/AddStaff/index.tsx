@@ -5,14 +5,12 @@ import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useStaffAddHook } from "./hook";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Typography from "@mui/material/Typography";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import Link from "next/link";
-import { StaffAddFormValues, staffAddSchema } from "./types";
+import { StaffAddFormValues, StaffAddPayload, staffAddSchema } from "./types";
+import { Box, FormControl, MenuItem, Select, Typography } from "@mui/material";
 
 export default function AddStaff() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -26,11 +24,14 @@ export default function AddStaff() {
     resolver: zodResolver(staffAddSchema),
     defaultValues: {
       name: "",
+      phone: "",
+      location: "",
       email: "",
+      password: "",
     },
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: StaffAddPayload) => {
     await mutate(data);
   };
 
@@ -113,6 +114,108 @@ export default function AddStaff() {
             </Typography>
           )}
         </Box>
+
+        {/* Location */}
+        <Box>
+          <Typography
+            component="label"
+            htmlFor="location"
+            sx={{
+              display: "block",
+              mb: 0.75,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#333",
+            }}
+          >
+            Location
+          </Typography>
+
+          <FormControl fullWidth error={Boolean(errors.location)}>
+            <Select
+              {...register("location")}
+              id="location"
+              defaultValue=""
+              displayEmpty
+              sx={{
+                height: "40px",
+                backgroundColor: {
+                  xs: "#EDEDED",
+                  sm: "#fff",
+                },
+              }}
+            >
+              <MenuItem value="" disabled>
+                Select Location
+              </MenuItem>
+
+              <MenuItem value="Nepal">Nepal</MenuItem>
+              <MenuItem value="Japan">Japan</MenuItem>
+              <MenuItem value="USA">USA</MenuItem>
+            </Select>
+          </FormControl>
+
+          {errors.location?.message && (
+            <Typography
+              role="alert"
+              sx={{
+                mt: 0.5,
+                fontSize: "12px",
+                color: "error.main",
+              }}
+            >
+              {errors.location.message}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Phone */}
+        <Box>
+          <Typography
+            component="label"
+            htmlFor="phone"
+            sx={{
+              display: "block",
+              mb: 0.75,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#333",
+            }}
+          >
+            Phone
+          </Typography>
+          <OutlinedInput
+            {...register("phone")}
+            id="phone"
+            type="text"
+            fullWidth
+            autoComplete="phone"
+            placeholder="123-456-7890"
+            error={Boolean(errors.phone)}
+            aria-invalid={Boolean(errors.phone)}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          />
+
+          {errors.phone?.message && (
+            <Typography
+              role="alert"
+              sx={{
+                mt: 0.5,
+                fontSize: "12px",
+                color: "error.main",
+              }}
+            >
+              {errors.phone.message}
+            </Typography>
+          )}
+        </Box>
+
         {/* Email */}
         <Box>
           <Typography
@@ -160,6 +263,51 @@ export default function AddStaff() {
             </Typography>
           )}
         </Box>
+        {/* Password */}
+        <Box>
+          <Typography
+            component="label"
+            htmlFor="password"
+            sx={{
+              display: "block",
+              mb: 0.75,
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#333",
+            }}
+          >
+            Password
+          </Typography>
+          <OutlinedInput
+            {...register("password")}
+            id="password"
+            type="password"
+            fullWidth
+            autoComplete="current-password"
+            placeholder="Password"
+            error={Boolean(errors.password)}
+            aria-invalid={Boolean(errors.password)}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          />
+          {errors.password?.message && (
+            <Typography
+              role="alert"
+              sx={{
+                mt: 0.5,
+                fontSize: "12px",
+                color: "error.main",
+              }}
+            >
+              {errors.password.message}
+            </Typography>
+          )}
+        </Box>
         {/* Actions */}
         <Box>
           <Button
@@ -167,27 +315,9 @@ export default function AddStaff() {
             fullWidth
             variant="contained"
             disabled={isPending}
-            sx={{
-              mt: 1,
-              mb: 2,
-              height: "45px",
-            }}
           >
             {"Save"}
           </Button>
-
-          <Box sx={{ textAlign: "center" }}>
-            <Link
-              href="/forgot-password"
-              style={{
-                textDecoration: "underline",
-                fontWeight: 600,
-                color: "#06428A",
-              }}
-            >
-              Forgot password
-            </Link>
-          </Box>
         </Box>
       </Box>
     </div>
