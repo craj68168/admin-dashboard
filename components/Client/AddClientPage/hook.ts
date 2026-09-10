@@ -43,6 +43,7 @@ export function useAddClientPage() {
   const user = useAuthStore((state) => state.user);
   const staffQuery = useStaffQuery();
   const createClient = useCreateClient();
+  const staffs: ClientStaffRecord[] = staffQuery.data ?? [];
   const canAssignClient = canAssignClientPermission(user);
 
   const handleCreateClient = async (values: Record<string, string>) => {
@@ -63,16 +64,16 @@ export function useAddClientPage() {
   };
 
   return {
-    staffs: staffQuery.data ?? [],
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    defaultClientId: Date.now(),
-    isLoading: staffQuery.isLoading,
-    isError: staffQuery.isError,
-    isCreating: createClient.isPending,
-    formError,
-    canAssignClient,
-    handleCreateClient,
-    handleCancel: () => router.push("/client"),
-  };
+  staffs,
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  defaultClientId: Date.now(),
+  isLoading: staffQuery.isLoading,
+  isError: staffQuery.isError,
+  isCreating: createClient.isPending,
+  formError,
+  canAssignClient,
+  handleCreateClient,
+  handleCancel: () => router.push("/client"),
+};
 }

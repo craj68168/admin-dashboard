@@ -25,6 +25,11 @@ export default function AddClientPage() {
     handleCancel,
   } = useAddClientPage();
 
+  const staffData =  staffs?.length ?  staffs?.map((staff) => ({
+                label: staff.name,
+                value: String(staff.staffId),
+              })) : []
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
       <Sidebar
@@ -53,13 +58,7 @@ export default function AddClientPage() {
         ) : (
           <ReusableForm
             title="Client Information"
-            fields={getClientFormFields(
-              staffs.map((staff) => ({
-                label: staff.name,
-                value: String(staff.staffId),
-              })),
-              canAssignClient,
-            )}
+            fields={getClientFormFields(staffData)}
             defaultValues={{
               ...clientFormDefaults,
               clientId: defaultClientId,
