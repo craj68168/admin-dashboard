@@ -14,7 +14,6 @@ export const useStaffAddHook = () => {
       return api.post("/staff", payload);
     },
     onSuccess: () => {
-      console.warn("Staff created successfully");
       router.push("/staff");
     },
     onError: (error) => {

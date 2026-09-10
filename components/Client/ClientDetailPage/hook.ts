@@ -11,9 +11,7 @@ import {
   invalidateClientData,
   useClientPageData,
 } from "../client-query";
-import type {
-  ClientDetailViewState,
-} from "./type";
+import type { ClientDetailViewState } from "./type";
 
 function useCreateClient() {
   const queryClient = useQueryClient();
@@ -41,7 +39,9 @@ export function useClientDetailPage(): ClientDetailViewState {
     () =>
       mode === "create"
         ? null
-        : data?.clients.find((item) => String(item.clientId) === String(clientId)) ?? null,
+        : (data?.clients.find(
+            (item) => String(item.clientId) === String(clientId),
+          ) ?? null),
     [clientId, data?.clients, mode],
   );
   const canAssignClient = canAssignClientPermission(user);
@@ -56,8 +56,9 @@ export function useClientDetailPage(): ClientDetailViewState {
     }
 
     return (
-      staffs.find((staff) => String(staff._id) === String(client.assignedStaff)) ??
-      null
+      staffs.find(
+        (staff) => String(staff._id) === String(client.assignedStaff),
+      ) ?? null
     );
   }, [client, staffs]);
 
@@ -68,13 +69,14 @@ export function useClientDetailPage(): ClientDetailViewState {
       const payload = compactPayload({
         ...values,
         clientId: values.clientId,
-        assignedStaff: canAssignClient ? values.assignedStaff || undefined : undefined,
+        assignedStaff: canAssignClient
+          ? values.assignedStaff || undefined
+          : undefined,
       });
 
       await createClient.mutateAsync(payload);
       router.push("/client");
     } catch (error) {
-      console.error("Failed to create client", error);
       setFormError("Failed to create client.");
     }
   };
