@@ -17,6 +17,6 @@ export const sidebarItems: SidebarItem[] = ["Dashboard", "Staff", "Clients"];
 
 export const routeMap: Record<SidebarItem, string> = {
   Dashboard: "/admin/dashboard",
-  Staff: "/staff",
-  Clients: "/client",
+  Staff: "/admin/staff",
+  Clients: "/admin/client",
 };

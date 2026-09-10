@@ -6,11 +6,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import Breadcrumb from "@/components/Breadcrumb";
 import ReusableTable from "@/components/ReusableTable/index";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import { canEditClient, canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
-import { useStaffClients, useStaffClientsPage } from "./hook";
+import { useStaffClientsPage } from "./hook";
 import type { ClientTableRow } from "@/components/ReusableTable/type";
 
 export default function StaffClients() {
@@ -21,8 +19,6 @@ function StaffClientsContent() {
   const user = useAuthStore((state) => state.user);
   const {
     staffId,
-    sidebarCollapsed,
-    setSidebarCollapsed,
     staffs,
     clients,
     selectedStaff,
@@ -30,21 +26,21 @@ function StaffClientsContent() {
     isError,
     handleUpdateClientField,
   } = useStaffClientsPage();
-  const {data} = useStaffClients()
   const pageTitle = `${selectedStaff?.name ?? "Staff"} Clients`;
-  console.log("Data",data)
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "#f3f4f6" }}>
-      <Sidebar
-        selected="Staff"
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((previous) => !previous)}
-      />
-
-      <Box component="main" sx={{ flex: 1, height: "100vh", overflowY: "auto", px: 4, pb: 4 }}>
-        <Navbar title={pageTitle} />
-
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        overflow: "hidden",
+        bgcolor: "#f3f4f6",
+      }}
+    >
+      <Box
+        component="main"
+        sx={{ flex: 1, height: "100vh", overflowY: "auto", px: 4, pb: 4 }}
+      >
         <Box sx={{ mb: 3 }}>
           <Breadcrumb
             items={[
@@ -69,7 +65,9 @@ function StaffClientsContent() {
             variant="staff"
             clients={clients}
             staffs={staffs}
-            canEditClient={(client: ClientTableRow) => canEditClient(user, client)}
+            canEditClient={(client: ClientTableRow) =>
+              canEditClient(user, client)
+            }
             canUpdateClientStatus={clients.every((client) =>
               canUpdateClientStatus(user, client),
             )}
@@ -100,4 +98,3 @@ function LoadingState() {
     </Paper>
   );
 }
-

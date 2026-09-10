@@ -3,34 +3,27 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  getClientList,
-  invalidateClientData,
-  mapClient,
-  mapClientStaff,
-} from "@/components/Client/client-query";
+import { invalidateClientData } from "@/components/Client/client-query";
 import { api } from "@/lib/axios";
 import { canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
-import type {
-  ClientApiResponse,
-  ClientListApiResponse,
-  ClientStaffRecord,
-  ClientStatusField,
-  StaffClientsViewState,
-} from "./type";
+import type { ClientStatusField, StaffClientsViewState } from "./type";
 
 export function useStaffClients() {
   const params = useParams<{ staffId: string }>();
   const staffId = params.staffId;
-  const { isPending, data } =  useQuery({
+  const { isPending, data, isError } = useQuery({
     queryKey: ["staff-clients", staffId],
     queryFn: async () => {
       return await api.get(`/clients/staff/${staffId}`);
     },
     enabled: !!staffId,
   });
-  { data}
+  return {
+    data,
+    isPending,
+    isError,
+  };
 }
 
 function useUpdateClientField() {
@@ -54,10 +47,9 @@ export function useStaffClientsPage(): StaffClientsViewState {
   const params = useParams<{ staffId: string }>();
   const staffId = params.staffId;
 
-  console.log("",staffId);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isError } = useStaffClients(staffId);
+  const { data, isPending: isLoading, isError } = useStaffClients();
   const updateClientField = useUpdateClientField();
   const clients = data?.clients ?? [];
   const staffs = (data?.staffs ?? []).map((staff) => ({
@@ -74,7 +66,11 @@ export function useStaffClientsPage(): StaffClientsViewState {
       (client) => String(client.clientId) === String(clientId),
     );
 
-    if (!selectedClient || !canUpdateClientStatus(user, selectedClient) || !selectedClient._id) {
+    if (
+      !selectedClient ||
+      !canUpdateClientStatus(user, selectedClient) ||
+      !selectedClient._id
+    ) {
       return;
     }
 
@@ -94,7 +90,11 @@ export function useStaffClientsPage(): StaffClientsViewState {
     selectedStaff: data?.selectedStaff
       ? {
           ...data.selectedStaff,
-          id: data.selectedStaff._id ?? data.selectedStaff.id ?? data.selectedStaff.staffId ?? 0,
+          id:
+            data.selectedStaff._id ??
+            data.selectedStaff.id ??
+            data.selectedStaff.staffId ??
+            0,
         }
       : null,
     isLoading,
