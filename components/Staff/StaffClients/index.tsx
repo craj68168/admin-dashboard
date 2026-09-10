@@ -10,7 +10,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { canEditClient, canUpdateClientStatus } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
-import { useStaffClientsPage } from "./hook";
+import { useStaffClients, useStaffClientsPage } from "./hook";
 import type { ClientTableRow } from "@/components/ReusableTable/type";
 
 export default function StaffClients() {
@@ -30,7 +30,9 @@ function StaffClientsContent() {
     isError,
     handleUpdateClientField,
   } = useStaffClientsPage();
+  const {data} = useStaffClients()
   const pageTitle = `${selectedStaff?.name ?? "Staff"} Clients`;
+  console.log("Data",data)
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "#f3f4f6" }}>

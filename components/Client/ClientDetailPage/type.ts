@@ -14,7 +14,7 @@ export type DetailField = {
 
 export type ClientDetailViewState = {
   mode: string | null;
-  clientId: number;
+  clientId: number | string;
   client: ClientRecord | null;
   staffs: ClientStaffRecord[];
   assignedStaff: ClientStaffRecord | null;

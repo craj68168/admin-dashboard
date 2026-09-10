@@ -5,12 +5,16 @@ import Breadcrumb from "@/components/Breadcrumb";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useStaffAddHook } from "./hook";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Typography from "@mui/material/Typography";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { StaffAddFormValues, StaffAddPayload, staffAddSchema } from "./types";
-import { Box, FormControl, MenuItem, Select, Typography } from "@mui/material";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Link from "next/link";
+import { StaffAddFormValues, staffAddSchema, STAFF_LOCATIONS } from "./types";
 
 export default function AddStaff() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -31,8 +35,8 @@ export default function AddStaff() {
     },
   });
 
-  const onSubmit = async (data: StaffAddPayload) => {
-    await mutate(data);
+  const onSubmit = async (data: StaffAddFormValues) => {
+    mutate(data);
   };
 
   return (
@@ -55,8 +59,7 @@ export default function AddStaff() {
             ]}
           />
         </div>
-      </main>
-      <Box
+           <Box
         component="form"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
@@ -82,38 +85,113 @@ export default function AddStaff() {
             name
           </Typography>
 
-          <OutlinedInput
-            {...register("name")}
-            id="name"
-            type="name"
-            fullWidth
-            autoComplete="name"
-            autoFocus
-            placeholder="yamada@example.com"
-            error={Boolean(errors.name)}
-            aria-invalid={Boolean(errors.name)}
-            sx={{
-              height: "40px",
-              backgroundColor: {
-                xs: "#EDEDED",
-                sm: "#fff",
-              },
-            }}
-          />
-
-          {errors.name?.message && (
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            maxWidth: "600px",
+          }}
+        >
+          {/* Name */}
+          <Box>
             <Typography
-              role="alert"
+              component="label"
+              htmlFor="name"
               sx={{
-                mt: 0.5,
-                fontSize: "12px",
-                color: "error.main",
+                display: "block",
+                mb: 0.75,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#333",
               }}
             >
-              {errors.name.message}
+              Name
             </Typography>
-          )}
-        </Box>
+
+            <OutlinedInput
+              {...register("name")}
+              id="name"
+              type="text"
+              fullWidth
+              autoComplete="name"
+              autoFocus
+              placeholder="Enter staff name"
+              error={Boolean(errors.name)}
+              aria-invalid={Boolean(errors.name)}
+              sx={{
+                height: "40px",
+                backgroundColor: {
+                  xs: "#EDEDED",
+                  sm: "#fff",
+                },
+              }}
+            />
+
+            {errors.name?.message && (
+              <Typography
+                role="alert"
+                sx={{
+                  mt: 0.5,
+                  fontSize: "12px",
+                  color: "error.main",
+                }}
+              >
+                {errors.name.message}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Phone */}
+          <Box>
+            <Typography
+              component="label"
+              htmlFor="phone"
+              sx={{
+                display: "block",
+                mb: 0.75,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#333",
+              }}
+            >
+              Phone
+            </Typography>
+
+            <OutlinedInput
+              {...register("phone")}
+              id="phone"
+              type="tel"
+              fullWidth
+              autoComplete="tel"
+              placeholder="Enter phone number"
+              error={Boolean(errors.phone)}
+              aria-invalid={Boolean(errors.phone)}
+              sx={{
+                height: "40px",
+                backgroundColor: {
+                  xs: "#EDEDED",
+                  sm: "#fff",
+                },
+              }}
+            />
+
+            {errors.phone?.message && (
+              <Typography
+                role="alert"
+                sx={{
+                  mt: 0.5,
+                  fontSize: "12px",
+                  color: "error.main",
+                }}
+              >
+                {errors.phone.message}
+              </Typography>
+            )}
+          </Box>
 
         {/* Location */}
         <Box>
@@ -131,29 +209,31 @@ export default function AddStaff() {
             Location
           </Typography>
 
-          <FormControl fullWidth error={Boolean(errors.location)}>
-            <Select
-              {...register("location")}
-              id="location"
-              defaultValue=""
-              displayEmpty
-              sx={{
-                height: "40px",
-                backgroundColor: {
-                  xs: "#EDEDED",
-                  sm: "#fff",
-                },
-              }}
-            >
-              <MenuItem value="" disabled>
-                Select Location
+          <Select
+            {...register("location")}
+            id="location"
+            fullWidth
+            defaultValue=""
+            displayEmpty
+            error={Boolean(errors.location)}
+            aria-invalid={Boolean(errors.location)}
+            sx={{
+              height: "40px",
+              backgroundColor: {
+                xs: "#EDEDED",
+                sm: "#fff",
+              },
+            }}
+          >
+            <MenuItem value="" disabled>
+              Select location
+            </MenuItem>
+            {STAFF_LOCATIONS.map((loc) => (
+              <MenuItem key={loc} value={loc}>
+                {loc}
               </MenuItem>
-
-              <MenuItem value="Nepal">Nepal</MenuItem>
-              <MenuItem value="Japan">Japan</MenuItem>
-              <MenuItem value="USA">USA</MenuItem>
-            </Select>
-          </FormControl>
+            ))}
+          </Select>
 
           {errors.location?.message && (
             <Typography
@@ -169,157 +249,123 @@ export default function AddStaff() {
           )}
         </Box>
 
-        {/* Phone */}
-        <Box>
-          <Typography
-            component="label"
-            htmlFor="phone"
-            sx={{
-              display: "block",
-              mb: 0.75,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#333",
-            }}
-          >
-            Phone
-          </Typography>
-          <OutlinedInput
-            {...register("phone")}
-            id="phone"
-            type="text"
-            fullWidth
-            autoComplete="phone"
-            placeholder="123-456-7890"
-            error={Boolean(errors.phone)}
-            aria-invalid={Boolean(errors.phone)}
-            sx={{
-              height: "40px",
-              backgroundColor: {
-                xs: "#EDEDED",
-                sm: "#fff",
-              },
-            }}
-          />
-
-          {errors.phone?.message && (
+          {/* Email */}
+          <Box>
             <Typography
-              role="alert"
+              component="label"
+              htmlFor="email"
               sx={{
-                mt: 0.5,
-                fontSize: "12px",
-                color: "error.main",
+                display: "block",
+                mb: 0.75,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#333",
               }}
             >
-              {errors.phone.message}
+              Email
             </Typography>
-          )}
-        </Box>
 
-        {/* Email */}
-        <Box>
-          <Typography
-            component="label"
-            htmlFor="email"
-            sx={{
-              display: "block",
-              mb: 0.75,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#333",
-            }}
-          >
-            Email
-          </Typography>
-
-          <OutlinedInput
-            {...register("email")}
-            id="email"
-            type="email"
-            fullWidth
-            autoComplete="email"
-            placeholder="yamada@example.com"
-            error={Boolean(errors.email)}
-            aria-invalid={Boolean(errors.email)}
-            sx={{
-              height: "40px",
-              backgroundColor: {
-                xs: "#EDEDED",
-                sm: "#fff",
-              },
-            }}
-          />
-
-          {errors.email?.message && (
-            <Typography
-              role="alert"
+            <OutlinedInput
+              {...register("email")}
+              id="email"
+              type="email"
+              fullWidth
+              autoComplete="email"
+              placeholder="yamada@example.com"
+              error={Boolean(errors.email)}
+              aria-invalid={Boolean(errors.email)}
               sx={{
-                mt: 0.5,
-                fontSize: "12px",
-                color: "error.main",
+                height: "40px",
+                backgroundColor: {
+                  xs: "#EDEDED",
+                  sm: "#fff",
+                },
+              }}
+            />
+
+            {errors.email?.message && (
+              <Typography
+                role="alert"
+                sx={{
+                  mt: 0.5,
+                  fontSize: "12px",
+                  color: "error.main",
+                }}
+              >
+                {errors.email.message}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Password */}
+          <Box>
+            <Typography
+              component="label"
+              htmlFor="password"
+              sx={{
+                display: "block",
+                mb: 0.75,
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#333",
               }}
             >
-              {errors.email.message}
+              Password
             </Typography>
-          )}
-        </Box>
-        {/* Password */}
-        <Box>
-          <Typography
-            component="label"
-            htmlFor="password"
-            sx={{
-              display: "block",
-              mb: 0.75,
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#333",
-            }}
-          >
-            Password
-          </Typography>
-          <OutlinedInput
-            {...register("password")}
-            id="password"
-            type="password"
-            fullWidth
-            autoComplete="current-password"
-            placeholder="Password"
-            error={Boolean(errors.password)}
-            aria-invalid={Boolean(errors.password)}
-            sx={{
-              height: "40px",
-              backgroundColor: {
-                xs: "#EDEDED",
-                sm: "#fff",
-              },
-            }}
-          />
-          {errors.password?.message && (
-            <Typography
-              role="alert"
+
+            <OutlinedInput
+              {...register("password")}
+              id="password"
+              type="password"
+              fullWidth
+              autoComplete="new-password"
+              placeholder="Enter password"
+              error={Boolean(errors.password)}
+              aria-invalid={Boolean(errors.password)}
               sx={{
-                mt: 0.5,
-                fontSize: "12px",
-                color: "error.main",
+                height: "40px",
+                backgroundColor: {
+                  xs: "#EDEDED",
+                  sm: "#fff",
+                },
+              }}
+            />
+
+            {errors.password?.message && (
+              <Typography
+                role="alert"
+                sx={{
+                  mt: 0.5,
+                  fontSize: "12px",
+                  color: "error.main",
+                }}
+              >
+                {errors.password.message}
+              </Typography>
+            )}
+          </Box>
+
+          {/* Actions */}
+          <Box>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={isPending}
+              sx={{
+                mt: 1,
+                mb: 2,
+                height: "45px",
               }}
             >
-              {errors.password.message}
-            </Typography>
-          )}
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+          </Box>
         </Box>
-        {/* Actions */}
-        <Box>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isPending}
-          >
-            {"Save"}
-          </Button>
         </Box>
-      </Box>
+        </Box>
+      </main>
+   
     </div>
   );
 }

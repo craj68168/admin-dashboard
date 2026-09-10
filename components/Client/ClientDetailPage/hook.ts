@@ -33,7 +33,7 @@ export function useClientDetailPage(): ClientDetailViewState {
   const [defaultClientId] = useState(() => Date.now());
   const user = useAuthStore((state) => state.user);
   const mode = searchParams.get("mode");
-  const clientId = Number(searchParams.get("clientId") ?? 0);
+  const clientId = searchParams.get("clientId") ?? "";
   const { data, isLoading, isError } = useClientPageData();
   const createClient = useCreateClient();
   const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
@@ -41,7 +41,7 @@ export function useClientDetailPage(): ClientDetailViewState {
     () =>
       mode === "create"
         ? null
-        : data?.clients.find((item) => Number(item.clientId) === clientId) ?? null,
+        : data?.clients.find((item) => String(item.clientId) === String(clientId)) ?? null,
     [clientId, data?.clients, mode],
   );
   const canAssignClient = canAssignClientPermission(user);
@@ -67,7 +67,7 @@ export function useClientDetailPage(): ClientDetailViewState {
     try {
       const payload = compactPayload({
         ...values,
-        clientId: Number(values.clientId),
+        clientId: values.clientId,
         assignedStaff: canAssignClient ? values.assignedStaff || undefined : undefined,
       });
 

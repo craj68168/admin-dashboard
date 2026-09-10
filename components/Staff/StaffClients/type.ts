@@ -12,7 +12,7 @@ export type ClientStatusField = "coeStatus" | "visaStatus" | "clientStatus";
 export type StaffClientStatusField = ClientStatusField;
 
 export type UpdateClientFieldHandler = (
-  clientId: number,
+  clientId: number | string,
   field: StaffClientStatusField,
   value: string,
 ) => void;

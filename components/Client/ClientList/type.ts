@@ -19,5 +19,5 @@ export type ClientListViewState = {
   canAssignClient: boolean;
   setSidebarCollapsed: (value: boolean | ((previous: boolean) => boolean)) => void;
   handleCreateClient: () => void;
-  handleAssignClient: (clientId: number, staffId: number | string) => void;
+  handleAssignClient: (clientId: number | string, staffId: number | string) => void;
 };

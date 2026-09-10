@@ -62,7 +62,7 @@ const ClientListPage = () => {
           title="All Clients"
           variant="compact"
           clients={clients.map((client) => ({
-            clientId: Number(client.clientId ?? 0),
+            clientId: client.clientId,
             fullName: client.fullName,
             assignedStaffId: client.assignedStaffId,
             assignedStaffName: client.assignedStaffName,
