@@ -14,6 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import { formatCreatedAt } from "@/utils/format-date";
 
 export default function StaffPage() {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function StaffPage() {
       minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
     },
     {
       field: "",
@@ -158,33 +160,6 @@ export default function StaffPage() {
             loading={isLoading}
             hideFooter
             autoHeight
-            sx={{
-              border: 0,
-
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "primary.main",
-                color: "primary.contrastText",
-              },
-
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor: "primary.main",
-              },
-
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: 600,
-              },
-
-              "& .action-column-cell": {
-                backgroundColor: "#fff",
-              },
-              "& .MuiDataGrid-cell:focus": {
-                outline: "none",
-              },
-
-              "& .MuiDataGrid-cell:focus-within": {
-                outline: "none",
-              },
-            }}
           />
         </Paper>
       </main>

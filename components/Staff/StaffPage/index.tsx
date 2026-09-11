@@ -10,6 +10,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import Box from "@mui/material/Box";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import { formatCreatedAt } from "@/utils/format-date";
 
 export default function StaffPage() {
   const router = useRouter();
@@ -32,7 +33,13 @@ export default function StaffPage() {
     },
     { field: "email", headerName: "Email", flex: 1, minWidth: 170 },
     { field: "location", headerName: "Location", flex: 0.8, minWidth: 130 },
-    { field: "createdAt", headerName: "Created At", flex: 1, minWidth: 170 },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      flex: 1,
+      minWidth: 170,
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
+    },
     {
       field: "action",
       headerName: "Action",
@@ -79,7 +86,6 @@ export default function StaffPage() {
             // initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             // slots={{ cell: renderRowHeaderCell }}
-            sx={{ border: 0 }}
             loading={isLoading}
             hideFooter
             autoHeight

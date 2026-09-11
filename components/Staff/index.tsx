@@ -22,7 +22,6 @@ export default function StaffTable() {
         loading={isLoading}
         checkboxSelection
         autoHeight
-        sx={{ border: 0 }}
       />
     </Paper>
   );

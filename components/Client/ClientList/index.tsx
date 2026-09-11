@@ -126,33 +126,6 @@ const ClientListPage = () => {
             loading={isClientLoading}
             hideFooter
             autoHeight
-            sx={{
-              border: 0,
-
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "primary.main",
-                color: "primary.contrastText",
-              },
-
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor: "primary.main",
-              },
-
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontWeight: 600,
-              },
-
-              "& .action-column-cell": {
-                backgroundColor: "#fff",
-              },
-              "& .MuiDataGrid-cell:focus": {
-                outline: "none",
-              },
-
-              "& .MuiDataGrid-cell:focus-within": {
-                outline: "none",
-              },
-            }}
           />
         </Paper>
       </main>

@@ -10,6 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { formatCreatedAt } from "@/utils/format-date";
 
 function StaffClientsContent() {
   const router = useRouter();
@@ -63,6 +64,7 @@ function StaffClientsContent() {
       minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
     },
     {
       field: "",
@@ -153,33 +155,6 @@ function StaffClientsContent() {
           loading={isPending}
           hideFooter
           autoHeight
-          sx={{
-            border: 0,
-
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: "primary.main",
-              color: "primary.contrastText",
-            },
-
-            "& .MuiDataGrid-columnHeader": {
-              backgroundColor: "primary.main",
-            },
-
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: 600,
-            },
-
-            "& .action-column-cell": {
-              backgroundColor: "#fff",
-            },
-            "& .MuiDataGrid-cell:focus": {
-              outline: "none",
-            },
-
-            "& .MuiDataGrid-cell:focus-within": {
-              outline: "none",
-            },
-          }}
         />
       </Box>
     </Box>

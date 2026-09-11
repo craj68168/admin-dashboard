@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 
 export const theme = createTheme({
   palette: {
@@ -104,6 +105,69 @@ export const theme = createTheme({
   },
 
   components: {
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          border: 0,
+          width: "100%",
+          minHeight: 0,
+          color: "#111827",
+          "& .MuiDataGrid-columnHeaders": {
+            minHeight: "48px !important",
+            maxHeight: "48px !important",
+            backgroundColor: "#1976d2",
+            color: "#fff",
+            borderBottom: "1px solid #E5E7EB",
+          },
+          "& .MuiDataGrid-columnHeader": {
+            backgroundColor: "#1976d2",
+            outline: "none",
+            "&:focus": { outline: "none" },
+            "&:focus-within": { outline: "none" },
+          },
+          "& .MuiDataGrid-columnHeaderTitle": {
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+          },
+          "& .MuiDataGrid-columnSeparator": {
+            display: "none",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "1px solid #F1F5F9",
+            outline: "none",
+            overflow: "hidden",
+            "&:focus": { outline: "none" },
+            "&:focus-within": { outline: "none" },
+          },
+          "& .MuiDataGrid-row:nth-of-type(even)": {
+            backgroundColor: "#FAFBFC",
+          },
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: "#F8FAFC !important",
+          },
+          "& .MuiDataGrid-row.Mui-selected": {
+            backgroundColor: "transparent",
+          },
+          "& .MuiDataGrid-virtualScroller": {
+            scrollbarWidth: "thin",
+          },
+          "& .MuiDataGrid-scrollbar": {
+            "&::-webkit-scrollbar": {
+              width: "8px",
+              height: "8px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#CBD5E1",
+              borderRadius: "8px",
+            },
+          },
+          "& .MuiDataGrid-footerContainer": {
+            display: "none",
+          },
+        },
+      },
+    },
+
     /**
      * GLOBAL INPUT LABEL
      */
