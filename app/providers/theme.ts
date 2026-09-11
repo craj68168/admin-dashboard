@@ -111,35 +111,47 @@ export const theme = createTheme({
         slots: {
           noRowsOverlay: NoDataOverlay,
         },
+        rowHeight: 60,
+        columnHeaderHeight: 54,
       },
       styleOverrides: {
         root: {
-          border: 0,
+          border: "1px solid #E2E8F0",
+          borderRadius: "14px",
           width: "100%",
           minHeight: 0,
           color: "#111827",
+          overflow: "hidden",
+          backgroundColor: "#FFFFFF",
           "& .MuiDataGrid-columnHeaders": {
-            minHeight: "48px !important",
-            maxHeight: "48px !important",
+            minHeight: "54px !important",
+            maxHeight: "54px !important",
             backgroundColor: "#1976d2",
             color: "#fff",
-            borderBottom: "1px solid #E5E7EB",
+            borderBottom: "0",
           },
           "& .MuiDataGrid-columnHeader": {
             backgroundColor: "#1976d2",
+            padding: "0 16px",
             outline: "none",
             "&:focus": { outline: "none" },
             "&:focus-within": { outline: "none" },
           },
           "& .MuiDataGrid-columnHeaderTitle": {
+            fontSize: "12px",
             fontWeight: 600,
+            letterSpacing: "0.03em",
+            textTransform: "uppercase",
             whiteSpace: "nowrap",
           },
           "& .MuiDataGrid-columnSeparator": {
             display: "none",
           },
           "& .MuiDataGrid-cell": {
+            minHeight: "60px !important",
+            padding: "0 16px",
             borderBottom: "1px solid #F1F5F9",
+            fontSize: "14px",
             outline: "none",
             overflow: "hidden",
             "&:focus": { outline: "none" },
@@ -147,6 +159,10 @@ export const theme = createTheme({
           },
           "& .MuiDataGrid-row:nth-of-type(even)": {
             backgroundColor: "#FAFBFC",
+          },
+          "& .MuiDataGrid-row": {
+            minHeight: "60px !important",
+            maxHeight: "60px !important",
           },
           "& .MuiDataGrid-row:hover": {
             backgroundColor: "#F8FAFC !important",

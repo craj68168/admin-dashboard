@@ -46,8 +46,8 @@ import {
 /* -------------------------------------------------------------------------- */
 
 const TABLE = {
-  headerHeight: 48,
-  rowHeight: 64,
+  headerHeight: 54,
+  rowHeight: 60,
   cellPaddingX: 2,
 };
 
