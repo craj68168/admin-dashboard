@@ -1,10 +1,8 @@
 "use client";
 
 import Breadcrumb from "@/components/Breadcrumb";
-import Navbar from "@/components/Navbar";
 import Box from "@mui/material/Box";
-import Sidebar from "@/components/Sidebar";
-import { useClientListHook,useClientHook } from "./hook";
+import { useClientListHook, useClientHook } from "./hook";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Paper } from "@mui/material";
 import Link from "next/link";
@@ -12,21 +10,16 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import { useState } from "react";
-import {Staff} from "./type"
+import { Staff } from "./type";
 
 const ClientListPage = () => {
-  const {
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    canCreateClient,
-    handleCreateClient,
-  } = useClientListHook();
+  const { canCreateClient, handleCreateClient } = useClientListHook();
 
- const {isClientLoading,clientData,staffData,staffAdd,isStaffAdding} =  useClientHook()
- const [selectedStaff, setSelectedStaff] = useState<
-  Record<string, string>
->({});
-console.log("staffData", staffData);
+  const { isClientLoading, clientData, staffData, staffAdd, isStaffAdding } =
+    useClientHook();
+  const [selectedStaff, setSelectedStaff] = useState<Record<string, string>>(
+    {},
+  );
   const columns: GridColDef[] = [
      {
        field: "clientId",
@@ -71,14 +64,14 @@ console.log("staffData", staffData);
          <Select
             id="staff"
             fullWidth
-             value={ selectedStaff[row.clientId] || row?.assignedStaff || ""}
-        displayEmpty
-        onChange={(e) => {
-          setSelectedStaff((prev) => ({
-            ...prev,
-            [row.clientId]: e.target.value,
-          }));
-        }}
+            value={selectedStaff[row.clientId] || row?.assignedStaff || ""}
+            displayEmpty
+            onChange={(e) => {
+              setSelectedStaff((prev) => ({
+                ...prev,
+                [row.clientId]: e.target.value,
+              }));
+            }}
             sx={{
               height: "40px",
               backgroundColor: {
@@ -93,32 +86,26 @@ console.log("staffData", staffData);
         </MenuItem>
       ))}
           </Select>
-          <Button disabled={isStaffAdding} onClick={() =>  staffAdd({
-            clientId: row.clientId,
-            staffId:
-              selectedStaff[row.clientId] ||
-              row?.assignedStaff ||
-              "",
-          })}>Add</Button>
-       </Box>
-       ),
-     },
-
-   ];
- 
-
+          <Button
+            disabled={isStaffAdding}
+            onClick={() =>
+              staffAdd({
+                clientId: row.clientId,
+                staffId:
+                  selectedStaff[row.clientId] || row?.assignedStaff || "",
+              })
+            }
+          >
+            Add
+          </Button>
+        </Box>
+      ),
+    },
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
-      <Sidebar
-        selected="Clients"
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((prev) => !prev)}
-      />
-
       <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <Navbar title="Clients" />
-
         <div className="mb-6">
           <Breadcrumb
             items={[
@@ -127,8 +114,6 @@ console.log("staffData", staffData);
             ]}
           />
         </div>
-
- 
 
         {canCreateClient && (
           <div className="mb-6 flex justify-end">
@@ -143,7 +128,7 @@ console.log("staffData", staffData);
           </div>
         )}
 
-       <Paper sx={{ width: "100%" }}>
+        <Paper sx={{ width: "100%" }}>
           <DataGrid
             rows={clientData?.data || []}
             getRowId={(row) => row.clientId}

@@ -2,7 +2,6 @@
 
 import { Suspense, type ReactNode } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
-import Navbar from "@/components/Navbar";
 import Remarks from "@/components/Remarks";
 import Sidebar from "@/components/Sidebar";
 import { useClientDetailPage } from "./hook";
@@ -70,7 +69,9 @@ function ClientDetailPageContent() {
         />
 
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="text-xl font-semibold text-gray-900">Client not found</h3>
+          <h3 className="text-xl font-semibold text-gray-900">
+            Client not found
+          </h3>
           <p className="mt-2 text-sm text-gray-600">
             The selected client record does not exist.
           </p>
@@ -188,9 +189,6 @@ function ClientDetailFallback() {
 }
 
 function PageShell({
-  title,
-  sidebarCollapsed,
-  onToggleSidebar,
   children,
 }: {
   title: string;
@@ -200,14 +198,7 @@ function PageShell({
 }) {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
-      <Sidebar
-        selected="Clients"
-        collapsed={sidebarCollapsed}
-        onToggle={onToggleSidebar}
-      />
-
       <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <Navbar title={title} />
         {children}
       </main>
     </div>
@@ -228,7 +219,11 @@ function DetailSection({
       <h4 className="mb-5 text-lg font-semibold text-gray-900">{title}</h4>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {fields.map((field) => (
-          <DetailValue key={field.label} label={field.label} value={field.value} />
+          <DetailValue
+            key={field.label}
+            label={field.label}
+            value={field.value}
+          />
         ))}
         {children}
       </div>

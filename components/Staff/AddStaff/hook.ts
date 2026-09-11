@@ -13,9 +13,9 @@ export const useStaffAddHook = () => {
     mutationFn: async (payload) => {
       return api.post("/staff", payload);
     },
+
     onSuccess: () => {
-      console.warn("Staff created successfully");
-      router.push("/staff");
+      router.push("/admin/staff");
     },
     onError: (error) => {
       console.error("Failed to create staff", error);

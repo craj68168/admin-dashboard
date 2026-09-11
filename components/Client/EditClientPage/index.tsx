@@ -2,12 +2,9 @@
 
 import { Suspense } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
-import Navbar from "@/components/Navbar";
 import ReusableForm from "@/components/ReusableForm";
 import Remarks from "@/components/Remarks";
-import Sidebar from "@/components/Sidebar";
 import { useEditClientPage } from "./hook";
-
 
 export default function EditClientPage() {
   return (
@@ -22,7 +19,6 @@ function EditClientPageContent() {
     clientId,
     client,
     user,
-    sidebarCollapsed,
     isLoading,
     isError,
     saving,
@@ -30,22 +26,13 @@ function EditClientPageContent() {
     defaultValues,
     editableClientFields,
     canEditSelectedClient,
-    setSidebarCollapsed,
     handleUpdateClient,
     handleCancel,
   } = useEditClientPage();
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-100">
-      <Sidebar
-        selected="Clients"
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((prev) => !prev)}
-      />
-
       <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <Navbar title="Edit Client" />
-
         <div className="mb-6">
           <Breadcrumb
             items={[
@@ -70,7 +57,9 @@ function EditClientPageContent() {
           </div>
         ) : !client ? (
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900">Client not found</h3>
+            <h3 className="text-xl font-semibold text-gray-900">
+              Client not found
+            </h3>
             <p className="mt-2 text-sm text-gray-600">
               The selected client record does not exist.
             </p>
@@ -79,7 +68,8 @@ function EditClientPageContent() {
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 className="text-xl font-semibold text-gray-900">Read only</h3>
             <p className="mt-2 text-sm text-gray-600">
-              You can view this client, but only the assigned staff or super admin can edit it.
+              You can view this client, but only the assigned staff or super
+              admin can edit it.
             </p>
           </div>
         ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -11,30 +11,28 @@ import {
 } from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 
-export const useClientHook = () =>{
-   const queryClient = useQueryClient();
-   
-   const {isLoading:isClientLoading, data:clientData} =  useQuery({
+export const useClientHook = () => {
+  const queryClient = useQueryClient();
+
+  const { isLoading: isClientLoading, data: clientData } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const response = await api.get(
-        "/clients",
-      );
+      const response = await api.get("/clients");
 
-      return response.data
+      return response.data;
     },
   });
 
-  const { data:staffData} = useQuery({
+  const { data: staffData } = useQuery({
     queryKey: ["staff"],
     queryFn: async () => {
       const response = await api.get("/staff");
 
-      return response?.data
+      return response?.data;
     },
   });
 
-  const {mutate:staffAdd,isPending:isStaffAdding } =  useMutation({
+  const { mutate: staffAdd, isPending: isStaffAdding } = useMutation({
     mutationFn: ({
       clientId,
       staffId,
@@ -52,15 +50,14 @@ export const useClientHook = () =>{
     },
   });
 
-  return {isClientLoading,clientData,staffData,staffAdd,isStaffAdding}
-}
+  return { isClientLoading, clientData, staffData, staffAdd, isStaffAdding };
+};
 
 export function useClientListHook() {
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const user = useAuthStore((state) => state.user);
-
 
   const canCreateClient = canCreateClientPermission(user);
   const canAssignClient = canAssignClientPermission(user);
@@ -69,11 +66,14 @@ export function useClientListHook() {
     router.push("/client/add");
   };
 
-  const handleAssignClient = (clientId: number | string, staffId: number | string) => {
+  const handleAssignClient = (
+    clientId: number | string,
+    staffId: number | string,
+  ) => {
     if (!canAssignClient) {
       return;
     }
-  }
+  };
 
   return {
     sidebarCollapsed,
