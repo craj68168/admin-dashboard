@@ -4,10 +4,13 @@ import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuthStore } from "@/store/auth-store";
 import { useStaffHook } from "./hook";
-import Link from "next/link";
 import Button from "@mui/material/Button";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
@@ -16,7 +19,7 @@ export default function StaffPage() {
   const router = useRouter();
   const role = useAuthStore((state) => state.user?.role);
 
-  const { isLoading, staffData } = useStaffHook();
+  const { isLoading, staffData, deleteStaff, isDeleting } = useStaffHook();
 
   const columns: GridColDef[] = [
     {
@@ -32,14 +35,6 @@ export default function StaffPage() {
       width: 270,
       resizable: false,
       disableColumnMenu: true,
-      renderCell: (params) => (
-        <Link
-          href={`/admin/staff/${params.row.staffId}/clients`}
-          className="text-blue-500 hover:underline"
-        >
-          {params.row.name}
-        </Link>
-      ),
     },
     {
       field: "email",
@@ -66,21 +61,56 @@ export default function StaffPage() {
       field: "",
       headerName: "Action",
       resizable: false,
-      width: 135,
+      width: role === "superadmin" ? 190 : 90,
       disableColumnMenu: true,
       renderCell: (params) => {
         return (
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button
-              variant={"text"}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                router.push(`/admin/staff/${params.row.staffId}/clients`);
-              }}
-            >
-              <RemoveRedEyeIcon />
-            </Button>
+            <Tooltip title="View staff clients">
+              <IconButton
+                aria-label="View staff clients"
+                onClick={() =>
+                  router.push(`/admin/staff/${params.row.staffId}/clients`)
+                }
+              >
+                <RemoveRedEyeIcon />
+              </IconButton>
+            </Tooltip>
+
+            {role === "superadmin" && (
+              <>
+                <Tooltip title="Edit staff">
+                  <IconButton
+                    aria-label="Edit staff"
+                    onClick={() =>
+                      router.push(`/admin/staff/${params.row.staffId}/edit`)
+                    }
+                  >
+                    <EditOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Delete staff">
+                  <span>
+                    <IconButton
+                      aria-label="Delete staff"
+                      disabled={isDeleting}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Delete ${params.row.name ?? "this staff member"}?`,
+                          )
+                        ) {
+                          deleteStaff(params.row.staffId);
+                        }
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </>
+            )}
           </Box>
         );
       },
