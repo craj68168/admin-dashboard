@@ -10,6 +10,8 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import Box from "@mui/material/Box";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import { formatCreatedAt } from "@/utils/format-date";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 export default function StaffPage() {
   const router = useRouter();
@@ -18,24 +20,31 @@ export default function StaffPage() {
   const { isLoading, staffData } = useStaffHook();
 
   const columns: GridColDef[] = [
-    { field: "staffId", headerName: "ID", width: 170 },
+    { field: "staffId", headerName: "ID", flex: 0.7, minWidth: 130 },
     {
       field: "name",
       headerName: "Full name",
-      width: 170,
+      flex: 1.1,
+      minWidth: 170,
       renderCell: (params) => (
         <Link href={`/staff/${params.row.staffId}/clients`}>
           {params.row.name}
         </Link>
       ),
     },
-    { field: "email", headerName: "Email", width: 170 },
-    { field: "location", headerName: "Location", width: 170 },
-    { field: "createdAt", headerName: "Created At", width: 170 },
+    { field: "email", headerName: "Email", flex: 1, minWidth: 170 },
+    { field: "location", headerName: "Location", flex: 0.8, minWidth: 130 },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      flex: 1,
+      minWidth: 170,
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
+    },
     {
       field: "action",
       headerName: "Action",
-      width: 170,
+      width: 110,
       renderCell: () => (
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Button variant="text" aria-label="View staff">
@@ -69,7 +78,7 @@ export default function StaffPage() {
           </div>
         )}
 
-        <Paper sx={{ height: 400, width: "100%" }}>
+        <Paper sx={{ width: "100%", overflowX: "auto" }}>
           <DataGrid
             rows={staffData?.data?.data || []}
             getRowId={(row) => row.staffId}
@@ -78,9 +87,10 @@ export default function StaffPage() {
             // initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             // slots={{ cell: renderRowHeaderCell }}
-            sx={{ border: 0 }}
+            slots={{ noRowsOverlay: NoDataOverlay }}
             loading={isLoading}
             hideFooter
+            autoHeight
           />
         </Paper>
       </main>

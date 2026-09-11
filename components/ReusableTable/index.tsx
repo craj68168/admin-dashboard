@@ -26,6 +26,8 @@ import {
 } from "@mui/x-data-grid";
 
 import { usePendingTableValue, usePendingRowStatuses } from "./hook";
+import { formatCreatedAt } from "@/utils/format-date";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 import {
   AssignmentSelectProps,
@@ -44,8 +46,8 @@ import {
 /* -------------------------------------------------------------------------- */
 
 const TABLE = {
-  headerHeight: 48,
-  rowHeight: 64,
+  headerHeight: 54,
+  rowHeight: 60,
   cellPaddingX: 2,
 };
 
@@ -106,7 +108,10 @@ const getStatusColor = (value: string) =>
   STATUS_COLORS[value] ?? { bg: "#F3F4F6", text: "#6B7280", dot: "#9CA3AF" };
 
 const getAvatarColor = (name: string) => {
-  const sum = [...name].reduce((acc, character) => acc + character.charCodeAt(0), 0);
+  const sum = [...name].reduce(
+    (acc, character) => acc + character.charCodeAt(0),
+    0,
+  );
   return AVATAR_PALETTE[sum % AVATAR_PALETTE.length];
 };
 
@@ -118,35 +123,29 @@ const getInitials = (name: string) =>
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-const getDefaultStatus = (field: "coeStatus" | "visaStatus" | "clientStatus") => {
+const getDefaultStatus = (
+  field: "coeStatus" | "visaStatus" | "clientStatus",
+) => {
   if (field === "clientStatus") {
     return "New";
   }
   return "Not Applied";
 };
 
-const formatDate = (value?: string) => {
-  if (!value) {
-    return "N/A";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }).format(new Date(value));
-};
-
 const getStaffOptionValue = (staff: StaffOption) =>
   String(staff._id ?? staff.id ?? staff.staffId ?? "");
 
-const isSameStaff = (staff: StaffOption, value: number | string | null | undefined) => {
+const isSameStaff = (
+  staff: StaffOption,
+  value: number | string | null | undefined,
+) => {
   if (value === null || value === undefined || value === "") {
     return false;
   }
 
   return [staff._id, staff.id, staff.staffId].some(
-    (staffValue) => staffValue !== undefined && String(staffValue) === String(value),
+    (staffValue) =>
+      staffValue !== undefined && String(staffValue) === String(value),
   );
 };
 
@@ -204,7 +203,7 @@ export default function ClientTable({
       sx={{
         width: "100%",
         minWidth: 0,
-        minHeight: TABLE.headerHeight + TABLE.rowHeight + 64,
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -214,8 +213,6 @@ export default function ClientTable({
         boxShadow: "0px 1px 3px rgba(15, 23, 42, 0.05)",
       }}
     >
-      {/* Table header */}
-
       <Box
         sx={{
           minHeight: "64px",
@@ -243,13 +240,8 @@ export default function ClientTable({
           >
             {title}
           </Typography>
-
           <Typography
-            sx={{
-              mt: 0.25,
-              fontSize: "12px",
-              color: COLORS.textSecondary,
-            }}
+            sx={{ mt: 0.25, fontSize: "12px", color: COLORS.textSecondary }}
           >
             {isStaffListVariant
               ? "Manage staff members and assigned clients"
@@ -258,15 +250,7 @@ export default function ClientTable({
         </Box>
 
         <Chip
-          label={`${totalRows} ${
-            isStaffListVariant
-              ? totalRows === 1
-                ? "staff"
-                : "staff"
-              : totalRows === 1
-                ? "client"
-                : "clients"
-          }`}
+          label={`${totalRows} ${isStaffListVariant ? "staff" : totalRows === 1 ? "client" : "clients"}`}
           size="small"
           sx={{
             height: "28px",
@@ -282,127 +266,24 @@ export default function ClientTable({
         />
       </Box>
 
-      {/* Data grid */}
-
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          minWidth: 0,
-          width: "100%",
-          overflow: "hidden",
-        }}
-      >
+      <Box sx={{ minWidth: 0, width: "100%", overflow: "hidden" }}>
         <DataGrid
           rows={rows}
           columns={columns}
           initialState={{
-            sorting: {
-              sortModel: [{ field: "clientId", sort: "asc" }],
-            },
+            sorting: { sortModel: [{ field: "clientId", sort: "asc" }] },
           }}
           disableColumnFilter
           disableRowSelectionOnClick
           hideFooterPagination
           hideFooterSelectedRowCount
+          autoHeight
           rowHeight={TABLE.rowHeight}
           columnHeaderHeight={TABLE.headerHeight}
           getRowClassName={(params: GridRowClassNameParams) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "row-even" : "row-odd"
           }
-          slots={{ cell: renderRowHeaderCell }}
-          sx={{
-            width: "100%",
-            height: "auto",
-            minHeight: TABLE.headerHeight + TABLE.rowHeight,
-            maxWidth: "100%",
-            border: 0,
-            color: COLORS.textPrimary,
-
-            /* Header */
-
-            "& .MuiDataGrid-columnHeaders": {
-              minHeight: `${TABLE.headerHeight}px !important`,
-              maxHeight: `${TABLE.headerHeight}px !important`,
-              bgcolor: COLORS.header,
-              borderBottom: `1px solid ${COLORS.border}`,
-            },
-
-            "& .MuiDataGrid-columnHeader": {
-              px: TABLE.cellPaddingX,
-              bgcolor: COLORS.header,
-              outline: "none",
-              "&:focus": { outline: "none" },
-              "&:focus-within": { outline: "none" },
-            },
-
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "0.02em",
-              color: "#475569",
-              overflow: "visible",
-              whiteSpace: "nowrap",
-            },
-
-            "& .MuiDataGrid-columnSeparator": {
-              display: "none",
-            },
-
-            /* Cells */
-
-            "& .MuiDataGrid-cell": {
-              px: TABLE.cellPaddingX,
-              display: "flex",
-              alignItems: "center",
-              borderBottom: `1px solid ${COLORS.lightBorder}`,
-              fontSize: "13.5px",
-              color: "#374151",
-              outline: "none",
-              overflow: "hidden",
-              "&:focus": { outline: "none" },
-              "&:focus-within": { outline: "none" },
-            },
-
-            /* Rows */
-
-            "& .MuiDataGrid-row": {
-              minHeight: `${TABLE.rowHeight}px !important`,
-              maxHeight: `${TABLE.rowHeight}px !important`,
-            },
-
-            "& .row-even": { bgcolor: "#FFFFFF" },
-            "& .row-odd": { bgcolor: COLORS.rowAlternate },
-
-            "& .MuiDataGrid-row:hover": {
-              bgcolor: `${COLORS.hover} !important`,
-            },
-
-            "& .MuiDataGrid-row.Mui-selected": {
-              bgcolor: "transparent",
-            },
-
-            /* scrollbar */
-
-            "& .MuiDataGrid-virtualScroller": {
-              scrollbarWidth: "thin",
-            },
-
-            "& .MuiDataGrid-scrollbar": {
-              "&::-webkit-scrollbar": {
-                width: "8px",
-                height: "8px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                bgcolor: "#CBD5E1",
-                borderRadius: "8px",
-              },
-            },
-
-            "& .MuiDataGrid-footerContainer": {
-              display: "none",
-            },
-          }}
+          slots={{ cell: renderRowHeaderCell, noRowsOverlay: NoDataOverlay }}
         />
       </Box>
     </Paper>
@@ -415,7 +296,10 @@ export default function ClientTable({
 
 function renderRowHeaderCell(props: GridCellProps) {
   return (
-    <GridCell {...props} role={props.column.field === "fullName" ? "rowheader" : "gridcell"} />
+    <GridCell
+      {...props}
+      role={props.column.field === "fullName" ? "rowheader" : "gridcell"}
+    />
   );
 }
 
@@ -466,7 +350,9 @@ function buildStaffColumns({
       flex: 1,
       minWidth: 210,
       renderCell: ({ row }) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}
+        >
           <Avatar
             sx={{
               width: "34px",
@@ -561,7 +447,7 @@ function buildStaffColumns({
       headerName: "Created",
       flex: 0.8,
       minWidth: 140,
-      valueGetter: (_value, row) => formatDate(row.createdAt),
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
     },
     {
       field: "action",
@@ -793,7 +679,9 @@ function buildClientColumns({
             }
             variant="outlined"
             size="small"
-            startIcon={clientCanEdit ? <EditOutlinedIcon /> : <VisibilityOutlinedIcon />}
+            startIcon={
+              clientCanEdit ? <EditOutlinedIcon /> : <VisibilityOutlinedIcon />
+            }
             sx={{
               height: "34px",
               minWidth: "84px",
@@ -820,8 +708,8 @@ function buildClientColumns({
         );
       }
 
-      const assignedStaff = staffs.find(
-        (staff) => isSameStaff(staff, row.assignedStaffId),
+      const assignedStaff = staffs.find((staff) =>
+        isSameStaff(staff, row.assignedStaffId),
       );
 
       if (canManageAssignments) {
@@ -882,7 +770,8 @@ function StatusGroupCell({
     [row.coeStatus, row.visaStatus, row.clientStatus],
   );
 
-  const { pending, setField, hasChanged, changedFields } = usePendingRowStatuses(initial);
+  const { pending, setField, hasChanged, changedFields } =
+    usePendingRowStatuses(initial);
 
   const handleSaveAll = () => {
     changedFields.forEach((field) => {
@@ -1009,7 +898,12 @@ function StatusChip({ value }: { value: string }) {
 /*                               STATUS SELECT                                */
 /* -------------------------------------------------------------------------- */
 
-function StatusSelect({ value, options, minWidth, onChange }: PlainSelectProps) {
+function StatusSelect({
+  value,
+  options,
+  minWidth,
+  onChange,
+}: PlainSelectProps) {
   const { dot } = getStatusColor(value);
 
   return (
@@ -1110,7 +1004,10 @@ function StatusSelect({ value, options, minWidth, onChange }: PlainSelectProps) 
 /* -------------------------------------------------------------------------- */
 
 function AssignmentSelect({ value, staffs, onSave }: AssignmentSelectProps) {
-  const { pending, hasChanged, setPending, save } = usePendingTableValue(value, onSave);
+  const { pending, hasChanged, setPending, save } = usePendingTableValue(
+    value,
+    onSave,
+  );
 
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "center", gap: 1 }}>

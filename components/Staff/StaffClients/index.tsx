@@ -1,71 +1,125 @@
 "use client";
 import Box from "@mui/material/Box";
 import Breadcrumb from "@/components/Breadcrumb";
-import Link from "next/link";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useStaffClients } from "./hook";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { formatCreatedAt } from "@/utils/format-date";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 function StaffClientsContent() {
-  const { data, isPending } = useStaffClients();
+  const router = useRouter();
+  const role = useAuthStore((state) => state.user?.role);
+  const { data, isPending, deleteClient, isDeleting } = useStaffClients();
   const columns: GridColDef[] = [
     {
       field: "clientId",
       headerName: "ID",
-      width: 170,
+      flex: 0.7,
+      minWidth: 130,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "fullName",
       headerName: "Full Name",
-      width: 200,
+      flex: 1.1,
+      minWidth: 170,
       resizable: false,
       disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          <Link
-            href={`/admin/client/clientDetailPage?clientId=${params.row.clientId}`}
-            className="text-blue-500 hover:underline"
-          >
-            {params.row.fullName}
-          </Link>
-        );
-      },
     },
     {
       field: "clientStatus",
       headerName: "Status",
-      width: 270,
+      flex: 1.2,
+      minWidth: 190,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "phone",
       headerName: "Phone",
-      width: 170,
+      flex: 0.9,
+      minWidth: 150,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "visaType",
       headerName: "Visa Type",
-      width: 170,
+      flex: 0.9,
+      minWidth: 150,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "createdAt",
       headerName: "Created At",
-      width: 270,
+      flex: 1,
+      minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
+      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
     },
     {
       field: "",
       headerName: "Action",
       resizable: false,
-      width: 135,
+      width: role === "superadmin" ? 190 : 130,
       disableColumnMenu: true,
+      renderCell: ({ row }) => (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Tooltip title="View client">
+            <IconButton
+              aria-label="View client"
+              onClick={() =>
+                router.push(
+                  `/admin/client/clientDetailPage?clientId=${row.clientId}`,
+                )
+              }
+            >
+              <RemoveRedEyeIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Edit client">
+            <IconButton
+              aria-label="Edit client"
+              onClick={() =>
+                router.push(`/admin/client/edit?clientId=${row.clientId}`)
+              }
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+
+          {role === "superadmin" && (
+            <Tooltip title="Delete client">
+              <span>
+                <IconButton
+                  aria-label="Delete client"
+                  disabled={isDeleting}
+                  onClick={() => {
+                    if (
+                      window.confirm(`Delete ${row.fullName ?? "this client"}?`)
+                    ) {
+                      deleteClient(row.clientId);
+                    }
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+        </Box>
+      ),
     },
   ];
   return (
@@ -98,36 +152,10 @@ function StaffClientsContent() {
           // initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
           // slots={{ cell: renderRowHeaderCell }}
-
+          slots={{ noRowsOverlay: NoDataOverlay }}
           loading={isPending}
           hideFooter
-          sx={{
-            border: 0,
-
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: "primary.main",
-              color: "primary.contrastText",
-            },
-
-            "& .MuiDataGrid-columnHeader": {
-              backgroundColor: "primary.main",
-            },
-
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: 600,
-            },
-
-            "& .action-column-cell": {
-              backgroundColor: "#fff",
-            },
-            "& .MuiDataGrid-cell:focus": {
-              outline: "none",
-            },
-
-            "& .MuiDataGrid-cell:focus-within": {
-              outline: "none",
-            },
-          }}
+          autoHeight
         />
       </Box>
     </Box>
