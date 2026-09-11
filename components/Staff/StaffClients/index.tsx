@@ -1,12 +1,20 @@
 "use client";
 import Box from "@mui/material/Box";
 import Breadcrumb from "@/components/Breadcrumb";
-import Link from "next/link";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useStaffClients } from "./hook";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function StaffClientsContent() {
-  const { data, isPending } = useStaffClients();
+  const router = useRouter();
+  const role = useAuthStore((state) => state.user?.role);
+  const { data, isPending, deleteClient, isDeleting } = useStaffClients();
   const columns: GridColDef[] = [
     {
       field: "clientId",
@@ -21,16 +29,6 @@ function StaffClientsContent() {
       width: 200,
       resizable: false,
       disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          <Link
-            href={`/admin/client/clientDetailPage?clientId=${params.row.clientId}`}
-            className="text-blue-500 hover:underline"
-          >
-            {params.row.fullName}
-          </Link>
-        );
-      },
     },
     {
       field: "clientStatus",
@@ -64,8 +62,55 @@ function StaffClientsContent() {
       field: "",
       headerName: "Action",
       resizable: false,
-      width: 135,
+      width: role === "superadmin" ? 190 : 130,
       disableColumnMenu: true,
+      renderCell: ({ row }) => (
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Tooltip title="View client">
+            <IconButton
+              aria-label="View client"
+              onClick={() =>
+                router.push(
+                  `/admin/client/clientDetailPage?clientId=${row.clientId}`,
+                )
+              }
+            >
+              <RemoveRedEyeIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Edit client">
+            <IconButton
+              aria-label="Edit client"
+              onClick={() =>
+                router.push(`/admin/client/edit?clientId=${row.clientId}`)
+              }
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+
+          {role === "superadmin" && (
+            <Tooltip title="Delete client">
+              <span>
+                <IconButton
+                  aria-label="Delete client"
+                  disabled={isDeleting}
+                  onClick={() => {
+                    if (
+                      window.confirm(`Delete ${row.fullName ?? "this client"}?`)
+                    ) {
+                      deleteClient(row.clientId);
+                    }
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
+          )}
+        </Box>
+      ),
     },
   ];
   return (
