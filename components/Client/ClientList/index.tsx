@@ -5,21 +5,19 @@ import Box from "@mui/material/Box";
 import { useClientListHook, useClientHook } from "./hook";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Paper } from "@mui/material";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
-import { useState } from "react";
-import { Staff } from "./type";
-import Link from "next/link";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "next/navigation";
 
 const ClientListPage = () => {
+  const router = useRouter();
+  const role = useAuthStore((state) => state.user?.role);
   const { canCreateClient, handleCreateClient } = useClientListHook();
 
-  const { isClientLoading, clientData, staffData, staffAdd, isStaffAdding } =
-    useClientHook();
-  const [selectedStaff, setSelectedStaff] = useState<Record<string, string>>(
-    {},
-  );
+  const { isClientLoading, clientData } = useClientHook();
   const columns: GridColDef[] = [
     {
       field: "clientId",
@@ -34,64 +32,55 @@ const ClientListPage = () => {
       width: 270,
       resizable: false,
       disableColumnMenu: true,
-      renderCell: (params) => {
-        return (
-          <Link
-            href={`/admin/client/clientDetailPage?clientId=${params.row.clientId}`}
-            className="text-blue-500 hover:underline"
-          >
-            {params.row.fullName}
-          </Link>
-        );
-      },
     },
 
     {
-      field: "",
+      field: "assignedStaff",
       headerName: "Assign To",
       flex: 1,
-      minWidth: 470,
+      minWidth: 220,
+      resizable: false,
+      disableColumnMenu: true,
+      valueGetter: (_value, row) =>
+        row.assignedStaffName ??
+        (typeof row.assignedStaff === "object"
+          ? row.assignedStaff?.name
+          : row.assignedStaff) ??
+        "Unassigned",
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      width: role === "superadmin" ? 130 : 78,
       resizable: false,
       disableColumnMenu: true,
       renderCell: ({ row }) => (
-        <Box sx={{ display: "flex", gap: "4px", alignItems: "center" }}>
-          <Select
-            id="staff"
-            fullWidth
-            value={selectedStaff[row.clientId] || row?.assignedStaff || ""}
-            displayEmpty
-            onChange={(e) => {
-              setSelectedStaff((prev) => ({
-                ...prev,
-                [row.clientId]: e.target.value,
-              }));
-            }}
-            sx={{
-              height: "40px",
-              backgroundColor: {
-                xs: "#EDEDED",
-                sm: "#fff",
-              },
-            }}
-          >
-            {staffData?.data?.map((val: Staff) => (
-              <MenuItem key={row?.clientId} value={val?.staffId}>
-                {val?.name}
-              </MenuItem>
-            ))}
-          </Select>
-          <Button
-            disabled={isStaffAdding}
-            onClick={() =>
-              staffAdd({
-                clientId: row.clientId,
-                staffId:
-                  selectedStaff[row.clientId] || row?.assignedStaff || "",
-              })
-            }
-          >
-            Add
-          </Button>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Tooltip title="View client">
+            <IconButton
+              aria-label="View client"
+              onClick={() =>
+                router.push(
+                  `/admin/client/clientDetailPage?clientId=${row.clientId}`,
+                )
+              }
+            >
+              <RemoveRedEyeIcon />
+            </IconButton>
+          </Tooltip>
+
+          {role === "superadmin" && (
+            <Tooltip title="Edit client">
+              <IconButton
+                aria-label="Edit client"
+                onClick={() =>
+                  router.push(`/admin/client/edit?clientId=${row.clientId}`)
+                }
+              >
+                <EditOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       ),
     },
