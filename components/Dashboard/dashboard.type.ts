@@ -1,15 +1,26 @@
 export type DashboardStat = {
   title: string;
   value: string;
+  detail: string;
+  tone: "blue" | "green" | "amber" | "violet";
+  icon: "staff" | "clients" | "active" | "complete";
 };
 
-export type RecentActivity = {
-  id: number;
-  text: string;
+export type DashboardStatus = {
+  label: string;
+  count: number;
+  color: string;
 };
 
-export const recentActivities: RecentActivity[] = [
-  { id: 1, text: "Ram updated ABC Pvt Ltd details" },
-  { id: 2, text: "Admin assigned XYZ Company to Hari" },
-  { id: 3, text: "New client added by Sita" },
-];
+export type RecentClient = {
+  clientId: number | string;
+  fullName: string;
+  clientStatus: string;
+  createdAt?: string;
+};
+
+export type DashboardData = {
+  stats: DashboardStat[];
+  statuses: DashboardStatus[];
+  recentClients: RecentClient[];
+};
