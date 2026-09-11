@@ -3,6 +3,7 @@
 import { useStaffList } from "./hook";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 export default function StaffTable() {
   const columns: GridColDef[] = [
@@ -22,6 +23,7 @@ export default function StaffTable() {
         loading={isLoading}
         checkboxSelection
         autoHeight
+        slots={{ noRowsOverlay: NoDataOverlay }}
       />
     </Paper>
   );

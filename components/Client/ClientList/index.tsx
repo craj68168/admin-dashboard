@@ -11,6 +11,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 const ClientListPage = () => {
   const router = useRouter();
@@ -122,7 +123,7 @@ const ClientListPage = () => {
             // initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             // slots={{ cell: renderRowHeaderCell }}
-
+            slots={{ noRowsOverlay: NoDataOverlay }}
             loading={isClientLoading}
             hideFooter
             autoHeight

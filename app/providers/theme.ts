@@ -1,6 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 import type {} from "@mui/x-data-grid/themeAugmentation";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 export const theme = createTheme({
   palette: {
@@ -106,6 +107,11 @@ export const theme = createTheme({
 
   components: {
     MuiDataGrid: {
+      defaultProps: {
+        slots: {
+          noRowsOverlay: NoDataOverlay,
+        },
+      },
       styleOverrides: {
         root: {
           border: 0,
@@ -163,6 +169,12 @@ export const theme = createTheme({
           },
           "& .MuiDataGrid-footerContainer": {
             display: "none",
+          },
+          "& .MuiDataGrid-overlayWrapper": {
+            minHeight: "160px",
+          },
+          "& .MuiDataGrid-overlay": {
+            minHeight: "160px",
           },
         },
       },

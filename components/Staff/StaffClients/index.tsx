@@ -11,6 +11,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { formatCreatedAt } from "@/utils/format-date";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 function StaffClientsContent() {
   const router = useRouter();
@@ -151,7 +152,7 @@ function StaffClientsContent() {
           // initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
           // slots={{ cell: renderRowHeaderCell }}
-
+          slots={{ noRowsOverlay: NoDataOverlay }}
           loading={isPending}
           hideFooter
           autoHeight

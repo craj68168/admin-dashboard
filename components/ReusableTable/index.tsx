@@ -27,6 +27,7 @@ import {
 
 import { usePendingTableValue, usePendingRowStatuses } from "./hook";
 import { formatCreatedAt } from "@/utils/format-date";
+import NoDataOverlay from "@/components/common/NoDataOverlay";
 
 import {
   AssignmentSelectProps,
@@ -282,7 +283,7 @@ export default function ClientTable({
           getRowClassName={(params: GridRowClassNameParams) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "row-even" : "row-odd"
           }
-          slots={{ cell: renderRowHeaderCell }}
+          slots={{ cell: renderRowHeaderCell, noRowsOverlay: NoDataOverlay }}
         />
       </Box>
     </Paper>
