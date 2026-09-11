@@ -33,7 +33,10 @@ export default function StaffPage() {
       resizable: false,
       disableColumnMenu: true,
       renderCell: (params) => (
-        <Link href={`/admin/staff/${params.row.staffId}/clients`}>
+        <Link
+          href={`/admin/staff/${params.row.staffId}/clients`}
+          className="text-blue-500 hover:underline"
+        >
           {params.row.name}
         </Link>
       ),

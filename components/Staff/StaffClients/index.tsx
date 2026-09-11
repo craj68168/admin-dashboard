@@ -1,26 +1,17 @@
 "use client";
 import Box from "@mui/material/Box";
 import Breadcrumb from "@/components/Breadcrumb";
-import { useAuthStore } from "@/store/auth-store";
 import Link from "next/link";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useStaffClients } from "./hook";
 
 function StaffClientsContent() {
-  const user = useAuthStore((state) => state.user);
-  const { data, isPending, isError } = useStaffClients();
+  const { data, isPending } = useStaffClients();
   const columns: GridColDef[] = [
     {
       field: "clientId",
       headerName: "ID",
       width: 170,
-      resizable: false,
-      disableColumnMenu: true,
-    },
-    {
-      field: "clientStatus",
-      headerName: "Status",
-      width: 270,
       resizable: false,
       disableColumnMenu: true,
     },
@@ -40,6 +31,13 @@ function StaffClientsContent() {
           </Link>
         );
       },
+    },
+    {
+      field: "clientStatus",
+      headerName: "Status",
+      width: 270,
+      resizable: false,
+      disableColumnMenu: true,
     },
     {
       field: "phone",

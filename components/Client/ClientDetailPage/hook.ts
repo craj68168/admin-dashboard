@@ -75,7 +75,7 @@ export function useClientDetailPage(): ClientDetailViewState {
       });
 
       await createClient.mutateAsync(payload);
-      router.push("/client");
+      router.push("/admin/client");
     } catch (error) {
       setFormError("Failed to create client.");
     }

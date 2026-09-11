@@ -10,6 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import { Staff } from "./type";
+import Link from "next/link";
 
 const ClientListPage = () => {
   const { canCreateClient, handleCreateClient } = useClientListHook();
@@ -33,6 +34,16 @@ const ClientListPage = () => {
       width: 270,
       resizable: false,
       disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          <Link
+            href={`/admin/client/clientDetailPage?clientId=${params.row.clientId}`}
+            className="text-blue-500 hover:underline"
+          >
+            {params.row.fullName}
+          </Link>
+        );
+      },
     },
 
     {
