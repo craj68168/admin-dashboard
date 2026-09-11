@@ -25,35 +25,40 @@ export default function StaffPage() {
     {
       field: "staffId",
       headerName: "ID",
-      width: 170,
+      flex: 0.7,
+      minWidth: 130,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "name",
       headerName: "Full name",
-      width: 270,
+      flex: 1.2,
+      minWidth: 170,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "email",
       headerName: "Email",
-      width: 200,
+      flex: 1.1,
+      minWidth: 190,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "location",
       headerName: "Location",
-      width: 170,
+      flex: 0.8,
+      minWidth: 130,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "createdAt",
       headerName: "Created At",
-      width: 270,
+      flex: 1,
+      minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
     },
@@ -152,6 +157,7 @@ export default function StaffPage() {
 
             loading={isLoading}
             hideFooter
+            autoHeight
             sx={{
               border: 0,
 

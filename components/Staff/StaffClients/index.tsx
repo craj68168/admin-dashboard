@@ -19,42 +19,48 @@ function StaffClientsContent() {
     {
       field: "clientId",
       headerName: "ID",
-      width: 170,
+      flex: 0.7,
+      minWidth: 130,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "fullName",
       headerName: "Full Name",
-      width: 200,
+      flex: 1.1,
+      minWidth: 170,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "clientStatus",
       headerName: "Status",
-      width: 270,
+      flex: 1.2,
+      minWidth: 190,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "phone",
       headerName: "Phone",
-      width: 170,
+      flex: 0.9,
+      minWidth: 150,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "visaType",
       headerName: "Visa Type",
-      width: 170,
+      flex: 0.9,
+      minWidth: 150,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "createdAt",
       headerName: "Created At",
-      width: 270,
+      flex: 1,
+      minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
     },
@@ -146,6 +152,7 @@ function StaffClientsContent() {
 
           loading={isPending}
           hideFooter
+          autoHeight
           sx={{
             border: 0,
 

@@ -106,7 +106,10 @@ const getStatusColor = (value: string) =>
   STATUS_COLORS[value] ?? { bg: "#F3F4F6", text: "#6B7280", dot: "#9CA3AF" };
 
 const getAvatarColor = (name: string) => {
-  const sum = [...name].reduce((acc, character) => acc + character.charCodeAt(0), 0);
+  const sum = [...name].reduce(
+    (acc, character) => acc + character.charCodeAt(0),
+    0,
+  );
   return AVATAR_PALETTE[sum % AVATAR_PALETTE.length];
 };
 
@@ -118,7 +121,9 @@ const getInitials = (name: string) =>
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-const getDefaultStatus = (field: "coeStatus" | "visaStatus" | "clientStatus") => {
+const getDefaultStatus = (
+  field: "coeStatus" | "visaStatus" | "clientStatus",
+) => {
   if (field === "clientStatus") {
     return "New";
   }
@@ -140,13 +145,17 @@ const formatDate = (value?: string) => {
 const getStaffOptionValue = (staff: StaffOption) =>
   String(staff._id ?? staff.id ?? staff.staffId ?? "");
 
-const isSameStaff = (staff: StaffOption, value: number | string | null | undefined) => {
+const isSameStaff = (
+  staff: StaffOption,
+  value: number | string | null | undefined,
+) => {
   if (value === null || value === undefined || value === "") {
     return false;
   }
 
   return [staff._id, staff.id, staff.staffId].some(
-    (staffValue) => staffValue !== undefined && String(staffValue) === String(value),
+    (staffValue) =>
+      staffValue !== undefined && String(staffValue) === String(value),
   );
 };
 
@@ -204,7 +213,7 @@ export default function ClientTable({
       sx={{
         width: "100%",
         minWidth: 0,
-        minHeight: TABLE.headerHeight + TABLE.rowHeight + 64,
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -305,6 +314,7 @@ export default function ClientTable({
           disableRowSelectionOnClick
           hideFooterPagination
           hideFooterSelectedRowCount
+          autoHeight
           rowHeight={TABLE.rowHeight}
           columnHeaderHeight={TABLE.headerHeight}
           getRowClassName={(params: GridRowClassNameParams) =>
@@ -314,7 +324,7 @@ export default function ClientTable({
           sx={{
             width: "100%",
             height: "auto",
-            minHeight: TABLE.headerHeight + TABLE.rowHeight,
+            minHeight: TABLE.headerHeight,
             maxWidth: "100%",
             border: 0,
             color: COLORS.textPrimary,
@@ -415,7 +425,10 @@ export default function ClientTable({
 
 function renderRowHeaderCell(props: GridCellProps) {
   return (
-    <GridCell {...props} role={props.column.field === "fullName" ? "rowheader" : "gridcell"} />
+    <GridCell
+      {...props}
+      role={props.column.field === "fullName" ? "rowheader" : "gridcell"}
+    />
   );
 }
 
@@ -466,7 +479,9 @@ function buildStaffColumns({
       flex: 1,
       minWidth: 210,
       renderCell: ({ row }) => (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}
+        >
           <Avatar
             sx={{
               width: "34px",
@@ -793,7 +808,9 @@ function buildClientColumns({
             }
             variant="outlined"
             size="small"
-            startIcon={clientCanEdit ? <EditOutlinedIcon /> : <VisibilityOutlinedIcon />}
+            startIcon={
+              clientCanEdit ? <EditOutlinedIcon /> : <VisibilityOutlinedIcon />
+            }
             sx={{
               height: "34px",
               minWidth: "84px",
@@ -820,8 +837,8 @@ function buildClientColumns({
         );
       }
 
-      const assignedStaff = staffs.find(
-        (staff) => isSameStaff(staff, row.assignedStaffId),
+      const assignedStaff = staffs.find((staff) =>
+        isSameStaff(staff, row.assignedStaffId),
       );
 
       if (canManageAssignments) {
@@ -882,7 +899,8 @@ function StatusGroupCell({
     [row.coeStatus, row.visaStatus, row.clientStatus],
   );
 
-  const { pending, setField, hasChanged, changedFields } = usePendingRowStatuses(initial);
+  const { pending, setField, hasChanged, changedFields } =
+    usePendingRowStatuses(initial);
 
   const handleSaveAll = () => {
     changedFields.forEach((field) => {
@@ -1009,7 +1027,12 @@ function StatusChip({ value }: { value: string }) {
 /*                               STATUS SELECT                                */
 /* -------------------------------------------------------------------------- */
 
-function StatusSelect({ value, options, minWidth, onChange }: PlainSelectProps) {
+function StatusSelect({
+  value,
+  options,
+  minWidth,
+  onChange,
+}: PlainSelectProps) {
   const { dot } = getStatusColor(value);
 
   return (
@@ -1110,7 +1133,10 @@ function StatusSelect({ value, options, minWidth, onChange }: PlainSelectProps) 
 /* -------------------------------------------------------------------------- */
 
 function AssignmentSelect({ value, staffs, onSave }: AssignmentSelectProps) {
-  const { pending, hasChanged, setPending, save } = usePendingTableValue(value, onSave);
+  const { pending, hasChanged, setPending, save } = usePendingTableValue(
+    value,
+    onSave,
+  );
 
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "center", gap: 1 }}>

@@ -22,14 +22,16 @@ const ClientListPage = () => {
     {
       field: "clientId",
       headerName: "ID",
-      width: 170,
+      flex: 0.65,
+      minWidth: 130,
       resizable: false,
       disableColumnMenu: true,
     },
     {
       field: "fullName",
       headerName: "Full name",
-      width: 270,
+      flex: 1.2,
+      minWidth: 170,
       resizable: false,
       disableColumnMenu: true,
     },
@@ -38,7 +40,7 @@ const ClientListPage = () => {
       field: "assignedStaff",
       headerName: "Assign To",
       flex: 1,
-      minWidth: 220,
+      minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
       valueGetter: (_value, row) =>
@@ -123,6 +125,7 @@ const ClientListPage = () => {
 
             loading={isClientLoading}
             hideFooter
+            autoHeight
             sx={{
               border: 0,
 
