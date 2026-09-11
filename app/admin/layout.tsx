@@ -52,6 +52,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     return "";
   };
 
+  const getNavbarTitle = () =>
+    pathname.startsWith("/admin/profile") ? "Profile" : getSelectedMenu();
+
   return (
     <Box
       sx={{
@@ -71,7 +74,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           minWidth: 0,
         }}
       >
-        <Navbar title={getSelectedMenu()} />
+        <Navbar title={getNavbarTitle()} />
 
         <Box
           component="main"

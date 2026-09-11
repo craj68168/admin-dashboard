@@ -1,8 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import { useSidebar } from "./hook";
-import type { SidebarNavItemProps, SidebarProps } from "./type";
+import type { SidebarItem, SidebarNavItemProps, SidebarProps } from "./type";
+
+const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
+  Dashboard: DashboardRoundedIcon,
+  Staff: GroupsRoundedIcon,
+  Clients: PeopleAltRoundedIcon,
+};
 
 export default function Sidebar({
   selected,
@@ -13,14 +25,16 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`${collapsed ? "w-20" : "w-64"} sticky top-0 flex h-screen shrink-0 flex-col overflow-y-auto border-r border-gray-200 bg-white p-4 shadow-lg transition-all duration-300`}
+      className={`${collapsed ? "w-20" : "w-64"} sticky top-0 flex h-screen shrink-0 flex-col overflow-y-auto border-r border-slate-800/80 bg-slate-950 p-3 text-white shadow-xl transition-all duration-300`}
     >
-      <div className="mb-8 flex items-center justify-between">
+      <div
+        className={`mb-8 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}
+      >
         <button
           type="button"
           onClick={goToDashboard}
           aria-label="Go to dashboard"
-          className="flex items-center overflow-hidden rounded-md p-1"
+          className="flex items-center overflow-hidden rounded-xl p-1 transition-colors hover:bg-white/10"
         >
           <Image
             src="/company_logo.png"
@@ -36,13 +50,22 @@ export default function Sidebar({
           type="button"
           onClick={onToggle}
           aria-label="Toggle sidebar"
-          className="rounded-md border border-gray-200 px-2 py-1 text-gray-500 transition-colors hover:border-amber-400/60 hover:bg-amber-50 hover:text-amber-600"
+          className={`${collapsed ? "absolute left-17" : ""} flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition-colors hover:border-cyan-300/40 hover:bg-white/10 hover:text-cyan-300`}
         >
-          {collapsed ? "→" : "←"}
+          {collapsed ? (
+            <MenuRoundedIcon sx={{ fontSize: 20 }} />
+          ) : (
+            <MenuOpenRoundedIcon sx={{ fontSize: 20 }} />
+          )}
         </button>
       </div>
 
       <nav className="flex-1">
+        {!collapsed && (
+          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+            Workspace
+          </p>
+        )}
         <ul className="space-y-1.5">
           {sidebarItems.map((item) => (
             <SidebarNavItem
@@ -56,14 +79,15 @@ export default function Sidebar({
         </ul>
       </nav>
 
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="mt-4 border-t border-white/10 pt-4">
         <button
           type="button"
           onClick={logout}
           title={collapsed ? "Logout" : undefined}
-          className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+          className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-400 transition-colors hover:bg-red-500/10 hover:text-red-300 ${collapsed ? "justify-center" : ""}`}
         >
-          {collapsed ? "⏻" : "Logout"}
+          <LogoutRoundedIcon sx={{ fontSize: 19 }} />
+          {!collapsed && "Sign out"}
         </button>
       </div>
     </aside>
@@ -76,6 +100,8 @@ function SidebarNavItem({
   collapsed,
   onSelect,
 }: SidebarNavItemProps) {
+  const Icon = sidebarIcons[item];
+
   return (
     <li>
       <button
@@ -83,18 +109,17 @@ function SidebarNavItem({
         onClick={onSelect}
         aria-current={active ? "page" : undefined}
         title={collapsed ? item : undefined}
-        className={`relative flex w-full items-center rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${
+        className={`relative flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium transition-all ${
           active
-            ? "bg-amber-50 text-slate-900"
-            : "text-gray-600 hover:bg-gray-50 hover:text-slate-900"
+            ? "bg-cyan-400/10 text-cyan-200 shadow-inner shadow-cyan-300/5"
+            : "text-slate-400 hover:bg-white/10 hover:text-white"
         }`}
       >
         {active && (
-          <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-amber-400" />
+          <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-cyan-300" />
         )}
-        <span className={active ? "ml-2 font-semibold" : ""}>
-          {collapsed ? item.charAt(0) : item}
-        </span>
+        <Icon sx={{ fontSize: 20 }} />
+        {!collapsed && <span className="font-semibold">{item}</span>}
       </button>
     </li>
   );
