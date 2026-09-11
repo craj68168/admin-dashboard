@@ -2,7 +2,7 @@
 import Box from "@mui/material/Box";
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuthStore } from "@/store/auth-store";
-
+import Link from "next/link";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useStaffClients } from "./hook";
 
@@ -30,6 +30,16 @@ function StaffClientsContent() {
       width: 200,
       resizable: false,
       disableColumnMenu: true,
+      renderCell: (params) => {
+        return (
+          <Link
+            href={`/admin/client/clientDetailPage?clientId=${params.row.clientId}`}
+            className="text-blue-500 hover:underline"
+          >
+            {params.row.fullName}
+          </Link>
+        );
+      },
     },
     {
       field: "phone",

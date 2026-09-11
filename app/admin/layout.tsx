@@ -71,7 +71,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           minWidth: 0,
         }}
       >
-        <Navbar title={""} />
+        <Navbar title={getSelectedMenu()} />
 
         <Box
           component="main"
