@@ -12,10 +12,12 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
+import { canEditClient } from "@/lib/permissions";
 
 const ClientListPage = () => {
   const router = useRouter();
   const role = useAuthStore((state) => state.user?.role);
+  const user = useAuthStore((state) => state.user);
   const { canCreateClient, handleCreateClient } = useClientListHook();
 
   const { isClientLoading, clientData } = useClientHook();
@@ -72,7 +74,7 @@ const ClientListPage = () => {
             </IconButton>
           </Tooltip>
 
-          {role === "superadmin" && (
+          {canEditClient(user, row) && (
             <Tooltip title="Edit client">
               <IconButton
                 aria-label="Edit client"

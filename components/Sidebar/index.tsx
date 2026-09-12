@@ -4,6 +4,8 @@ import Image from "next/image";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
@@ -14,6 +16,8 @@ const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
   Dashboard: DashboardRoundedIcon,
   Staff: GroupsRoundedIcon,
   Clients: PeopleAltRoundedIcon,
+  Revenue: PaymentsRoundedIcon,
+  Performance: TrendingUpRoundedIcon,
 };
 
 export default function Sidebar({

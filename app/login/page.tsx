@@ -9,12 +9,15 @@ export default function LoginPage() {
   const router = useRouter();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const role = useAuthStore((state) => state.user?.role);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/admin/dashboard");
+      router.replace(
+        role === "superadmin" ? "/admin/dashboard" : "/admin/staff",
+      );
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, role, router]);
 
   if (isAuthenticated) {
     return null;

@@ -33,7 +33,10 @@ export const useLoginHook = () => {
 
       setAuth(data.user, token);
 
-      router.replace("/admin/dashboard");
+      const nextRoute =
+        data?.user?.role === "superadmin" ? "/admin/dashboard" : "/admin/staff";
+
+      router.replace(nextRoute);
     },
   });
 

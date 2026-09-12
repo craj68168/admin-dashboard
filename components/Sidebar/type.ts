@@ -1,4 +1,9 @@
-export type SidebarItem = "Dashboard" | "Staff" | "Clients";
+export type SidebarItem =
+  | "Dashboard"
+  | "Staff"
+  | "Clients"
+  | "Revenue"
+  | "Performance";
 
 export type SidebarProps = {
   selected: SidebarItem | "";
@@ -13,10 +18,18 @@ export type SidebarNavItemProps = {
   onSelect: () => void;
 };
 
-export const sidebarItems: SidebarItem[] = ["Dashboard", "Staff", "Clients"];
+export const sidebarItems: SidebarItem[] = [
+  "Dashboard",
+  "Staff",
+  "Clients",
+  "Revenue",
+  "Performance",
+];
 
 export const routeMap: Record<SidebarItem, string> = {
   Dashboard: "/admin/dashboard",
   Staff: "/admin/staff",
   Clients: "/admin/client",
+  Revenue: "/admin/revenue",
+  Performance: "/admin/performance",
 };

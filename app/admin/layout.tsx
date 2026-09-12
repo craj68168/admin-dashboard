@@ -12,16 +12,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const role = useAuthStore((state) => state.user?.role);
+
+  const staffOnlyBlockedPath =
+    pathname.startsWith("/admin/dashboard") ||
+    pathname.startsWith("/admin/staff/add") ||
+    (pathname.startsWith("/admin/staff/") && pathname.endsWith("/edit"));
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
+    } else if (role === "staff" && staffOnlyBlockedPath) {
+      router.replace("/admin/staff");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, role, router, staffOnlyBlockedPath]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || (role === "staff" && staffOnlyBlockedPath)) {
     return (
       <Box
         sx={{
@@ -47,6 +55,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     if (pathname.startsWith("/admin/client")) {
       return "Clients";
+    }
+
+    if (pathname.startsWith("/admin/revenue")) {
+      return "Revenue";
+    }
+
+    if (pathname.startsWith("/admin/performance")) {
+      return "Performance";
     }
 
     return "";

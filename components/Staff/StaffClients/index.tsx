@@ -12,9 +12,11 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { formatCreatedAt } from "@/utils/format-date";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
+import { canEditClient } from "@/lib/permissions";
 
 function StaffClientsContent() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const role = useAuthStore((state) => state.user?.role);
   const { data, isPending, deleteClient, isDeleting } = useStaffClients();
   const columns: GridColDef[] = [
@@ -88,16 +90,18 @@ function StaffClientsContent() {
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="Edit client">
-            <IconButton
-              aria-label="Edit client"
-              onClick={() =>
-                router.push(`/admin/client/edit?clientId=${row.clientId}`)
-              }
-            >
-              <EditOutlinedIcon />
-            </IconButton>
-          </Tooltip>
+          {canEditClient(user, row) && (
+            <Tooltip title="Edit client">
+              <IconButton
+                aria-label="Edit client"
+                onClick={() =>
+                  router.push(`/admin/client/edit?clientId=${row.clientId}`)
+                }
+              >
+                <EditOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
 
           {role === "superadmin" && (
             <Tooltip title="Delete client">

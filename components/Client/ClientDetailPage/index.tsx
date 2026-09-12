@@ -3,6 +3,7 @@
 import { Suspense, type ReactNode } from "react";
 import Breadcrumb from "@/components/Breadcrumb";
 import Remarks from "@/components/Remarks";
+import ClientPayments from "@/components/Payments/ClientPayments";
 import ReusableForm from "@/components/ReusableForm";
 import {
   clientFormDefaults,
@@ -247,6 +248,42 @@ function ClientDetailPageContent() {
           fields={[{ label: "CV", value: client.cv }]}
         />
 
+        <DetailSection
+          title="Next Follow-up"
+          fields={[
+            {
+              label: "Date",
+              value: client.nextFollowUpDate
+                ? formatDate(client.nextFollowUpDate)
+                : "Not scheduled",
+            },
+            { label: "Purpose", value: client.nextFollowUpPurpose },
+          ]}
+        />
+
+        <HistorySection
+          title="Stage History"
+          entries={(client.stageHistory ?? []).map((entry) => ({
+            label: entry.status,
+            detail: `${entry.changedByName ?? "System"} · ${formatDate(entry.changedAt)}`,
+          }))}
+        />
+
+        <HistorySection
+          title="Assignment History"
+          entries={(client.assignmentHistory ?? []).map((entry) => ({
+            label: entry.staffId,
+            detail: `${entry.assignedByName ?? "System"} · ${formatDate(entry.assignedAt)}${entry.unassignedAt ? ` → ${formatDate(entry.unassignedAt)}` : " · Current"}`,
+          }))}
+        />
+
+        <ClientPayments
+          clientId={String(client.clientId)}
+          assignedStaff={
+            client.assignedStaffId ? String(client.assignedStaffId) : null
+          }
+        />
+
         <Remarks value={client.remarks} />
       </div>
     </PageShell>
@@ -303,6 +340,37 @@ function DetailSection({
         ))}
         {children}
       </div>
+    </section>
+  );
+}
+
+function HistorySection({
+  title,
+  entries,
+}: {
+  title: string;
+  entries: Array<{ label: string; detail: string }>;
+}) {
+  return (
+    <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <h4 className="mb-5 text-lg font-semibold text-gray-900">{title}</h4>
+      {entries.length === 0 ? (
+        <p className="text-sm text-gray-500">No history recorded.</p>
+      ) : (
+        <div className="space-y-3">
+          {entries.map((entry, index) => (
+            <div
+              key={`${entry.label}-${index}`}
+              className="border-l-2 border-blue-200 pl-3"
+            >
+              <p className="text-sm font-semibold text-gray-900">
+                {entry.label}
+              </p>
+              <p className="text-xs text-gray-500">{entry.detail}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

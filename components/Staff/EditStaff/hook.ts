@@ -43,7 +43,7 @@ export function useEditStaffHook() {
             phone: payload.phone,
           };
 
-      return api.put(`/staff/${staffId}`, updatePayload);
+      return api.patch(`/staff/${staffId}`, updatePayload);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["staffList"] });
