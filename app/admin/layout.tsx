@@ -49,6 +49,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       return "Clients";
     }
 
+    if (pathname.startsWith("/admin/revenue")) {
+      return "Revenue";
+    }
+
+    if (pathname.startsWith("/admin/performance")) {
+      return "Performance";
+    }
+
     return "";
   };
 
