@@ -3,7 +3,10 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { clientFormDefaults, getClientFormFields } from "@/components/ReusableForm/form-configs";
+import {
+  clientFormDefaults,
+  getClientFormFields,
+} from "@/components/ReusableForm/form-configs";
 import { getApiErrorMessage } from "@/lib/api-message";
 import { api } from "@/lib/axios";
 import { canAssignClient, canEditClient } from "@/lib/permissions";
@@ -13,9 +16,7 @@ import {
   invalidateClientData,
   useClientPageData,
 } from "../client-query";
-import type {
-  EditClientViewState,
-} from "./type";
+import type { EditClientViewState } from "./type";
 
 function formatInputDate(value?: string) {
   if (!value) {
@@ -61,7 +62,7 @@ function useUpdateClient() {
     }: {
       recordId: string;
       payload: Record<string, string | number | undefined>;
-    }) => api.put(`/clients/${recordId}`, payload),
+    }) => api.patch(`/clients/${recordId}`, payload),
     onSuccess: () => invalidateClientData(queryClient),
   });
 }
@@ -78,7 +79,10 @@ export function useEditClientPage(): EditClientViewState {
   const updateClient = useUpdateClient();
   const staffs = useMemo(() => data?.staffs ?? [], [data?.staffs]);
   const client = useMemo(
-    () => data?.clients.find((item) => String(item.clientId) === String(clientId)) ?? null,
+    () =>
+      data?.clients.find(
+        (item) => String(item.clientId) === String(clientId),
+      ) ?? null,
     [clientId, data?.clients],
   );
 
@@ -86,11 +90,15 @@ export function useEditClientPage(): EditClientViewState {
     const {
       assignedStaffId: _assignedStaffId,
       assignedStaffName: _assignedStaffName,
+      stageHistory: _stageHistory,
+      assignmentHistory: _assignmentHistory,
       ...clientValues
     } = client ?? {};
 
     void _assignedStaffId;
     void _assignedStaffName;
+    void _stageHistory;
+    void _assignmentHistory;
 
     return {
       ...clientFormDefaults,
@@ -101,7 +109,7 @@ export function useEditClientPage(): EditClientViewState {
       assignedStaff:
         typeof client?.assignedStaff === "object" && client.assignedStaff
           ? client.assignedStaff._id
-          : client?.assignedStaff ?? "",
+          : (client?.assignedStaff ?? ""),
     };
   }, [client, clientId]);
 
@@ -119,7 +127,7 @@ export function useEditClientPage(): EditClientViewState {
   );
 
   const handleUpdateClient = async (values: Record<string, string>) => {
-    if (!client?._id) {
+    if (!client?.clientId) {
       setFormError("Client record id is missing.");
       return;
     }
@@ -137,7 +145,9 @@ export function useEditClientPage(): EditClientViewState {
       const payload = compactPayload({
         ...values,
         clientId: values.clientId,
-        assignedStaff: canAssignClient(user) ? values.assignedStaff || undefined : undefined,
+        assignedStaff: canAssignClient(user)
+          ? values.assignedStaff || undefined
+          : undefined,
         remarks,
         remarksDate: undefined,
         remarksBy: undefined,
@@ -145,7 +155,10 @@ export function useEditClientPage(): EditClientViewState {
         remarksText: undefined,
       });
 
-      await updateClient.mutateAsync({ recordId: client._id, payload });
+      await updateClient.mutateAsync({
+        recordId: String(client.clientId),
+        payload,
+      });
       router.push(`/client/clientDetailPage?clientId=${values.clientId}`);
     } catch (error) {
       console.error("Failed to update client", error);
@@ -171,6 +184,7 @@ export function useEditClientPage(): EditClientViewState {
       : false,
     setSidebarCollapsed,
     handleUpdateClient,
-    handleCancel: () => router.push(`/client/clientDetailPage?clientId=${clientId}`),
+    handleCancel: () =>
+      router.push(`/client/clientDetailPage?clientId=${clientId}`),
   };
 }

@@ -1,27 +1,21 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { staffPerformance, type StaffPerformance } from "@/data/sales-demo";
+import { api } from "@/lib/axios";
 import type { PerformanceData } from "./type";
 
 export function usePerformanceData() {
   return useQuery<PerformanceData>({
-    queryKey: ["demo-performance"],
+    queryKey: ["performance"],
     queryFn: async () => {
-      const staff: StaffPerformance[] = staffPerformance;
-      const totalTarget = staff.reduce((sum, item) => sum + item.target, 0);
-      const totalCollected = staff.reduce(
-        (sum, item) => sum + item.collected,
-        0,
-      );
+      const response = await api.get("/performance");
+      const payload = response.data?.data ?? response.data ?? {};
 
       return {
-        staff,
-        totalTarget,
-        totalCollected,
-        overallProgress: totalTarget
-          ? Math.round((totalCollected / totalTarget) * 100)
-          : 0,
+        staff: payload.staff ?? [],
+        totalTarget: payload.totalTarget ?? 0,
+        totalCollected: payload.totalCollected ?? 0,
+        overallProgress: payload.overallProgress ?? 0,
       };
     },
   });

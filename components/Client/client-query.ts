@@ -48,6 +48,19 @@ export type ClientRecord = {
   assignedStaff?: ClientStaffRecord | string | null;
   assignedStaffId?: number | string | null;
   assignedStaffName?: string;
+  nextFollowUpDate?: string;
+  nextFollowUpPurpose?: string;
+  stageHistory?: Array<{
+    status: string;
+    changedAt?: string;
+    changedByName?: string;
+  }>;
+  assignmentHistory?: Array<{
+    staffId: string;
+    assignedAt?: string;
+    unassignedAt?: string | null;
+    assignedByName?: string;
+  }>;
 };
 
 export type ClientApiResponse = Omit<
@@ -87,8 +100,8 @@ export function mapClient(client: ClientApiResponse): ClientRecord {
   const assignedStaff = client.assignedStaff;
   const assignedStaffId =
     typeof assignedStaff === "object" && assignedStaff
-      ? assignedStaff._id ?? assignedStaff.staffId ?? null
-      : assignedStaff ?? null;
+      ? (assignedStaff._id ?? assignedStaff.staffId ?? null)
+      : (assignedStaff ?? null);
 
   return {
     ...client,
@@ -97,14 +110,18 @@ export function mapClient(client: ClientApiResponse): ClientRecord {
     assignedStaffId,
     assignedStaffName:
       typeof assignedStaff === "object" && assignedStaff
-        ? assignedStaff.name ?? "Unassigned"
+        ? (assignedStaff.name ?? "Unassigned")
         : "Unassigned",
   };
 }
 
-export function compactPayload(payload: Record<string, string | number | undefined>) {
+export function compactPayload(
+  payload: Record<string, string | number | undefined>,
+) {
   return Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== "" && value !== undefined),
+    Object.entries(payload).filter(
+      ([, value]) => value !== "" && value !== undefined,
+    ),
   );
 }
 

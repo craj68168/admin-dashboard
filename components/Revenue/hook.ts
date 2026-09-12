@@ -1,28 +1,24 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  billingMilestones,
-  getBalance,
-  type BillingMilestone,
-} from "@/data/sales-demo";
+import { api } from "@/lib/axios";
 import type { RevenueData } from "./type";
 
 export function useRevenueData() {
   return useQuery<RevenueData>({
-    queryKey: ["demo-revenue"],
+    queryKey: ["revenue"],
     queryFn: async () => {
-      const milestones: BillingMilestone[] = billingMilestones;
-      const summary = milestones.reduce(
-        (result, milestone) => ({
-          totalBilled: result.totalBilled + milestone.totalCharge,
-          totalCollected: result.totalCollected + milestone.amountPaid,
-          totalOutstanding: result.totalOutstanding + getBalance(milestone),
-        }),
-        { totalBilled: 0, totalCollected: 0, totalOutstanding: 0 },
-      );
+      const response = await api.get("/revenue");
+      const payload = response.data?.data ?? response.data ?? {};
 
-      return { milestones, summary };
+      return {
+        milestones: payload.milestones ?? [],
+        summary: payload.summary ?? {
+          totalBilled: 0,
+          totalCollected: 0,
+          totalOutstanding: 0,
+        },
+      };
     },
   });
 }
