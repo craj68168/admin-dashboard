@@ -1,14 +1,32 @@
-import { api } from "@/lib/axios";
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { api } from "@/lib/axios";
 
 export const useStaffHook = () => {
   const queryClient = useQueryClient();
 
-  const { isLoading, data } = useQuery({
+  const {
+    data: staffData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["staffList"],
+
     queryFn: async () => {
-      return api.get("/staff");
+      const response = await api.get("/staff");
+
+      return response.data;
     },
+
+    // Call API whenever Staff page mounts
+    refetchOnMount: "always",
+
+    // Staff data can change often
+    staleTime: 0,
   });
 
   const { mutate: updateStaffStatus, isPending: isUpdatingStatus } =
@@ -19,10 +37,11 @@ export const useStaffHook = () => {
       }: {
         staffId: string;
         isActive: boolean;
-      }) =>
-        api.patch(`/staff/${staffId}/status`, {
+      }) => {
+        return api.patch(`/staff/${staffId}/status`, {
           isActive,
-        }),
+        });
+      },
 
       onSuccess: () => {
         void queryClient.invalidateQueries({
@@ -32,8 +51,12 @@ export const useStaffHook = () => {
     });
 
   return {
+    staffData,
+
     isLoading,
-    staffData: data,
+    isFetching,
+    isError,
+    error,
 
     updateStaffStatus,
     isUpdatingStatus,

@@ -21,6 +21,7 @@ import type {
   ClientDetailsResponse,
   EditClientFormValues,
   StaffListResponse,
+  StaffOption,
 } from "./type";
 
 // =================================================
@@ -262,13 +263,17 @@ export const useEditClientHook = () => {
   // ADMIN STAFF LIST
   // =================================================
 
-  const { data: staffResponse, isLoading: isStaffLoading } = useQuery({
-    queryKey: ["staffList"],
+  const { data: staffList = [], isLoading: isStaffLoading } = useQuery<
+    StaffOption[]
+  >({
+    queryKey: ["staffOptions"],
 
     queryFn: async () => {
-      const response = await api.get<StaffListResponse>("/staff");
+      const response = await api.get("/staff");
 
-      return response.data;
+      const staff = response.data?.data;
+
+      return Array.isArray(staff) ? staff : [];
     },
 
     enabled: role === "superadmin",
@@ -277,20 +282,16 @@ export const useEditClientHook = () => {
   // =================================================
   // STAFF OPTIONS
   //
-  // Active Staff +
-  // currently assigned Staff even if inactive.
-  //
-  // This prevents an old/inactive assignment
-  // from disappearing from the Edit form.
+  // Active staff +
+  // currently assigned staff even if inactive
   // =================================================
 
   const staffOptions = useMemo(() => {
-    const staffList = staffResponse?.data ?? [];
-
     return staffList.filter(
-      (staff) => staff.isActive || staff.staffId === client?.assignedStaff,
+      (staff) =>
+        staff.isActive === true || staff.staffId === client?.assignedStaff,
     );
-  }, [staffResponse, client?.assignedStaff]);
+  }, [staffList, client?.assignedStaff]);
 
   // =================================================
   // UPDATE CLIENT

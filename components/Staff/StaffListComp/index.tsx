@@ -212,7 +212,7 @@ export default function StaffPage() {
 
         <Paper sx={{ width: "100%" }}>
           <DataGrid
-            rows={staffData?.data?.data || []}
+            rows={staffData?.data || []}
             getRowId={(row) => row.staffId}
             columns={columns}
             disableColumnMenu
