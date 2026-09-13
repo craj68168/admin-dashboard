@@ -135,21 +135,16 @@ export const usePerformanceHook = (staffId: string) => {
   // =================================================
 
   useEffect(() => {
-    setServerError("");
-    setSuccessMessage("");
-
     if (!target) {
       reset(defaultValues);
-
       return;
     }
 
     reset({
       targetAmount: String(target.targetAmount),
-
       note: target.note || "",
     });
-  }, [target, selectedMonth, reset]);
+  }, [target, reset]);
 
   // =================================================
   // CREATE TARGET
@@ -192,19 +187,21 @@ export const usePerformanceHook = (staffId: string) => {
       values,
     }: {
       targetId: string;
-
       values: StaffTargetFormValues;
     }) => {
       const response = await api.patch<StaffTargetMutationResponse>(
         `/staff-targets/${targetId}`,
         {
           targetAmount: Number(values.targetAmount),
-
           note: values.note.trim(),
         },
       );
 
       return response.data;
+    },
+    onMutate: () => {
+      setServerError("");
+      setSuccessMessage("");
     },
   });
 
@@ -233,6 +230,8 @@ export const usePerformanceHook = (staffId: string) => {
   // =================================================
 
   const onSubmit = async (values: StaffTargetFormValues) => {
+    setServerError("");
+    setSuccessMessage("");
     if (!isAdmin) {
       return;
     }
