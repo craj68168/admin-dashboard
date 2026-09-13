@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import { formatCreatedAt } from "@/utils/format-date";
 import { useStaffDetails } from "./hook";
+import Performance from "./Performance";
+import { Divider } from "@mui/material";
 
 export default function StaffDetails() {
   const router = useRouter();
@@ -80,6 +82,9 @@ export default function StaffDetails() {
           <Detail label="Assigned clients" value={staff.totalClients} />
           <Detail label="Created at" value={formatCreatedAt(staff.createdAt)} />
         </Box>
+        <Divider sx={{ my: 4 }} />
+
+        <Performance staffId={staff.staffId} />
       </Paper>
     </Box>
   );
