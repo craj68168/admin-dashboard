@@ -113,12 +113,14 @@ const ClientListPage = () => {
     },
 
     {
-      field: "clientStatus",
-      headerName: "Status",
-      flex: 1.1,
-      minWidth: 180,
+      field: "currentStage",
+      headerName: "Progress",
+      flex: 1.3,
+      minWidth: 230,
       resizable: false,
       disableColumnMenu: true,
+
+      valueGetter: (_value, row) => row.currentStage ?? "Registration Pending",
     },
 
     {

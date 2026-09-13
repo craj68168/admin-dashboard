@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-
+import Progress from "./Progress";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -453,10 +453,15 @@ const ClientDetail = () => {
           </DetailGrid>
         </DetailSection>
 
+        {/* Remarks  */}
         <Divider sx={{ my: 4 }} />
 
         <Remarks clientId={client.clientId} />
-        {/* BASIC */}
+
+        {/* Progress */}
+        <Divider sx={{ my: 4 }} />
+
+        <Progress clientId={client.clientId} />
       </Box>
     </Box>
   );
