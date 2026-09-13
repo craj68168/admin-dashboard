@@ -11,12 +11,31 @@ export const useStaffHook = () => {
     },
   });
 
-  const { mutate: deleteStaff, isPending: isDeleting } = useMutation({
-    mutationFn: (staffId: number | string) => api.delete(`/staff/${staffId}`),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["staffList"] });
-    },
-  });
+  const { mutate: updateStaffStatus, isPending: isUpdatingStatus } =
+    useMutation({
+      mutationFn: ({
+        staffId,
+        isActive,
+      }: {
+        staffId: string;
+        isActive: boolean;
+      }) =>
+        api.patch(`/staff/${staffId}/status`, {
+          isActive,
+        }),
 
-  return { isLoading, staffData: data, deleteStaff, isDeleting };
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: ["staffList"],
+        });
+      },
+    });
+
+  return {
+    isLoading,
+    staffData: data,
+
+    updateStaffStatus,
+    isUpdatingStatus,
+  };
 };

@@ -1,30 +1,61 @@
 "use client";
 
 import { useParams } from "next/navigation";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { api } from "@/lib/axios";
 
 export function useStaffClients() {
-  const params = useParams<{ staffId: string }>();
+  const params = useParams<{
+    staffId: string;
+  }>();
+
   const staffId = params.staffId;
+
   const queryClient = useQueryClient();
-  const { isPending, data, isError } = useQuery({
+
+  // =================================================
+  // GET STAFF CLIENTS
+  // =================================================
+
+  const { data, isPending, isError } = useQuery({
     queryKey: ["staff-clients", staffId],
+
     queryFn: async () => {
-      const response = await api.get(`/clients/staff/${staffId}`);
+      const response = await api.get(`/staff/${staffId}/clients`);
+
       return response.data;
     },
-    enabled: !!staffId,
+
+    enabled: Boolean(staffId),
   });
 
+  // =================================================
+  // DELETE CLIENT
+  // =================================================
+
   const { mutate: deleteClient, isPending: isDeleting } = useMutation({
-    mutationFn: (clientId: number | string) =>
-      api.delete(`/clients/${clientId}`),
+    mutationFn: (clientId: string | number) => {
+      return api.delete(`/clients/${clientId}`);
+    },
+
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["staff-clients", staffId],
       });
-      void queryClient.invalidateQueries({ queryKey: ["clients"] });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["clients"],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["staffList"],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["staff", staffId],
+      });
     },
   });
 
@@ -32,6 +63,7 @@ export function useStaffClients() {
     data,
     isPending,
     isError,
+
     deleteClient,
     isDeleting,
   };

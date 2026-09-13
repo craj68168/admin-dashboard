@@ -22,7 +22,6 @@ const defaultValues: StaffEditFormValues = {
   phone: "",
   location: "",
   email: "",
-  password: "",
 };
 
 export default function EditStaff() {
@@ -45,7 +44,6 @@ export default function EditStaff() {
         phone: staff.phone ?? "",
         location: staff.location ?? "",
         email: staff.email ?? "",
-        password: "",
       });
     }
   }, [reset, staff]);
@@ -167,16 +165,6 @@ export default function EditStaff() {
               </Select>
               <ErrorMessage message={errors.location?.message} />
             </Box>
-
-            <FormInput
-              id="password"
-              label="New password"
-              type="password"
-              register={register("password")}
-              error={errors.password?.message}
-              placeholder="Leave blank to keep current password"
-              autoComplete="new-password"
-            />
 
             <Box
               sx={{
