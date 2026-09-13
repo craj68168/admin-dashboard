@@ -93,7 +93,7 @@ export default function Profile() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
                     {label}
                   </p>
-                  <p className="mt-1 truncate text-sm font-semibold capitalize text-slate-800">
+                  <p className="mt-1 truncate text-sm font-semibold text-slate-800">
                     {value}
                   </p>
                 </div>

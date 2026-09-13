@@ -37,20 +37,25 @@ export const useAuthStore = create<AuthState>()(
           initialized: true,
         })),
 
-      logout: () =>
+      logout: () => {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+        }
+
         set({
           user: null,
           token: null,
           isAuthenticated: false,
           initialized: true,
-        }),
+        });
+      },
     }),
     {
       name: "auth-storage",
+
       partialize: (state) => ({
         user: state.user,
         token: state.token,
-        isAuthenticated: state.isAuthenticated,
       }),
     },
   ),
