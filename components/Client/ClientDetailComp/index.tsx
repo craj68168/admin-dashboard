@@ -15,6 +15,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Breadcrumb from "@/components/Breadcrumb";
 
 import { useClientDetailHook } from "./hook";
+import Remarks from "./Remarks";
 
 // =================================================
 // DATE FORMAT
@@ -258,8 +259,6 @@ const ClientDetail = () => {
           },
         }}
       >
-        {/* BASIC */}
-
         <DetailSection title="Basic Information">
           <DetailGrid>
             <DetailField label="Client ID" value={client.clientId} />
@@ -453,6 +452,11 @@ const ClientDetail = () => {
             />
           </DetailGrid>
         </DetailSection>
+
+        <Divider sx={{ my: 4 }} />
+
+        <Remarks clientId={client.clientId} />
+        {/* BASIC */}
       </Box>
     </Box>
   );
