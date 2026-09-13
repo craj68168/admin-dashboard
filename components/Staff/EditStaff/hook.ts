@@ -34,20 +34,18 @@ export function useEditStaffHook() {
 
   const updateStaff = useMutation({
     mutationFn: (payload: StaffEditFormValues) => {
-      const updatePayload = payload.password
-        ? payload
-        : {
-            name: payload.name,
-            email: payload.email,
-            location: payload.location,
-            phone: payload.phone,
-          };
-
-      return api.put(`/staff/${staffId}`, updatePayload);
+      return api.patch(`/staff/${staffId}`, payload);
     },
+
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["staffList"] });
-      void queryClient.invalidateQueries({ queryKey: ["staff", staffId] });
+      void queryClient.invalidateQueries({
+        queryKey: ["staffList"],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["staff", staffId],
+      });
+
       router.push("/admin/staff");
     },
   });

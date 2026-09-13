@@ -1,86 +1,93 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
-import {
-  canAssignClient as canAssignClientPermission,
-  canCreateClient as canCreateClientPermission,
-} from "@/lib/permissions";
 import { useAuthStore } from "@/store/auth-store";
 
 export const useClientHook = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { isLoading: isClientLoading, data: clientData } = useQuery({
+  const user = useAuthStore((state) => state.user);
+
+  const role = user?.role;
+
+  // =================================================
+  // GET CLIENTS
+  //
+  // Admin:
+  // backend returns all clients
+  //
+  // Staff:
+  // backend returns only their assigned clients
+  // =================================================
+
+  const {
+    data: clientData,
+    isLoading: isClientLoading,
+    isError: isClientError,
+    error: clientError,
+  } = useQuery({
     queryKey: ["clients"],
+
     queryFn: async () => {
-      const response = await api.get("/clients");
+      const response = await api.get("/clients", {
+        params: {
+          page: 1,
+          limit: 100,
+        },
+      });
 
       return response.data;
     },
   });
 
-  const { data: staffData } = useQuery({
-    queryKey: ["staff"],
-    queryFn: async () => {
-      const response = await api.get("/staff");
+  // =================================================
+  // DELETE CLIENT
+  // SUPERADMIN ONLY
+  // =================================================
 
-      return response?.data;
+  const { mutate: deleteClient, isPending: isDeleting } = useMutation({
+    mutationFn: (clientId: string) => {
+      return api.delete(`/clients/${clientId}`);
     },
-  });
-
-  const { mutate: staffAdd, isPending: isStaffAdding } = useMutation({
-    mutationFn: ({
-      clientId,
-      staffId,
-    }: {
-      clientId: number | string;
-      staffId: number | string;
-    }) =>
-      api.patch(`/clients/${clientId}`, {
-        assignedStaff: staffId,
-      }),
 
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["clients"] });
-      void queryClient.invalidateQueries({ queryKey: ["staff"] });
+      void queryClient.invalidateQueries({
+        queryKey: ["clients"],
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: ["staffList"],
+      });
     },
   });
 
-  return { isClientLoading, clientData, staffData, staffAdd, isStaffAdding };
-};
-
-export function useClientListHook() {
-  const router = useRouter();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const user = useAuthStore((state) => state.user);
-
-  const canCreateClient = canCreateClientPermission(user);
-  const canAssignClient = canAssignClientPermission(user);
+  // =================================================
+  // CREATE
+  // =================================================
 
   const handleCreateClient = () => {
-    router.push("/admin/client/clientDetailPage?mode=create");
+    router.push("/admin/client/add");
   };
 
-  const handleAssignClient = (
-    clientId: number | string,
-    staffId: number | string,
-  ) => {
-    if (!canAssignClient) {
-      return;
-    }
-  };
+  // =================================================
+  // VIEW
+  // =================================================
 
   return {
-    sidebarCollapsed,
-    setSidebarCollapsed,
-    canCreateClient,
-    canAssignClient,
+    role,
+
+    clientData,
+    isClientLoading,
+    isClientError,
+    clientError,
+
+    deleteClient,
+    isDeleting,
+
     handleCreateClient,
-    handleAssignClient,
   };
-}
+};

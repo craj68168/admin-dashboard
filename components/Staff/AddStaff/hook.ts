@@ -1,10 +1,11 @@
 import { api } from "@/lib/axios";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { StaffAddPayload } from "./types";
 import { useRouter } from "next/navigation";
 
 export const useStaffAddHook = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { mutate, isPending, isError, isSuccess } = useMutation<
     StaffAddPayload,
     unknown,
@@ -14,7 +15,11 @@ export const useStaffAddHook = () => {
       return api.post("/staff", payload);
     },
 
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["staffList"],
+      });
+
       router.push("/admin/staff");
     },
     onError: (error) => {

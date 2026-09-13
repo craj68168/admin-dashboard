@@ -7,9 +7,6 @@ export const staffEditSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   location: z.string().min(1, "Location is required"),
   phone: z.string().min(1, "Phone is required"),
-  password: z.string().refine((value) => value === "" || value.length >= 6, {
-    message: "Password must be at least 6 characters",
-  }),
 });
 
 export type StaffEditFormValues = z.infer<typeof staffEditSchema>;

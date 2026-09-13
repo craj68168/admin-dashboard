@@ -1,5 +1,17 @@
-import EditClientPage from "@/components/Client/EditClientPage";
+import { Suspense } from "react";
 
-export default function EditClientRoute() {
-  return <EditClientPage />;
+import EditClient from "@/components/Client/EditClient";
+
+export default function EditClientPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          Loading client...
+        </div>
+      }
+    >
+      <EditClient />
+    </Suspense>
+  );
 }

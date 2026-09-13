@@ -1,78 +1,177 @@
 "use client";
 
-import Breadcrumb from "@/components/Breadcrumb";
+import { useState } from "react";
+
 import Box from "@mui/material/Box";
-import { useClientListHook, useClientHook } from "./hook";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Paper } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
+
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
+import AddIcon from "@mui/icons-material/Add";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useAuthStore } from "@/store/auth-store";
-import { useRouter } from "next/navigation";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import Breadcrumb from "@/components/Breadcrumb";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
+import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
+
+import { useClientHook } from "./hook";
+import { useRouter } from "next/navigation";
+
+type DeleteDialogState = {
+  open: boolean;
+  clientId: string;
+  clientName: string;
+};
 
 const ClientListPage = () => {
   const router = useRouter();
-  const role = useAuthStore((state) => state.user?.role);
-  const { canCreateClient, handleCreateClient } = useClientListHook();
+  const {
+    role,
 
-  const { isClientLoading, clientData } = useClientHook();
+    clientData,
+    isClientLoading,
+
+    deleteClient,
+    isDeleting,
+
+    handleCreateClient,
+  } = useClientHook();
+
+  // =================================================
+  // DELETE DIALOG
+  // =================================================
+
+  const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>({
+    open: false,
+    clientId: "",
+    clientName: "",
+  });
+
+  const closeDeleteDialog = () => {
+    setDeleteDialog({
+      open: false,
+      clientId: "",
+      clientName: "",
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteDialog.clientId) {
+      return;
+    }
+
+    deleteClient(deleteDialog.clientId, {
+      onSuccess: () => {
+        closeDeleteDialog();
+      },
+    });
+  };
+
+  // =================================================
+  // COLUMNS
+  // =================================================
+
   const columns: GridColDef[] = [
     {
       field: "clientId",
       headerName: "ID",
-      flex: 0.65,
-      minWidth: 130,
+      flex: 0.7,
+      minWidth: 140,
       resizable: false,
       disableColumnMenu: true,
     },
+
     {
       field: "fullName",
-      headerName: "Full name",
+      headerName: "Full Name",
       flex: 1.2,
-      minWidth: 170,
+      minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
+    },
+
+    {
+      field: "phone",
+      headerName: "Phone",
+      flex: 1,
+      minWidth: 150,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+
+    {
+      field: "visaType",
+      headerName: "Visa Type",
+      flex: 0.9,
+      minWidth: 140,
+      resizable: false,
+      disableColumnMenu: true,
+    },
+
+    {
+      field: "currentStage",
+      headerName: "Progress",
+      flex: 1.3,
+      minWidth: 230,
+      resizable: false,
+      disableColumnMenu: true,
+
+      valueGetter: (_value, row) => row.currentStage ?? "Registration Pending",
     },
 
     {
       field: "assignedStaff",
-      headerName: "Assign To",
-      flex: 1,
+      headerName: "Assigned To",
+      flex: 1.1,
       minWidth: 180,
       resizable: false,
       disableColumnMenu: true,
-      valueGetter: (_value, row) =>
-        row.assignedStaffName ??
-        (typeof row.assignedStaff === "object"
-          ? row.assignedStaff?.name
-          : row.assignedStaff) ??
-        "Unassigned",
+
+      valueGetter: (_value, row) => {
+        return row.assignedStaffDetails?.name || row.assignedStaff || "-";
+      },
     },
+
     {
-      field: "action",
+      field: "actions",
       headerName: "Action",
-      width: role === "superadmin" ? 130 : 78,
+      width: role === "superadmin" ? 150 : 110,
       resizable: false,
       disableColumnMenu: true,
-      renderCell: ({ row }) => (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Tooltip title="View client">
-            <IconButton
-              aria-label="View client"
-              onClick={() =>
-                router.push(
-                  `/admin/client/clientDetailPage?clientId=${row.clientId}`,
-                )
-              }
-            >
-              <RemoveRedEyeIcon />
-            </IconButton>
-          </Tooltip>
+      sortable: false,
+      filterable: false,
 
-          {role === "superadmin" && (
+      renderCell: ({ row }) => {
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {/* VIEW */}
+            <Tooltip title="View client">
+              <IconButton
+                aria-label="View client"
+                onClick={() =>
+                  router.push(
+                    `/admin/client/${encodeURIComponent(row.clientId)}`,
+                  )
+                }
+              >
+                <RemoveRedEyeIcon />
+              </IconButton>
+            </Tooltip>
+
+            {/* EDIT
+                Admin → any client
+                Staff → own client
+                Backend already protects this
+            */}
             <Tooltip title="Edit client">
               <IconButton
                 aria-label="Edit client"
@@ -83,54 +182,162 @@ const ClientListPage = () => {
                 <EditOutlinedIcon />
               </IconButton>
             </Tooltip>
-          )}
-        </Box>
-      ),
+
+            {/* DELETE
+                Super Admin only
+            */}
+            {role === "superadmin" && (
+              <Tooltip title="Delete client">
+                <span>
+                  <IconButton
+                    aria-label="Delete client"
+                    disabled={isDeleting}
+                    onClick={() =>
+                      setDeleteDialog({
+                        open: true,
+
+                        clientId: row.clientId,
+
+                        clientName: row.fullName || "this client",
+                      })
+                    }
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            )}
+          </Box>
+        );
+      },
     },
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
-      <main className="h-screen flex-1 overflow-y-auto px-8 pb-8">
-        <div className="mb-6">
+    <>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#f3f4f6",
+          px: 4,
+          pb: 4,
+        }}
+      >
+        {/* =================================================
+            BREADCRUMB
+        ================================================= */}
+
+        <Box sx={{ mb: 3 }}>
           <Breadcrumb
             items={[
-              { label: "Dashboard", href: "/admin/dashboard" },
-              { label: "Clients", href: "/client", current: true },
+              {
+                label: "Dashboard",
+                href: "/admin/dashboard",
+              },
+              {
+                label: "Clients",
+                current: true,
+              },
             ]}
           />
-        </div>
+        </Box>
 
-        {canCreateClient && (
-          <div className="mb-6 flex justify-end">
-            <button
-              type="button"
-              onClick={handleCreateClient}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              <span aria-hidden="true">+</span>
-              Add Client
-            </button>
-          </div>
-        )}
+        {/* =================================================
+            ADD CLIENT
+        ================================================= */}
 
-        <Paper sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mb: 3,
+          }}
+        >
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateClient}
+          >
+            Add Client
+          </Button>
+        </Box>
+
+        {/* =================================================
+            CLIENT TABLE
+        ================================================= */}
+
+        <Box
+          sx={{
+            width: "100%",
+            bgcolor: "white",
+            borderRadius: 2,
+            overflow: "hidden",
+          }}
+        >
           <DataGrid
             rows={clientData?.data || []}
-            getRowId={(row) => row.clientId}
             columns={columns}
-            disableColumnMenu
-            // initialState={{ pagination: { paginationModel } }}
-            pageSizeOptions={[5, 10]}
-            // slots={{ cell: renderRowHeaderCell }}
-            slots={{ noRowsOverlay: NoDataOverlay }}
+            getRowId={(row) => row.clientId}
             loading={isClientLoading}
+            disableColumnMenu
+            disableRowSelectionOnClick
             hideFooter
             autoHeight
+            slots={{
+              noRowsOverlay: NoDataOverlay,
+            }}
+            sx={{
+              border: 0,
+
+              "& .MuiDataGrid-columnHeaders": {
+                bgcolor: "primary.main",
+                color: "white",
+              },
+
+              "& .MuiDataGrid-cell:focus": {
+                outline: "none",
+              },
+
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none",
+              },
+
+              "& .MuiDataGrid-row:nth-of-type(even)": {
+                bgcolor: "grey.50",
+              },
+            }}
           />
-        </Paper>
-      </main>
-    </div>
+        </Box>
+      </Box>
+
+      {/* =================================================
+          DELETE CONFIRMATION
+      ================================================= */}
+
+      <ConfirmActionDialog
+        open={deleteDialog.open}
+        title="Delete Client"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <strong>{deleteDialog.clientName}</strong>?
+            <div
+              style={{
+                marginTop: 12,
+              }}
+            >
+              This action cannot be undone.
+            </div>
+          </>
+        }
+        confirmText="Yes, Delete"
+        cancelText="No"
+        confirmColor="error"
+        isLoading={isDeleting}
+        onConfirm={handleConfirmDelete}
+        onClose={closeDeleteDialog}
+      />
+    </>
   );
 };
 
