@@ -19,19 +19,10 @@ import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
 
 import { useClientFeesHook } from "./hook";
 
-import type { ClientFeesProps } from "./type";
+import type { ClientFeesProps, PaymentProgressStatus } from "./type";
 
-// =================================================
-// AMOUNT FORMAT
-// =================================================
-
-const formatAmount = (value: number) => {
-  return new Intl.NumberFormat("ja-JP").format(Number(value || 0));
-};
-
-// =================================================
-// TOKYO DATE
-// =================================================
+const formatAmount = (value: number) =>
+  new Intl.NumberFormat("ja-JP").format(Number(value || 0));
 
 const formatTokyoDate = (value?: string | null) => {
   if (!value) {
@@ -46,23 +37,39 @@ const formatTokyoDate = (value?: string | null) => {
 
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tokyo",
-
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(date);
 };
 
-// =================================================
-// COMPONENT
-// =================================================
+const getProgressColor = (
+  status: PaymentProgressStatus,
+): "default" | "warning" | "info" | "success" => {
+  switch (status) {
+    case "Partial":
+      return "warning";
+
+    case "Paid":
+      return "success";
+
+    case "Unpaid":
+      return "info";
+
+    default:
+      return "default";
+  }
+};
 
 const ClientFees = ({ clientId }: ClientFeesProps) => {
   const {
     isAdmin,
 
     fees,
+
     totalExpected,
+    totalPaid,
+    totalOutstanding,
 
     control,
     errors,
@@ -71,15 +78,18 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
     onSubmit,
 
     editingFeeId,
+
     handleEdit,
     handleCancelEdit,
 
     feeToCancel,
+
     handleOpenCancelFee,
     handleCloseCancelFee,
     handleConfirmCancelFee,
 
     isFeesLoading,
+
     isSubmitting,
     isCreatingFee,
     isUpdatingFee,
@@ -94,54 +104,37 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
 
   return (
     <Box>
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
+
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" fontWeight={600}>
+          Client Fees
+        </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Required fees, payments and outstanding balances.
+        </Typography>
+      </Box>
+
+      {/* SUMMARY */}
 
       <Box
         sx={{
-          display: "flex",
-
-          alignItems: {
-            xs: "flex-start",
-            sm: "center",
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(3, 1fr)",
           },
-
-          justifyContent: "space-between",
-
-          flexDirection: {
-            xs: "column",
-            sm: "row",
-          },
-
           gap: 2,
-
           mb: 3,
         }}
       >
-        <Box>
-          <Typography variant="h6" fontWeight={600}>
-            Client Fees
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Required fees and expected payment amounts for this client.
-          </Typography>
-        </Box>
-
         <Box
           sx={{
             border: "1px solid",
-
             borderColor: "divider",
-
             borderRadius: 2,
-
-            px: 2.5,
-
-            py: 1.5,
-
-            minWidth: 190,
+            p: 2,
           }}
         >
           <Typography variant="caption" color="text.secondary">
@@ -152,11 +145,41 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             ¥{formatAmount(totalExpected)}
           </Typography>
         </Box>
-      </Box>
 
-      {/* =================================================
-          GLOBAL MESSAGES
-      ================================================= */}
+        <Box
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            p: 2,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            Total Paid
+          </Typography>
+
+          <Typography variant="h6" fontWeight={700}>
+            ¥{formatAmount(totalPaid)}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            p: 2,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">
+            Outstanding
+          </Typography>
+
+          <Typography variant="h6" fontWeight={700}>
+            ¥{formatAmount(totalOutstanding)}
+          </Typography>
+        </Box>
+      </Box>
 
       {serverError && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -176,10 +199,6 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
         </Alert>
       )}
 
-      {/* =================================================
-          MAIN GRID
-      ================================================= */}
-
       <Box
         sx={{
           display: "grid",
@@ -193,9 +212,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
           gap: 4,
         }}
       >
-        {/* =================================================
-            FEE LIST
-        ================================================= */}
+        {/* FEE LIST */}
 
         <Box>
           <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
@@ -205,13 +222,9 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
           {isFeesLoading && (
             <Box
               sx={{
-                minHeight: 160,
-
+                py: 5,
                 display: "flex",
-
                 justifyContent: "center",
-
-                alignItems: "center",
               }}
             >
               <CircularProgress size={28} />
@@ -222,18 +235,14 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             <Box
               sx={{
                 border: "1px dashed",
-
                 borderColor: "divider",
-
                 borderRadius: 2,
-
                 p: 5,
-
                 textAlign: "center",
               }}
             >
               <Typography variant="body2" color="text.secondary">
-                No fee requirements have been created yet.
+                No fee requirements have been created.
               </Typography>
             </Box>
           )}
@@ -242,11 +251,8 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             <Box
               sx={{
                 border: "1px solid",
-
                 borderColor: "divider",
-
                 borderRadius: 2,
-
                 overflow: "hidden",
               }}
             >
@@ -257,16 +263,11 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                       p: 2.5,
                     }}
                   >
-                    {/* NAME + STATUS */}
-
                     <Box
                       sx={{
                         display: "flex",
-
                         justifyContent: "space-between",
-
                         alignItems: "flex-start",
-
                         gap: 2,
                       }}
                     >
@@ -276,95 +277,109 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                         </Typography>
 
                         <Typography
-                          variant="h6"
-                          fontWeight={700}
+                          variant="body2"
+                          color="text.secondary"
                           sx={{
                             mt: 0.5,
                           }}
                         >
-                          ¥{formatAmount(fee.expectedAmount)}
+                          Due: {formatTokyoDate(fee.dueDate)}
                         </Typography>
                       </Box>
 
-                      <Chip
-                        size="small"
-                        label={fee.status}
-                        color={fee.status === "Active" ? "success" : "default"}
-                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 1,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Chip
+                          size="small"
+                          label={fee.status}
+                          color={
+                            fee.status === "Active" ? "success" : "default"
+                          }
+                        />
+
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          label={fee.paymentProgressStatus}
+                          color={getProgressColor(fee.paymentProgressStatus)}
+                        />
+                      </Box>
                     </Box>
 
-                    {/* DETAILS */}
+                    {/* MONEY */}
 
                     <Box
                       sx={{
-                        mt: 2,
-
                         display: "grid",
 
                         gridTemplateColumns: {
                           xs: "1fr",
-                          sm: "1fr 1fr",
+                          sm: "repeat(3, 1fr)",
                         },
 
-                        gap: 1,
+                        gap: 2,
+
+                        mt: 2,
                       }}
                     >
-                      <Typography variant="body2">
-                        <strong>Due Date:</strong>{" "}
-                        {formatTokyoDate(fee.dueDate)}
-                      </Typography>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Expected
+                        </Typography>
 
-                      <Typography variant="body2">
-                        <strong>Created By:</strong> {fee.createdByName}
-                      </Typography>
+                        <Typography fontWeight={600}>
+                          ¥{formatAmount(fee.expectedAmount)}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Paid
+                        </Typography>
+
+                        <Typography fontWeight={600}>
+                          ¥{formatAmount(fee.paidAmount)}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Outstanding
+                        </Typography>
+
+                        <Typography fontWeight={600}>
+                          ¥{formatAmount(fee.outstandingAmount)}
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    {/* NOTE */}
+                    <Typography variant="body2" sx={{ mt: 2 }}>
+                      <strong>Created By:</strong> {fee.createdByName}
+                    </Typography>
 
                     {fee.note && (
                       <Typography
                         variant="body2"
                         sx={{
                           mt: 1.5,
-
                           whiteSpace: "pre-wrap",
-
-                          wordBreak: "break-word",
                         }}
                       >
                         {fee.note}
                       </Typography>
                     )}
 
-                    {/* CANCEL INFO */}
-
-                    {fee.status === "Cancelled" && fee.cancelledByName && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          display: "block",
-                          mt: 1.5,
-                        }}
-                      >
-                        Cancelled by {fee.cancelledByName}
-                        {fee.cancelledAt
-                          ? ` on ${formatTokyoDate(fee.cancelledAt)}`
-                          : ""}
-                      </Typography>
-                    )}
-
-                    {/* ADMIN ACTIONS */}
-
                     {isAdmin && fee.status === "Active" && (
                       <Box
                         sx={{
                           display: "flex",
-
-                          gap: 1,
-
                           justifyContent: "flex-end",
-
+                          gap: 1,
                           mt: 2,
                         }}
                       >
@@ -397,37 +412,23 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
           )}
         </Box>
 
-        {/* =================================================
-            ADMIN CREATE / EDIT FORM
-        ================================================= */}
+        {/* ADMIN FORM */}
 
         {isAdmin && (
           <Box
             sx={{
               border: "1px solid",
-
               borderColor: "divider",
-
               borderRadius: 2,
-
               p: 3,
-
               height: "fit-content",
             }}
           >
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              sx={{
-                mb: 3,
-              }}
-            >
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 3 }}>
               {editingFeeId ? "Edit Fee" : "Add Fee"}
             </Typography>
 
-            <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
-              {/* FEE NAME */}
-
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
               <Controller
                 name="feeName"
                 control={control}
@@ -437,7 +438,6 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     fullWidth
                     required
                     label="Fee Name"
-                    placeholder="e.g. Registration Fee"
                     error={Boolean(errors.feeName)}
                     helperText={errors.feeName?.message}
                     sx={{
@@ -446,8 +446,6 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                   />
                 )}
               />
-
-              {/* EXPECTED AMOUNT */}
 
               <Controller
                 name="expectedAmount"
@@ -459,22 +457,14 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     required
                     type="number"
                     label="Expected Amount"
-                    placeholder="300000"
                     error={Boolean(errors.expectedAmount)}
                     helperText={errors.expectedAmount?.message}
-                    slotProps={{
-                      htmlInput: {
-                        min: 1,
-                      },
-                    }}
                     sx={{
                       mb: 2.5,
                     }}
                   />
                 )}
               />
-
-              {/* DUE DATE */}
 
               <Controller
                 name="dueDate"
@@ -485,8 +475,6 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     fullWidth
                     type="date"
                     label="Due Date"
-                    error={Boolean(errors.dueDate)}
-                    helperText={errors.dueDate?.message}
                     slotProps={{
                       inputLabel: {
                         shrink: true,
@@ -499,8 +487,6 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                 )}
               />
 
-              {/* NOTE */}
-
               <Controller
                 name="note"
                 control={control}
@@ -511,23 +497,17 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     multiline
                     minRows={4}
                     label="Note"
-                    placeholder="Optional fee note..."
                     error={Boolean(errors.note)}
                     helperText={errors.note?.message}
                   />
                 )}
               />
 
-              {/* BUTTONS */}
-
               <Box
                 sx={{
                   display: "flex",
-
                   justifyContent: "flex-end",
-
                   gap: 1,
-
                   mt: 3,
                 }}
               >
@@ -566,26 +546,13 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
         )}
       </Box>
 
-      {/* =================================================
-          CANCEL CONFIRMATION
-      ================================================= */}
-
       <ConfirmActionDialog
         open={Boolean(feeToCancel)}
         title="Cancel Fee"
         description={
-          feeToCancel ? (
-            <>
-              Are you sure you want to cancel{" "}
-              <strong>{feeToCancel.feeName}</strong>
-              ?
-              <br />
-              <br />
-              This fee will remain in the client's financial history.
-            </>
-          ) : (
-            ""
-          )
+          feeToCancel
+            ? `Are you sure you want to cancel "${feeToCancel.feeName}"? The fee will remain in the financial history.`
+            : ""
         }
         confirmText="Cancel Fee"
         cancelText="Keep Fee"

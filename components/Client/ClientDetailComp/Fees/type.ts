@@ -1,5 +1,7 @@
 export type ClientFeeStatus = "Active" | "Cancelled";
 
+export type PaymentProgressStatus = "Unpaid" | "Partial" | "Paid" | "Cancelled";
+
 export type ClientFeeFormValues = {
   feeName: string;
   expectedAmount: string;
@@ -14,7 +16,14 @@ export type ClientFee = {
   clientId: string;
 
   feeName: string;
+
   expectedAmount: number;
+
+  paidAmount: number;
+
+  outstandingAmount: number;
+
+  paymentProgressStatus: PaymentProgressStatus;
 
   dueDate?: string | null;
 
@@ -36,14 +45,18 @@ export type ClientFee = {
   updatedAt: string;
 };
 
+export type ClientFeesSummary = {
+  totalExpected: number;
+  totalPaid: number;
+  totalOutstanding: number;
+};
+
 export type ClientFeesResponse = {
   success: boolean;
 
   count: number;
 
-  summary: {
-    totalExpected: number;
-  };
+  summary: ClientFeesSummary;
 
   data: ClientFee[];
 };

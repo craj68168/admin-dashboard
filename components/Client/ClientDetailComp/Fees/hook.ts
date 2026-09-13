@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-
 import axios from "axios";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
@@ -22,20 +20,12 @@ import type {
   ClientFeesResponse,
 } from "./type";
 
-// =================================================
-// DEFAULT VALUES
-// =================================================
-
 const defaultValues: ClientFeeFormValues = {
   feeName: "",
   expectedAmount: "",
   dueDate: "",
   note: "",
 };
-
-// =================================================
-// DATE FOR INPUT
-// =================================================
 
 const getTokyoDateInputValue = (value?: string | null) => {
   if (!value) {
@@ -68,10 +58,6 @@ const getTokyoDateInputValue = (value?: string | null) => {
   return `${year}-${month}-${day}`;
 };
 
-// =================================================
-// HOOK
-// =================================================
-
 export const useClientFeesHook = (clientId: string) => {
   const queryClient = useQueryClient();
 
@@ -87,10 +73,6 @@ export const useClientFeesHook = (clientId: string) => {
 
   const [successMessage, setSuccessMessage] = useState("");
 
-  // =================================================
-  // FORM
-  // =================================================
-
   const {
     control,
     handleSubmit,
@@ -104,7 +86,7 @@ export const useClientFeesHook = (clientId: string) => {
   });
 
   // =================================================
-  // GET CLIENT FEES
+  // GET FEES
   // =================================================
 
   const {
@@ -133,15 +115,15 @@ export const useClientFeesHook = (clientId: string) => {
 
   const totalExpected = feesResponse?.summary?.totalExpected ?? 0;
 
+  const totalPaid = feesResponse?.summary?.totalPaid ?? 0;
+
+  const totalOutstanding = feesResponse?.summary?.totalOutstanding ?? 0;
+
   // =================================================
-  // CREATE FEE
+  // CREATE
   // =================================================
 
-  const {
-    mutateAsync: createFee,
-
-    isPending: isCreatingFee,
-  } = useMutation({
+  const { mutateAsync: createFee, isPending: isCreatingFee } = useMutation({
     mutationFn: async (values: ClientFeeFormValues) => {
       const response = await api.post<ClientFeeMutationResponse>(
         "/client-fees",
@@ -169,14 +151,10 @@ export const useClientFeesHook = (clientId: string) => {
   });
 
   // =================================================
-  // UPDATE FEE
+  // UPDATE
   // =================================================
 
-  const {
-    mutateAsync: updateFee,
-
-    isPending: isUpdatingFee,
-  } = useMutation({
+  const { mutateAsync: updateFee, isPending: isUpdatingFee } = useMutation({
     mutationFn: async ({
       feeId,
       values,
@@ -208,14 +186,10 @@ export const useClientFeesHook = (clientId: string) => {
   });
 
   // =================================================
-  // CANCEL FEE
+  // CANCEL
   // =================================================
 
-  const {
-    mutateAsync: cancelFee,
-
-    isPending: isCancellingFee,
-  } = useMutation({
+  const { mutateAsync: cancelFee, isPending: isCancellingFee } = useMutation({
     mutationFn: async (feeId: string) => {
       const response = await api.patch<ClientFeeMutationResponse>(
         `/client-fees/${feeId}/cancel`,
@@ -232,7 +206,7 @@ export const useClientFeesHook = (clientId: string) => {
   });
 
   // =================================================
-  // CREATE / UPDATE SUBMIT
+  // SUBMIT
   // =================================================
 
   const onSubmit = async (values: ClientFeeFormValues) => {
@@ -294,10 +268,6 @@ export const useClientFeesHook = (clientId: string) => {
     });
   };
 
-  // =================================================
-  // CANCEL EDIT MODE
-  // =================================================
-
   const handleCancelEdit = () => {
     setEditingFeeId(null);
 
@@ -307,16 +277,12 @@ export const useClientFeesHook = (clientId: string) => {
   };
 
   // =================================================
-  // OPEN CANCEL DIALOG
+  // CANCEL FEE DIALOG
   // =================================================
 
   const handleOpenCancelFee = (fee: ClientFee) => {
     setFeeToCancel(fee);
   };
-
-  // =================================================
-  // CLOSE CANCEL DIALOG
-  // =================================================
 
   const handleCloseCancelFee = () => {
     if (isCancellingFee) {
@@ -325,10 +291,6 @@ export const useClientFeesHook = (clientId: string) => {
 
     setFeeToCancel(null);
   };
-
-  // =================================================
-  // CONFIRM CANCEL
-  // =================================================
 
   const handleConfirmCancelFee = async () => {
     if (!feeToCancel) {
@@ -366,7 +328,7 @@ export const useClientFeesHook = (clientId: string) => {
   };
 
   // =================================================
-  // GET ERROR
+  // LOAD ERROR
   // =================================================
 
   let loadError = "";
@@ -384,7 +346,10 @@ export const useClientFeesHook = (clientId: string) => {
     isAdmin,
 
     fees,
+
     totalExpected,
+    totalPaid,
+    totalOutstanding,
 
     control,
     errors,
@@ -393,15 +358,18 @@ export const useClientFeesHook = (clientId: string) => {
     onSubmit,
 
     editingFeeId,
+
     handleEdit,
     handleCancelEdit,
 
     feeToCancel,
+
     handleOpenCancelFee,
     handleCloseCancelFee,
     handleConfirmCancelFee,
 
     isFeesLoading,
+
     isSubmitting,
     isCreatingFee,
     isUpdatingFee,

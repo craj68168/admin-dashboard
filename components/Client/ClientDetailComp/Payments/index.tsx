@@ -20,17 +20,8 @@ import type { PaymentsProps, PaymentStatus } from "./type";
 
 import { usePaymentsHook } from "./hook";
 
-// =================================================
-// FORMAT AMOUNT
-// =================================================
-
-const formatAmount = (value: number) => {
-  return new Intl.NumberFormat("ja-JP").format(Number(value || 0));
-};
-
-// =================================================
-// FORMAT JAPAN DATE
-// =================================================
+const formatAmount = (value: number) =>
+  new Intl.NumberFormat("ja-JP").format(Number(value || 0));
 
 const formatJapanDate = (value: string) => {
   if (!value) {
@@ -47,16 +38,10 @@ const formatJapanDate = (value: string) => {
     timeZone: "Asia/Tokyo",
 
     year: "numeric",
-
     month: "2-digit",
-
     day: "2-digit",
   }).format(date);
 };
-
-// =================================================
-// STATUS COLOR
-// =================================================
 
 const getStatusColor = (
   status: PaymentStatus,
@@ -76,36 +61,30 @@ const getStatusColor = (
   }
 };
 
-// =================================================
-// COMPONENT
-// =================================================
-
 const Payments = ({ clientId }: PaymentsProps) => {
   const {
     payments,
-
     totalPaid,
 
-    control,
+    availableFees,
+    selectedFee,
 
+    control,
     errors,
 
     handleSubmit,
-
     onSubmit,
 
     paymentMethod,
 
     isPaymentsLoading,
+    isFeesLoading,
 
     isSubmitting,
-
     isCreatingPayment,
 
     serverError,
-
     successMessage,
-
     loadError,
   } = usePaymentsHook(clientId);
 
@@ -113,9 +92,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
 
   return (
     <Box>
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
       <Box
         sx={{
@@ -143,36 +120,23 @@ const Payments = ({ clientId }: PaymentsProps) => {
             Payments
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              mt: 0.5,
-            }}
-          >
-            Client payment and collection history.
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Payment collection history and installments.
           </Typography>
         </Box>
-
-        {/* TOTAL PAID */}
 
         <Box
           sx={{
             border: "1px solid",
-
             borderColor: "divider",
-
             borderRadius: 2,
-
             px: 2.5,
-
             py: 1.5,
-
             minWidth: 180,
           }}
         >
           <Typography variant="caption" color="text.secondary">
-            Total Paid
+            Total Payments
           </Typography>
 
           <Typography variant="h6" fontWeight={700}>
@@ -180,10 +144,6 @@ const Payments = ({ clientId }: PaymentsProps) => {
           </Typography>
         </Box>
       </Box>
-
-      {/* =================================================
-          MAIN GRID
-      ================================================= */}
 
       <Box
         sx={{
@@ -197,18 +157,12 @@ const Payments = ({ clientId }: PaymentsProps) => {
           gap: 4,
         }}
       >
-        {/* =================================================
-            PAYMENT HISTORY
-        ================================================= */}
+        {/* ===============================================
+            HISTORY
+        =============================================== */}
 
         <Box>
-          <Typography
-            variant="subtitle1"
-            fontWeight={600}
-            sx={{
-              mb: 2,
-            }}
-          >
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
             Payment History
           </Typography>
 
@@ -216,11 +170,8 @@ const Payments = ({ clientId }: PaymentsProps) => {
             <Box
               sx={{
                 minHeight: 180,
-
                 display: "flex",
-
                 justifyContent: "center",
-
                 alignItems: "center",
               }}
             >
@@ -234,13 +185,9 @@ const Payments = ({ clientId }: PaymentsProps) => {
             <Box
               sx={{
                 border: "1px dashed",
-
                 borderColor: "divider",
-
                 borderRadius: 2,
-
                 p: 5,
-
                 textAlign: "center",
               }}
             >
@@ -254,31 +201,19 @@ const Payments = ({ clientId }: PaymentsProps) => {
             <Box
               sx={{
                 border: "1px solid",
-
                 borderColor: "divider",
-
                 borderRadius: 2,
-
                 overflow: "hidden",
               }}
             >
               {payments.map((payment, index) => (
                 <Box key={payment._id}>
-                  <Box
-                    sx={{
-                      p: 2.5,
-                    }}
-                  >
-                    {/* PAYMENT NAME + STATUS */}
-
+                  <Box sx={{ p: 2.5 }}>
                     <Box
                       sx={{
                         display: "flex",
-
-                        alignItems: "center",
-
                         justifyContent: "space-between",
-
+                        alignItems: "center",
                         gap: 2,
                       }}
                     >
@@ -293,23 +228,13 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       />
                     </Box>
 
-                    {/* AMOUNT */}
-
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                      sx={{
-                        mt: 1,
-                      }}
-                    >
+                    <Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
                       ¥{formatAmount(payment.amountPaid)}
                     </Typography>
 
                     <Typography variant="body2" color="text.secondary">
-                      Expected: ¥{formatAmount(payment.expectedAmount)}
+                      Fee Expected: ¥{formatAmount(payment.expectedAmount)}
                     </Typography>
-
-                    {/* DETAILS */}
 
                     <Box
                       sx={{
@@ -321,7 +246,6 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         },
 
                         gap: 1,
-
                         mt: 2,
                       }}
                     >
@@ -351,11 +275,10 @@ const Payments = ({ clientId }: PaymentsProps) => {
                           },
                         }}
                       >
-                        <strong>Stage:</strong> {payment.stageAtPayment}
+                        <strong>Stage at Payment:</strong>{" "}
+                        {payment.stageAtPayment}
                       </Typography>
                     </Box>
-
-                    {/* OPTIONAL DETAILS */}
 
                     {(payment.referenceNumber ||
                       payment.receiptNumber ||
@@ -363,11 +286,8 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       <Box
                         sx={{
                           mt: 2,
-
                           p: 1.5,
-
-                          backgroundColor: "action.hover",
-
+                          bgcolor: "action.hover",
                           borderRadius: 1,
                         }}
                       >
@@ -391,16 +311,12 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       </Box>
                     )}
 
-                    {/* NOTE */}
-
                     {payment.note && (
                       <Typography
                         variant="body2"
                         sx={{
                           mt: 2,
-
                           whiteSpace: "pre-wrap",
-
                           wordBreak: "break-word",
                         }}
                       >
@@ -416,105 +332,152 @@ const Payments = ({ clientId }: PaymentsProps) => {
           )}
         </Box>
 
-        {/* =================================================
+        {/* ===============================================
             ADD PAYMENT
-        ================================================= */}
+        =============================================== */}
 
         <Box
           sx={{
             border: "1px solid",
-
             borderColor: "divider",
-
             borderRadius: 2,
-
             p: 3,
-
             height: "fit-content",
           }}
         >
-          <Typography
-            variant="subtitle1"
-            fontWeight={600}
-            sx={{
-              mb: 3,
-            }}
-          >
+          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 3 }}>
             Add Payment
           </Typography>
 
           {serverError && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-              }}
-            >
+            <Alert severity="error" sx={{ mb: 2 }}>
               {serverError}
             </Alert>
           )}
 
           {successMessage && (
-            <Alert
-              severity="success"
-              sx={{
-                mb: 2,
-              }}
-            >
+            <Alert severity="success" sx={{ mb: 2 }}>
               {successMessage}
             </Alert>
           )}
 
+          {!isFeesLoading && availableFees.length === 0 && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              There are no active fees with an outstanding balance.
+            </Alert>
+          )}
+
           <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
-            {/* PAYMENT NAME */}
+            {/* FEE */}
 
             <Controller
-              name="paymentName"
+              name="feeId"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  fullWidth
+                  select
                   required
-                  label="Payment Name"
-                  placeholder="e.g. Registration Fee"
-                  error={Boolean(errors.paymentName)}
-                  helperText={errors.paymentName?.message}
-                  sx={{
-                    mb: 2.5,
-                  }}
-                />
+                  fullWidth
+                  disabled={isFeesLoading}
+                  label="Fee"
+                  error={Boolean(errors.feeId)}
+                  helperText={errors.feeId?.message}
+                  sx={{ mb: 2.5 }}
+                >
+                  <MenuItem value="">Select fee</MenuItem>
+
+                  {availableFees.map((fee) => (
+                    <MenuItem key={fee._id} value={fee._id}>
+                      {fee.feeName} - Outstanding ¥
+                      {formatAmount(fee.outstandingAmount)}
+                    </MenuItem>
+                  ))}
+                </TextField>
               )}
             />
 
-            {/* EXPECTED AMOUNT */}
+            {/* SELECTED FEE SUMMARY */}
 
-            <Controller
-              name="expectedAmount"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  required
-                  type="number"
-                  label="Expected Amount"
-                  placeholder="300000"
-                  error={Boolean(errors.expectedAmount)}
-                  helperText={errors.expectedAmount?.message}
-                  slotProps={{
-                    htmlInput: {
-                      min: 0,
-                    },
-                  }}
+            {selectedFee && (
+              <Box
+                sx={{
+                  border: "1px solid",
+                  borderColor: "divider",
+                  borderRadius: 2,
+                  p: 2,
+                  mb: 2.5,
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={600}
+                  sx={{ mb: 1.5 }}
+                >
+                  {selectedFee.feeName}
+                </Typography>
+
+                <Box
                   sx={{
-                    mb: 2.5,
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 1.5,
                   }}
-                />
-              )}
-            />
+                >
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Expected
+                    </Typography>
 
-            {/* AMOUNT PAID */}
+                    <Typography fontWeight={600}>
+                      ¥{formatAmount(selectedFee.expectedAmount)}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Already Paid
+                    </Typography>
+
+                    <Typography fontWeight={600}>
+                      ¥{formatAmount(selectedFee.paidAmount)}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Outstanding
+                    </Typography>
+
+                    <Typography fontWeight={700}>
+                      ¥{formatAmount(selectedFee.outstandingAmount)}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Status
+                    </Typography>
+
+                    <Box sx={{ mt: 0.25 }}>
+                      <Chip
+                        size="small"
+                        label={selectedFee.paymentProgressStatus}
+                        color={
+                          selectedFee.paymentProgressStatus === "Partial"
+                            ? "warning"
+                            : selectedFee.paymentProgressStatus === "Paid"
+                              ? "success"
+                              : "info"
+                        }
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+
+            {/* AMOUNT */}
 
             <Controller
               name="amountPaid"
@@ -525,23 +488,22 @@ const Payments = ({ clientId }: PaymentsProps) => {
                   fullWidth
                   required
                   type="number"
-                  label="Amount Paid"
-                  placeholder="100000"
+                  disabled={!selectedFee}
+                  label="Amount Paying"
                   error={Boolean(errors.amountPaid)}
                   helperText={errors.amountPaid?.message}
                   slotProps={{
                     htmlInput: {
                       min: 1,
+                      max: selectedFee?.outstandingAmount,
                     },
                   }}
-                  sx={{
-                    mb: 2.5,
-                  }}
+                  sx={{ mb: 2.5 }}
                 />
               )}
             />
 
-            {/* PAYMENT METHOD */}
+            {/* METHOD */}
 
             <Controller
               name="paymentMethod"
@@ -550,14 +512,12 @@ const Payments = ({ clientId }: PaymentsProps) => {
                 <TextField
                   {...field}
                   select
-                  fullWidth
                   required
+                  fullWidth
                   label="Payment Method"
                   error={Boolean(errors.paymentMethod)}
                   helperText={errors.paymentMethod?.message}
-                  sx={{
-                    mb: 2.5,
-                  }}
+                  sx={{ mb: 2.5 }}
                 >
                   <MenuItem value="">Select payment method</MenuItem>
 
@@ -570,7 +530,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
               )}
             />
 
-            {/* PAYMENT DATE */}
+            {/* DATE */}
 
             <Controller
               name="paymentDate"
@@ -589,14 +549,10 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       shrink: true,
                     },
                   }}
-                  sx={{
-                    mb: 2.5,
-                  }}
+                  sx={{ mb: 2.5 }}
                 />
               )}
             />
-
-            {/* REFERENCE NUMBER */}
 
             <Controller
               name="referenceNumber"
@@ -606,17 +562,10 @@ const Payments = ({ clientId }: PaymentsProps) => {
                   {...field}
                   fullWidth
                   label="Reference Number"
-                  placeholder="e.g. TXN-001"
-                  error={Boolean(errors.referenceNumber)}
-                  helperText={errors.referenceNumber?.message}
-                  sx={{
-                    mb: 2.5,
-                  }}
+                  sx={{ mb: 2.5 }}
                 />
               )}
             />
-
-            {/* RECEIPT NUMBER */}
 
             <Controller
               name="receiptNumber"
@@ -626,17 +575,10 @@ const Payments = ({ clientId }: PaymentsProps) => {
                   {...field}
                   fullWidth
                   label="Receipt Number"
-                  placeholder="e.g. REC-001"
-                  error={Boolean(errors.receiptNumber)}
-                  helperText={errors.receiptNumber?.message}
-                  sx={{
-                    mb: 2.5,
-                  }}
+                  sx={{ mb: 2.5 }}
                 />
               )}
             />
-
-            {/* BANK NAME */}
 
             {paymentMethod === "Bank Transfer" && (
               <Controller
@@ -647,9 +589,6 @@ const Payments = ({ clientId }: PaymentsProps) => {
                     {...field}
                     fullWidth
                     label="Bank Name"
-                    placeholder="Enter bank name"
-                    error={Boolean(errors.bankName)}
-                    helperText={errors.bankName?.message}
                     sx={{
                       mb: 2.5,
                     }}
@@ -657,8 +596,6 @@ const Payments = ({ clientId }: PaymentsProps) => {
                 )}
               />
             )}
-
-            {/* NOTE */}
 
             <Controller
               name="note"
@@ -670,28 +607,21 @@ const Payments = ({ clientId }: PaymentsProps) => {
                   multiline
                   minRows={4}
                   label="Note"
-                  placeholder="Optional payment note..."
-                  error={Boolean(errors.note)}
-                  helperText={errors.note?.message}
                 />
               )}
             />
 
-            {/* SAVE */}
-
             <Box
               sx={{
                 display: "flex",
-
                 justifyContent: "flex-end",
-
                 mt: 3,
               }}
             >
               <Button
                 type="submit"
                 variant="contained"
-                disabled={loading}
+                disabled={loading || !selectedFee}
                 startIcon={
                   loading ? (
                     <CircularProgress size={17} color="inherit" />

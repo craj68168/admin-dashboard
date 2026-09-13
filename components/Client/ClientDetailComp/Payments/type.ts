@@ -11,14 +11,20 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export type PaymentStatus = "Completed" | "Cancelled" | "Refunded";
 
 export type PaymentFormValues = {
-  paymentName: string;
-  expectedAmount: string;
+  feeId: string;
+
   amountPaid: string;
+
   paymentMethod: PaymentMethod | "";
+
   paymentDate: string;
+
   referenceNumber: string;
+
   receiptNumber: string;
+
   bankName: string;
+
   note: string;
 };
 
@@ -29,15 +35,30 @@ export type CreditedStaffRef = {
   staffId: string;
 };
 
+export type PaymentFeeRef = {
+  _id: string;
+
+  feeName: string;
+
+  expectedAmount: number;
+
+  status: string;
+
+  dueDate?: string | null;
+};
+
 export type Payment = {
   _id: string;
 
   clientRef: string;
   clientId: string;
 
+  clientFeeRef?: PaymentFeeRef | string | null;
+
   paymentName: string;
 
   expectedAmount: number;
+
   amountPaid: number;
 
   paymentMethod: PaymentMethod;
@@ -78,6 +99,7 @@ export type PaymentSummary = {
 
 export type PaymentsResponse = {
   success: boolean;
+
   count: number;
 
   summary: PaymentSummary;
@@ -87,7 +109,19 @@ export type PaymentsResponse = {
 
 export type CreatePaymentResponse = {
   success: boolean;
+
   message: string;
+
+  summary: {
+    feeExpected: number;
+
+    totalPaid: number;
+
+    outstanding: number;
+
+    paymentProgressStatus: "Unpaid" | "Partial" | "Paid";
+  };
+
   data: Payment;
 };
 

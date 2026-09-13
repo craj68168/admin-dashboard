@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import axios from "axios";
 
@@ -20,9 +20,7 @@ import type {
   PaymentsResponse,
 } from "./type";
 
-// =================================================
-// TODAY IN JAPAN
-// =================================================
+import type { ClientFeesResponse } from "../Fees/type";
 
 const getTokyoDate = () => {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -42,14 +40,8 @@ const getTokyoDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-// =================================================
-// DEFAULT FORM VALUES
-// =================================================
-
 const getDefaultValues = (): PaymentFormValues => ({
-  paymentName: "",
-
-  expectedAmount: "",
+  feeId: "",
 
   amountPaid: "",
 
@@ -66,20 +58,12 @@ const getDefaultValues = (): PaymentFormValues => ({
   note: "",
 });
 
-// =================================================
-// HOOK
-// =================================================
-
 export const usePaymentsHook = (clientId: string) => {
   const queryClient = useQueryClient();
 
   const [serverError, setServerError] = useState("");
 
   const [successMessage, setSuccessMessage] = useState("");
-
-  // =================================================
-  // FORM
-  // =================================================
 
   const {
     control,
@@ -97,10 +81,12 @@ export const usePaymentsHook = (clientId: string) => {
     defaultValues: getDefaultValues(),
   });
 
+  const feeId = watch("feeId");
+
   const paymentMethod = watch("paymentMethod");
 
   // =================================================
-  // GET PAYMENTS
+  // PAYMENTS
   // =================================================
 
   const {
@@ -130,6 +116,46 @@ export const usePaymentsHook = (clientId: string) => {
   const totalPaid = paymentsResponse?.summary?.totalPaid ?? 0;
 
   // =================================================
+  // FEES
+  // =================================================
+
+  const {
+    data: feesResponse,
+
+    isLoading: isFeesLoading,
+
+    isError: isFeesError,
+  } = useQuery({
+    queryKey: ["clientFees", clientId],
+
+    queryFn: async () => {
+      const response = await api.get<ClientFeesResponse>(
+        `/client-fees/client/${clientId}`,
+      );
+
+      return response.data;
+    },
+
+    enabled: Boolean(clientId),
+  });
+
+  const fees = feesResponse?.data ?? [];
+
+  // Only fees that can still receive money
+  const availableFees = useMemo(
+    () =>
+      fees.filter(
+        (fee) => fee.status === "Active" && fee.outstandingAmount > 0,
+      ),
+    [fees],
+  );
+
+  const selectedFee = useMemo(
+    () => fees.find((fee) => fee._id === feeId) ?? null,
+    [fees, feeId],
+  );
+
+  // =================================================
   // CREATE PAYMENT
   // =================================================
 
@@ -142,9 +168,7 @@ export const usePaymentsHook = (clientId: string) => {
       const response = await api.post<CreatePaymentResponse>("/payments", {
         clientId,
 
-        paymentName: values.paymentName.trim(),
-
-        expectedAmount: Number(values.expectedAmount),
+        feeId: values.feeId,
 
         amountPaid: Number(values.amountPaid),
 
@@ -171,6 +195,10 @@ export const usePaymentsHook = (clientId: string) => {
         }),
 
         queryClient.invalidateQueries({
+          queryKey: ["clientFees", clientId],
+        }),
+
+        queryClient.invalidateQueries({
           queryKey: ["client", clientId],
         }),
 
@@ -190,9 +218,39 @@ export const usePaymentsHook = (clientId: string) => {
       setServerError("");
       setSuccessMessage("");
 
-      const result = await createPayment(values);
+      const fee = fees.find((item) => item._id === values.feeId);
 
-      setSuccessMessage(result.message || "Payment recorded successfully.");
+      if (!fee) {
+        setServerError("Please select a valid fee.");
+
+        return;
+      }
+
+      if (fee.status !== "Active") {
+        setServerError("This fee is no longer active.");
+
+        return;
+      }
+
+      const amount = Number(values.amountPaid);
+
+      if (amount > fee.outstandingAmount) {
+        setServerError(
+          `Amount cannot exceed the outstanding balance of ¥${new Intl.NumberFormat(
+            "ja-JP",
+          ).format(fee.outstandingAmount)}.`,
+        );
+
+        return;
+      }
+
+      const response = await createPayment(values);
+
+      setSuccessMessage(
+        response.summary?.outstanding === 0
+          ? "Payment recorded successfully. This fee is now fully paid."
+          : response.message || "Payment recorded successfully.",
+      );
 
       reset(getDefaultValues());
     } catch (error) {
@@ -225,31 +283,34 @@ export const usePaymentsHook = (clientId: string) => {
     }
   }
 
+  if (!loadError && isFeesError) {
+    loadError = "Failed to load client fees.";
+  }
+
   return {
     payments,
-
     totalPaid,
 
-    control,
+    fees,
+    availableFees,
+    selectedFee,
 
+    control,
     errors,
 
     handleSubmit,
-
     onSubmit,
 
     paymentMethod,
 
     isPaymentsLoading,
+    isFeesLoading,
 
     isSubmitting,
-
     isCreatingPayment,
 
     serverError,
-
     successMessage,
-
     loadError,
   };
 };

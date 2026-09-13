@@ -2,37 +2,23 @@ import { z } from "zod";
 
 import { PAYMENT_METHODS } from "./type";
 
-const positiveAmountString = (fieldName: string) =>
-  z
+export const paymentSchema = z.object({
+  feeId: z.string().trim().min(1, "Please select a fee"),
+
+  amountPaid: z
     .string()
     .trim()
-    .min(1, `${fieldName} is required`)
+    .min(1, "Amount is required")
     .refine(
       (value) => {
         const amount = Number(value);
 
-        return Number.isFinite(amount) && amount >= 0;
+        return Number.isFinite(amount) && amount > 0;
       },
       {
-        message: `${fieldName} must be a valid amount`,
+        message: "Amount must be greater than 0",
       },
-    );
-
-export const paymentSchema = z.object({
-  paymentName: z
-    .string()
-    .trim()
-    .min(1, "Payment name is required")
-    .max(150, "Payment name cannot exceed 150 characters"),
-
-  expectedAmount: positiveAmountString("Expected amount"),
-
-  amountPaid: positiveAmountString("Amount paid").refine(
-    (value) => Number(value) > 0,
-    {
-      message: "Amount paid must be greater than 0",
-    },
-  ),
+    ),
 
   paymentMethod: z
     .union([z.enum(PAYMENT_METHODS), z.literal("")])
