@@ -65,7 +65,7 @@ const DetailSection = ({
 }) => {
   return (
     <Box>
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 2.5 }}>
+      <Typography variant="h6" sx={{ mb: 2.5, fontWeight: 600 }}>
         {title}
       </Typography>
 
@@ -218,7 +218,7 @@ const ClientDetail = () => {
         }}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             {client.fullName}
           </Typography>
 

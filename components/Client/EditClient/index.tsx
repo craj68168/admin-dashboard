@@ -1,8 +1,6 @@
 "use client";
 
-import type {
-  ReactNode,
-} from "react";
+import type { ReactNode } from "react";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -16,19 +14,13 @@ import Typography from "@mui/material/Typography";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
-import {
-  Controller,
-} from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import Breadcrumb from "@/components/Breadcrumb";
 
 import { useEditClientHook } from "./hook";
 
-import {
-  CLIENT_STATUSES,
-  COE_STATUSES,
-  VISA_TYPES,
-} from "./type";
+import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 
 // =================================================
 // SECTION TITLE
@@ -43,19 +35,12 @@ const SectionTitle = ({
 }) => {
   return (
     <Box sx={{ mb: 2.5 }}>
-      <Typography
-        variant="h6"
-        fontWeight={600}
-      >
+      <Typography variant="h6" sx={{ fontWeight: 600 }}>
         {title}
       </Typography>
 
       {description && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mt: 0.5 }}
-        >
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           {description}
         </Typography>
       )}
@@ -67,11 +52,7 @@ const SectionTitle = ({
 // FORM GRID
 // =================================================
 
-const FormGrid = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+const FormGrid = ({ children }: { children: ReactNode }) => {
   return (
     <Box
       sx={{
@@ -94,21 +75,14 @@ const FormGrid = ({
 // CURRENT FILE NAME
 // =================================================
 
-const getFileName = (
-  path: string,
-) => {
+const getFileName = (path: string) => {
   if (!path) {
     return "";
   }
 
-  const parts =
-    path.split(/[\\/]/);
+  const parts = path.split(/[\\/]/);
 
-  return (
-    parts[
-      parts.length - 1
-    ] || path
-  );
+  return parts[parts.length - 1] || path;
 };
 
 const EditClient = () => {
@@ -142,9 +116,7 @@ const EditClient = () => {
     handleCancel,
   } = useEditClientHook();
 
-  const loading =
-    isSubmitting ||
-    isUpdating;
+  const loading = isSubmitting || isUpdating;
 
   // =================================================
   // LOADING CLIENT
@@ -157,8 +129,7 @@ const EditClient = () => {
           minHeight: "60vh",
           display: "flex",
           alignItems: "center",
-          justifyContent:
-            "center",
+          justifyContent: "center",
         }}
       >
         <CircularProgress />
@@ -170,20 +141,14 @@ const EditClient = () => {
   // LOAD ERROR
   // =================================================
 
-  if (
-    loadError ||
-    !client
-  ) {
+  if (loadError || !client) {
     return (
       <Box
         sx={{
           p: 4,
         }}
       >
-        <Alert severity="error">
-          {loadError ||
-            "Client not found."}
-        </Alert>
+        <Alert severity="error">{loadError || "Client not found."}</Alert>
       </Box>
     );
   }
@@ -205,27 +170,22 @@ const EditClient = () => {
         <Breadcrumb
           items={[
             {
-              label:
-                "Dashboard",
-              href:
-                "/admin/dashboard",
+              label: "Dashboard",
+              href: "/admin/dashboard",
             },
 
             {
               label: "Clients",
-              href:
-                "/admin/client",
+              href: "/admin/client",
             },
 
             {
-              label:
-                client.fullName,
+              label: client.fullName,
               href: `/admin/client/clientDetailPage?clientId=${clientId}`,
             },
 
             {
-              label:
-                "Edit Client",
+              label: "Edit Client",
               current: true,
             },
           ]}
@@ -247,8 +207,7 @@ const EditClient = () => {
 
           border: "1px solid",
 
-          borderColor:
-            "divider",
+          borderColor: "divider",
 
           p: {
             xs: 2,
@@ -261,22 +220,12 @@ const EditClient = () => {
         ================================================= */}
 
         <Box sx={{ mb: 4 }}>
-          <Typography
-            variant="h5"
-            fontWeight={700}
-          >
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             Edit Client
           </Typography>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mt: 0.5 }}
-          >
-            Client ID:{" "}
-            <strong>
-              {client.clientId}
-            </strong>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Client ID: <strong>{client.clientId}</strong>
           </Typography>
         </Box>
 
@@ -285,21 +234,12 @@ const EditClient = () => {
         ================================================= */}
 
         {serverError && (
-          <Alert
-            severity="error"
-            sx={{ mb: 3 }}
-          >
+          <Alert severity="error" sx={{ mb: 3 }}>
             {serverError}
           </Alert>
         )}
 
-        <Box
-          component="form"
-          noValidate
-          onSubmit={handleSubmit(
-            onSubmit,
-          )}
-        >
+        <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
           {/* =================================================
               BASIC INFORMATION
           ================================================= */}
@@ -313,21 +253,14 @@ const EditClient = () => {
             <Controller
               name="fullName"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   required
                   fullWidth
                   label="Full Name"
-                  error={Boolean(
-                    errors.fullName,
-                  )}
-                  helperText={
-                    errors.fullName
-                      ?.message
-                  }
+                  error={Boolean(errors.fullName)}
+                  helperText={errors.fullName?.message}
                 />
               )}
             />
@@ -335,21 +268,14 @@ const EditClient = () => {
             <Controller
               name="phone"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   required
                   fullWidth
                   label="Phone"
-                  error={Boolean(
-                    errors.phone,
-                  )}
-                  helperText={
-                    errors.phone
-                      ?.message
-                  }
+                  error={Boolean(errors.phone)}
+                  helperText={errors.phone?.message}
                 />
               )}
             />
@@ -357,37 +283,23 @@ const EditClient = () => {
             <Controller
               name="visaType"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   select
                   required
                   fullWidth
                   label="Visa Type"
-                  error={Boolean(
-                    errors.visaType,
-                  )}
-                  helperText={
-                    errors.visaType
-                      ?.message
-                  }
+                  error={Boolean(errors.visaType)}
+                  helperText={errors.visaType?.message}
                 >
-                  <MenuItem value="">
-                    Select visa type
-                  </MenuItem>
+                  <MenuItem value="">Select visa type</MenuItem>
 
-                  {VISA_TYPES.map(
-                    (item) => (
-                      <MenuItem
-                        key={item}
-                        value={item}
-                      >
-                        {item}
-                      </MenuItem>
-                    ),
-                  )}
+                  {VISA_TYPES.map((item) => (
+                    <MenuItem key={item} value={item}>
+                      {item}
+                    </MenuItem>
+                  ))}
                 </TextField>
               )}
             />
@@ -396,61 +308,29 @@ const EditClient = () => {
                 ADMIN STAFF SELECT
             ================================================= */}
 
-            {role ===
-              "superadmin" && (
+            {role === "superadmin" && (
               <Controller
                 name="assignedStaff"
                 control={control}
-                render={({
-                  field,
-                }) => (
+                render={({ field }) => (
                   <TextField
                     {...field}
                     select
                     required
                     fullWidth
                     label="Assigned Staff"
-                    disabled={
-                      isStaffLoading
-                    }
-                    error={Boolean(
-                      errors
-                        .assignedStaff,
-                    )}
-                    helperText={
-                      errors
-                        .assignedStaff
-                        ?.message
-                    }
+                    disabled={isStaffLoading}
+                    error={Boolean(errors.assignedStaff)}
+                    helperText={errors.assignedStaff?.message}
                   >
-                    <MenuItem value="">
-                      Select staff
-                    </MenuItem>
+                    <MenuItem value="">Select staff</MenuItem>
 
-                    {staffOptions.map(
-                      (
-                        staff,
-                      ) => (
-                        <MenuItem
-                          key={
-                            staff.staffId
-                          }
-                          value={
-                            staff.staffId
-                          }
-                        >
-                          {staff.name}{" "}
-                          (
-                          {
-                            staff.staffId
-                          }
-                          )
-                          {!staff.isActive
-                            ? " - Inactive"
-                            : ""}
-                        </MenuItem>
-                      ),
-                    )}
+                    {staffOptions.map((staff) => (
+                      <MenuItem key={staff.staffId} value={staff.staffId}>
+                        {staff.name} ({staff.staffId})
+                        {!staff.isActive ? " - Inactive" : ""}
+                      </MenuItem>
+                    ))}
                   </TextField>
                 )}
               />
@@ -468,9 +348,7 @@ const EditClient = () => {
                 value={
                   user
                     ? `${user.name} (${user.staffId})`
-                    : client
-                        .assignedStaffDetails
-                        ?.name
+                    : client.assignedStaffDetails?.name
                       ? `${client.assignedStaffDetails.name} (${client.assignedStaff})`
                       : client.assignedStaff
                 }
@@ -481,27 +359,13 @@ const EditClient = () => {
             <Controller
               name="coeStatus"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  select
-                  fullWidth
-                  label="COE Status"
-                >
-                  {COE_STATUSES.map(
-                    (status) => (
-                      <MenuItem
-                        key={status}
-                        value={
-                          status
-                        }
-                      >
-                        {status}
-                      </MenuItem>
-                    ),
-                  )}
+              render={({ field }) => (
+                <TextField {...field} select fullWidth label="COE Status">
+                  {COE_STATUSES.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
                 </TextField>
               )}
             />
@@ -509,27 +373,13 @@ const EditClient = () => {
             <Controller
               name="clientStatus"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  select
-                  fullWidth
-                  label="Client Status"
-                >
-                  {CLIENT_STATUSES.map(
-                    (status) => (
-                      <MenuItem
-                        key={status}
-                        value={
-                          status
-                        }
-                      >
-                        {status}
-                      </MenuItem>
-                    ),
-                  )}
+              render={({ field }) => (
+                <TextField {...field} select fullWidth label="Client Status">
+                  {CLIENT_STATUSES.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
                 </TextField>
               )}
             />
@@ -550,9 +400,7 @@ const EditClient = () => {
             <Controller
               name="dateOfBirth"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   type="date"
@@ -560,8 +408,7 @@ const EditClient = () => {
                   label="Date of Birth"
                   slotProps={{
                     inputLabel: {
-                      shrink:
-                        true,
+                      shrink: true,
                     },
                   }}
                 />
@@ -571,35 +418,22 @@ const EditClient = () => {
             <Controller
               name="gender"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Gender"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Gender" />
               )}
             />
 
             <Controller
               name="email"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   type="email"
                   fullWidth
                   label="Email"
-                  error={Boolean(
-                    errors.email,
-                  )}
-                  helperText={
-                    errors.email
-                      ?.message
-                  }
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
                 />
               )}
             />
@@ -607,14 +441,8 @@ const EditClient = () => {
             <Controller
               name="nationality"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Nationality"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Nationality" />
               )}
             />
 
@@ -629,9 +457,7 @@ const EditClient = () => {
               <Controller
                 name="address"
                 control={control}
-                render={({
-                  field,
-                }) => (
+                render={({ field }) => (
                   <TextField
                     {...field}
                     fullWidth
@@ -659,23 +485,15 @@ const EditClient = () => {
             <Controller
               name="passportNumber"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Passport Number"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Passport Number" />
               )}
             />
 
             <Controller
               name="passportExpiryDate"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   type="date"
@@ -683,8 +501,7 @@ const EditClient = () => {
                   label="Passport Expiry Date"
                   slotProps={{
                     inputLabel: {
-                      shrink:
-                        true,
+                      shrink: true,
                     },
                   }}
                 />
@@ -694,14 +511,8 @@ const EditClient = () => {
             <Controller
               name="statusOfResidence"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Status of Residence"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Status of Residence" />
               )}
             />
           </FormGrid>
@@ -712,31 +523,21 @@ const EditClient = () => {
               EDUCATION
           ================================================= */}
 
-          <SectionTitle
-            title="Education & Japanese Language"
-          />
+          <SectionTitle title="Education & Japanese Language" />
 
           <FormGrid>
             <Controller
               name="lastQualification"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Last Qualification"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Last Qualification" />
               )}
             />
 
             <Controller
               name="japaneseLanguageLevel"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   fullWidth
@@ -748,42 +549,24 @@ const EditClient = () => {
             <Controller
               name="schoolName"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="School Name"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="School Name" />
               )}
             />
 
             <Controller
               name="course"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Course"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Course" />
               )}
             />
 
             <Controller
               name="intake"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Intake"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Intake" />
               )}
             />
           </FormGrid>
@@ -794,64 +577,38 @@ const EditClient = () => {
               EMPLOYMENT
           ================================================= */}
 
-          <SectionTitle
-            title="Employment"
-          />
+          <SectionTitle title="Employment" />
 
           <FormGrid>
             <Controller
               name="jobCategory"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Job Category"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Job Category" />
               )}
             />
 
             <Controller
               name="jobTitle"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Job Title"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Job Title" />
               )}
             />
 
             <Controller
               name="companyName"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Company Name"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Company Name" />
               )}
             />
 
             <Controller
               name="workLocation"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Work Location"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Work Location" />
               )}
             />
           </FormGrid>
@@ -862,45 +619,29 @@ const EditClient = () => {
               SPONSOR
           ================================================= */}
 
-          <SectionTitle
-            title="Sponsor"
-          />
+          <SectionTitle title="Sponsor" />
 
           <FormGrid>
             <Controller
               name="sponsorName"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Sponsor Name"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Sponsor Name" />
               )}
             />
 
             <Controller
               name="sponsorRelationship"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Sponsor Relationship"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Sponsor Relationship" />
               )}
             />
 
             <Controller
               name="sponsorStatusOfResidence"
               control={control}
-              render={({
-                field,
-              }) => (
+              render={({ field }) => (
                 <TextField
                   {...field}
                   fullWidth
@@ -916,22 +657,14 @@ const EditClient = () => {
               VISA
           ================================================= */}
 
-          <SectionTitle
-            title="Visa Information"
-          />
+          <SectionTitle title="Visa Information" />
 
           <FormGrid>
             <Controller
               name="visaStatus"
               control={control}
-              render={({
-                field,
-              }) => (
-                <TextField
-                  {...field}
-                  fullWidth
-                  label="Visa Status"
-                />
+              render={({ field }) => (
+                <TextField {...field} fullWidth label="Visa Status" />
               )}
             />
           </FormGrid>
@@ -953,29 +686,18 @@ const EditClient = () => {
             <Controller
               name="clientImage"
               control={control}
-              render={({
-                field: {
-                  onChange,
-                  value,
-                  ref,
-                  ...field
-                },
-              }) => (
+              render={({ field: { onChange, value, ref, ...field } }) => (
                 <Box>
                   <Button
                     component="label"
                     variant="outlined"
                     fullWidth
-                    startIcon={
-                      <CloudUploadOutlinedIcon />
-                    }
+                    startIcon={<CloudUploadOutlinedIcon />}
                     sx={{
                       height: 56,
                     }}
                   >
-                    {value
-                      ? value.name
-                      : "Replace Client Image"}
+                    {value ? value.name : "Replace Client Image"}
 
                     <input
                       {...field}
@@ -984,15 +706,8 @@ const EditClient = () => {
                       type="file"
                       accept="image/*"
                       value={undefined}
-                      onChange={(
-                        event,
-                      ) => {
-                        onChange(
-                          event
-                            .target
-                            .files?.[0] ??
-                            null,
-                        );
+                      onChange={(event) => {
+                        onChange(event.target.files?.[0] ?? null);
                       }}
                     />
                   </Button>
@@ -1002,29 +717,17 @@ const EditClient = () => {
                       variant="caption"
                       color="text.secondary"
                       sx={{
-                        display:
-                          "block",
+                        display: "block",
                         mt: 1,
                       }}
                     >
-                      Current:{" "}
-                      {getFileName(
-                        currentClientImage,
-                      )}
+                      Current: {getFileName(currentClientImage)}
                     </Typography>
                   )}
 
-                  {errors.clientImage
-                    ?.message && (
-                    <Typography
-                      variant="caption"
-                      color="error"
-                    >
-                      {
-                        errors
-                          .clientImage
-                          .message
-                      }
+                  {errors.clientImage?.message && (
+                    <Typography variant="caption" color="error">
+                      {errors.clientImage.message}
                     </Typography>
                   )}
                 </Box>
@@ -1036,29 +739,18 @@ const EditClient = () => {
             <Controller
               name="cv"
               control={control}
-              render={({
-                field: {
-                  onChange,
-                  value,
-                  ref,
-                  ...field
-                },
-              }) => (
+              render={({ field: { onChange, value, ref, ...field } }) => (
                 <Box>
                   <Button
                     component="label"
                     variant="outlined"
                     fullWidth
-                    startIcon={
-                      <CloudUploadOutlinedIcon />
-                    }
+                    startIcon={<CloudUploadOutlinedIcon />}
                     sx={{
                       height: 56,
                     }}
                   >
-                    {value
-                      ? value.name
-                      : "Replace CV"}
+                    {value ? value.name : "Replace CV"}
 
                     <input
                       {...field}
@@ -1067,15 +759,8 @@ const EditClient = () => {
                       type="file"
                       accept=".pdf,.doc,.docx"
                       value={undefined}
-                      onChange={(
-                        event,
-                      ) => {
-                        onChange(
-                          event
-                            .target
-                            .files?.[0] ??
-                            null,
-                        );
+                      onChange={(event) => {
+                        onChange(event.target.files?.[0] ?? null);
                       }}
                     />
                   </Button>
@@ -1085,28 +770,17 @@ const EditClient = () => {
                       variant="caption"
                       color="text.secondary"
                       sx={{
-                        display:
-                          "block",
+                        display: "block",
                         mt: 1,
                       }}
                     >
-                      Current:{" "}
-                      {getFileName(
-                        currentCv,
-                      )}
+                      Current: {getFileName(currentCv)}
                     </Typography>
                   )}
 
-                  {errors.cv
-                    ?.message && (
-                    <Typography
-                      variant="caption"
-                      color="error"
-                    >
-                      {
-                        errors.cv
-                          .message
-                      }
+                  {errors.cv?.message && (
+                    <Typography variant="caption" color="error">
+                      {errors.cv.message}
                     </Typography>
                   )}
                 </Box>
@@ -1121,8 +795,7 @@ const EditClient = () => {
           <Box
             sx={{
               display: "flex",
-              justifyContent:
-                "flex-end",
+              justifyContent: "flex-end",
               gap: 2,
               mt: 5,
             }}
@@ -1131,9 +804,7 @@ const EditClient = () => {
               type="button"
               variant="outlined"
               disabled={loading}
-              onClick={
-                handleCancel
-              }
+              onClick={handleCancel}
             >
               Cancel
             </Button>
@@ -1144,18 +815,13 @@ const EditClient = () => {
               disabled={loading}
               startIcon={
                 loading ? (
-                  <CircularProgress
-                    size={18}
-                    color="inherit"
-                  />
+                  <CircularProgress size={18} color="inherit" />
                 ) : (
                   <SaveOutlinedIcon />
                 )
               }
             >
-              {loading
-                ? "Saving..."
-                : "Save Changes"}
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </Box>
         </Box>

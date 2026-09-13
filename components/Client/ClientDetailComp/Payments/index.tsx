@@ -116,7 +116,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
         }}
       >
         <Box>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Payments
           </Typography>
 
@@ -139,7 +139,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
             Total Payments
           </Typography>
 
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             ¥{formatAmount(totalPaid)}
           </Typography>
         </Box>
@@ -162,7 +162,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
         =============================================== */}
 
         <Box>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
             Payment History
           </Typography>
 
@@ -217,7 +217,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         gap: 2,
                       }}
                     >
-                      <Typography variant="subtitle1" fontWeight={600}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {payment.paymentName}
                       </Typography>
 
@@ -228,7 +228,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       />
                     </Box>
 
-                    <Typography variant="h6" fontWeight={700} sx={{ mt: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mt: 1 }}>
                       ¥{formatAmount(payment.amountPaid)}
                     </Typography>
 
@@ -345,7 +345,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
             height: "fit-content",
           }}
         >
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>
             Add Payment
           </Typography>
 
@@ -411,8 +411,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
               >
                 <Typography
                   variant="subtitle2"
-                  fontWeight={600}
-                  sx={{ mb: 1.5 }}
+                  sx={{ fontWeight: 600, mb: 1.5 }}
                 >
                   {selectedFee.feeName}
                 </Typography>
@@ -429,7 +428,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       Expected
                     </Typography>
 
-                    <Typography fontWeight={600}>
+                    <Typography sx={{ fontWeight: 600 }}>
                       ¥{formatAmount(selectedFee.expectedAmount)}
                     </Typography>
                   </Box>
@@ -439,7 +438,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       Already Paid
                     </Typography>
 
-                    <Typography fontWeight={600}>
+                    <Typography sx={{ fontWeight: 600 }}>
                       ¥{formatAmount(selectedFee.paidAmount)}
                     </Typography>
                   </Box>
@@ -449,7 +448,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       Outstanding
                     </Typography>
 
-                    <Typography fontWeight={700}>
+                    <Typography sx={{ fontWeight: 700 }}>
                       ¥{formatAmount(selectedFee.outstandingAmount)}
                     </Typography>
                   </Box>

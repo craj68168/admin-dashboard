@@ -14,9 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import { createClientSchema } from "./validation";
+import type { StaffListResponse } from "./type";
 
-import type { CreateClientFormValues, StaffListResponse } from "./type";
+import { createClientSchema, type CreateClientFormValues } from "./validation";
 
 // =================================================
 // APPEND FORM DATA
@@ -159,6 +159,9 @@ export const useCreateClientHook = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["clients"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["staff-clients"],
       });
 
       void queryClient.invalidateQueries({

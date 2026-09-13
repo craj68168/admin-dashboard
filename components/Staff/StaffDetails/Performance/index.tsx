@@ -84,7 +84,7 @@ const SummaryCard = ({ label, value, icon }: SummaryCardProps) => {
             {label}
           </Typography>
 
-          <Typography variant="h6" fontWeight={700} sx={{ mt: 0.5 }}>
+          <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 700 }}>
             {value}
           </Typography>
         </Box>
@@ -167,7 +167,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
         }}
       >
         <Box>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Collection Performance
           </Typography>
 
@@ -240,7 +240,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
             }}
           >
             <Box>
-              <Typography variant="subtitle1" fontWeight={600}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                 {staff?.name || staffId}
               </Typography>
 
@@ -316,11 +316,11 @@ const Performance = ({ staffId }: PerformanceProps) => {
                 mb: 1.5,
               }}
             >
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 Monthly Progress
               </Typography>
 
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {performance.achievementPercentage}%
               </Typography>
             </Box>
@@ -377,7 +377,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
                 p: 3,
               }}
             >
-              <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>
+              <Typography variant="subtitle1" sx={{ mb: 0.5, fontWeight: 600 }}>
                 {target ? "Update Target" : "Set Monthly Target"}
               </Typography>
 

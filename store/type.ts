@@ -1,13 +1,13 @@
 export type UserRole = "superadmin" | "staff";
 
-export interface AuthUser {
-  id: number | string;
+export type AuthUser = {
+  id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: "superadmin" | "staff";
+  staffId?: string;
   location?: string;
-  staffId?: number | string;
-}
+};
 
 export interface AuthState {
   user: AuthUser | null;

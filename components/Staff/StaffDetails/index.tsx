@@ -15,7 +15,7 @@ import PerformanceHistory from "./PerformanceHistory";
 
 export default function StaffDetails() {
   const router = useRouter();
-  const { staff, isLoading, isError } = useStaffDetails();
+  const { staff, isLoading, isError, staffId } = useStaffDetails();
 
   if (isLoading) {
     return <StatusMessage message="Loading staff details..." />;
@@ -85,11 +85,11 @@ export default function StaffDetails() {
         </Box>
         <Divider sx={{ my: 4 }} />
 
-        <Performance staffId={staff.staffId} />
+        <Performance staffId={staffId} />
 
         <Divider sx={{ my: 4 }} />
 
-        <PerformanceHistory staffId={staff.staffId} />
+        <PerformanceHistory staffId={staffId} />
       </Paper>
     </Box>
   );

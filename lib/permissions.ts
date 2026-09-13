@@ -1,23 +1,36 @@
 import type { AuthUser } from "@/store/type";
 
-export const assumedUser: AuthUser = {
-  id: "dev-superadmin",
-  name: "Super Admin",
-  email: "superadmin@fortunelink.local",
-  role: "superadmin",
+// =================================================
+// CLIENT ASSIGNMENT TYPE
+// =================================================
+
+type ClientAssignment = {
+  assignedStaffId?: string | null;
+
+  assignedStaff?:
+    | string
+    | {
+        _id?: string;
+        staffId?: string;
+      }
+    | null;
 };
 
-export function getCurrentUser(user: AuthUser | null): AuthUser {
-  return user ?? assumedUser;
-}
+// =================================================
+// ROLE CHECKS
+// =================================================
 
 export function isSuperAdmin(user: AuthUser | null): boolean {
-  return getCurrentUser(user).role === "superadmin";
+  return user?.role === "superadmin";
 }
 
 export function isStaff(user: AuthUser | null): boolean {
-  return getCurrentUser(user).role === "staff";
+  return user?.role === "staff";
 }
+
+// =================================================
+// STAFF PERMISSIONS
+// =================================================
 
 export function canAddStaff(user: AuthUser | null): boolean {
   return isSuperAdmin(user);
@@ -26,6 +39,10 @@ export function canAddStaff(user: AuthUser | null): boolean {
 export function canManageStaff(user: AuthUser | null): boolean {
   return isSuperAdmin(user);
 }
+
+// =================================================
+// CLIENT PERMISSIONS
+// =================================================
 
 export function canAssignClient(user: AuthUser | null): boolean {
   return isSuperAdmin(user);
@@ -37,54 +54,59 @@ export function canCreateClient(user: AuthUser | null): boolean {
 
 export function canEditClient(
   user: AuthUser | null,
-  client: { assignedStaffId?: number | string | null; assignedStaff?: number | string | { _id?: string; staffId?: number | string } | null },
+  client: ClientAssignment,
 ): boolean {
-  const currentUser = getCurrentUser(user);
+  if (!user) {
+    return false;
+  }
 
-  if (currentUser.role === "superadmin") {
+  if (user.role === "superadmin") {
     return true;
   }
 
-  return isAssignedToCurrentStaff(currentUser, client);
+  return isAssignedToCurrentStaff(user, client);
 }
 
 export function canUpdateClientStatus(
   user: AuthUser | null,
-  client: { assignedStaffId?: number | string | null; assignedStaff?: number | string | { _id?: string; staffId?: number | string } | null },
+  client: ClientAssignment,
 ): boolean {
   return canEditClient(user, client);
 }
 
+// =================================================
+// ASSIGNMENT CHECK
+// =================================================
+
 export function isAssignedToCurrentStaff(
   user: AuthUser,
-  client: { assignedStaffId?: number | string | null; assignedStaff?: number | string | { _id?: string; staffId?: number | string } | null },
+  client: ClientAssignment,
 ): boolean {
   if (user.role !== "staff" || !user.staffId) {
     return false;
   }
 
   const assignedStaffId = getClientAssignedStaffId(client);
-  const currentStaffIds = [user.id, user.staffId].filter(
-    (value): value is string | number => value !== undefined && value !== null,
-  );
 
-  return Boolean(
-    assignedStaffId &&
-      currentStaffIds.some((currentStaffId) => String(assignedStaffId) === String(currentStaffId)),
-  );
+  if (!assignedStaffId) {
+    return false;
+  }
+
+  return assignedStaffId === user.staffId;
 }
 
-function getClientAssignedStaffId(client: {
-  assignedStaffId?: number | string | null;
-  assignedStaff?: number | string | { _id?: string; staffId?: number | string } | null;
-}) {
+// =================================================
+// GET ASSIGNED STAFF ID FROM CLIENT
+// =================================================
+
+function getClientAssignedStaffId(client: ClientAssignment): string | null {
   if (client.assignedStaffId) {
     return client.assignedStaffId;
   }
 
   if (typeof client.assignedStaff === "object" && client.assignedStaff) {
-    return client.assignedStaff._id ?? client.assignedStaff.staffId;
+    return client.assignedStaff.staffId ?? client.assignedStaff._id ?? null;
   }
 
-  return client.assignedStaff;
+  return client.assignedStaff ?? null;
 }

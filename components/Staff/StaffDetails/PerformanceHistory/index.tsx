@@ -90,7 +90,7 @@ export default function PerformanceHistory({
       {/* HEADER */}
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Performance History
         </Typography>
 
@@ -206,7 +206,7 @@ export default function PerformanceHistory({
                   {/* MONTH */}
 
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {formatMonth(item.month)}
                     </Typography>
 
@@ -224,7 +224,7 @@ export default function PerformanceHistory({
                   {/* COLLECTED */}
 
                   <TableCell align="right">
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       ¥{formatAmount(item.totalCollected)}
                     </Typography>
                   </TableCell>

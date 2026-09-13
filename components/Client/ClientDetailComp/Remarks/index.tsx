@@ -75,7 +75,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
       ================================================= */}
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Remarks
         </Typography>
 
@@ -105,7 +105,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
         ================================================= */}
 
         <Box>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
             Remark History
           </Typography>
 
@@ -156,7 +156,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
                   >
                     {/* DATE */}
 
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {formatJapanDate(remark.remarkDate)}
                     </Typography>
 
@@ -227,7 +227,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
             height: "fit-content",
           }}
         >
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>
             New Remark
           </Typography>
 

@@ -1,4 +1,14 @@
+// =================================================
+// VISA TYPES
+// =================================================
+
 export const VISA_TYPES = ["Student", "Working", "Dependent"] as const;
+
+export type VisaType = (typeof VISA_TYPES)[number];
+
+// =================================================
+// COE STATUSES
+// =================================================
 
 export const COE_STATUSES = [
   "Not Applied",
@@ -7,6 +17,12 @@ export const COE_STATUSES = [
   "Received",
   "Rejected",
 ] as const;
+
+export type CoeStatus = (typeof COE_STATUSES)[number];
+
+// =================================================
+// CLIENT STATUSES
+// =================================================
 
 export const CLIENT_STATUSES = [
   "New",
@@ -21,70 +37,38 @@ export const CLIENT_STATUSES = [
   "Arrived in Japan",
 ] as const;
 
-export type VisaType = (typeof VISA_TYPES)[number];
-
-export type CoeStatus = (typeof COE_STATUSES)[number];
-
 export type ClientStatus = (typeof CLIENT_STATUSES)[number];
 
-export type CreateClientFormValues = {
-  // Client
-  fullName: string;
-  phone: string;
-  visaType: VisaType | "";
-  assignedStaff: string;
-  coeStatus: CoeStatus;
-  clientStatus: ClientStatus;
-
-  // Personal
-  dateOfBirth: string;
-  gender: string;
-  email: string;
-  address: string;
-  nationality: string;
-
-  // Passport / Residence
-  passportNumber: string;
-  passportExpiryDate: string;
-  statusOfResidence: string;
-
-  // Education
-  lastQualification: string;
-  japaneseLanguageLevel: string;
-  schoolName: string;
-  course: string;
-  intake: string;
-
-  // Employment
-  jobCategory: string;
-  jobTitle: string;
-  companyName: string;
-  workLocation: string;
-
-  // Sponsor
-  sponsorName: string;
-  sponsorRelationship: string;
-  sponsorStatusOfResidence: string;
-
-  // Visa
-  visaStatus: string;
-
-  // Files
-  clientImage: File | null;
-  cv: File | null;
-};
+// =================================================
+// STAFF OPTION
+//
+// Used in the Assigned Staff dropdown
+// =================================================
 
 export type StaffOption = {
   _id: string;
+
   staffId: string;
+
   name: string;
+
   phone?: string;
+
   email?: string;
+
   location?: string;
+
   isActive: boolean;
 };
 
+// =================================================
+// STAFF LIST API RESPONSE
+//
+// GET /api/staff
+// =================================================
+
 export type StaffListResponse = {
   success: boolean;
+
   data: StaffOption[];
 };

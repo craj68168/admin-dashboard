@@ -119,7 +119,7 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
             {label}
           </Typography>
 
-          <Typography variant="h5" fontWeight={700} sx={{ mt: 0.75 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.75 }}>
             {value}
           </Typography>
 
@@ -251,7 +251,7 @@ export default function StaffDashboard() {
         }}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             Welcome, {staff.name}
           </Typography>
 
@@ -366,7 +366,7 @@ export default function StaffDashboard() {
           }}
         >
           <Box>
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Monthly Performance
             </Typography>
 
@@ -401,7 +401,7 @@ export default function StaffDashboard() {
               Target
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.targetAmount)}
             </Typography>
           </Box>
@@ -411,7 +411,7 @@ export default function StaffDashboard() {
               Collected
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.totalCollected)}
             </Typography>
           </Box>
@@ -421,7 +421,7 @@ export default function StaffDashboard() {
               Remaining
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.remainingAmount)}
             </Typography>
           </Box>
@@ -431,7 +431,7 @@ export default function StaffDashboard() {
               Achievement
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               {overview.achievementPercentage}%
             </Typography>
           </Box>
@@ -474,7 +474,7 @@ export default function StaffDashboard() {
           mb: 3,
         }}
       >
-        <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
           Client Fee Follow-up
         </Typography>
 
@@ -495,7 +495,7 @@ export default function StaffDashboard() {
               Total Expected
             </Typography>
 
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.totalExpected)}
             </Typography>
           </Box>
@@ -505,7 +505,7 @@ export default function StaffDashboard() {
               Paid
             </Typography>
 
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.totalPaidAgainstFees)}
             </Typography>
           </Box>
@@ -515,7 +515,7 @@ export default function StaffDashboard() {
               Outstanding
             </Typography>
 
-            <Typography variant="h6" fontWeight={700}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.totalOutstanding)}
             </Typography>
           </Box>
@@ -549,7 +549,7 @@ export default function StaffDashboard() {
             borderRadius: 2,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
             My Client Progress
           </Typography>
 
@@ -581,7 +581,7 @@ export default function StaffDashboard() {
               >
                 <Typography variant="body2">{item.stage}</Typography>
 
-                <Typography fontWeight={700} variant="body2">
+                <Typography sx={{ fontWeight: 700 }} variant="body2">
                   {item.count}
                 </Typography>
               </Box>
@@ -599,7 +599,7 @@ export default function StaffDashboard() {
           }}
         >
           <Box sx={{ p: 3 }}>
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               My Recent Clients
             </Typography>
           </Box>
@@ -638,7 +638,7 @@ export default function StaffDashboard() {
                     onClick={() => handleClientClick(client.clientId)}
                   >
                     <TableCell>
-                      <Typography variant="body2" fontWeight={600}>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
                         {client.clientId}
                       </Typography>
                     </TableCell>
@@ -683,7 +683,7 @@ export default function StaffDashboard() {
         }}
       >
         <Box sx={{ p: 3 }}>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             My Recent Collections
           </Typography>
 
@@ -725,9 +725,9 @@ export default function StaffDashboard() {
                   <TableCell>
                     <Typography
                       variant="body2"
-                      fontWeight={600}
                       sx={{
                         cursor: "pointer",
+                        fontWeight: 600,
 
                         "&:hover": {
                           textDecoration: "underline",

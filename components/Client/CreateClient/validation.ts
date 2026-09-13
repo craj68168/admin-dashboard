@@ -2,55 +2,22 @@ import { z } from "zod";
 
 import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 
-const optionalEmail = z
-  .string()
-  .trim()
-  .refine((value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-    message: "Enter a valid email address",
-  });
-
-const optionalFile = z.custom<File | null>(
-  (value) => {
-    if (value === null) {
-      return true;
-    }
-
-    if (typeof File === "undefined") {
-      return true;
-    }
-
-    return value instanceof File;
-  },
-  {
-    message: "Invalid file",
-  },
-);
-
 export const createClientSchema = z.object({
   // =================================================
   // CLIENT
   // =================================================
 
-  fullName: z
-    .string()
-    .trim()
-    .min(1, "Full name is required")
-    .min(2, "Full name must be at least 2 characters"),
+  fullName: z.string().trim().min(1, "Full name is required"),
 
-  phone: z
-    .string()
-    .trim()
-    .min(1, "Phone number is required")
-    .min(7, "Phone number must be at least 7 characters")
-    .max(20, "Phone number cannot exceed 20 characters"),
+  phone: z.string().trim().min(1, "Phone number is required"),
 
-  visaType: z.enum(VISA_TYPES, {
-    message: "Visa type is required",
-  }),
+  visaType: z
+    .union([z.enum(VISA_TYPES), z.literal("")])
+    .refine((value) => value !== "", {
+      message: "Visa type is required",
+    }),
 
-  // Admin selects this.
-  // Staff gets this automatically from logged-in user.
-  assignedStaff: z.string().trim().min(1, "Assigned staff is required"),
+  assignedStaff: z.string(),
 
   coeStatus: z.enum(COE_STATUSES),
 
@@ -62,71 +29,77 @@ export const createClientSchema = z.object({
 
   dateOfBirth: z.string(),
 
-  gender: z.string().trim(),
+  gender: z.string(),
 
-  email: optionalEmail,
+  email: z.string(),
 
-  address: z.string().trim(),
+  address: z.string(),
 
-  nationality: z.string().trim(),
+  nationality: z.string(),
 
   // =================================================
   // PASSPORT / RESIDENCE
   // =================================================
 
-  passportNumber: z.string().trim(),
+  passportNumber: z.string(),
 
   passportExpiryDate: z.string(),
 
-  statusOfResidence: z.string().trim(),
+  statusOfResidence: z.string(),
 
   // =================================================
   // EDUCATION
   // =================================================
 
-  lastQualification: z.string().trim(),
+  lastQualification: z.string(),
 
-  japaneseLanguageLevel: z.string().trim(),
+  japaneseLanguageLevel: z.string(),
 
-  schoolName: z.string().trim(),
+  schoolName: z.string(),
 
-  course: z.string().trim(),
+  course: z.string(),
 
-  intake: z.string().trim(),
+  intake: z.string(),
 
   // =================================================
   // EMPLOYMENT
   // =================================================
 
-  jobCategory: z.string().trim(),
+  jobCategory: z.string(),
 
-  jobTitle: z.string().trim(),
+  jobTitle: z.string(),
 
-  companyName: z.string().trim(),
+  companyName: z.string(),
 
-  workLocation: z.string().trim(),
+  workLocation: z.string(),
 
   // =================================================
   // SPONSOR
   // =================================================
 
-  sponsorName: z.string().trim(),
+  sponsorName: z.string(),
 
-  sponsorRelationship: z.string().trim(),
+  sponsorRelationship: z.string(),
 
-  sponsorStatusOfResidence: z.string().trim(),
+  sponsorStatusOfResidence: z.string(),
 
   // =================================================
   // VISA
   // =================================================
 
-  visaStatus: z.string().trim(),
+  visaStatus: z.string(),
 
   // =================================================
   // FILES
   // =================================================
 
-  clientImage: optionalFile,
+  clientImage: z.instanceof(File).nullable(),
 
-  cv: optionalFile,
+  cv: z.instanceof(File).nullable(),
 });
+
+// =================================================
+// FORM TYPE
+// =================================================
+
+export type CreateClientFormValues = z.input<typeof createClientSchema>;

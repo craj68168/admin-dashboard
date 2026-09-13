@@ -2,40 +2,43 @@
 
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+
 import { api } from "@/lib/axios";
 
-export type StaffDetailsRecord = {
-  staffId?: number | string;
-  name?: string;
-  phone?: string;
-  location?: string;
-  email?: string;
-  role?: string;
-  isActive?: boolean;
-  totalClients?: number;
-  createdAt?: string;
-};
+import type { StaffDetailsResponse } from "./type";
 
-type StaffResponse = {
-  data?: StaffDetailsRecord;
-};
+export const useStaffDetails = () => {
+  const params = useParams<{
+    staffId: string;
+  }>();
 
-export function useStaffDetails() {
-  const params = useParams<{ staffId: string }>();
   const staffId = params.staffId;
 
-  const query = useQuery({
+  const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: ["staff", staffId],
+
     queryFn: async () => {
-      const response = await api.get<StaffResponse>(`/staff/${staffId}`);
-      return response.data.data;
+      const response = await api.get<StaffDetailsResponse>(
+        `/staff/${encodeURIComponent(staffId)}`,
+      );
+
+      return response.data?.data;
     },
+
     enabled: Boolean(staffId),
   });
 
   return {
-    staff: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
+    staffId,
+
+    staff: data,
+
+    isLoading,
+
+    isFetching,
+
+    isError,
+
+    error,
   };
-}
+};

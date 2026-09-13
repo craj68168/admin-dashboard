@@ -33,7 +33,7 @@ const SectionTitle = ({
 }) => {
   return (
     <Box sx={{ mb: 2.5 }}>
-      <Typography variant="h6" fontWeight={600}>
+      <Typography variant="h6" sx={{ fontWeight: 600 }}>
         {title}
       </Typography>
 
@@ -149,12 +149,14 @@ const CreateClient = () => {
         ================================================= */}
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             Create Client
           </Typography>
 
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Enter the client's information and assign them to a staff member.
+            {
+              "Enter the client's information and assign them to a staff member."
+            }
           </Typography>
         </Box>
 

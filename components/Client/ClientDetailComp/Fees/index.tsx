@@ -107,7 +107,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
       {/* HEADER */}
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Client Fees
         </Typography>
 
@@ -141,7 +141,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             Total Expected
           </Typography>
 
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             ¥{formatAmount(totalExpected)}
           </Typography>
         </Box>
@@ -158,7 +158,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             Total Paid
           </Typography>
 
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             ¥{formatAmount(totalPaid)}
           </Typography>
         </Box>
@@ -175,7 +175,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             Outstanding
           </Typography>
 
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             ¥{formatAmount(totalOutstanding)}
           </Typography>
         </Box>
@@ -215,7 +215,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
         {/* FEE LIST */}
 
         <Box>
-          <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
             Fee Requirements
           </Typography>
 
@@ -272,7 +272,10 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                       }}
                     >
                       <Box>
-                        <Typography variant="subtitle1" fontWeight={600}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600 }}
+                        >
                           {fee.feeName}
                         </Typography>
 
@@ -332,7 +335,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                           Expected
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography sx={{ fontWeight: 600 }}>
                           ¥{formatAmount(fee.expectedAmount)}
                         </Typography>
                       </Box>
@@ -342,7 +345,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                           Paid
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography sx={{ fontWeight: 600 }}>
                           ¥{formatAmount(fee.paidAmount)}
                         </Typography>
                       </Box>
@@ -352,7 +355,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                           Outstanding
                         </Typography>
 
-                        <Typography fontWeight={600}>
+                        <Typography sx={{ fontWeight: 600 }}>
                           ¥{formatAmount(fee.outstandingAmount)}
                         </Typography>
                       </Box>
@@ -424,7 +427,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
               height: "fit-content",
             }}
           >
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>
               {editingFeeId ? "Edit Fee" : "Add Fee"}
             </Typography>
 

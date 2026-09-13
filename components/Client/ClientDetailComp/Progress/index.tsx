@@ -69,7 +69,7 @@ const Progress = ({ clientId }: ProgressProps) => {
       {/* TITLE */}
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" fontWeight={600}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Progress
         </Typography>
 
@@ -110,7 +110,7 @@ const Progress = ({ clientId }: ProgressProps) => {
           {/* HISTORY */}
 
           <Box>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
               Stage History
             </Typography>
 
@@ -136,7 +136,9 @@ const Progress = ({ clientId }: ProgressProps) => {
                       py: 2.5,
                     }}
                   >
-                    <Typography fontWeight={600}>{item.toStage}</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      {item.toStage}
+                    </Typography>
 
                     {item.fromStage && (
                       <Typography
@@ -197,18 +199,11 @@ const Progress = ({ clientId }: ProgressProps) => {
               height: "fit-content",
             }}
           >
-            <Typography variant="subtitle1" fontWeight={600}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
               Current Stage
             </Typography>
 
-            <Typography
-              variant="body1"
-              fontWeight={600}
-              sx={{
-                mt: 1,
-                mb: 3,
-              }}
-            >
+            <Typography variant="body1" sx={{ fontWeight: 600, mt: 1, mb: 3 }}>
               {currentStage || "Registration Pending"}
             </Typography>
 

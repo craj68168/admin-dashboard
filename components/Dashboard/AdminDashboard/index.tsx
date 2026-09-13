@@ -122,7 +122,7 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
             {label}
           </Typography>
 
-          <Typography variant="h5" fontWeight={700} sx={{ mt: 0.75 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.75 }}>
             {value}
           </Typography>
 
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
         }}
       >
         <Box>
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             Admin Dashboard
           </Typography>
 
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
           }}
         >
           <Box>
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Monthly Collection Target
             </Typography>
 
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
               Total Target
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.totalTarget)}
             </Typography>
           </Box>
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
               Collected
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               ¥{formatAmount(overview.monthlyCollected)}
             </Typography>
           </Box>
@@ -415,7 +415,7 @@ export default function AdminDashboard() {
               Achievement
             </Typography>
 
-            <Typography fontWeight={700}>
+            <Typography sx={{ fontWeight: 700 }}>
               {overview.targetAchievement}%
             </Typography>
           </Box>
@@ -465,7 +465,7 @@ export default function AdminDashboard() {
             pb: 2,
           }}
         >
-          <Typography variant="h6" fontWeight={600}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             Staff Ranking
           </Typography>
 
@@ -521,7 +521,7 @@ export default function AdminDashboard() {
                   </TableCell>
 
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
                       {staff.staffName}
                     </Typography>
 
@@ -590,7 +590,7 @@ export default function AdminDashboard() {
             p: 3,
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
             Client Progress
           </Typography>
 
@@ -617,7 +617,7 @@ export default function AdminDashboard() {
             >
               <Typography variant="body2">{item.stage}</Typography>
 
-              <Typography variant="body2" fontWeight={700}>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
                 {item.count}
               </Typography>
             </Box>
@@ -635,7 +635,7 @@ export default function AdminDashboard() {
           }}
         >
           <Box sx={{ p: 3 }}>
-            <Typography variant="h6" fontWeight={600}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
               Recent Payments
             </Typography>
           </Box>
@@ -671,9 +671,9 @@ export default function AdminDashboard() {
                     <TableCell>
                       <Typography
                         variant="body2"
-                        fontWeight={600}
                         sx={{
                           cursor: "pointer",
+                          fontWeight: 600,
 
                           "&:hover": {
                             textDecoration: "underline",
