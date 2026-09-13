@@ -11,6 +11,7 @@ import { formatCreatedAt } from "@/utils/format-date";
 import { useStaffDetails } from "./hook";
 import Performance from "./Performance";
 import { Divider } from "@mui/material";
+import PerformanceHistory from "./PerformanceHistory";
 
 export default function StaffDetails() {
   const router = useRouter();
@@ -85,6 +86,10 @@ export default function StaffDetails() {
         <Divider sx={{ my: 4 }} />
 
         <Performance staffId={staff.staffId} />
+
+        <Divider sx={{ my: 4 }} />
+
+        <PerformanceHistory staffId={staff.staffId} />
       </Paper>
     </Box>
   );
