@@ -16,6 +16,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 import { useClientDetailHook } from "./hook";
 import Remarks from "./Remarks";
+import ClientFees from "./Fees";
 
 // =================================================
 // DATE FORMAT
@@ -462,6 +463,10 @@ const ClientDetail = () => {
         <Divider sx={{ my: 4 }} />
 
         <Progress clientId={client.clientId} />
+        <Divider sx={{ my: 4 }} />
+        <ClientFees clientId={client.clientId} />
+
+        <Divider sx={{ my: 4 }} />
 
         <Payments clientId={client.clientId} />
       </Box>
