@@ -10,7 +10,7 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 
 import ArrowBackOutlinedIcon from "@mui/icons-material/ArrowBackOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import Payments from "./Payments";
 
 import Breadcrumb from "@/components/Breadcrumb";
 
@@ -462,6 +462,8 @@ const ClientDetail = () => {
         <Divider sx={{ my: 4 }} />
 
         <Progress clientId={client.clientId} />
+
+        <Payments clientId={client.clientId} />
       </Box>
     </Box>
   );
