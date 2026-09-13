@@ -145,11 +145,7 @@ function StaffClientsContent() {
             <Tooltip title="View client">
               <IconButton
                 aria-label="View client"
-                onClick={() =>
-                  router.push(
-                    `/admin/client/clientDetailPage?clientId=${row.clientId}`,
-                  )
-                }
+                onClick={() => router.push(`/admin/client/${row.clientId}`)}
               >
                 <RemoveRedEyeIcon />
               </IconButton>

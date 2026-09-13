@@ -89,9 +89,9 @@ export default function StaffPage() {
             }}
           >
             {/* VIEW STAFF CLIENTS */}
-            <Tooltip title="View staff details">
+            <Tooltip title="View staff clients">
               <IconButton
-                aria-label="View staff details"
+                aria-label="View staff clients"
                 onClick={() =>
                   router.push(`/admin/staff/${params.row.staffId}/clients`)
                 }
@@ -101,9 +101,9 @@ export default function StaffPage() {
             </Tooltip>
 
             {/* VIEW STAFF DETAILS */}
-            <Tooltip title="View staff clients">
+            <Tooltip title="View staff details">
               <IconButton
-                aria-label="View staff clients"
+                aria-label="View staff details"
                 onClick={() =>
                   router.push(`/admin/staff/${params.row.staffId}`)
                 }
