@@ -1,8 +1,5 @@
-import React from "react";
-import DashboardComponentnent from "@/components/Dashboard";
+import AdminDashboard from "@/components/Dashboard/AdminDashboard";
 
-export default function AdminDashboard() {
-  return (
-   <DashboardComponentnent />
-  );
+export default function DashboardPage() {
+  return <AdminDashboard />;
 }
