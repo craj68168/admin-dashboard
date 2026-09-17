@@ -1,16 +1,27 @@
 import { z } from "zod";
 
-export const clientFeeSchema = z.object({
+const defaultMessages = {
+  feeNameRequired: "Fee name is required",
+  feeNameMax: "Fee name cannot exceed 150 characters",
+  expectedAmountRequired: "Expected amount is required",
+  expectedAmountPositive: "Expected amount must be greater than 0",
+  noteMax: "Note cannot exceed 3000 characters",
+};
+
+export const createClientFeeSchema = (
+  messages: typeof defaultMessages = defaultMessages,
+) =>
+  z.object({
   feeName: z
     .string()
     .trim()
-    .min(1, "Fee name is required")
-    .max(150, "Fee name cannot exceed 150 characters"),
+    .min(1, messages.feeNameRequired)
+    .max(150, messages.feeNameMax),
 
   expectedAmount: z
     .string()
     .trim()
-    .min(1, "Expected amount is required")
+    .min(1, messages.expectedAmountRequired)
     .refine(
       (value) => {
         const amount = Number(value);
@@ -18,11 +29,13 @@ export const clientFeeSchema = z.object({
         return Number.isFinite(amount) && amount > 0;
       },
       {
-        message: "Expected amount must be greater than 0",
+        message: messages.expectedAmountPositive,
       },
     ),
 
   dueDate: z.string(),
 
-  note: z.string().trim().max(3000, "Note cannot exceed 3000 characters"),
+  note: z.string().trim().max(3000, messages.noteMax),
 });
+
+export const clientFeeSchema = createClientFeeSchema();

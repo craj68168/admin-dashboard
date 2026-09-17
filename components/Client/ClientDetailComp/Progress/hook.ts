@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,14 +13,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
 
-import { progressSchema } from "./validation";
+import { createProgressSchema } from "./validation";
 
 import type { ProgressFormValues, StageHistoryResponse } from "./type";
 
 export const useProgressHook = (clientId: string) => {
+  const t = useTranslations("clientProgress");
+
   const queryClient = useQueryClient();
 
   const [serverError, setServerError] = useState("");
+
+  const schema = useMemo(
+    () =>
+      createProgressSchema({
+        stageRequired: t("validation.stageRequired"),
+        noteMax: t("validation.noteMax"),
+      }),
+    [t],
+  );
 
   const {
     control,
@@ -28,7 +40,7 @@ export const useProgressHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<ProgressFormValues>({
-    resolver: zodResolver(progressSchema),
+    resolver: zodResolver(schema),
 
     defaultValues: {
       stage: "",
@@ -126,7 +138,7 @@ export const useProgressHook = (clientId: string) => {
       setServerError("");
 
       if (values.stage === currentStage) {
-        setServerError("Please select a different stage.");
+        setServerError(t("messages.selectDifferentStage"));
 
         return;
       }
@@ -143,13 +155,13 @@ export const useProgressHook = (clientId: string) => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to update client stage.",
+          error.response?.data?.message || t("messages.updateFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to update client stage.");
+      setServerError(t("messages.updateFailed"));
     }
   };
 
@@ -163,9 +175,9 @@ export const useProgressHook = (clientId: string) => {
     if (axios.isAxiosError(progressError)) {
       loadError =
         progressError.response?.data?.message ||
-        "Failed to load client progress.";
+        t("messages.loadFailed");
     } else {
-      loadError = "Failed to load client progress.";
+      loadError = t("messages.loadFailed");
     }
   }
 

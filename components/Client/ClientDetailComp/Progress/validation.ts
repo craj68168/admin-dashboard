@@ -2,12 +2,22 @@ import { z } from "zod";
 
 import { CLIENT_STAGES } from "./type";
 
-export const progressSchema = z.object({
+const defaultMessages = {
+  stageRequired: "Please select a stage",
+  noteMax: "Note cannot exceed 2000 characters",
+};
+
+export const createProgressSchema = (
+  messages: typeof defaultMessages = defaultMessages,
+) =>
+  z.object({
   stage: z
     .union([z.enum(CLIENT_STAGES), z.literal("")])
     .refine((value) => value !== "", {
-      message: "Please select a stage",
+      message: messages.stageRequired,
     }),
 
-  note: z.string().trim().max(2000, "Note cannot exceed 2000 characters"),
+  note: z.string().trim().max(2000, messages.noteMax),
 });
+
+export const progressSchema = createProgressSchema();

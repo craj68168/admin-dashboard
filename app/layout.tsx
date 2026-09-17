@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+
 import GlobalSnackbar from "@/components/common/GlobalSnackbar";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import AuthProvider from "../components/auth/AuthProvider";
 import { QueryProvider } from "./providers/query-provider";
 import { MuiThemeProvider } from "./providers/theme-provider";
+import { LanguageProvider } from "./providers/language-provider";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -34,8 +36,13 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <MuiThemeProvider>
             <QueryProvider config={queryConfig}>
-              <AuthProvider>{children}</AuthProvider>
-              <GlobalSnackbar />
+              <LanguageProvider>
+                <AuthProvider>
+                  {children}
+                </AuthProvider>
+
+                <GlobalSnackbar />
+              </LanguageProvider>
             </QueryProvider>
           </MuiThemeProvider>
         </AppRouterCacheProvider>

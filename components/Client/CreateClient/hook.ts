@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import axios from "axios";
 
@@ -16,7 +17,10 @@ import { useAuthStore } from "@/store/auth-store";
 
 import type { StaffListResponse } from "./type";
 
-import { createClientSchema, type CreateClientFormValues } from "./validation";
+import {
+  createCreateClientSchema,
+  type CreateClientFormValues,
+} from "./validation";
 
 // =================================================
 // APPEND FORM DATA
@@ -33,6 +37,8 @@ const appendValue = (formData: FormData, key: string, value: string) => {
 };
 
 export const useCreateClientHook = () => {
+  const t = useTranslations("createClient");
+
   const router = useRouter();
 
   const queryClient = useQueryClient();
@@ -53,7 +59,13 @@ export const useCreateClientHook = () => {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateClientFormValues>({
-    resolver: zodResolver(createClientSchema),
+    resolver: zodResolver(
+      createCreateClientSchema({
+        fullNameRequired: t("validation.fullNameRequired"),
+        phoneRequired: t("validation.phoneRequired"),
+        visaTypeRequired: t("validation.visaTypeRequired"),
+      }),
+    ),
 
     defaultValues: {
       // Client
@@ -307,13 +319,13 @@ export const useCreateClientHook = () => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to create client.",
+          error.response?.data?.message || t("messages.createFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to create client.");
+      setServerError(t("messages.createFailed"));
     }
   };
 

@@ -1,0 +1,1055 @@
+{
+  "staffDashboard": {
+    "dashboard": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "description": "Your clients, collections and monthly performance.",
+    "performanceMonth": "Performance Month",
+    "assignedClients": "Assigned Clients",
+    "currentlyAssigned": "Currently assigned to you",
+    "collectedThisMonth": "Collected This Month",
+    "paymentsFromClients": "{payments} payments from {clients} clients",
+    "outstandingClientFees": "Outstanding Client Fees",
+    "feesOutstanding": "{count} fees still outstanding",
+    "monthlyTarget": "Monthly Target",
+    "achieved": "{percentage}% achieved",
+    "status": {
+      "noTarget": "No Target",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "achieved": "Achieved"
+    },
+    "monthlyPerformance": "Monthly Performance",
+    "target": "Target",
+    "collected": "Collected",
+    "remaining": "Remaining",
+    "achievement": "Achievement",
+    "refreshing": "Refreshing...",
+    "clientFeeFollowUp": "Client Fee Follow-up",
+    "totalExpected": "Total Expected",
+    "paid": "Paid",
+    "outstanding": "Outstanding",
+    "myClientProgress": "My Client Progress",
+    "noAssignedClients": "No assigned clients.",
+    "myRecentClients": "My Recent Clients",
+    "client": "Client",
+    "name": "Name",
+    "visa": "Visa",
+    "currentStage": "Current Stage",
+    "myRecentCollections": "My Recent Collections",
+    "collectionsDescription": "Payments credited to your performance.",
+    "fee": "Fee",
+    "amount": "Amount",
+    "method": "Method",
+    "stage": "Stage",
+    "date": "Date",
+    "noCollections": "No collections recorded yet."
+  },
+  "adminDashboard": {
+    "dashboard": "Dashboard",
+    "title": "Admin Dashboard",
+    "description": "Recruitment, collections and staff performance overview.",
+    "performanceMonth": "Performance Month",
+    "totalClients": "Total Clients",
+    "payingClientsThisMonth": "{count} paying clients this month",
+    "activeStaff": "Active Staff",
+    "totalStaff": "{count} total staff",
+    "collectedThisMonth": "Collected This Month",
+    "payments": "{count} payments",
+    "outstandingFees": "Outstanding Fees",
+    "expectedAmount": "Expected ¥{amount}",
+    "monthlyCollectionTarget": "Monthly Collection Target",
+    "totalTarget": "Total Target",
+    "target": "Target",
+    "collected": "Collected",
+    "remaining": "Remaining",
+    "achievement": "Achievement",
+    "refreshingDashboard": "Refreshing dashboard...",
+    "staffRanking": "Staff Ranking",
+    "staffRankingDescription": "Ranked by monthly collection amount.",
+    "rank": "Rank",
+    "staff": "Staff",
+    "paymentsHeader": "Payments",
+    "clients": "Clients",
+    "statusHeader": "Status",
+    "clientProgress": "Client Progress",
+    "noClientData": "No client data yet.",
+    "recentPayments": "Recent Payments",
+    "client": "Client",
+    "fee": "Fee",
+    "amount": "Amount",
+    "date": "Date",
+    "noPayments": "No payments yet.",
+    "status": {
+      "noTarget": "No Target",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "achieved": "Achieved"
+    }
+  },
+  "sidebar": {
+    "goToDashboard": "Go to dashboard",
+    "logoAlt": "Fortune Link logo",
+    "toggleSidebar": "Toggle sidebar",
+    "workspace": "Workspace",
+    "logout": "Logout",
+    "signOut": "Sign out",
+    "items": {
+      "Dashboard": "Dashboard",
+      "Staff": "Staff",
+      "Clients": "Clients"
+    }
+  },
+  "staffList": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "staff": "Staff"
+    },
+    "title": "Staff",
+    "description": "Manage staff accounts, access and status.",
+    "addStaff": "Add Staff",
+    "thisStaffMember": "this staff member",
+    "columns": {
+      "id": "ID",
+      "fullName": "Full name",
+      "email": "Email",
+      "location": "Location",
+      "createdAt": "Created At",
+      "action": "Action"
+    },
+    "actions": {
+      "viewClients": "View staff clients",
+      "viewDetails": "View staff details",
+      "edit": "Edit staff",
+      "disable": "Disable staff",
+      "activate": "Activate staff"
+    },
+    "confirmStatus": {
+      "disableTitle": "Disable Staff",
+      "activateTitle": "Activate Staff",
+      "descriptionPrefix": "Are you sure you want to",
+      "disableVerb": "disable",
+      "activateVerb": "activate",
+      "disableWarning": "This staff member will not be able to log in while the account is disabled.",
+      "disableConfirm": "Yes, Disable",
+      "activateConfirm": "Yes, Activate",
+      "cancel": "No"
+    }
+  },
+  "addStaff": {
+    "backToStaff": "Back to Staff",
+    "title": "Add Staff Member",
+    "description": "Create an account and assign the staff member's location.",
+    "save": "Save",
+    "saving": "Saving...",
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter staff name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Enter phone number"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "Select location"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "yamada@example.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter password"
+      }
+    },
+    "locations": {
+      "USA": "USA",
+      "Japan": "Japan",
+      "Nepal": "Nepal",
+      "Other": "Other"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailInvalid": "Please enter a valid email address",
+      "locationRequired": "Location is required",
+      "phoneRequired": "Phone is required",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 6 characters"
+    }
+  },
+  "editStaff": {
+    "backToStaff": "Back to Staff",
+    "title": "Edit Staff Member",
+    "description": "Update the staff member's account details.",
+    "loading": "Loading staff details...",
+    "notFound": "Staff member could not be found.",
+    "saveChanges": "Save changes",
+    "saving": "Saving...",
+    "updateError": "Unable to update staff member.",
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter staff name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Enter phone number"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "yamada@example.com"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "Select location"
+      }
+    },
+    "locations": {
+      "USA": "USA",
+      "Japan": "Japan",
+      "Nepal": "Nepal",
+      "Other": "Other"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailInvalid": "Please enter a valid email address",
+      "locationRequired": "Location is required",
+      "phoneRequired": "Phone is required"
+    }
+  },
+  "staffDetails": {
+    "backToStaff": "Back to Staff",
+    "loading": "Loading staff details...",
+    "notFound": "Staff member could not be found.",
+    "staffMember": "Staff member",
+    "staffId": "Staff ID: {id}",
+    "notAvailable": "N/A",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "details": {
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "role": "Role",
+      "assignedClients": "Assigned clients",
+      "createdAt": "Created at"
+    }
+  },
+  "staffPerformance": {
+    "title": "Collection Performance",
+    "description": "Monthly payment collection performance for this staff member.",
+    "month": "Month",
+    "monthlyProgress": "Monthly Progress",
+    "payments": "Payments",
+    "clients": "Clients",
+    "refreshing": "Refreshing...",
+    "updateTarget": "Update Target",
+    "setMonthlyTarget": "Set Monthly Target",
+    "setTarget": "Set Target",
+    "targetMonth": "Target month: {month}",
+    "saving": "Saving...",
+    "summary": {
+      "target": "Target",
+      "collected": "Collected",
+      "remaining": "Remaining",
+      "achievement": "Achievement"
+    },
+    "form": {
+      "targetAmount": "Target Amount",
+      "targetAmountPlaceholder": "1000000",
+      "note": "Note",
+      "notePlaceholder": "Optional target note..."
+    },
+    "status": {
+      "noTarget": "No Target",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "achieved": "Achieved"
+    },
+    "validation": {
+      "targetAmountRequired": "Target amount is required",
+      "targetAmountPositive": "Target amount must be greater than 0",
+      "noteMax": "Note cannot exceed 2000 characters"
+    },
+    "messages": {
+      "targetUpdated": "Staff target updated successfully.",
+      "targetCreated": "Staff target created successfully.",
+      "saveFailed": "Failed to save staff target.",
+      "loadFailed": "Failed to load staff performance."
+    }
+  },
+  "staffPerformanceHistory": {
+    "title": "Performance History",
+    "description": "Monthly target and collection history for this staff member.",
+    "empty": "No performance history is available yet.",
+    "refreshing": "Refreshing...",
+    "loadFailed": "Failed to load performance history.",
+    "columns": {
+      "month": "Month",
+      "target": "Target",
+      "collected": "Collected",
+      "remaining": "Remaining",
+      "achievement": "Achievement",
+      "payments": "Payments",
+      "clients": "Clients",
+      "status": "Status"
+    },
+    "status": {
+      "noTarget": "No Target",
+      "notStarted": "Not Started",
+      "inProgress": "In Progress",
+      "achieved": "Achieved"
+    }
+  },
+  "staffClients": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "staff": "Staff",
+      "clients": "Clients"
+    },
+    "thisClient": "this client",
+    "columns": {
+      "id": "ID",
+      "fullName": "Full Name",
+      "status": "Status",
+      "phone": "Phone",
+      "visaType": "Visa Type",
+      "createdAt": "Created At",
+      "action": "Action"
+    },
+    "actions": {
+      "view": "View client",
+      "edit": "Edit client",
+      "delete": "Delete client"
+    },
+    "deleteDialog": {
+      "title": "Delete Client",
+      "descriptionPrefix": "Are you sure you want to delete",
+      "warning": "This action cannot be undone.",
+      "confirm": "Yes, Delete",
+      "cancel": "No"
+    }
+  },
+  "clientList": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients"
+    },
+    "addClient": "Add Client",
+    "registrationPending": "Registration Pending",
+    "thisClient": "this client",
+    "columns": {
+      "id": "ID",
+      "fullName": "Full Name",
+      "phone": "Phone",
+      "visaType": "Visa Type",
+      "progress": "Progress",
+      "assignedTo": "Assigned To",
+      "action": "Action"
+    },
+    "actions": {
+      "view": "View client",
+      "edit": "Edit client",
+      "delete": "Delete client"
+    },
+    "deleteDialog": {
+      "title": "Delete Client",
+      "descriptionPrefix": "Are you sure you want to delete",
+      "warning": "This action cannot be undone.",
+      "confirm": "Yes, Delete",
+      "cancel": "No"
+    }
+  },
+  "createClient": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "createClient": "Create Client"
+    },
+    "title": "Create Client",
+    "description": "Enter the client's information and assign them to a staff member.",
+    "create": "Create Client",
+    "creating": "Creating...",
+    "cancel": "Cancel",
+    "sections": {
+      "basic": {
+        "title": "Basic Information",
+        "description": "Required client information and assignment."
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Personal and contact details."
+      },
+      "passport": {
+        "title": "Passport & Residence",
+        "description": "Passport and residence information."
+      },
+      "education": {
+        "title": "Education & Japanese Language",
+        "description": "Education and Japanese language information."
+      },
+      "employment": {
+        "title": "Employment",
+        "description": "Employment and desired job information."
+      },
+      "sponsor": {
+        "title": "Sponsor",
+        "description": "Sponsor information if applicable."
+      },
+      "visa": {
+        "title": "Visa Information",
+        "description": "Additional visa information."
+      },
+      "documents": {
+        "title": "Documents",
+        "description": "Upload client image and CV if available."
+      }
+    },
+    "fields": {
+      "fullName": {
+        "label": "Full Name",
+        "placeholder": "Enter full name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Enter phone number"
+      },
+      "visaType": {
+        "label": "Visa Type",
+        "placeholder": "Select visa type"
+      },
+      "assignedStaff": {
+        "label": "Assigned Staff",
+        "placeholder": "Select staff",
+        "autoHelper": "This client will automatically be assigned to you."
+      },
+      "coeStatus": {
+        "label": "COE Status"
+      },
+      "clientStatus": {
+        "label": "Client Status"
+      },
+      "dateOfBirth": {
+        "label": "Date of Birth"
+      },
+      "gender": {
+        "label": "Gender",
+        "placeholder": "Enter gender"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter email"
+      },
+      "nationality": {
+        "label": "Nationality",
+        "placeholder": "Enter nationality"
+      },
+      "address": {
+        "label": "Address",
+        "placeholder": "Enter address"
+      },
+      "passportNumber": {
+        "label": "Passport Number",
+        "placeholder": "Enter passport number"
+      },
+      "passportExpiryDate": {
+        "label": "Passport Expiry Date"
+      },
+      "statusOfResidence": {
+        "label": "Status of Residence",
+        "placeholder": "Enter status of residence"
+      },
+      "lastQualification": {
+        "label": "Last Qualification",
+        "placeholder": "Example: Bachelor"
+      },
+      "japaneseLanguageLevel": {
+        "label": "Japanese Language Level",
+        "placeholder": "Example: N3"
+      },
+      "schoolName": {
+        "label": "School Name",
+        "placeholder": "Enter school name"
+      },
+      "course": {
+        "label": "Course",
+        "placeholder": "Enter course"
+      },
+      "intake": {
+        "label": "Intake",
+        "placeholder": "Example: April 2027"
+      },
+      "jobCategory": {
+        "label": "Job Category",
+        "placeholder": "Enter job category"
+      },
+      "jobTitle": {
+        "label": "Job Title",
+        "placeholder": "Enter job title"
+      },
+      "companyName": {
+        "label": "Company Name",
+        "placeholder": "Enter company name"
+      },
+      "workLocation": {
+        "label": "Work Location",
+        "placeholder": "Enter work location"
+      },
+      "sponsorName": {
+        "label": "Sponsor Name",
+        "placeholder": "Enter sponsor name"
+      },
+      "sponsorRelationship": {
+        "label": "Sponsor Relationship",
+        "placeholder": "Enter relationship"
+      },
+      "sponsorStatusOfResidence": {
+        "label": "Sponsor Status of Residence",
+        "placeholder": "Enter sponsor status"
+      },
+      "visaStatus": {
+        "label": "Visa Status",
+        "placeholder": "Enter visa status"
+      },
+      "clientImage": {
+        "upload": "Upload Client Image"
+      },
+      "cv": {
+        "upload": "Upload CV"
+      }
+    },
+    "visaTypes": {
+      "Student": "Student",
+      "Working": "Working",
+      "Dependent": "Dependent"
+    },
+    "coeStatuses": {
+      "Not Applied": "Not Applied",
+      "Applied": "Applied",
+      "Processing": "Processing",
+      "Received": "Received",
+      "Rejected": "Rejected"
+    },
+    "clientStatuses": {
+      "New": "New",
+      "Document Collection": "Document Collection",
+      "Processing": "Processing",
+      "COE Applied": "COE Applied",
+      "COE Received": "COE Received",
+      "Visa Applied": "Visa Applied",
+      "Visa Approved": "Visa Approved",
+      "Visa Rejected": "Visa Rejected",
+      "Departed": "Departed",
+      "Arrived in Japan": "Arrived in Japan"
+    },
+    "validation": {
+      "fullNameRequired": "Full name is required",
+      "phoneRequired": "Phone number is required",
+      "visaTypeRequired": "Visa type is required"
+    },
+    "messages": {
+      "createFailed": "Failed to create client."
+    }
+  },
+  "editClient": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "editClient": "Edit Client"
+    },
+    "title": "Edit Client",
+    "clientIdLabel": "Client ID:",
+    "inactive": "Inactive",
+    "currentFile": "Current:",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "sections": {
+      "basic": {
+        "title": "Basic Information",
+        "description": "Client information, status and staff assignment."
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Personal and contact details."
+      },
+      "passport": {
+        "title": "Passport & Residence",
+        "description": "Passport and residence information."
+      },
+      "education": {
+        "title": "Education & Japanese Language"
+      },
+      "employment": {
+        "title": "Employment"
+      },
+      "sponsor": {
+        "title": "Sponsor"
+      },
+      "visa": {
+        "title": "Visa Information"
+      },
+      "documents": {
+        "title": "Documents",
+        "description": "Selecting a new file will replace the currently uploaded file."
+      }
+    },
+    "fields": {
+      "fullName": {
+        "label": "Full Name"
+      },
+      "phone": {
+        "label": "Phone"
+      },
+      "visaType": {
+        "label": "Visa Type",
+        "placeholder": "Select visa type"
+      },
+      "assignedStaff": {
+        "label": "Assigned Staff",
+        "placeholder": "Select staff",
+        "readOnlyHelper": "Staff assignment cannot be changed."
+      },
+      "coeStatus": {
+        "label": "COE Status"
+      },
+      "clientStatus": {
+        "label": "Client Status"
+      },
+      "dateOfBirth": {
+        "label": "Date of Birth"
+      },
+      "gender": {
+        "label": "Gender"
+      },
+      "email": {
+        "label": "Email"
+      },
+      "nationality": {
+        "label": "Nationality"
+      },
+      "address": {
+        "label": "Address"
+      },
+      "passportNumber": {
+        "label": "Passport Number"
+      },
+      "passportExpiryDate": {
+        "label": "Passport Expiry Date"
+      },
+      "statusOfResidence": {
+        "label": "Status of Residence"
+      },
+      "lastQualification": {
+        "label": "Last Qualification"
+      },
+      "japaneseLanguageLevel": {
+        "label": "Japanese Language Level"
+      },
+      "schoolName": {
+        "label": "School Name"
+      },
+      "course": {
+        "label": "Course"
+      },
+      "intake": {
+        "label": "Intake"
+      },
+      "jobCategory": {
+        "label": "Job Category"
+      },
+      "jobTitle": {
+        "label": "Job Title"
+      },
+      "companyName": {
+        "label": "Company Name"
+      },
+      "workLocation": {
+        "label": "Work Location"
+      },
+      "sponsorName": {
+        "label": "Sponsor Name"
+      },
+      "sponsorRelationship": {
+        "label": "Sponsor Relationship"
+      },
+      "sponsorStatusOfResidence": {
+        "label": "Sponsor Status of Residence"
+      },
+      "visaStatus": {
+        "label": "Visa Status"
+      },
+      "clientImage": {
+        "replace": "Replace Client Image"
+      },
+      "cv": {
+        "replace": "Replace CV"
+      }
+    },
+    "visaTypes": {
+      "Student": "Student",
+      "Working": "Working",
+      "Dependent": "Dependent"
+    },
+    "coeStatuses": {
+      "Not Applied": "Not Applied",
+      "Applied": "Applied",
+      "Processing": "Processing",
+      "Received": "Received",
+      "Rejected": "Rejected"
+    },
+    "clientStatuses": {
+      "New": "New",
+      "Document Collection": "Document Collection",
+      "Processing": "Processing",
+      "COE Applied": "COE Applied",
+      "COE Received": "COE Received",
+      "Visa Applied": "Visa Applied",
+      "Visa Approved": "Visa Approved",
+      "Visa Rejected": "Visa Rejected",
+      "Departed": "Departed",
+      "Arrived in Japan": "Arrived in Japan"
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email address",
+      "invalidFile": "Invalid file",
+      "fullNameRequired": "Full name is required",
+      "fullNameMin": "Full name must be at least 2 characters",
+      "phoneRequired": "Phone number is required",
+      "phoneMin": "Phone number must be at least 7 characters",
+      "phoneMax": "Phone number cannot exceed 20 characters",
+      "visaTypeRequired": "Visa type is required",
+      "assignedStaffRequired": "Assigned staff is required"
+    },
+    "messages": {
+      "notFound": "Client not found.",
+      "clientIdMissing": "Client ID is missing.",
+      "loadFailed": "Failed to load client.",
+      "updateFailed": "Failed to update client."
+    }
+  },
+  "clientDetail": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients"
+    },
+    "clientIdLabel": "Client ID:",
+    "back": "Back",
+    "sections": {
+      "basic": "Basic Information",
+      "personal": "Personal Information",
+      "passport": "Passport & Residence",
+      "education": "Education & Japanese Language",
+      "employment": "Employment",
+      "sponsor": "Sponsor",
+      "visa": "Visa Information",
+      "documents": "Documents"
+    },
+    "fields": {
+      "clientId": "Client ID",
+      "fullName": "Full Name",
+      "phone": "Phone",
+      "visaType": "Visa Type",
+      "clientStatus": "Client Status",
+      "coeStatus": "COE Status",
+      "assignedStaff": "Assigned Staff",
+      "createdAt": "Created At",
+      "lastUpdated": "Last Updated",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "email": "Email",
+      "nationality": "Nationality",
+      "address": "Address",
+      "passportNumber": "Passport Number",
+      "passportExpiryDate": "Passport Expiry Date",
+      "statusOfResidence": "Status of Residence",
+      "lastQualification": "Last Qualification",
+      "japaneseLanguageLevel": "Japanese Language Level",
+      "schoolName": "School Name",
+      "course": "Course",
+      "intake": "Intake",
+      "jobCategory": "Job Category",
+      "jobTitle": "Job Title",
+      "companyName": "Company Name",
+      "workLocation": "Work Location",
+      "sponsorName": "Sponsor Name",
+      "sponsorRelationship": "Sponsor Relationship",
+      "sponsorStatusOfResidence": "Sponsor Status of Residence",
+      "visaStatus": "Visa Status",
+      "clientImage": "Client Image",
+      "cv": "CV"
+    },
+    "documents": {
+      "uploaded": "Uploaded",
+      "notUploaded": "Not uploaded"
+    },
+    "visaTypes": {
+      "Student": "Student",
+      "Working": "Working",
+      "Dependent": "Dependent"
+    },
+    "coeStatuses": {
+      "Not Applied": "Not Applied",
+      "Applied": "Applied",
+      "Processing": "Processing",
+      "Received": "Received",
+      "Rejected": "Rejected"
+    },
+    "clientStatuses": {
+      "New": "New",
+      "Document Collection": "Document Collection",
+      "Processing": "Processing",
+      "COE Applied": "COE Applied",
+      "COE Received": "COE Received",
+      "Visa Applied": "Visa Applied",
+      "Visa Approved": "Visa Approved",
+      "Visa Rejected": "Visa Rejected",
+      "Departed": "Departed",
+      "Arrived in Japan": "Arrived in Japan"
+    },
+    "messages": {
+      "notFound": "Client not found.",
+      "loadFailed": "Failed to load client."
+    }
+  },
+  "clientFees": {
+    "title": "Client Fees",
+    "description": "Required fees, payments and outstanding balances.",
+    "feeRequirements": "Fee Requirements",
+    "empty": "No fee requirements have been created.",
+    "due": "Due: {date}",
+    "createdBy": "Created By",
+    "summary": {
+      "totalExpected": "Total Expected",
+      "totalPaid": "Total Paid",
+      "outstanding": "Outstanding",
+      "expected": "Expected",
+      "paid": "Paid"
+    },
+    "form": {
+      "addTitle": "Add Fee",
+      "editTitle": "Edit Fee",
+      "feeName": "Fee Name",
+      "expectedAmount": "Expected Amount",
+      "dueDate": "Due Date",
+      "note": "Note"
+    },
+    "actions": {
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "cancelEdit": "Cancel Edit",
+      "saving": "Saving...",
+      "addFee": "Add Fee",
+      "updateFee": "Update Fee"
+    },
+    "dialog": {
+      "title": "Cancel Fee",
+      "description": "Are you sure you want to cancel {feeName}? The fee will remain in the financial history.",
+      "confirm": "Cancel Fee",
+      "keep": "Keep Fee"
+    },
+    "statuses": {
+      "Active": "Active",
+      "Cancelled": "Cancelled"
+    },
+    "paymentStatuses": {
+      "Unpaid": "Unpaid",
+      "Partial": "Partial",
+      "Paid": "Paid",
+      "Cancelled": "Cancelled"
+    },
+    "validation": {
+      "feeNameRequired": "Fee name is required",
+      "feeNameMax": "Fee name cannot exceed 150 characters",
+      "expectedAmountRequired": "Expected amount is required",
+      "expectedAmountPositive": "Expected amount must be greater than 0",
+      "noteMax": "Note cannot exceed 3000 characters"
+    },
+    "messages": {
+      "created": "Fee created successfully.",
+      "updated": "Fee updated successfully.",
+      "cancelled": "Fee cancelled successfully.",
+      "saveFailed": "Failed to save fee.",
+      "cancelFailed": "Failed to cancel fee.",
+      "loadFailed": "Failed to load client fees."
+    }
+  },
+  "clientPayments": {
+    "title": "Payments",
+    "description": "Payment collection history and installments.",
+    "totalPayments": "Total Payments",
+    "history": "Payment History",
+    "empty": "No payments recorded yet.",
+    "feeExpected": "Fee Expected: ¥{amount}",
+    "noAvailableFees": "There are no active fees with an outstanding balance.",
+    "fields": {
+      "date": "Date",
+      "method": "Method",
+      "creditedStaff": "Credited Staff",
+      "recordedBy": "Recorded By",
+      "stageAtPayment": "Stage at Payment",
+      "reference": "Reference",
+      "receipt": "Receipt",
+      "bank": "Bank"
+    },
+    "summary": {
+      "expected": "Expected",
+      "alreadyPaid": "Already Paid",
+      "outstanding": "Outstanding",
+      "status": "Status"
+    },
+    "form": {
+      "title": "Add Payment",
+      "fee": "Fee",
+      "selectFee": "Select fee",
+      "feeOption": "{feeName} - Outstanding ¥{amount}",
+      "amountPaying": "Amount Paying",
+      "paymentMethod": "Payment Method",
+      "selectPaymentMethod": "Select payment method",
+      "paymentDate": "Payment Date",
+      "referenceNumber": "Reference Number",
+      "receiptNumber": "Receipt Number",
+      "bankName": "Bank Name",
+      "note": "Note"
+    },
+    "actions": {
+      "saving": "Saving...",
+      "savePayment": "Save Payment"
+    },
+    "statuses": {
+      "Completed": "Completed",
+      "Cancelled": "Cancelled",
+      "Refunded": "Refunded"
+    },
+    "paymentStatuses": {
+      "Unpaid": "Unpaid",
+      "Partial": "Partial",
+      "Paid": "Paid",
+      "Cancelled": "Cancelled"
+    },
+    "methods": {
+      "Cash": "Cash",
+      "Bank Transfer": "Bank Transfer",
+      "Online Payment": "Online Payment",
+      "Cheque": "Cheque",
+      "Other": "Other"
+    },
+    "validation": {
+      "feeRequired": "Please select a fee",
+      "amountRequired": "Amount is required",
+      "amountPositive": "Amount must be greater than 0",
+      "paymentMethodRequired": "Payment method is required",
+      "paymentDateRequired": "Payment date is required",
+      "referenceNumberMax": "Reference number is too long",
+      "receiptNumberMax": "Receipt number is too long",
+      "bankNameMax": "Bank name is too long",
+      "noteMax": "Note cannot exceed 3000 characters"
+    },
+    "messages": {
+      "selectValidFee": "Please select a valid fee.",
+      "feeInactive": "This fee is no longer active.",
+      "amountExceeds": "Amount cannot exceed the outstanding balance of ¥{amount}.",
+      "recorded": "Payment recorded successfully.",
+      "recordedFullyPaid": "Payment recorded successfully. This fee is now fully paid.",
+      "recordFailed": "Failed to record payment.",
+      "loadFailed": "Failed to load payments.",
+      "loadFeesFailed": "Failed to load client fees."
+    },
+    "stages": {
+      "Registration Pending": "Registration Pending",
+      "Registered / Vacancy Searching": "Registered / Vacancy Searching",
+      "Interview Fixed / Preparation": "Interview Fixed / Preparation",
+      "Interview Failed": "Interview Failed",
+      "Naitei / Job Offer Received": "Naitei / Job Offer Received",
+      "Visa Documents Submitted": "Visa Documents Submitted",
+      "Visa Applied / Result Waiting": "Visa Applied / Result Waiting",
+      "Visa Approved": "Visa Approved",
+      "Visa Rejected": "Visa Rejected",
+      "Waiting for Nyusha / Company Joining": "Waiting for Nyusha / Company Joining",
+      "Return to Nepal": "Return to Nepal"
+    }
+  },
+  "clientProgress": {
+    "title": "Progress",
+    "description": "Client recruitment and visa progress history.",
+    "history": "Stage History",
+    "empty": "No stage changes recorded yet.",
+    "currentStage": "Current Stage",
+    "admin": "Admin",
+    "form": {
+      "changeStage": "Change Stage",
+      "selectStage": "Select stage",
+      "note": "Note",
+      "notePlaceholder": "Optional progress note..."
+    },
+    "actions": {
+      "updating": "Updating...",
+      "updateStage": "Update Stage"
+    },
+    "stages": {
+      "Registration Pending": "Registration Pending",
+      "Registered / Vacancy Searching": "Registered / Vacancy Searching",
+      "Interview Fixed / Preparation": "Interview Fixed / Preparation",
+      "Interview Failed": "Interview Failed",
+      "Naitei / Job Offer Received": "Naitei / Job Offer Received",
+      "Visa Documents Submitted": "Visa Documents Submitted",
+      "Visa Applied / Result Waiting": "Visa Applied / Result Waiting",
+      "Visa Approved": "Visa Approved",
+      "Visa Rejected": "Visa Rejected",
+      "Waiting for Nyusha / Company Joining": "Waiting for Nyusha / Company Joining",
+      "Return to Nepal": "Return to Nepal"
+    },
+    "validation": {
+      "stageRequired": "Please select a stage",
+      "noteMax": "Note cannot exceed 2000 characters"
+    },
+    "messages": {
+      "selectDifferentStage": "Please select a different stage.",
+      "updateFailed": "Failed to update client stage.",
+      "loadFailed": "Failed to load client progress."
+    }
+  },
+  "clientRemarks": {
+    "title": "Remarks",
+    "description": "Communication and follow-up history for this client.",
+    "history": "Remark History",
+    "empty": "No remarks have been added yet.",
+    "admin": "Admin",
+    "form": {
+      "title": "New Remark",
+      "date": "Date",
+      "staff": "Staff",
+      "staffHelper": "Automatically recorded from the logged-in account.",
+      "medium": "Medium",
+      "selectMedium": "Select medium",
+      "memo": "Memo",
+      "memoPlaceholder": "Enter conversation or follow-up details..."
+    },
+    "actions": {
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "mediums": {
+      "Phone Call": "Phone Call",
+      "Meeting": "Meeting",
+      "WhatsApp": "WhatsApp",
+      "Email": "Email",
+      "Company Visit": "Company Visit",
+      "LINE": "LINE",
+      "Other": "Other"
+    },
+    "validation": {
+      "dateRequired": "Date is required",
+      "mediumRequired": "Medium is required",
+      "memoRequired": "Memo is required",
+      "memoMax": "Memo cannot exceed 5000 characters"
+    },
+    "messages": {
+      "saveFailed": "Failed to save remark.",
+      "loadFailed": "Failed to load remarks."
+    }
+  }
+}

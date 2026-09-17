@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -18,6 +19,24 @@ import type { PerformanceHistoryProps, PerformanceHistoryStatus } from "./type";
 import { usePerformanceHistoryHook } from "./hook";
 
 // =================================================
+// DESIGN SYSTEM
+// =================================================
+
+const BRAND = "#107A64";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+
+const softCard = {
+  bgcolor: "#ffffff",
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 3,
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
+// =================================================
 // MONEY FORMAT
 // =================================================
 
@@ -30,7 +49,7 @@ const formatAmount = (amount: number) => {
 // 2026-09 -> September 2026
 // =================================================
 
-const formatMonth = (month: string) => {
+const formatMonth = (month: string, locale: string) => {
   if (!/^\d{4}-\d{2}$/.test(month)) {
     return month;
   }
@@ -39,7 +58,7 @@ const formatMonth = (month: string) => {
 
   const date = new Date(Number(year), Number(monthNumber) - 1, 1);
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "long",
   }).format(date);
@@ -69,12 +88,52 @@ const getStatusColor = (
 };
 
 // =================================================
+// STATUS STYLE
+// =================================================
+
+const getStatusSx = (status: PerformanceHistoryStatus) => {
+  switch (status) {
+    case "Achieved":
+      return {
+        color: BRAND,
+        bgcolor: BRAND_SOFT,
+        borderColor: "rgba(16, 122, 100, 0.14)",
+      };
+
+    case "In Progress":
+      return {
+        color: "#B7791F",
+        bgcolor: "#FFFBEB",
+        borderColor: "rgba(183, 121, 31, 0.14)",
+      };
+
+    case "No Target":
+      return {
+        color: INK_MUTED,
+        bgcolor: "#F3F4F6",
+        borderColor: HAIRLINE,
+      };
+
+    case "Not Started":
+    default:
+      return {
+        color: INK_MUTED,
+        bgcolor: "#F9FAFB",
+        borderColor: HAIRLINE,
+      };
+  }
+};
+
+// =================================================
 // COMPONENT
 // =================================================
 
 export default function PerformanceHistory({
   staffId,
 }: PerformanceHistoryProps) {
+  const t = useTranslations("staffPerformanceHistory");
+  const locale = useLocale();
+
   const {
     history,
 
@@ -85,201 +144,638 @@ export default function PerformanceHistory({
     loadError,
   } = usePerformanceHistoryHook(staffId);
 
+  const performanceStatusLabel: Record<PerformanceHistoryStatus, string> = {
+    "No Target": t("status.noTarget"),
+    "Not Started": t("status.notStarted"),
+    "In Progress": t("status.inProgress"),
+    Achieved: t("status.achieved"),
+  };
+
   return (
-    <Box>
-      {/* HEADER */}
-
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          Performance History
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Monthly target and collection history for this staff member.
-        </Typography>
-      </Box>
-
-      {/* ERROR */}
-
-      {loadError && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {loadError}
-        </Alert>
-      )}
-
-      {/* LOADING */}
-
-      {isLoading ? (
-        <Box
-          sx={{
-            minHeight: 180,
-
-            display: "flex",
-
-            justifyContent: "center",
-
-            alignItems: "center",
-          }}
-        >
-          <CircularProgress size={30} />
-        </Box>
-      ) : history.length === 0 ? (
-        /* EMPTY */
+    <Box
+      sx={{
+        width: "100%",
+        bgcolor: "#F7F8F6",
+        minHeight: "100%",
+        py: {
+          xs: 2,
+          sm: 3,
+          md: 4,
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 1320,
+          mx: "auto",
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
+        }}
+      >
+        {/* HEADER */}
 
         <Box
           sx={{
-            border: "1px dashed",
-
-            borderColor: "divider",
-
-            borderRadius: 2,
-
-            py: 5,
-
-            px: 2,
-
-            textAlign: "center",
+            mb: {
+              xs: 2.5,
+              md: 3,
+            },
           }}
         >
-          <Typography variant="body2" color="text.secondary">
-            No performance history is available yet.
-          </Typography>
-        </Box>
-      ) : (
-        /* TABLE */
-
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-          sx={{
-            borderRadius: 2,
-          }}
-        >
-          <Table
+          <Typography
             sx={{
-              minWidth: 900,
+              color: INK,
+              fontSize: {
+                xs: 22,
+                sm: 24,
+              },
+              lineHeight: 1.3,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
             }}
           >
-            <TableHead>
-              <TableRow
+            {t("title")}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              mt: 0.6,
+              color: INK_MUTED,
+              fontSize: {
+                xs: 13.5,
+                sm: 14,
+              },
+              lineHeight: 1.6,
+            }}
+          >
+            {t("description")}
+          </Typography>
+        </Box>
+
+        {/* ERROR */}
+
+        {loadError && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2.5,
+              borderRadius: 2.5,
+              border: "1px solid rgba(220, 38, 38, 0.12)",
+              bgcolor: "#FEF2F2",
+              color: "#991B1B",
+              boxShadow: "none",
+
+              "& .MuiAlert-icon": {
+                color: "#DC2626",
+              },
+            }}
+          >
+            {loadError}
+          </Alert>
+        )}
+
+        {/* LOADING */}
+
+        {isLoading ? (
+          <Box
+            sx={{
+              ...softCard,
+
+              minHeight: 220,
+
+              display: "flex",
+
+              justifyContent: "center",
+
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress
+              size={30}
+              thickness={4}
+              sx={{
+                color: BRAND,
+              }}
+            />
+          </Box>
+        ) : history.length === 0 ? (
+          /* EMPTY */
+
+          <Box
+            sx={{
+              bgcolor: "#ffffff",
+
+              border: `1px dashed rgba(16, 122, 100, 0.25)`,
+
+              borderRadius: 3,
+
+              py: {
+                xs: 5,
+                sm: 6,
+              },
+
+              px: 2,
+
+              textAlign: "center",
+
+              boxShadow:
+                "0 1px 2px rgba(17,24,39,0.02), 0 12px 32px -26px rgba(17,24,39,0.22)",
+            }}
+          >
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                mx: "auto",
+                mb: 1.5,
+                borderRadius: 2.5,
+                bgcolor: BRAND_SOFT,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Box
                 sx={{
-                  bgcolor: "action.hover",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  bgcolor: BRAND,
                 }}
-              >
-                <TableCell>
-                  <strong>Month</strong>
-                </TableCell>
+              />
+            </Box>
 
-                <TableCell align="right">
-                  <strong>Target</strong>
-                </TableCell>
+            <Typography
+              variant="body2"
+              sx={{
+                color: INK_MUTED,
+                fontSize: 14,
+                lineHeight: 1.6,
+              }}
+            >
+              {t("empty")}
+            </Typography>
+          </Box>
+        ) : (
+          /* TABLE */
 
-                <TableCell align="right">
-                  <strong>Collected</strong>
-                </TableCell>
+          <TableContainer
+            component={Paper}
+            elevation={0}
+            sx={{
+              ...softCard,
 
-                <TableCell align="right">
-                  <strong>Remaining</strong>
-                </TableCell>
+              width: "100%",
 
-                <TableCell align="right">
-                  <strong>Achievement</strong>
-                </TableCell>
+              overflowX: "auto",
 
-                <TableCell align="center">
-                  <strong>Payments</strong>
-                </TableCell>
+              overflowY: "hidden",
 
-                <TableCell align="center">
-                  <strong>Clients</strong>
-                </TableCell>
+              WebkitOverflowScrolling: "touch",
 
-                <TableCell>
-                  <strong>Status</strong>
-                </TableCell>
-              </TableRow>
-            </TableHead>
+              "&::-webkit-scrollbar": {
+                height: 8,
+              },
 
-            <TableBody>
-              {history.map((item) => (
-                <TableRow key={item.month} hover>
-                  {/* MONTH */}
+              "&::-webkit-scrollbar-track": {
+                bgcolor: "transparent",
+              },
 
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {formatMonth(item.month)}
+              "&::-webkit-scrollbar-thumb": {
+                bgcolor: "rgba(17, 24, 39, 0.12)",
+                borderRadius: 999,
+              },
+
+              "&::-webkit-scrollbar-thumb:hover": {
+                bgcolor: "rgba(17, 24, 39, 0.20)",
+              },
+            }}
+          >
+            <Table
+              sx={{
+                minWidth: 900,
+
+                "& .MuiTableCell-root": {
+                  borderColor: HAIRLINE,
+                },
+              }}
+            >
+              <TableHead>
+                <TableRow
+                  sx={{
+                    bgcolor: "#F9FAFB",
+                  }}
+                >
+                  <TableCell
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.month")}
                     </Typography>
+                  </TableCell>
 
-                    <Typography variant="caption" color="text.secondary">
-                      {item.month}
+                  <TableCell
+                    align="right"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.target")}
                     </Typography>
                   </TableCell>
 
-                  {/* TARGET */}
-
-                  <TableCell align="right">
-                    ¥{formatAmount(item.targetAmount)}
-                  </TableCell>
-
-                  {/* COLLECTED */}
-
-                  <TableCell align="right">
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      ¥{formatAmount(item.totalCollected)}
+                  <TableCell
+                    align="right"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.collected")}
                     </Typography>
                   </TableCell>
 
-                  {/* REMAINING */}
-
-                  <TableCell align="right">
-                    ¥{formatAmount(item.remainingAmount)}
+                  <TableCell
+                    align="right"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.remaining")}
+                    </Typography>
                   </TableCell>
 
-                  {/* ACHIEVEMENT */}
-
-                  <TableCell align="right">
-                    {item.achievementPercentage.toLocaleString()}%
+                  <TableCell
+                    align="right"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.achievement")}
+                    </Typography>
                   </TableCell>
 
-                  {/* PAYMENTS */}
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.payments")}
+                    </Typography>
+                  </TableCell>
 
-                  <TableCell align="center">{item.paymentCount}</TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.clients")}
+                    </Typography>
+                  </TableCell>
 
-                  {/* CLIENTS */}
-
-                  <TableCell align="center">{item.clientCount}</TableCell>
-
-                  {/* STATUS */}
-
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={item.status}
-                      color={getStatusColor(item.status)}
-                    />
+                  <TableCell
+                    sx={{
+                      py: 1.65,
+                      px: 2.25,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {t("columns.status")}
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+              </TableHead>
 
-      {/* REFRESHING */}
+              <TableBody>
+                {history.map((item) => (
+                  <TableRow
+                    key={item.month}
+                    hover
+                    sx={{
+                      transition:
+                        "background-color 200ms ease, box-shadow 200ms ease",
 
-      {isFetching && !isLoading && (
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{
-            display: "block",
-            mt: 1,
-            textAlign: "right",
-          }}
-        >
-          Refreshing...
-        </Typography>
-      )}
+                      "&:last-of-type td": {
+                        borderBottom: 0,
+                      },
+
+                      "&.MuiTableRow-hover:hover": {
+                        bgcolor: BRAND_SOFT,
+                      },
+                    }}
+                  >
+                    {/* MONTH */}
+
+                    <TableCell
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: INK,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          lineHeight: 1.45,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {formatMonth(item.month, locale)}
+                      </Typography>
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          mt: 0.25,
+                          color: INK_MUTED,
+                          fontSize: 11.5,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {item.month}
+                      </Typography>
+                    </TableCell>
+
+                    {/* TARGET */}
+
+                    <TableCell
+                      align="right"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        color: INK,
+                        fontSize: 14,
+                        fontVariantNumeric: "tabular-nums",
+                        verticalAlign: "middle",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ¥{formatAmount(item.targetAmount)}
+                    </TableCell>
+
+                    {/* COLLECTED */}
+
+                    <TableCell
+                      align="right"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: BRAND,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        ¥{formatAmount(item.totalCollected)}
+                      </Typography>
+                    </TableCell>
+
+                    {/* REMAINING */}
+
+                    <TableCell
+                      align="right"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        color: INK,
+                        fontSize: 14,
+                        fontVariantNumeric: "tabular-nums",
+                        verticalAlign: "middle",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ¥{formatAmount(item.remainingAmount)}
+                    </TableCell>
+
+                    {/* ACHIEVEMENT */}
+
+                    <TableCell
+                      align="right"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        color: INK,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        fontVariantNumeric: "tabular-nums",
+                        verticalAlign: "middle",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {item.achievementPercentage.toLocaleString()}%
+                    </TableCell>
+
+                    {/* PAYMENTS */}
+
+                    <TableCell
+                      align="center"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        color: INK,
+                        fontSize: 14,
+                        fontVariantNumeric: "tabular-nums",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {item.paymentCount}
+                    </TableCell>
+
+                    {/* CLIENTS */}
+
+                    <TableCell
+                      align="center"
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        color: INK,
+                        fontSize: 14,
+                        fontVariantNumeric: "tabular-nums",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      {item.clientCount}
+                    </TableCell>
+
+                    {/* STATUS */}
+
+                    <TableCell
+                      sx={{
+                        py: 1.8,
+                        px: 2.25,
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <Chip
+                        size="small"
+                        label={performanceStatusLabel[item.status]}
+                        color={getStatusColor(item.status)}
+                        variant="outlined"
+                        sx={{
+                          ...getStatusSx(item.status),
+
+                          height: 26,
+
+                          borderRadius: 999,
+
+                          fontSize: 11.5,
+
+                          fontWeight: 600,
+
+                          transition:
+                            "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
+
+                          "& .MuiChip-label": {
+                            px: 1.25,
+                          },
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+
+        {/* REFRESHING */}
+
+        {isFetching && !isLoading && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              gap: 0.75,
+              mt: 1.25,
+            }}
+          >
+            <Box
+              sx={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                bgcolor: BRAND,
+              }}
+            />
+
+            <Typography
+              variant="caption"
+              sx={{
+                color: INK_MUTED,
+                fontSize: 11.5,
+                fontWeight: 500,
+              }}
+            >
+              {t("refreshing")}
+            </Typography>
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 }

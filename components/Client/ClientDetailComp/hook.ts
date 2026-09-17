@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -9,6 +10,8 @@ import { api } from "@/lib/axios";
 import type { ClientDetailResponse } from "./type";
 
 export const useClientDetailHook = () => {
+  const t = useTranslations("clientDetail");
+
   const router = useRouter();
 
   const params = useParams<{
@@ -58,9 +61,9 @@ export const useClientDetailHook = () => {
 
   if (isError) {
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || "Failed to load client.";
+      errorMessage = error.response?.data?.message || t("messages.loadFailed");
     } else {
-      errorMessage = "Failed to load client.";
+      errorMessage = t("messages.loadFailed");
     }
   }
 

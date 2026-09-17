@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
 
-import { paymentSchema } from "./validation";
+import { createPaymentSchema } from "./validation";
 
 import type {
   CreatePaymentResponse,
@@ -59,11 +60,29 @@ const getDefaultValues = (): PaymentFormValues => ({
 });
 
 export const usePaymentsHook = (clientId: string) => {
+  const t = useTranslations("clientPayments");
+
   const queryClient = useQueryClient();
 
   const [serverError, setServerError] = useState("");
 
   const [successMessage, setSuccessMessage] = useState("");
+
+  const schema = useMemo(
+    () =>
+      createPaymentSchema({
+        feeRequired: t("validation.feeRequired"),
+        amountRequired: t("validation.amountRequired"),
+        amountPositive: t("validation.amountPositive"),
+        paymentMethodRequired: t("validation.paymentMethodRequired"),
+        paymentDateRequired: t("validation.paymentDateRequired"),
+        referenceNumberMax: t("validation.referenceNumberMax"),
+        receiptNumberMax: t("validation.receiptNumberMax"),
+        bankNameMax: t("validation.bankNameMax"),
+        noteMax: t("validation.noteMax"),
+      }),
+    [t],
+  );
 
   const {
     control,
@@ -76,7 +95,7 @@ export const usePaymentsHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<PaymentFormValues>({
-    resolver: zodResolver(paymentSchema),
+    resolver: zodResolver(schema),
 
     defaultValues: getDefaultValues(),
   });
@@ -221,13 +240,13 @@ export const usePaymentsHook = (clientId: string) => {
       const fee = fees.find((item) => item._id === values.feeId);
 
       if (!fee) {
-        setServerError("Please select a valid fee.");
+        setServerError(t("messages.selectValidFee"));
 
         return;
       }
 
       if (fee.status !== "Active") {
-        setServerError("This fee is no longer active.");
+        setServerError(t("messages.feeInactive"));
 
         return;
       }
@@ -236,9 +255,11 @@ export const usePaymentsHook = (clientId: string) => {
 
       if (amount > fee.outstandingAmount) {
         setServerError(
-          `Amount cannot exceed the outstanding balance of ¥${new Intl.NumberFormat(
-            "ja-JP",
-          ).format(fee.outstandingAmount)}.`,
+          t("messages.amountExceeds", {
+            amount: new Intl.NumberFormat("ja-JP").format(
+              fee.outstandingAmount,
+            ),
+          }),
         );
 
         return;
@@ -248,8 +269,8 @@ export const usePaymentsHook = (clientId: string) => {
 
       setSuccessMessage(
         response.summary?.outstanding === 0
-          ? "Payment recorded successfully. This fee is now fully paid."
-          : response.message || "Payment recorded successfully.",
+          ? t("messages.recordedFullyPaid")
+          : response.message || t("messages.recorded"),
       );
 
       reset(getDefaultValues());
@@ -258,13 +279,13 @@ export const usePaymentsHook = (clientId: string) => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to record payment.",
+          error.response?.data?.message || t("messages.recordFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to record payment.");
+      setServerError(t("messages.recordFailed"));
     }
   };
 
@@ -277,14 +298,14 @@ export const usePaymentsHook = (clientId: string) => {
   if (isPaymentsError) {
     if (axios.isAxiosError(paymentsError)) {
       loadError =
-        paymentsError.response?.data?.message || "Failed to load payments.";
+        paymentsError.response?.data?.message || t("messages.loadFailed");
     } else {
-      loadError = "Failed to load payments.";
+      loadError = t("messages.loadFailed");
     }
   }
 
   if (!loadError && isFeesError) {
-    loadError = "Failed to load client fees.";
+    loadError = t("messages.loadFeesFailed");
   }
 
   return {

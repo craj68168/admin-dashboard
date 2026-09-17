@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import axios from "axios";
 
@@ -15,12 +16,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import { editClientSchema } from "./validation";
+import { createEditClientSchema } from "./validation";
 
 import type {
   ClientDetailsResponse,
   EditClientFormValues,
-  StaffListResponse,
   StaffOption,
 } from "./type";
 
@@ -55,6 +55,8 @@ const appendValue = (formData: FormData, key: string, value: string) => {
 };
 
 export const useEditClientHook = () => {
+  const t = useTranslations("editClient");
+
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -80,7 +82,19 @@ export const useEditClientHook = () => {
 
     formState: { errors, isSubmitting },
   } = useForm<EditClientFormValues>({
-    resolver: zodResolver(editClientSchema),
+    resolver: zodResolver(
+      createEditClientSchema({
+        emailInvalid: t("validation.emailInvalid"),
+        invalidFile: t("validation.invalidFile"),
+        fullNameRequired: t("validation.fullNameRequired"),
+        fullNameMin: t("validation.fullNameMin"),
+        phoneRequired: t("validation.phoneRequired"),
+        phoneMin: t("validation.phoneMin"),
+        phoneMax: t("validation.phoneMax"),
+        visaTypeRequired: t("validation.visaTypeRequired"),
+        assignedStaffRequired: t("validation.assignedStaffRequired"),
+      }),
+    ),
 
     defaultValues: {
       fullName: "",
@@ -338,7 +352,7 @@ export const useEditClientHook = () => {
       setServerError("");
 
       if (!clientId) {
-        setServerError("Client ID is missing.");
+        setServerError(t("messages.clientIdMissing"));
 
         return;
       }
@@ -479,13 +493,13 @@ export const useEditClientHook = () => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to update client.",
+          error.response?.data?.message || t("messages.updateFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to update client.");
+      setServerError(t("messages.updateFailed"));
     }
   };
 
@@ -514,13 +528,13 @@ export const useEditClientHook = () => {
   let loadError = "";
 
   if (!clientId) {
-    loadError = "Client ID is missing.";
+    loadError = t("messages.clientIdMissing");
   } else if (isClientError) {
     if (axios.isAxiosError(clientError)) {
       loadError =
-        clientError.response?.data?.message || "Failed to load client.";
+        clientError.response?.data?.message || t("messages.loadFailed");
     } else {
-      loadError = "Failed to load client.";
+      loadError = t("messages.loadFailed");
     }
   }
 

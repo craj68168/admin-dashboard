@@ -1,19 +1,114 @@
 "use client";
 
-import Breadcrumb from "@/components/Breadcrumb";
-import { useStaffAddHook } from "./hook";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { StaffAddFormValues, staffAddSchema, STAFF_LOCATIONS } from "./types";
+
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import PersonAddAlt1OutlinedIcon from "@mui/icons-material/PersonAddAlt1Outlined";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useStaffAddHook } from "./hook";
+import {
+  StaffAddFormValues,
+  createStaffAddSchema,
+  STAFF_LOCATIONS,
+} from "./types";
+
+// =================================================
+// THEME TOKENS (matches dashboards / sidebar / staff list)
+// =================================================
+
+const BRAND = "#107A64";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+
+const softCard = {
+  borderRadius: 3,
+
+  border: "1px solid",
+
+  borderColor: HAIRLINE,
+
+  bgcolor: "#ffffff",
+
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
+const fieldLabelSx = {
+  display: "block",
+
+  mb: 0.75,
+
+  fontSize: 13,
+
+  fontWeight: 600,
+
+  color: INK,
+};
+
+const fieldInputSx = {
+  height: 44,
+
+  borderRadius: 2,
+
+  bgcolor: "#ffffff",
+
+  fontSize: 14,
+
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(17, 24, 39, 0.12)",
+  },
+
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(16, 122, 100, 0.4)",
+  },
+
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: BRAND,
+
+    borderWidth: 1,
+  },
+
+  "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#DC2626",
+  },
+};
+
+const fieldErrorSx = {
+  mt: 0.5,
+
+  fontSize: 12,
+
+  color: "#DC2626",
+};
 
 export default function AddStaff() {
+  const t = useTranslations("addStaff");
   const { mutate, isPending } = useStaffAddHook();
+  const staffAddSchema = useMemo(
+    () =>
+      createStaffAddSchema({
+        nameRequired: t("validation.nameRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        locationRequired: t("validation.locationRequired"),
+        phoneRequired: t("validation.phoneRequired"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+      }),
+    [t],
+  );
 
   const {
     register,
@@ -35,78 +130,130 @@ export default function AddStaff() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-slate-50">
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Breadcrumb
-            items={[
-              { label: "Dashboard", href: "/admin/dashboard" },
-              { label: "Staff", href: "/admin/staff" },
-              { label: "Add Staff", current: true },
-            ]}
-          />
-        </div>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#F7F8F6" }}>
+      <Box
+        component="main"
+        sx={{
+          maxWidth: 900,
+
+          mx: "auto",
+
+          px: { xs: 2, sm: 3, md: 4 },
+
+          py: { xs: 3, md: 4 },
+        }}
+      >
+        {/* BACK LINK */}
 
         <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
+          component="a"
+          href="/admin/staff"
           sx={{
-            width: "calc(100% - 20px)",
-            m: "10px",
-            p: { xs: 2.5, sm: 4 },
-            border: "1px solid #e2e8f0",
-            borderRadius: "16px",
-            backgroundColor: "#fff",
-            boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
+            display: "inline-flex",
+
+            alignItems: "center",
+
+            gap: 0.75,
+
+            mb: 2.5,
+
+            fontSize: 13,
+
+            fontWeight: 600,
+
+            color: INK_MUTED,
+
+            textDecoration: "none",
+
+            transition: "color 200ms ease",
+
+            "&:hover": {
+              color: BRAND,
+            },
           }}
         >
-          <Typography
-            component="h1"
-            sx={{
-              mb: 0.75,
-              fontSize: { xs: "1.35rem", sm: "1.5rem" },
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
-            Add staff member
-          </Typography>
+          <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
+          {t("backToStaff")}
+        </Box>
 
-          <Typography
-            sx={{
-              mb: 3,
-              fontSize: "14px",
-              color: "#64748b",
-            }}
-          >
-            Create an account and assign the staff member&apos;s location.
-          </Typography>
+        {/* HEADER */}
 
+        <Box
+          sx={{
+            display: "flex",
+
+            alignItems: "center",
+
+            gap: 2,
+
+            mb: 3,
+          }}
+        >
           <Box
             sx={{
               display: "grid",
+
+              placeItems: "center",
+
+              flexShrink: 0,
+
+              width: 48,
+
+              height: 48,
+
+              borderRadius: 2.5,
+
+              bgcolor: "rgba(16, 122, 100, 0.08)",
+
+              color: BRAND,
+            }}
+          >
+            <PersonAddAlt1OutlinedIcon fontSize="small" />
+          </Box>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: { xs: 22, md: 26 },
+                fontWeight: 600,
+                letterSpacing: -0.4,
+                color: INK,
+              }}
+            >
+              {t("title")}
+            </Typography>
+
+            <Typography sx={{ mt: 0.5, fontSize: 14, color: INK_MUTED }}>
+              {t("description")}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* FORM CARD */}
+
+        <Paper
+          elevation={0}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={{ ...softCard, p: { xs: 2.5, sm: 4 } }}
+        >
+          <Box
+            sx={{
+              display: "grid",
+
               gridTemplateColumns: {
                 xs: "1fr",
                 md: "repeat(2, minmax(0, 1fr))",
               },
+
               gap: { xs: 2, sm: 2.5 },
             }}
           >
             {/* Name */}
             <Box>
-              <Typography
-                component="label"
-                htmlFor="name"
-                sx={{
-                  display: "block",
-                  mb: 0.75,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
-              >
-                Name
+              <Typography component="label" htmlFor="name" sx={fieldLabelSx}>
+                {t("fields.name.label")}
               </Typography>
 
               <OutlinedInput
@@ -116,27 +263,14 @@ export default function AddStaff() {
                 fullWidth
                 autoComplete="name"
                 autoFocus
-                placeholder="Enter staff name"
+                placeholder={t("fields.name.placeholder")}
                 error={Boolean(errors.name)}
                 aria-invalid={Boolean(errors.name)}
-                sx={{
-                  height: "40px",
-                  backgroundColor: {
-                    xs: "#EDEDED",
-                    sm: "#fff",
-                  },
-                }}
+                sx={fieldInputSx}
               />
 
               {errors.name?.message && (
-                <Typography
-                  role="alert"
-                  sx={{
-                    mt: 0.5,
-                    fontSize: "12px",
-                    color: "error.main",
-                  }}
-                >
+                <Typography role="alert" sx={fieldErrorSx}>
                   {errors.name.message}
                 </Typography>
               )}
@@ -144,18 +278,8 @@ export default function AddStaff() {
 
             {/* Phone */}
             <Box>
-              <Typography
-                component="label"
-                htmlFor="phone"
-                sx={{
-                  display: "block",
-                  mb: 0.75,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
-              >
-                Phone
+              <Typography component="label" htmlFor="phone" sx={fieldLabelSx}>
+                {t("fields.phone.label")}
               </Typography>
 
               <OutlinedInput
@@ -164,27 +288,14 @@ export default function AddStaff() {
                 type="tel"
                 fullWidth
                 autoComplete="tel"
-                placeholder="Enter phone number"
+                placeholder={t("fields.phone.placeholder")}
                 error={Boolean(errors.phone)}
                 aria-invalid={Boolean(errors.phone)}
-                sx={{
-                  height: "40px",
-                  backgroundColor: {
-                    xs: "#EDEDED",
-                    sm: "#fff",
-                  },
-                }}
+                sx={fieldInputSx}
               />
 
               {errors.phone?.message && (
-                <Typography
-                  role="alert"
-                  sx={{
-                    mt: 0.5,
-                    fontSize: "12px",
-                    color: "error.main",
-                  }}
-                >
+                <Typography role="alert" sx={fieldErrorSx}>
                   {errors.phone.message}
                 </Typography>
               )}
@@ -195,15 +306,9 @@ export default function AddStaff() {
               <Typography
                 component="label"
                 htmlFor="location"
-                sx={{
-                  display: "block",
-                  mb: 0.75,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
+                sx={fieldLabelSx}
               >
-                Location
+                {t("fields.location.label")}
               </Typography>
 
               <Select
@@ -214,33 +319,21 @@ export default function AddStaff() {
                 displayEmpty
                 error={Boolean(errors.location)}
                 aria-invalid={Boolean(errors.location)}
-                sx={{
-                  height: "40px",
-                  backgroundColor: {
-                    xs: "#EDEDED",
-                    sm: "#fff",
-                  },
-                }}
+                sx={fieldInputSx}
               >
                 <MenuItem value="" disabled>
-                  Select location
+                  {t("fields.location.placeholder")}
                 </MenuItem>
+
                 {STAFF_LOCATIONS.map((loc) => (
                   <MenuItem key={loc} value={loc}>
-                    {loc}
+                    {t(`locations.${loc}`)}
                   </MenuItem>
                 ))}
               </Select>
 
               {errors.location?.message && (
-                <Typography
-                  role="alert"
-                  sx={{
-                    mt: 0.5,
-                    fontSize: "12px",
-                    color: "error.main",
-                  }}
-                >
+                <Typography role="alert" sx={fieldErrorSx}>
                   {errors.location.message}
                 </Typography>
               )}
@@ -248,18 +341,8 @@ export default function AddStaff() {
 
             {/* Email */}
             <Box>
-              <Typography
-                component="label"
-                htmlFor="email"
-                sx={{
-                  display: "block",
-                  mb: 0.75,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
-              >
-                Email
+              <Typography component="label" htmlFor="email" sx={fieldLabelSx}>
+                {t("fields.email.label")}
               </Typography>
 
               <OutlinedInput
@@ -268,27 +351,14 @@ export default function AddStaff() {
                 type="email"
                 fullWidth
                 autoComplete="email"
-                placeholder="yamada@example.com"
+                placeholder={t("fields.email.placeholder")}
                 error={Boolean(errors.email)}
                 aria-invalid={Boolean(errors.email)}
-                sx={{
-                  height: "40px",
-                  backgroundColor: {
-                    xs: "#EDEDED",
-                    sm: "#fff",
-                  },
-                }}
+                sx={fieldInputSx}
               />
 
               {errors.email?.message && (
-                <Typography
-                  role="alert"
-                  sx={{
-                    mt: 0.5,
-                    fontSize: "12px",
-                    color: "error.main",
-                  }}
-                >
+                <Typography role="alert" sx={fieldErrorSx}>
                   {errors.email.message}
                 </Typography>
               )}
@@ -299,15 +369,9 @@ export default function AddStaff() {
               <Typography
                 component="label"
                 htmlFor="password"
-                sx={{
-                  display: "block",
-                  mb: 0.75,
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#333",
-                }}
+                sx={fieldLabelSx}
               >
-                Password
+                {t("fields.password.label")}
               </Typography>
 
               <OutlinedInput
@@ -316,27 +380,14 @@ export default function AddStaff() {
                 type="password"
                 fullWidth
                 autoComplete="new-password"
-                placeholder="Enter password"
+                placeholder={t("fields.password.placeholder")}
                 error={Boolean(errors.password)}
                 aria-invalid={Boolean(errors.password)}
-                sx={{
-                  height: "40px",
-                  backgroundColor: {
-                    xs: "#EDEDED",
-                    sm: "#fff",
-                  },
-                }}
+                sx={fieldInputSx}
               />
 
               {errors.password?.message && (
-                <Typography
-                  role="alert"
-                  sx={{
-                    mt: 0.5,
-                    fontSize: "12px",
-                    color: "error.main",
-                  }}
-                >
+                <Typography role="alert" sx={fieldErrorSx}>
                   {errors.password.message}
                 </Typography>
               )}
@@ -346,26 +397,59 @@ export default function AddStaff() {
             <Box
               sx={{
                 display: "flex",
+
                 justifyContent: "flex-end",
+
                 gridColumn: { xs: "auto", md: "1 / -1" },
+
+                mt: 1,
+
+                pt: 2,
+
+                borderTop: `1px solid ${HAIRLINE}`,
               }}
             >
               <Button
                 type="submit"
                 variant="contained"
+                disableElevation
                 disabled={isPending}
                 sx={{
-                  mt: 1,
-                  mb: 2,
-                  height: "45px",
+                  height: 44,
+
+                  px: 3.5,
+
+                  borderRadius: 2.5,
+
+                  textTransform: "none",
+
+                  fontWeight: 600,
+
+                  fontSize: 14,
+
+                  bgcolor: BRAND,
+
+                  boxShadow: "none",
+
+                  "&:hover": {
+                    bgcolor: "#0C5F4F",
+
+                    boxShadow: "none",
+                  },
+
+                  "&.Mui-disabled": {
+                    bgcolor: "rgba(16, 122, 100, 0.35)",
+
+                    color: "#ffffff",
+                  },
                 }}
               >
-                {isPending ? "Saving..." : "Save"}
+                {isPending ? t("saving") : t("save")}
               </Button>
             </Box>
           </Box>
-        </Box>
-      </main>
-    </div>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

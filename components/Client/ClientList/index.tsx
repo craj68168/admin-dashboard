@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -21,6 +22,25 @@ import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
 import { useClientHook } from "./hook";
 import { useRouter } from "next/navigation";
 
+// =================================================
+// DESIGN SYSTEM
+// =================================================
+
+const BRAND = "#107A64";
+const BRAND_HOVER = "#0C5F4F";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+
+const softCard = {
+  bgcolor: "#ffffff",
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 3,
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
 type DeleteDialogState = {
   open: boolean;
   clientId: string;
@@ -29,6 +49,8 @@ type DeleteDialogState = {
 
 const ClientListPage = () => {
   const router = useRouter();
+  const t = useTranslations("clientList");
+
   const {
     role,
 
@@ -78,7 +100,7 @@ const ClientListPage = () => {
   const columns: GridColDef[] = [
     {
       field: "clientId",
-      headerName: "ID",
+      headerName: t("columns.id"),
       flex: 0.7,
       minWidth: 140,
       resizable: false,
@@ -87,7 +109,7 @@ const ClientListPage = () => {
 
     {
       field: "fullName",
-      headerName: "Full Name",
+      headerName: t("columns.fullName"),
       flex: 1.2,
       minWidth: 180,
       resizable: false,
@@ -96,7 +118,7 @@ const ClientListPage = () => {
 
     {
       field: "phone",
-      headerName: "Phone",
+      headerName: t("columns.phone"),
       flex: 1,
       minWidth: 150,
       resizable: false,
@@ -105,7 +127,7 @@ const ClientListPage = () => {
 
     {
       field: "visaType",
-      headerName: "Visa Type",
+      headerName: t("columns.visaType"),
       flex: 0.9,
       minWidth: 140,
       resizable: false,
@@ -114,18 +136,19 @@ const ClientListPage = () => {
 
     {
       field: "currentStage",
-      headerName: "Progress",
+      headerName: t("columns.progress"),
       flex: 1.3,
       minWidth: 230,
       resizable: false,
       disableColumnMenu: true,
 
-      valueGetter: (_value, row) => row.currentStage ?? "Registration Pending",
+      valueGetter: (_value, row) =>
+        row.currentStage ?? t("registrationPending"),
     },
 
     {
       field: "assignedStaff",
-      headerName: "Assigned To",
+      headerName: t("columns.assignedTo"),
       flex: 1.1,
       minWidth: 180,
       resizable: false,
@@ -138,7 +161,7 @@ const ClientListPage = () => {
 
     {
       field: "actions",
-      headerName: "Action",
+      headerName: t("columns.action"),
       width: role === "superadmin" ? 150 : 110,
       resizable: false,
       disableColumnMenu: true,
@@ -151,17 +174,36 @@ const ClientListPage = () => {
             sx={{
               display: "flex",
               alignItems: "center",
+              gap: 0.25,
+              height: "100%",
             }}
           >
             {/* VIEW */}
-            <Tooltip title="View client">
+
+            <Tooltip title={t("actions.view")}>
               <IconButton
-                aria-label="View client"
+                aria-label={t("actions.view")}
                 onClick={() =>
                   router.push(
                     `/admin/client/${encodeURIComponent(row.clientId)}`,
                   )
                 }
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 2,
+                  color: BRAND,
+
+                  transition: "background-color 200ms ease, color 200ms ease",
+
+                  "&:hover": {
+                    bgcolor: BRAND_SOFT,
+                  },
+
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 19,
+                  },
+                }}
               >
                 <RemoveRedEyeIcon />
               </IconButton>
@@ -172,12 +214,30 @@ const ClientListPage = () => {
                 Staff → own client
                 Backend already protects this
             */}
-            <Tooltip title="Edit client">
+
+            <Tooltip title={t("actions.edit")}>
               <IconButton
-                aria-label="Edit client"
+                aria-label={t("actions.edit")}
                 onClick={() =>
                   router.push(`/admin/client/edit?clientId=${row.clientId}`)
                 }
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 2,
+                  color: INK_MUTED,
+
+                  transition: "background-color 200ms ease, color 200ms ease",
+
+                  "&:hover": {
+                    bgcolor: BRAND_SOFT,
+                    color: BRAND,
+                  },
+
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 19,
+                  },
+                }}
               >
                 <EditOutlinedIcon />
               </IconButton>
@@ -186,11 +246,12 @@ const ClientListPage = () => {
             {/* DELETE
                 Super Admin only
             */}
+
             {role === "superadmin" && (
-              <Tooltip title="Delete client">
+              <Tooltip title={t("actions.delete")}>
                 <span>
                   <IconButton
-                    aria-label="Delete client"
+                    aria-label={t("actions.delete")}
                     disabled={isDeleting}
                     onClick={() =>
                       setDeleteDialog({
@@ -198,9 +259,30 @@ const ClientListPage = () => {
 
                         clientId: row.clientId,
 
-                        clientName: row.fullName || "this client",
+                        clientName: row.fullName || t("thisClient"),
                       })
                     }
+                    sx={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: 2,
+                      color: "#DC2626",
+
+                      transition:
+                        "background-color 200ms ease, color 200ms ease",
+
+                      "&:hover": {
+                        bgcolor: "#FEF2F2",
+                      },
+
+                      "&.Mui-disabled": {
+                        color: "rgba(220, 38, 38, 0.35)",
+                      },
+
+                      "& .MuiSvgIcon-root": {
+                        fontSize: 19,
+                      },
+                    }}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -218,95 +300,329 @@ const ClientListPage = () => {
       <Box
         sx={{
           minHeight: "100vh",
-          bgcolor: "#f3f4f6",
-          px: 4,
-          pb: 4,
+          bgcolor: "#F7F8F6",
+
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
+
+          pb: {
+            xs: 3,
+            md: 4,
+          },
         }}
       >
-        {/* =================================================
-            BREADCRUMB
-        ================================================= */}
-
-        <Box sx={{ mb: 3 }}>
-          <Breadcrumb
-            items={[
-              {
-                label: "Dashboard",
-                href: "/admin/dashboard",
-              },
-              {
-                label: "Clients",
-                current: true,
-              },
-            ]}
-          />
-        </Box>
-
-        {/* =================================================
-            ADD CLIENT
-        ================================================= */}
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            mb: 3,
-          }}
-        >
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateClient}
-          >
-            Add Client
-          </Button>
-        </Box>
-
-        {/* =================================================
-            CLIENT TABLE
-        ================================================= */}
-
         <Box
           sx={{
             width: "100%",
-            bgcolor: "white",
-            borderRadius: 2,
-            overflow: "hidden",
+            maxWidth: 1320,
+            mx: "auto",
           }}
         >
-          <DataGrid
-            rows={clientData?.data || []}
-            columns={columns}
-            getRowId={(row) => row.clientId}
-            loading={isClientLoading}
-            disableColumnMenu
-            disableRowSelectionOnClick
-            hideFooter
-            autoHeight
-            slots={{
-              noRowsOverlay: NoDataOverlay,
-            }}
+          {/* =================================================
+              BREADCRUMB
+          ================================================= */}
+
+          <Box
             sx={{
-              border: 0,
-
-              "& .MuiDataGrid-columnHeaders": {
-                bgcolor: "primary.main",
-                color: "white",
-              },
-
-              "& .MuiDataGrid-cell:focus": {
-                outline: "none",
-              },
-
-              "& .MuiDataGrid-cell:focus-within": {
-                outline: "none",
-              },
-
-              "& .MuiDataGrid-row:nth-of-type(even)": {
-                bgcolor: "grey.50",
+              mb: {
+                xs: 2.5,
+                md: 3,
               },
             }}
-          />
+          >
+            <Breadcrumb
+              items={[
+                {
+                  label: t("breadcrumbs.dashboard"),
+                  href: "/admin/dashboard",
+                },
+                {
+                  label: t("breadcrumbs.clients"),
+                  current: true,
+                },
+              ]}
+            />
+          </Box>
+
+          {/* =================================================
+              ADD CLIENT
+          ================================================= */}
+
+          <Box
+            sx={{
+              display: "flex",
+
+              justifyContent: {
+                xs: "stretch",
+                sm: "flex-end",
+              },
+
+              mb: {
+                xs: 2.5,
+                md: 3,
+              },
+            }}
+          >
+            <Button
+              variant="contained"
+              disableElevation
+              startIcon={<AddIcon />}
+              onClick={handleCreateClient}
+              sx={{
+                width: {
+                  xs: "100%",
+                  sm: "auto",
+                },
+
+                minHeight: 42,
+
+                px: 2.25,
+
+                bgcolor: BRAND,
+
+                color: "#ffffff",
+
+                borderRadius: 2.5,
+
+                fontSize: 14,
+
+                fontWeight: 600,
+
+                textTransform: "none",
+
+                boxShadow: "none",
+
+                transition:
+                  "background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease",
+
+                "&:hover": {
+                  bgcolor: BRAND_HOVER,
+                  boxShadow: "none",
+                },
+
+                "&:focus-visible": {
+                  outline: `3px solid ${BRAND_SOFT}`,
+                  outlineOffset: 2,
+                },
+
+                "& .MuiButton-startIcon": {
+                  "& .MuiSvgIcon-root": {
+                    fontSize: 19,
+                  },
+                },
+              }}
+            >
+              {t("addClient")}
+            </Button>
+          </Box>
+
+          {/* =================================================
+              CLIENT TABLE
+          ================================================= */}
+
+          <Box
+            sx={{
+              ...softCard,
+
+              width: "100%",
+
+              overflow: "hidden",
+            }}
+          >
+            <DataGrid
+              rows={clientData?.data || []}
+              columns={columns}
+              getRowId={(row) => row.clientId}
+              loading={isClientLoading}
+              disableColumnMenu
+              disableRowSelectionOnClick
+              hideFooter
+              autoHeight
+              slots={{
+                noRowsOverlay: NoDataOverlay,
+              }}
+              sx={{
+                border: 0,
+
+                bgcolor: "#ffffff",
+
+                color: INK,
+
+                fontSize: 14,
+
+                // =============================================
+                // COLUMN HEADERS
+                // =============================================
+
+                "& .MuiDataGrid-columnHeaders": {
+                  bgcolor: "#F9FAFB",
+                  borderBottom: `1px solid ${HAIRLINE}`,
+                },
+
+                "& .MuiDataGrid-columnHeader": {
+                  bgcolor: "#F9FAFB",
+
+                  "&:focus, &:focus-within": {
+                    outline: "none",
+                  },
+                },
+
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  color: INK_MUTED,
+
+                  fontSize: 11,
+
+                  lineHeight: 1.2,
+
+                  fontWeight: 600,
+
+                  textTransform: "uppercase",
+
+                  letterSpacing: "0.08em",
+                },
+
+                "& .MuiDataGrid-columnSeparator": {
+                  display: "none",
+                },
+
+                // =============================================
+                // ROWS
+                // =============================================
+
+                "& .MuiDataGrid-row": {
+                  minHeight: "58px !important",
+
+                  maxHeight: "58px !important",
+
+                  borderBottom: `1px solid ${HAIRLINE}`,
+
+                  bgcolor: "#ffffff",
+
+                  transition: "background-color 200ms ease",
+
+                  "&:last-of-type": {
+                    borderBottom: 0,
+                  },
+
+                  "&:hover": {
+                    bgcolor: `${BRAND_SOFT} !important`,
+                  },
+
+                  "&.Mui-selected": {
+                    bgcolor: `${BRAND_SOFT} !important`,
+
+                    "&:hover": {
+                      bgcolor: `${BRAND_SOFT} !important`,
+                    },
+                  },
+                },
+
+                // =============================================
+                // CELLS
+                // =============================================
+
+                "& .MuiDataGrid-cell": {
+                  display: "flex",
+
+                  alignItems: "center",
+
+                  color: INK,
+
+                  borderBottom: 0,
+
+                  py: 0,
+
+                  "&:focus, &:focus-within": {
+                    outline: "none",
+                  },
+                },
+
+                // Make name slightly stronger without changing data
+                '& .MuiDataGrid-cell[data-field="fullName"]': {
+                  fontWeight: 600,
+                },
+
+                // Muted secondary/supporting columns
+                '& .MuiDataGrid-cell[data-field="clientId"], & .MuiDataGrid-cell[data-field="phone"], & .MuiDataGrid-cell[data-field="visaType"]':
+                  {
+                    color: INK_MUTED,
+                  },
+
+                // Progress gets subtle brand emphasis
+                '& .MuiDataGrid-cell[data-field="currentStage"]': {
+                  color: BRAND,
+
+                  fontWeight: 600,
+                },
+
+                // =============================================
+                // ACTION COLUMN
+                // =============================================
+
+                '& .MuiDataGrid-cell[data-field="actions"]': {
+                  bgcolor: "#ffffff",
+
+                  transition: "background-color 200ms ease",
+                },
+
+                '& .MuiDataGrid-row:hover .MuiDataGrid-cell[data-field="actions"]':
+                  {
+                    bgcolor: "#F3F8F6",
+                  },
+
+                // =============================================
+                // LOADING
+                // =============================================
+
+                "& .MuiDataGrid-overlay": {
+                  bgcolor: "rgba(255, 255, 255, 0.88)",
+                },
+
+                "& .MuiCircularProgress-root": {
+                  color: BRAND,
+                },
+
+                // =============================================
+                // SCROLLBAR
+                // =============================================
+
+                "& .MuiDataGrid-virtualScroller": {
+                  "&::-webkit-scrollbar": {
+                    width: 8,
+                    height: 8,
+                  },
+
+                  "&::-webkit-scrollbar-track": {
+                    bgcolor: "transparent",
+                  },
+
+                  "&::-webkit-scrollbar-thumb": {
+                    bgcolor: "rgba(17, 24, 39, 0.12)",
+                    borderRadius: 999,
+                  },
+
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    bgcolor: "rgba(17, 24, 39, 0.20)",
+                  },
+                },
+
+                // =============================================
+                // CHECKBOX / FOCUS / SELECTION CLEANUP
+                // =============================================
+
+                "& .MuiDataGrid-cellCheckbox": {
+                  color: BRAND,
+                },
+
+                "& .MuiDataGrid-columnHeaderCheckbox": {
+                  color: BRAND,
+                },
+              }}
+            />
+          </Box>
         </Box>
       </Box>
 
@@ -316,22 +632,22 @@ const ClientListPage = () => {
 
       <ConfirmActionDialog
         open={deleteDialog.open}
-        title="Delete Client"
+        title={t("deleteDialog.title")}
         description={
           <>
-            Are you sure you want to delete{" "}
+            {t("deleteDialog.descriptionPrefix")}{" "}
             <strong>{deleteDialog.clientName}</strong>?
             <div
               style={{
                 marginTop: 12,
               }}
             >
-              This action cannot be undone.
+              {t("deleteDialog.warning")}
             </div>
           </>
         }
-        confirmText="Yes, Delete"
-        cancelText="No"
+        confirmText={t("deleteDialog.confirm")}
+        cancelText={t("deleteDialog.cancel")}
         confirmColor="error"
         isLoading={isDeleting}
         onConfirm={handleConfirmDelete}

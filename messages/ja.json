@@ -1,0 +1,1055 @@
+{
+  "staffDashboard": {
+    "dashboard": "ダッシュボード",
+    "welcome": "ようこそ、{name}さん",
+    "description": "担当顧客、入金状況、月間実績を確認できます。",
+    "performanceMonth": "実績対象月",
+    "assignedClients": "担当顧客数",
+    "currentlyAssigned": "現在の担当顧客",
+    "collectedThisMonth": "今月の入金額",
+    "paymentsFromClients": "{clients}名の顧客から{payments}件の入金",
+    "outstandingClientFees": "未収顧客料金",
+    "feesOutstanding": "未収料金 {count}件",
+    "monthlyTarget": "月間目標",
+    "achieved": "達成率 {percentage}%",
+    "status": {
+      "noTarget": "目標なし",
+      "notStarted": "未開始",
+      "inProgress": "進行中",
+      "achieved": "達成"
+    },
+    "monthlyPerformance": "月間実績",
+    "target": "目標",
+    "collected": "入金額",
+    "remaining": "残額",
+    "achievement": "達成率",
+    "refreshing": "更新中...",
+    "clientFeeFollowUp": "顧客料金フォローアップ",
+    "totalExpected": "入金予定総額",
+    "paid": "支払済み",
+    "outstanding": "未払い",
+    "myClientProgress": "担当顧客の進捗",
+    "noAssignedClients": "担当顧客はいません。",
+    "myRecentClients": "最近の担当顧客",
+    "client": "顧客",
+    "name": "氏名",
+    "visa": "在留資格",
+    "currentStage": "現在のステージ",
+    "myRecentCollections": "最近の入金",
+    "collectionsDescription": "実績に反映された入金です。",
+    "fee": "料金",
+    "amount": "金額",
+    "method": "支払方法",
+    "stage": "ステージ",
+    "date": "日付",
+    "noCollections": "入金履歴はまだありません。"
+  },
+  "adminDashboard": {
+    "dashboard": "ダッシュボード",
+    "title": "管理者ダッシュボード",
+    "description": "採用、入金、スタッフ実績の概要を確認できます。",
+    "performanceMonth": "実績対象月",
+    "totalClients": "総顧客数",
+    "payingClientsThisMonth": "今月の支払顧客 {count}名",
+    "activeStaff": "稼働中スタッフ",
+    "totalStaff": "スタッフ総数 {count}名",
+    "collectedThisMonth": "今月の入金額",
+    "payments": "入金 {count}件",
+    "outstandingFees": "未収料金",
+    "expectedAmount": "予定額 ¥{amount}",
+    "monthlyCollectionTarget": "月間入金目標",
+    "totalTarget": "目標総額",
+    "target": "目標",
+    "collected": "入金額",
+    "remaining": "残額",
+    "achievement": "達成率",
+    "refreshingDashboard": "ダッシュボードを更新中...",
+    "staffRanking": "スタッフランキング",
+    "staffRankingDescription": "月間入金額順のランキングです。",
+    "rank": "順位",
+    "staff": "スタッフ",
+    "paymentsHeader": "入金件数",
+    "clients": "顧客数",
+    "statusHeader": "ステータス",
+    "clientProgress": "顧客進捗",
+    "noClientData": "顧客データはまだありません。",
+    "recentPayments": "最近の入金",
+    "client": "顧客",
+    "fee": "料金",
+    "amount": "金額",
+    "date": "日付",
+    "noPayments": "入金はまだありません。",
+    "status": {
+      "noTarget": "目標なし",
+      "notStarted": "未開始",
+      "inProgress": "進行中",
+      "achieved": "達成"
+    }
+  },
+  "sidebar": {
+    "goToDashboard": "ダッシュボードへ移動",
+    "logoAlt": "Fortune Link ロゴ",
+    "toggleSidebar": "サイドバーを切り替え",
+    "workspace": "ワークスペース",
+    "logout": "ログアウト",
+    "signOut": "サインアウト",
+    "items": {
+      "Dashboard": "ダッシュボード",
+      "Staff": "スタッフ",
+      "Clients": "顧客"
+    }
+  },
+  "staffList": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "staff": "スタッフ"
+    },
+    "title": "スタッフ",
+    "description": "スタッフアカウント、アクセス権、ステータスを管理します。",
+    "addStaff": "スタッフを追加",
+    "thisStaffMember": "このスタッフ",
+    "columns": {
+      "id": "ID",
+      "fullName": "氏名",
+      "email": "メール",
+      "location": "所在地",
+      "createdAt": "作成日",
+      "action": "操作"
+    },
+    "actions": {
+      "viewClients": "担当顧客を表示",
+      "viewDetails": "スタッフ詳細を表示",
+      "edit": "スタッフを編集",
+      "disable": "スタッフを無効化",
+      "activate": "スタッフを有効化"
+    },
+    "confirmStatus": {
+      "disableTitle": "スタッフを無効化",
+      "activateTitle": "スタッフを有効化",
+      "descriptionPrefix": "次のスタッフを",
+      "disableVerb": "無効化",
+      "activateVerb": "有効化",
+      "disableWarning": "アカウントが無効の間、このスタッフはログインできません。",
+      "disableConfirm": "はい、無効化",
+      "activateConfirm": "はい、有効化",
+      "cancel": "いいえ"
+    }
+  },
+  "addStaff": {
+    "backToStaff": "スタッフ一覧へ戻る",
+    "title": "スタッフを追加",
+    "description": "アカウントを作成し、スタッフの所在地を設定します。",
+    "save": "保存",
+    "saving": "保存中...",
+    "fields": {
+      "name": {
+        "label": "氏名",
+        "placeholder": "スタッフ名を入力"
+      },
+      "phone": {
+        "label": "電話番号",
+        "placeholder": "電話番号を入力"
+      },
+      "location": {
+        "label": "所在地",
+        "placeholder": "所在地を選択"
+      },
+      "email": {
+        "label": "メール",
+        "placeholder": "yamada@example.com"
+      },
+      "password": {
+        "label": "パスワード",
+        "placeholder": "パスワードを入力"
+      }
+    },
+    "locations": {
+      "USA": "アメリカ",
+      "Japan": "日本",
+      "Nepal": "ネパール",
+      "Other": "その他"
+    },
+    "validation": {
+      "nameRequired": "氏名は必須です",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "locationRequired": "所在地は必須です",
+      "phoneRequired": "電話番号は必須です",
+      "passwordRequired": "パスワードは必須です",
+      "passwordMin": "パスワードは6文字以上で入力してください"
+    }
+  },
+  "editStaff": {
+    "backToStaff": "スタッフ一覧へ戻る",
+    "title": "スタッフを編集",
+    "description": "スタッフのアカウント情報を更新します。",
+    "loading": "スタッフ詳細を読み込み中...",
+    "notFound": "スタッフが見つかりませんでした。",
+    "saveChanges": "変更を保存",
+    "saving": "保存中...",
+    "updateError": "スタッフを更新できませんでした。",
+    "fields": {
+      "name": {
+        "label": "氏名",
+        "placeholder": "スタッフ名を入力"
+      },
+      "phone": {
+        "label": "電話番号",
+        "placeholder": "電話番号を入力"
+      },
+      "email": {
+        "label": "メール",
+        "placeholder": "yamada@example.com"
+      },
+      "location": {
+        "label": "所在地",
+        "placeholder": "所在地を選択"
+      }
+    },
+    "locations": {
+      "USA": "アメリカ",
+      "Japan": "日本",
+      "Nepal": "ネパール",
+      "Other": "その他"
+    },
+    "validation": {
+      "nameRequired": "氏名は必須です",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "locationRequired": "所在地は必須です",
+      "phoneRequired": "電話番号は必須です"
+    }
+  },
+  "staffDetails": {
+    "backToStaff": "スタッフ一覧へ戻る",
+    "loading": "スタッフ詳細を読み込み中...",
+    "notFound": "スタッフが見つかりませんでした。",
+    "staffMember": "スタッフ",
+    "staffId": "スタッフID: {id}",
+    "notAvailable": "該当なし",
+    "status": {
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "details": {
+      "email": "メール",
+      "phone": "電話番号",
+      "location": "所在地",
+      "role": "権限",
+      "assignedClients": "担当顧客数",
+      "createdAt": "作成日"
+    }
+  },
+  "staffPerformance": {
+    "title": "入金実績",
+    "description": "このスタッフの月間入金実績を確認できます。",
+    "month": "月",
+    "monthlyProgress": "月間進捗",
+    "payments": "入金件数",
+    "clients": "顧客数",
+    "refreshing": "更新中...",
+    "updateTarget": "目標を更新",
+    "setMonthlyTarget": "月間目標を設定",
+    "setTarget": "目標を設定",
+    "targetMonth": "対象月: {month}",
+    "saving": "保存中...",
+    "summary": {
+      "target": "目標",
+      "collected": "入金額",
+      "remaining": "残額",
+      "achievement": "達成率"
+    },
+    "form": {
+      "targetAmount": "目標金額",
+      "targetAmountPlaceholder": "1000000",
+      "note": "メモ",
+      "notePlaceholder": "任意の目標メモ..."
+    },
+    "status": {
+      "noTarget": "目標なし",
+      "notStarted": "未開始",
+      "inProgress": "進行中",
+      "achieved": "達成"
+    },
+    "validation": {
+      "targetAmountRequired": "目標金額は必須です",
+      "targetAmountPositive": "目標金額は0より大きい値を入力してください",
+      "noteMax": "メモは2000文字以内で入力してください"
+    },
+    "messages": {
+      "targetUpdated": "スタッフ目標を更新しました。",
+      "targetCreated": "スタッフ目標を作成しました。",
+      "saveFailed": "スタッフ目標を保存できませんでした。",
+      "loadFailed": "スタッフ実績を読み込めませんでした。"
+    }
+  },
+  "staffPerformanceHistory": {
+    "title": "実績履歴",
+    "description": "このスタッフの月間目標と入金履歴を確認できます。",
+    "empty": "実績履歴はまだありません。",
+    "refreshing": "更新中...",
+    "loadFailed": "実績履歴を読み込めませんでした。",
+    "columns": {
+      "month": "月",
+      "target": "目標",
+      "collected": "入金額",
+      "remaining": "残額",
+      "achievement": "達成率",
+      "payments": "入金件数",
+      "clients": "顧客数",
+      "status": "ステータス"
+    },
+    "status": {
+      "noTarget": "目標なし",
+      "notStarted": "未開始",
+      "inProgress": "進行中",
+      "achieved": "達成"
+    }
+  },
+  "staffClients": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "staff": "スタッフ",
+      "clients": "顧客"
+    },
+    "thisClient": "この顧客",
+    "columns": {
+      "id": "ID",
+      "fullName": "氏名",
+      "status": "ステータス",
+      "phone": "電話番号",
+      "visaType": "ビザ種別",
+      "createdAt": "作成日",
+      "action": "操作"
+    },
+    "actions": {
+      "view": "顧客を表示",
+      "edit": "顧客を編集",
+      "delete": "顧客を削除"
+    },
+    "deleteDialog": {
+      "title": "顧客を削除",
+      "descriptionPrefix": "次の顧客を削除してもよろしいですか",
+      "warning": "この操作は元に戻せません。",
+      "confirm": "はい、削除",
+      "cancel": "いいえ"
+    }
+  },
+  "clientList": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "clients": "顧客"
+    },
+    "addClient": "顧客を追加",
+    "registrationPending": "登録待ち",
+    "thisClient": "この顧客",
+    "columns": {
+      "id": "ID",
+      "fullName": "氏名",
+      "phone": "電話番号",
+      "visaType": "ビザ種別",
+      "progress": "進捗",
+      "assignedTo": "担当者",
+      "action": "操作"
+    },
+    "actions": {
+      "view": "顧客を表示",
+      "edit": "顧客を編集",
+      "delete": "顧客を削除"
+    },
+    "deleteDialog": {
+      "title": "顧客を削除",
+      "descriptionPrefix": "次の顧客を削除してもよろしいですか",
+      "warning": "この操作は元に戻せません。",
+      "confirm": "はい、削除",
+      "cancel": "いいえ"
+    }
+  },
+  "createClient": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "clients": "顧客",
+      "createClient": "顧客を作成"
+    },
+    "title": "顧客を作成",
+    "description": "顧客情報を入力し、担当スタッフを割り当てます。",
+    "create": "顧客を作成",
+    "creating": "作成中...",
+    "cancel": "キャンセル",
+    "sections": {
+      "basic": {
+        "title": "基本情報",
+        "description": "必須の顧客情報と担当者設定です。"
+      },
+      "personal": {
+        "title": "個人情報",
+        "description": "個人情報と連絡先情報です。"
+      },
+      "passport": {
+        "title": "パスポート・在留情報",
+        "description": "パスポートと在留に関する情報です。"
+      },
+      "education": {
+        "title": "学歴・日本語",
+        "description": "学歴と日本語能力に関する情報です。"
+      },
+      "employment": {
+        "title": "就労情報",
+        "description": "就労先や希望職種に関する情報です。"
+      },
+      "sponsor": {
+        "title": "スポンサー",
+        "description": "該当する場合のスポンサー情報です。"
+      },
+      "visa": {
+        "title": "ビザ情報",
+        "description": "追加のビザ情報です。"
+      },
+      "documents": {
+        "title": "書類",
+        "description": "顧客画像と履歴書があればアップロードします。"
+      }
+    },
+    "fields": {
+      "fullName": {
+        "label": "氏名",
+        "placeholder": "氏名を入力"
+      },
+      "phone": {
+        "label": "電話番号",
+        "placeholder": "電話番号を入力"
+      },
+      "visaType": {
+        "label": "ビザ種別",
+        "placeholder": "ビザ種別を選択"
+      },
+      "assignedStaff": {
+        "label": "担当スタッフ",
+        "placeholder": "スタッフを選択",
+        "autoHelper": "この顧客は自動的にあなたへ割り当てられます。"
+      },
+      "coeStatus": {
+        "label": "COEステータス"
+      },
+      "clientStatus": {
+        "label": "顧客ステータス"
+      },
+      "dateOfBirth": {
+        "label": "生年月日"
+      },
+      "gender": {
+        "label": "性別",
+        "placeholder": "性別を入力"
+      },
+      "email": {
+        "label": "メール",
+        "placeholder": "メールを入力"
+      },
+      "nationality": {
+        "label": "国籍",
+        "placeholder": "国籍を入力"
+      },
+      "address": {
+        "label": "住所",
+        "placeholder": "住所を入力"
+      },
+      "passportNumber": {
+        "label": "パスポート番号",
+        "placeholder": "パスポート番号を入力"
+      },
+      "passportExpiryDate": {
+        "label": "パスポート有効期限"
+      },
+      "statusOfResidence": {
+        "label": "在留資格",
+        "placeholder": "在留資格を入力"
+      },
+      "lastQualification": {
+        "label": "最終学歴",
+        "placeholder": "例: 学士"
+      },
+      "japaneseLanguageLevel": {
+        "label": "日本語レベル",
+        "placeholder": "例: N3"
+      },
+      "schoolName": {
+        "label": "学校名",
+        "placeholder": "学校名を入力"
+      },
+      "course": {
+        "label": "コース",
+        "placeholder": "コースを入力"
+      },
+      "intake": {
+        "label": "入学時期",
+        "placeholder": "例: 2027年4月"
+      },
+      "jobCategory": {
+        "label": "職種カテゴリ",
+        "placeholder": "職種カテゴリを入力"
+      },
+      "jobTitle": {
+        "label": "職種名",
+        "placeholder": "職種名を入力"
+      },
+      "companyName": {
+        "label": "会社名",
+        "placeholder": "会社名を入力"
+      },
+      "workLocation": {
+        "label": "勤務地",
+        "placeholder": "勤務地を入力"
+      },
+      "sponsorName": {
+        "label": "スポンサー名",
+        "placeholder": "スポンサー名を入力"
+      },
+      "sponsorRelationship": {
+        "label": "スポンサーとの関係",
+        "placeholder": "関係を入力"
+      },
+      "sponsorStatusOfResidence": {
+        "label": "スポンサーの在留資格",
+        "placeholder": "スポンサーの在留資格を入力"
+      },
+      "visaStatus": {
+        "label": "ビザステータス",
+        "placeholder": "ビザステータスを入力"
+      },
+      "clientImage": {
+        "upload": "顧客画像をアップロード"
+      },
+      "cv": {
+        "upload": "履歴書をアップロード"
+      }
+    },
+    "visaTypes": {
+      "Student": "留学",
+      "Working": "就労",
+      "Dependent": "家族滞在"
+    },
+    "coeStatuses": {
+      "Not Applied": "未申請",
+      "Applied": "申請済み",
+      "Processing": "処理中",
+      "Received": "受領済み",
+      "Rejected": "却下"
+    },
+    "clientStatuses": {
+      "New": "新規",
+      "Document Collection": "書類収集中",
+      "Processing": "処理中",
+      "COE Applied": "COE申請済み",
+      "COE Received": "COE受領済み",
+      "Visa Applied": "ビザ申請済み",
+      "Visa Approved": "ビザ承認",
+      "Visa Rejected": "ビザ却下",
+      "Departed": "出国済み",
+      "Arrived in Japan": "日本到着"
+    },
+    "validation": {
+      "fullNameRequired": "氏名は必須です",
+      "phoneRequired": "電話番号は必須です",
+      "visaTypeRequired": "ビザ種別は必須です"
+    },
+    "messages": {
+      "createFailed": "顧客を作成できませんでした。"
+    }
+  },
+  "editClient": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "clients": "顧客",
+      "editClient": "顧客を編集"
+    },
+    "title": "顧客を編集",
+    "clientIdLabel": "顧客ID:",
+    "inactive": "無効",
+    "currentFile": "現在:",
+    "saveChanges": "変更を保存",
+    "saving": "保存中...",
+    "cancel": "キャンセル",
+    "sections": {
+      "basic": {
+        "title": "基本情報",
+        "description": "顧客情報、ステータス、担当スタッフを管理します。"
+      },
+      "personal": {
+        "title": "個人情報",
+        "description": "個人情報と連絡先情報です。"
+      },
+      "passport": {
+        "title": "パスポート・在留情報",
+        "description": "パスポートと在留に関する情報です。"
+      },
+      "education": {
+        "title": "学歴・日本語"
+      },
+      "employment": {
+        "title": "就労情報"
+      },
+      "sponsor": {
+        "title": "スポンサー"
+      },
+      "visa": {
+        "title": "ビザ情報"
+      },
+      "documents": {
+        "title": "書類",
+        "description": "新しいファイルを選択すると、現在アップロード済みのファイルが置き換えられます。"
+      }
+    },
+    "fields": {
+      "fullName": {
+        "label": "氏名"
+      },
+      "phone": {
+        "label": "電話番号"
+      },
+      "visaType": {
+        "label": "ビザ種別",
+        "placeholder": "ビザ種別を選択"
+      },
+      "assignedStaff": {
+        "label": "担当スタッフ",
+        "placeholder": "スタッフを選択",
+        "readOnlyHelper": "スタッフの割り当ては変更できません。"
+      },
+      "coeStatus": {
+        "label": "COEステータス"
+      },
+      "clientStatus": {
+        "label": "顧客ステータス"
+      },
+      "dateOfBirth": {
+        "label": "生年月日"
+      },
+      "gender": {
+        "label": "性別"
+      },
+      "email": {
+        "label": "メール"
+      },
+      "nationality": {
+        "label": "国籍"
+      },
+      "address": {
+        "label": "住所"
+      },
+      "passportNumber": {
+        "label": "パスポート番号"
+      },
+      "passportExpiryDate": {
+        "label": "パスポート有効期限"
+      },
+      "statusOfResidence": {
+        "label": "在留資格"
+      },
+      "lastQualification": {
+        "label": "最終学歴"
+      },
+      "japaneseLanguageLevel": {
+        "label": "日本語レベル"
+      },
+      "schoolName": {
+        "label": "学校名"
+      },
+      "course": {
+        "label": "コース"
+      },
+      "intake": {
+        "label": "入学時期"
+      },
+      "jobCategory": {
+        "label": "職種カテゴリ"
+      },
+      "jobTitle": {
+        "label": "職種名"
+      },
+      "companyName": {
+        "label": "会社名"
+      },
+      "workLocation": {
+        "label": "勤務地"
+      },
+      "sponsorName": {
+        "label": "スポンサー名"
+      },
+      "sponsorRelationship": {
+        "label": "スポンサーとの関係"
+      },
+      "sponsorStatusOfResidence": {
+        "label": "スポンサーの在留資格"
+      },
+      "visaStatus": {
+        "label": "ビザステータス"
+      },
+      "clientImage": {
+        "replace": "顧客画像を置き換え"
+      },
+      "cv": {
+        "replace": "履歴書を置き換え"
+      }
+    },
+    "visaTypes": {
+      "Student": "留学",
+      "Working": "就労",
+      "Dependent": "家族滞在"
+    },
+    "coeStatuses": {
+      "Not Applied": "未申請",
+      "Applied": "申請済み",
+      "Processing": "処理中",
+      "Received": "受領済み",
+      "Rejected": "却下"
+    },
+    "clientStatuses": {
+      "New": "新規",
+      "Document Collection": "書類収集中",
+      "Processing": "処理中",
+      "COE Applied": "COE申請済み",
+      "COE Received": "COE受領済み",
+      "Visa Applied": "ビザ申請済み",
+      "Visa Approved": "ビザ承認",
+      "Visa Rejected": "ビザ却下",
+      "Departed": "出国済み",
+      "Arrived in Japan": "日本到着"
+    },
+    "validation": {
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "invalidFile": "無効なファイルです",
+      "fullNameRequired": "氏名は必須です",
+      "fullNameMin": "氏名は2文字以上で入力してください",
+      "phoneRequired": "電話番号は必須です",
+      "phoneMin": "電話番号は7文字以上で入力してください",
+      "phoneMax": "電話番号は20文字以内で入力してください",
+      "visaTypeRequired": "ビザ種別は必須です",
+      "assignedStaffRequired": "担当スタッフは必須です"
+    },
+    "messages": {
+      "notFound": "顧客が見つかりませんでした。",
+      "clientIdMissing": "顧客IDがありません。",
+      "loadFailed": "顧客を読み込めませんでした。",
+      "updateFailed": "顧客を更新できませんでした。"
+    }
+  },
+  "clientDetail": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "clients": "顧客"
+    },
+    "clientIdLabel": "顧客ID:",
+    "back": "戻る",
+    "sections": {
+      "basic": "基本情報",
+      "personal": "個人情報",
+      "passport": "パスポート・在留情報",
+      "education": "学歴・日本語",
+      "employment": "就労情報",
+      "sponsor": "スポンサー",
+      "visa": "ビザ情報",
+      "documents": "書類"
+    },
+    "fields": {
+      "clientId": "顧客ID",
+      "fullName": "氏名",
+      "phone": "電話番号",
+      "visaType": "ビザ種別",
+      "clientStatus": "顧客ステータス",
+      "coeStatus": "COEステータス",
+      "assignedStaff": "担当スタッフ",
+      "createdAt": "作成日",
+      "lastUpdated": "最終更新日",
+      "dateOfBirth": "生年月日",
+      "gender": "性別",
+      "email": "メール",
+      "nationality": "国籍",
+      "address": "住所",
+      "passportNumber": "パスポート番号",
+      "passportExpiryDate": "パスポート有効期限",
+      "statusOfResidence": "在留資格",
+      "lastQualification": "最終学歴",
+      "japaneseLanguageLevel": "日本語レベル",
+      "schoolName": "学校名",
+      "course": "コース",
+      "intake": "入学時期",
+      "jobCategory": "職種カテゴリ",
+      "jobTitle": "職種名",
+      "companyName": "会社名",
+      "workLocation": "勤務地",
+      "sponsorName": "スポンサー名",
+      "sponsorRelationship": "スポンサーとの関係",
+      "sponsorStatusOfResidence": "スポンサーの在留資格",
+      "visaStatus": "ビザステータス",
+      "clientImage": "顧客画像",
+      "cv": "履歴書"
+    },
+    "documents": {
+      "uploaded": "アップロード済み",
+      "notUploaded": "未アップロード"
+    },
+    "visaTypes": {
+      "Student": "留学",
+      "Working": "就労",
+      "Dependent": "家族滞在"
+    },
+    "coeStatuses": {
+      "Not Applied": "未申請",
+      "Applied": "申請済み",
+      "Processing": "処理中",
+      "Received": "受領済み",
+      "Rejected": "却下"
+    },
+    "clientStatuses": {
+      "New": "新規",
+      "Document Collection": "書類収集中",
+      "Processing": "処理中",
+      "COE Applied": "COE申請済み",
+      "COE Received": "COE受領済み",
+      "Visa Applied": "ビザ申請済み",
+      "Visa Approved": "ビザ承認",
+      "Visa Rejected": "ビザ却下",
+      "Departed": "出国済み",
+      "Arrived in Japan": "日本到着"
+    },
+    "messages": {
+      "notFound": "顧客が見つかりませんでした。",
+      "loadFailed": "顧客を読み込めませんでした。"
+    }
+  },
+  "clientFees": {
+    "title": "顧客料金",
+    "description": "必要な料金、支払い、未払い残高を管理します。",
+    "feeRequirements": "料金項目",
+    "empty": "料金項目はまだ作成されていません。",
+    "due": "期日: {date}",
+    "createdBy": "作成者",
+    "summary": {
+      "totalExpected": "予定総額",
+      "totalPaid": "支払総額",
+      "outstanding": "未払い",
+      "expected": "予定額",
+      "paid": "支払済み"
+    },
+    "form": {
+      "addTitle": "料金を追加",
+      "editTitle": "料金を編集",
+      "feeName": "料金名",
+      "expectedAmount": "予定金額",
+      "dueDate": "期日",
+      "note": "メモ"
+    },
+    "actions": {
+      "edit": "編集",
+      "cancel": "キャンセル",
+      "cancelEdit": "編集をキャンセル",
+      "saving": "保存中...",
+      "addFee": "料金を追加",
+      "updateFee": "料金を更新"
+    },
+    "dialog": {
+      "title": "料金をキャンセル",
+      "description": "「{feeName}」をキャンセルしてもよろしいですか？この料金は財務履歴に残ります。",
+      "confirm": "料金をキャンセル",
+      "keep": "料金を保持"
+    },
+    "statuses": {
+      "Active": "有効",
+      "Cancelled": "キャンセル済み"
+    },
+    "paymentStatuses": {
+      "Unpaid": "未払い",
+      "Partial": "一部支払い",
+      "Paid": "支払済み",
+      "Cancelled": "キャンセル済み"
+    },
+    "validation": {
+      "feeNameRequired": "料金名は必須です",
+      "feeNameMax": "料金名は150文字以内で入力してください",
+      "expectedAmountRequired": "予定金額は必須です",
+      "expectedAmountPositive": "予定金額は0より大きい必要があります",
+      "noteMax": "メモは3000文字以内で入力してください"
+    },
+    "messages": {
+      "created": "料金を作成しました。",
+      "updated": "料金を更新しました。",
+      "cancelled": "料金をキャンセルしました。",
+      "saveFailed": "料金を保存できませんでした。",
+      "cancelFailed": "料金をキャンセルできませんでした。",
+      "loadFailed": "顧客料金を読み込めませんでした。"
+    }
+  },
+  "clientPayments": {
+    "title": "支払い",
+    "description": "支払い回収履歴と分割支払いを管理します。",
+    "totalPayments": "支払総額",
+    "history": "支払い履歴",
+    "empty": "支払いはまだ記録されていません。",
+    "feeExpected": "予定料金: ¥{amount}",
+    "noAvailableFees": "未払い残高のある有効な料金はありません。",
+    "fields": {
+      "date": "日付",
+      "method": "方法",
+      "creditedStaff": "担当スタッフ",
+      "recordedBy": "記録者",
+      "stageAtPayment": "支払い時のステージ",
+      "reference": "参照番号",
+      "receipt": "領収書番号",
+      "bank": "銀行"
+    },
+    "summary": {
+      "expected": "予定額",
+      "alreadyPaid": "支払済み",
+      "outstanding": "未払い",
+      "status": "ステータス"
+    },
+    "form": {
+      "title": "支払いを追加",
+      "fee": "料金",
+      "selectFee": "料金を選択",
+      "feeOption": "{feeName} - 未払い ¥{amount}",
+      "amountPaying": "支払金額",
+      "paymentMethod": "支払い方法",
+      "selectPaymentMethod": "支払い方法を選択",
+      "paymentDate": "支払日",
+      "referenceNumber": "参照番号",
+      "receiptNumber": "領収書番号",
+      "bankName": "銀行名",
+      "note": "メモ"
+    },
+    "actions": {
+      "saving": "保存中...",
+      "savePayment": "支払いを保存"
+    },
+    "statuses": {
+      "Completed": "完了",
+      "Cancelled": "キャンセル済み",
+      "Refunded": "返金済み"
+    },
+    "paymentStatuses": {
+      "Unpaid": "未払い",
+      "Partial": "一部支払い",
+      "Paid": "支払済み",
+      "Cancelled": "キャンセル済み"
+    },
+    "methods": {
+      "Cash": "現金",
+      "Bank Transfer": "銀行振込",
+      "Online Payment": "オンライン決済",
+      "Cheque": "小切手",
+      "Other": "その他"
+    },
+    "validation": {
+      "feeRequired": "料金を選択してください",
+      "amountRequired": "金額は必須です",
+      "amountPositive": "金額は0より大きい必要があります",
+      "paymentMethodRequired": "支払い方法は必須です",
+      "paymentDateRequired": "支払日は必須です",
+      "referenceNumberMax": "参照番号が長すぎます",
+      "receiptNumberMax": "領収書番号が長すぎます",
+      "bankNameMax": "銀行名が長すぎます",
+      "noteMax": "メモは3000文字以内で入力してください"
+    },
+    "messages": {
+      "selectValidFee": "有効な料金を選択してください。",
+      "feeInactive": "この料金は有効ではありません。",
+      "amountExceeds": "金額は未払い残高 ¥{amount} を超えることはできません。",
+      "recorded": "支払いを記録しました。",
+      "recordedFullyPaid": "支払いを記録しました。この料金は全額支払い済みになりました。",
+      "recordFailed": "支払いを記録できませんでした。",
+      "loadFailed": "支払いを読み込めませんでした。",
+      "loadFeesFailed": "顧客料金を読み込めませんでした。"
+    },
+    "stages": {
+      "Registration Pending": "登録待ち",
+      "Registered / Vacancy Searching": "登録済み / 求人検索中",
+      "Interview Fixed / Preparation": "面接確定 / 準備中",
+      "Interview Failed": "面接不合格",
+      "Naitei / Job Offer Received": "内定 / オファー受領",
+      "Visa Documents Submitted": "ビザ書類提出済み",
+      "Visa Applied / Result Waiting": "ビザ申請済み / 結果待ち",
+      "Visa Approved": "ビザ承認",
+      "Visa Rejected": "ビザ却下",
+      "Waiting for Nyusha / Company Joining": "入社待ち",
+      "Return to Nepal": "ネパールへ帰国"
+    }
+  },
+  "clientProgress": {
+    "title": "進捗",
+    "description": "顧客の採用およびビザ進捗履歴です。",
+    "history": "ステージ履歴",
+    "empty": "ステージ変更はまだ記録されていません。",
+    "currentStage": "現在のステージ",
+    "admin": "管理者",
+    "form": {
+      "changeStage": "ステージ変更",
+      "selectStage": "ステージを選択",
+      "note": "メモ",
+      "notePlaceholder": "任意の進捗メモ..."
+    },
+    "actions": {
+      "updating": "更新中...",
+      "updateStage": "ステージを更新"
+    },
+    "stages": {
+      "Registration Pending": "登録待ち",
+      "Registered / Vacancy Searching": "登録済み / 求人検索中",
+      "Interview Fixed / Preparation": "面接確定 / 準備中",
+      "Interview Failed": "面接不合格",
+      "Naitei / Job Offer Received": "内定 / オファー受領",
+      "Visa Documents Submitted": "ビザ書類提出済み",
+      "Visa Applied / Result Waiting": "ビザ申請済み / 結果待ち",
+      "Visa Approved": "ビザ承認",
+      "Visa Rejected": "ビザ却下",
+      "Waiting for Nyusha / Company Joining": "入社待ち",
+      "Return to Nepal": "ネパールへ帰国"
+    },
+    "validation": {
+      "stageRequired": "ステージを選択してください",
+      "noteMax": "メモは2000文字以内で入力してください"
+    },
+    "messages": {
+      "selectDifferentStage": "別のステージを選択してください。",
+      "updateFailed": "顧客ステージを更新できませんでした。",
+      "loadFailed": "顧客進捗を読み込めませんでした。"
+    }
+  },
+  "clientRemarks": {
+    "title": "備考",
+    "description": "この顧客との連絡およびフォローアップ履歴です。",
+    "history": "備考履歴",
+    "empty": "備考はまだ追加されていません。",
+    "admin": "管理者",
+    "form": {
+      "title": "新規備考",
+      "date": "日付",
+      "staff": "スタッフ",
+      "staffHelper": "ログイン中のアカウントから自動記録されます。",
+      "medium": "連絡手段",
+      "selectMedium": "連絡手段を選択",
+      "memo": "メモ",
+      "memoPlaceholder": "会話内容またはフォローアップ詳細を入力..."
+    },
+    "actions": {
+      "saving": "保存中...",
+      "save": "保存"
+    },
+    "mediums": {
+      "Phone Call": "電話",
+      "Meeting": "面談",
+      "WhatsApp": "WhatsApp",
+      "Email": "メール",
+      "Company Visit": "会社訪問",
+      "LINE": "LINE",
+      "Other": "その他"
+    },
+    "validation": {
+      "dateRequired": "日付は必須です",
+      "mediumRequired": "連絡手段は必須です",
+      "memoRequired": "メモは必須です",
+      "memoMax": "メモは5000文字以内で入力してください"
+    },
+    "messages": {
+      "saveFailed": "備考を保存できませんでした。",
+      "loadFailed": "備考を読み込めませんでした。"
+    }
+  }
+}

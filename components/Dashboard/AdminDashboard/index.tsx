@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-
+import { useTranslations } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -28,6 +28,80 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { useAdminDashboard } from "./hook";
 
 import type { DashboardPerformanceStatus } from "./type";
+
+// =================================================
+// THEME TOKENS
+// =================================================
+
+const BRAND = "#107A64";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+
+// MUI's default text.secondary (rgba(0,0,0,0.6)) reads washed out
+// on the off-white background, so we use explicit, darker tokens.
+const INK = "#111827"; // headings, values, primary cells
+const INK_BODY = "#1F2937"; // regular table body text
+const INK_MUTED = "#4B5563"; // labels, captions, secondary cells
+
+const softCard = {
+  p: { xs: 2.5, md: 3 },
+
+  borderRadius: 3,
+
+  border: "1px solid",
+
+  borderColor: HAIRLINE,
+
+  bgcolor: "#ffffff",
+
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
+const labelSx = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: INK_MUTED,
+  letterSpacing: 0.2,
+};
+
+const valueSx = {
+  mt: 0.75,
+  fontSize: 20,
+  fontWeight: 600,
+  color: INK,
+  lineHeight: 1.25,
+};
+
+const headCellSx = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: 0.6,
+  textTransform: "uppercase",
+  color: INK_MUTED,
+  borderBottomColor: HAIRLINE,
+  py: 1.5,
+  whiteSpace: "nowrap",
+};
+
+const bodyCellSx = {
+  fontSize: 14,
+  color: INK_BODY,
+  borderBottomColor: "rgba(17, 24, 39, 0.05)",
+  py: 1.75,
+};
+
+const rowSx = {
+  transition: "background-color 200ms ease",
+
+  "&:hover": {
+    bgcolor: "rgba(16, 122, 100, 0.04)",
+  },
+
+  "&:last-of-type td": {
+    borderBottom: 0,
+  },
+};
 
 // =================================================
 // MONEY
@@ -97,13 +171,20 @@ type SummaryCardProps = {
 function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
   return (
     <Paper
-      variant="outlined"
+      elevation={0}
       sx={{
-        p: 2.5,
-
-        borderRadius: 2,
+        ...softCard,
 
         height: "100%",
+
+        transition: "transform 400ms ease, box-shadow 400ms ease",
+
+        "&:hover": {
+          transform: "translateY(-2px)",
+
+          boxShadow:
+            "0 1px 2px rgba(17,24,39,0.04), 0 18px 40px -24px rgba(17,24,39,0.38)",
+        },
       }}
     >
       <Box
@@ -117,23 +198,17 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
           gap: 2,
         }}
       >
-        <Box>
-          <Typography variant="body2" color="text.secondary">
-            {label}
-          </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={labelSx}>{label}</Typography>
 
-          <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.75 }}>
-            {value}
-          </Typography>
+          <Typography sx={valueSx}>{value}</Typography>
 
           {subtitle && (
             <Typography
-              variant="caption"
-              color="text.secondary"
               sx={{
-                display: "block",
-
-                mt: 0.75,
+                mt: 0.5,
+                fontSize: 12,
+                color: INK_MUTED,
               }}
             >
               {subtitle}
@@ -143,7 +218,21 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
 
         <Box
           sx={{
-            color: "text.secondary",
+            display: "grid",
+
+            placeItems: "center",
+
+            flexShrink: 0,
+
+            width: 42,
+
+            height: 42,
+
+            borderRadius: 2.5,
+
+            bgcolor: BRAND_SOFT,
+
+            color: BRAND,
           }}
         >
           {icon}
@@ -154,11 +243,45 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
 }
 
 // =================================================
+// STAT
+// =================================================
+
+type StatProps = {
+  label: string;
+
+  value: string;
+
+  color?: string;
+};
+
+function Stat({ label, value, color }: StatProps) {
+  return (
+    <Box sx={{ flex: "1 1 160px", minWidth: 140 }}>
+      <Typography sx={{ fontSize: 12, color: INK_MUTED }}>{label}</Typography>
+
+      <Typography
+        sx={{
+          mt: 0.5,
+          fontSize: 18,
+          fontWeight: 600,
+          color: color || INK,
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
+}
+
+// =================================================
 // COMPONENT
 // =================================================
 
 export default function AdminDashboard() {
+  const t = useTranslations("adminDashboard");
+
   const {
+
     selectedMonth,
 
     handleMonthChange,
@@ -186,536 +309,651 @@ export default function AdminDashboard() {
     return (
       <Box
         sx={{
-          minHeight: 400,
+          minHeight: "60vh",
 
           display: "grid",
 
           placeItems: "center",
+
+          bgcolor: "#F7F8F6",
         }}
       >
-        <CircularProgress />
+        <CircularProgress size={28} sx={{ color: BRAND }} />
       </Box>
     );
   }
 
   const targetProgress = Math.min(Math.max(overview.targetAchievement, 0), 100);
 
+  const performanceStatusLabel: Record<DashboardPerformanceStatus, string> = {
+    "No Target": t("status.noTarget"),
+    "Not Started": t("status.notStarted"),
+    "In Progress": t("status.inProgress"),
+    Achieved: t("status.achieved"),
+  };
+
   return (
     <Box
       sx={{
+        bgcolor: "#F7F8F6",
+
         minHeight: "100vh",
 
-        bgcolor: "#f3f4f6",
+        px: { xs: 2, sm: 3, md: 4 },
 
-        px: {
-          xs: 2,
-          md: 4,
-        },
-
-        py: 2,
+        py: { xs: 3, md: 4 },
       }}
     >
-      {/* BREADCRUMB */}
+      <Box sx={{ maxWidth: 1320, mx: "auto" }}>
+        {/* BREADCRUMB */}
 
-      <Box sx={{ mb: 3 }}>
-        <Breadcrumb
-          items={[
-            {
-              label: "Dashboard",
-              current: true,
-            },
-          ]}
-        />
-      </Box>
-
-      {/* HEADER */}
-
-      <Box
-        sx={{
-          display: "flex",
-
-          alignItems: {
-            xs: "flex-start",
-            md: "center",
-          },
-
-          justifyContent: "space-between",
-
-          flexDirection: {
-            xs: "column",
-            md: "row",
-          },
-
-          gap: 2,
-
-          mb: 3,
-        }}
-      >
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            Admin Dashboard
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Recruitment, collections and staff performance overview.
-          </Typography>
+        <Box sx={{ mb: 2 }}>
+          <Breadcrumb
+            items={[
+              {
+                label: t("dashboard"),
+                current: true,
+              },
+            ]}
+          />
         </Box>
 
-        <TextField
-          type="month"
-          label="Performance Month"
-          size="small"
-          value={selectedMonth}
-          onChange={(event) => handleMonthChange(event.target.value)}
-          slotProps={{
-            inputLabel: {
-              shrink: true,
-            },
-          }}
-          sx={{
-            width: {
-              xs: "100%",
-              sm: 220,
-            },
-          }}
-        />
-      </Box>
+        {/* HEADER */}
 
-      {loadError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {loadError}
-        </Alert>
-      )}
-
-      {/* =================================================
-          MAIN SUMMARY
-      ================================================= */}
-
-      <Box
-        sx={{
-          display: "grid",
-
-          gridTemplateColumns: {
-            xs: "1fr",
-
-            sm: "repeat(2, 1fr)",
-
-            xl: "repeat(4, 1fr)",
-          },
-
-          gap: 2,
-
-          mb: 3,
-        }}
-      >
-        <SummaryCard
-          label="Total Clients"
-          value={String(overview.totalClients)}
-          subtitle={`${overview.monthlyClientCount} paying clients this month`}
-          icon={<PeopleAltOutlinedIcon />}
-        />
-
-        <SummaryCard
-          label="Active Staff"
-          value={String(overview.activeStaff)}
-          subtitle={`${overview.totalStaff} total staff`}
-          icon={<BadgeOutlinedIcon />}
-        />
-
-        <SummaryCard
-          label="Collected This Month"
-          value={`¥${formatAmount(overview.monthlyCollected)}`}
-          subtitle={`${overview.monthlyPaymentCount} payments`}
-          icon={<PaymentsOutlinedIcon />}
-        />
-
-        <SummaryCard
-          label="Outstanding Fees"
-          value={`¥${formatAmount(overview.totalOutstanding)}`}
-          subtitle={`Expected ¥${formatAmount(overview.totalExpected)}`}
-          icon={<AccountBalanceWalletOutlinedIcon />}
-        />
-      </Box>
-
-      {/* =================================================
-          MONTHLY TARGET
-      ================================================= */}
-
-      <Paper
-        variant="outlined"
-        sx={{
-          p: 3,
-          borderRadius: 2,
-          mb: 3,
-        }}
-      >
         <Box
           sx={{
             display: "flex",
 
-            justifyContent: "space-between",
-
-            gap: 2,
-
             flexWrap: "wrap",
 
-            mb: 2,
+            alignItems: "flex-end",
+
+            justifyContent: "space-between",
+
+            gap: 2.5,
           }}
         >
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Monthly Collection Target
+            <Typography
+              sx={{
+                fontSize: { xs: 24, md: 30 },
+                fontWeight: 600,
+                letterSpacing: -0.4,
+                color: INK,
+              }}
+            >
+              {t("title")}
             </Typography>
 
-            <Typography variant="body2" color="text.secondary">
-              {selectedMonth}
+            <Typography
+              sx={{
+                mt: 1,
+                fontSize: 14,
+                color: INK_MUTED,
+              }}
+            >
+              {t("description")}
             </Typography>
           </Box>
 
-          <TrackChangesOutlinedIcon color="action" />
+          <TextField
+            type="month"
+            size="small"
+            label={t("performanceMonth")}
+            value={selectedMonth}
+            onChange={(event) => handleMonthChange(event.target.value)}
+            slotProps={{
+              inputLabel: {
+                shrink: true,
+              },
+            }}
+            sx={{
+              width: {
+                xs: "100%",
+                sm: 220,
+              },
+
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2.5,
+
+                bgcolor: "#ffffff",
+
+                "& fieldset": {
+                  borderColor: "rgba(17, 24, 39, 0.10)",
+                },
+
+                "&:hover fieldset": {
+                  borderColor: "rgba(16, 122, 100, 0.35)",
+                },
+
+                "&.Mui-focused fieldset": {
+                  borderColor: BRAND,
+                  borderWidth: 1,
+                },
+              },
+            }}
+          />
         </Box>
+
+        {loadError && (
+          <Alert
+            severity="error"
+            sx={{
+              mt: 2.5,
+              borderRadius: 2.5,
+              border: "1px solid rgba(211,47,47,0.14)",
+            }}
+          >
+            {loadError}
+          </Alert>
+        )}
+
+        {/* =================================================
+            MAIN SUMMARY
+        ================================================= */}
 
         <Box
           sx={{
+            mt: 3,
+
             display: "grid",
+
+            gap: 2,
 
             gridTemplateColumns: {
               xs: "1fr",
 
-              sm: "repeat(3, 1fr)",
+              sm: "repeat(2, 1fr)",
+
+              xl: "repeat(4, 1fr)",
             },
-
-            gap: 2,
-
-            mb: 2,
           }}
         >
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Total Target
-            </Typography>
+          <SummaryCard
+            label={t("totalClients")}
+            value={String(overview.totalClients)}
+            subtitle={t("payingClientsThisMonth", {
+              count: overview.monthlyClientCount,
+            })}
+            icon={<PeopleAltOutlinedIcon fontSize="small" />}
+          />
 
-            <Typography sx={{ fontWeight: 700 }}>
-              ¥{formatAmount(overview.totalTarget)}
-            </Typography>
-          </Box>
+          <SummaryCard
+            label={t("activeStaff")}
+            value={String(overview.activeStaff)}
+            subtitle={t("totalStaff", {
+              count: overview.totalStaff,
+            })}
+            icon={<BadgeOutlinedIcon fontSize="small" />}
+          />
 
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Collected
-            </Typography>
+          <SummaryCard
+            label={t("collectedThisMonth")}
+            value={`¥${formatAmount(overview.monthlyCollected)}`}
+            subtitle={t("payments", {
+              count: overview.monthlyPaymentCount,
+            })}
+            icon={<PaymentsOutlinedIcon fontSize="small" />}
+          />
 
-            <Typography sx={{ fontWeight: 700 }}>
-              ¥{formatAmount(overview.monthlyCollected)}
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Achievement
-            </Typography>
-
-            <Typography sx={{ fontWeight: 700 }}>
-              {overview.targetAchievement}%
-            </Typography>
-          </Box>
+          <SummaryCard
+            label={t("outstandingFees")}
+            value={`¥${formatAmount(overview.totalOutstanding)}`}
+            subtitle={t("expectedAmount", {
+              amount: formatAmount(overview.totalExpected),
+            })}
+            icon={<AccountBalanceWalletOutlinedIcon fontSize="small" />}
+          />
         </Box>
 
-        <LinearProgress
-          variant="determinate"
-          value={targetProgress}
-          sx={{
-            height: 10,
+        {/* =================================================
+            MONTHLY TARGET
+        ================================================= */}
 
-            borderRadius: 10,
-          }}
-        />
-
-        {isFetching && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
+        <Paper elevation={0} sx={{ ...softCard, mt: 2 }}>
+          <Box
             sx={{
-              display: "block",
-              mt: 1,
+              display: "flex",
+
+              alignItems: "center",
+
+              justifyContent: "space-between",
+
+              gap: 2,
+
+              flexWrap: "wrap",
             }}
           >
-            Refreshing dashboard...
-          </Typography>
-        )}
-      </Paper>
+            <Box>
+              <Typography sx={{ fontSize: 17, fontWeight: 600, color: INK }}>
+                {t("monthlyCollectionTarget")}
+              </Typography>
 
-      {/* =================================================
-          STAFF RANKING
-      ================================================= */}
-
-      <Paper
-        variant="outlined"
-        sx={{
-          borderRadius: 2,
-
-          mb: 3,
-
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            p: 3,
-            pb: 2,
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Staff Ranking
-          </Typography>
-
-          <Typography variant="body2" color="text.secondary">
-            Ranked by monthly collection amount.
-          </Typography>
-        </Box>
-
-        <TableContainer>
-          <Table
-            sx={{
-              minWidth: 900,
-            }}
-          >
-            <TableHead>
-              <TableRow
-                sx={{
-                  bgcolor: "action.hover",
-                }}
-              >
-                <TableCell>Rank</TableCell>
-
-                <TableCell>Staff</TableCell>
-
-                <TableCell align="right">Target</TableCell>
-
-                <TableCell align="right">Collected</TableCell>
-
-                <TableCell align="right">Remaining</TableCell>
-
-                <TableCell align="right">Achievement</TableCell>
-
-                <TableCell align="center">Payments</TableCell>
-
-                <TableCell align="center">Clients</TableCell>
-
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {rankings.map((staff) => (
-                <TableRow
-                  key={staff.staffId}
-                  hover
-                  sx={{
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleStaffClick(staff.staffId)}
-                >
-                  <TableCell>
-                    <strong>#{staff.rank}</strong>
-                  </TableCell>
-
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {staff.staffName}
-                    </Typography>
-
-                    <Typography variant="caption" color="text.secondary">
-                      {staff.staffId}
-                    </Typography>
-                  </TableCell>
-
-                  <TableCell align="right">
-                    ¥{formatAmount(staff.targetAmount)}
-                  </TableCell>
-
-                  <TableCell align="right">
-                    <strong>¥{formatAmount(staff.totalCollected)}</strong>
-                  </TableCell>
-
-                  <TableCell align="right">
-                    ¥{formatAmount(staff.remainingAmount)}
-                  </TableCell>
-
-                  <TableCell align="right">
-                    {staff.achievementPercentage}%
-                  </TableCell>
-
-                  <TableCell align="center">{staff.paymentCount}</TableCell>
-
-                  <TableCell align="center">{staff.clientCount}</TableCell>
-
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={staff.status}
-                      color={getStatusColor(staff.status)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-
-      {/* =================================================
-          BOTTOM
-      ================================================= */}
-
-      <Box
-        sx={{
-          display: "grid",
-
-          gridTemplateColumns: {
-            xs: "1fr",
-
-            xl: "1fr 1.6fr",
-          },
-
-          gap: 3,
-        }}
-      >
-        {/* STAGES */}
-
-        <Paper
-          variant="outlined"
-          sx={{
-            borderRadius: 2,
-            p: 3,
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-            Client Progress
-          </Typography>
-
-          {stageBreakdown.map((item) => (
-            <Box
-              key={item.stage}
-              sx={{
-                display: "flex",
-
-                justifyContent: "space-between",
-
-                gap: 2,
-
-                py: 1.25,
-
-                borderBottom: "1px solid",
-
-                borderColor: "divider",
-
-                "&:last-child": {
-                  borderBottom: "none",
-                },
-              }}
-            >
-              <Typography variant="body2">{item.stage}</Typography>
-
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                {item.count}
+              <Typography sx={{ mt: 0.25, fontSize: 12, color: INK_MUTED }}>
+                {selectedMonth}
               </Typography>
             </Box>
-          ))}
+
+            <Box
+              sx={{
+                display: "grid",
+                placeItems: "center",
+                width: 38,
+                height: 38,
+                borderRadius: 2.5,
+                bgcolor: BRAND_SOFT,
+                color: BRAND,
+              }}
+            >
+              <TrackChangesOutlinedIcon fontSize="small" />
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2.5,
+            }}
+          >
+            <Stat
+              label={t("totalTarget")}
+              value={`¥${formatAmount(overview.totalTarget)}`}
+            />
+
+            <Stat
+              label={t("collected")}
+              value={`¥${formatAmount(overview.monthlyCollected)}`}
+              color={BRAND}
+            />
+
+            <Stat
+              label={t("achievement")}
+              value={`${overview.targetAchievement}%`}
+            />
+          </Box>
+
+          <LinearProgress
+            variant="determinate"
+            value={targetProgress}
+            sx={{
+              mt: 3,
+
+              height: 10,
+
+              borderRadius: 999,
+
+              bgcolor: "rgba(17, 24, 39, 0.06)",
+
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 999,
+
+                backgroundImage: `linear-gradient(90deg, #6FBFA6, ${BRAND})`,
+
+                transition: "transform 900ms cubic-bezier(0.22, 1, 0.36, 1)",
+              },
+            }}
+          />
+
+          {isFetching && (
+            <Typography sx={{ mt: 1.5, fontSize: 12, color: INK_MUTED }}>
+              {t("refreshingDashboard")}
+            </Typography>
+          )}
         </Paper>
 
-        {/* RECENT PAYMENTS */}
+        {/* =================================================
+            STAFF RANKING
+        ================================================= */}
 
         <Paper
-          variant="outlined"
+          elevation={0}
           sx={{
-            borderRadius: 2,
-
+            ...softCard,
+            mt: 2,
+            p: 0,
             overflow: "hidden",
           }}
         >
-          <Box sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Recent Payments
+          <Box
+            sx={{
+              px: { xs: 2.5, md: 3 },
+
+              py: 2,
+
+              borderBottom: `1px solid ${HAIRLINE}`,
+            }}
+          >
+            <Typography sx={{ fontSize: 17, fontWeight: 600, color: INK }}>
+              {t("staffRanking")}
+            </Typography>
+
+            <Typography sx={{ mt: 0.25, fontSize: 12, color: INK_MUTED }}>
+              {t("staffRankingDescription")}
             </Typography>
           </Box>
 
           <TableContainer>
-            <Table
-              size="small"
-              sx={{
-                minWidth: 700,
-              }}
-            >
+            <Table sx={{ minWidth: 900 }}>
               <TableHead>
-                <TableRow
-                  sx={{
-                    bgcolor: "action.hover",
-                  }}
-                >
-                  <TableCell>Client</TableCell>
+                <TableRow>
+                  <TableCell sx={{ ...headCellSx, pl: { xs: 2.5, md: 3 } }}>
+                    {t("rank")}
+                  </TableCell>
 
-                  <TableCell>Fee</TableCell>
+                  <TableCell sx={headCellSx}>{t("staff")}</TableCell>
 
-                  <TableCell align="right">Amount</TableCell>
+                  <TableCell sx={headCellSx} align="right">
+                    {t("target")}
+                  </TableCell>
 
-                  <TableCell>Staff</TableCell>
+                  <TableCell sx={headCellSx} align="right">
+                    {t("collected")}
+                  </TableCell>
 
-                  <TableCell>Date</TableCell>
+                  <TableCell sx={headCellSx} align="right">
+                    {t("remaining")}
+                  </TableCell>
+
+                  <TableCell sx={headCellSx} align="right">
+                    {t("achievement")}
+                  </TableCell>
+
+                  <TableCell sx={headCellSx} align="center">
+                    {t("paymentsHeader")}
+                  </TableCell>
+
+                  <TableCell sx={headCellSx} align="center">
+                    {t("clients")}
+                  </TableCell>
+
+                  <TableCell sx={{ ...headCellSx, pr: { xs: 2.5, md: 3 } }}>
+                    {t("statusHeader")}
+                  </TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-                {recentPayments.map((payment) => (
-                  <TableRow key={payment._id} hover>
-                    <TableCell>
+                {rankings.map((staff) => (
+                  <TableRow
+                    key={staff.staffId}
+                    hover={false}
+                    sx={{ ...rowSx, cursor: "pointer" }}
+                    onClick={() => handleStaffClick(staff.staffId)}
+                  >
+                    <TableCell sx={{ ...bodyCellSx, pl: { xs: 2.5, md: 3 } }}>
                       <Typography
-                        variant="body2"
-                        sx={{
-                          cursor: "pointer",
-                          fontWeight: 600,
-
-                          "&:hover": {
-                            textDecoration: "underline",
-                          },
-                        }}
-                        onClick={() => handleClientClick(payment.clientId)}
+                        sx={{ fontSize: 14, fontWeight: 700, color: INK }}
                       >
-                        {payment.clientId}
+                        #{staff.rank}
                       </Typography>
                     </TableCell>
 
-                    <TableCell>{payment.paymentName}</TableCell>
+                    <TableCell sx={bodyCellSx}>
+                      <Typography
+                        sx={{ fontSize: 14, fontWeight: 600, color: INK }}
+                      >
+                        {staff.staffName}
+                      </Typography>
 
-                    <TableCell align="right">
-                      ¥{formatAmount(payment.amountPaid)}
+                      <Typography sx={{ fontSize: 12, color: INK_MUTED }}>
+                        {staff.staffId}
+                      </Typography>
                     </TableCell>
 
-                    <TableCell>{payment.creditedStaffName}</TableCell>
+                    <TableCell sx={bodyCellSx} align="right">
+                      ¥{formatAmount(staff.targetAmount)}
+                    </TableCell>
 
-                    <TableCell>
-                      {formatJapanDate(payment.paymentDate)}
+                    <TableCell
+                      sx={{ ...bodyCellSx, fontWeight: 600, color: BRAND }}
+                      align="right"
+                    >
+                      ¥{formatAmount(staff.totalCollected)}
+                    </TableCell>
+
+                    <TableCell sx={{ ...bodyCellSx, color: INK_MUTED }} align="right">
+                      ¥{formatAmount(staff.remainingAmount)}
+                    </TableCell>
+
+                    <TableCell sx={{ ...bodyCellSx, fontWeight: 600 }} align="right">
+                      {staff.achievementPercentage}%
+                    </TableCell>
+
+                    <TableCell sx={bodyCellSx} align="center">
+                      {staff.paymentCount}
+                    </TableCell>
+
+                    <TableCell sx={bodyCellSx} align="center">
+                      {staff.clientCount}
+                    </TableCell>
+
+                    <TableCell sx={{ ...bodyCellSx, pr: { xs: 2.5, md: 3 } }}>
+                      <Chip
+                        size="small"
+                        label={performanceStatusLabel[staff.status]}
+                        color={getStatusColor(staff.status)}
+                        variant="outlined"
+                        sx={{ borderRadius: 999, fontWeight: 500 }}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
-
-                {recentPayments.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      align="center"
-                      sx={{
-                        py: 4,
-                      }}
-                    >
-                      No payments yet.
-                    </TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
+
+        {/* =================================================
+            BOTTOM
+        ================================================= */}
+
+        <Box
+          sx={{
+            mt: 2,
+
+            display: "grid",
+
+            gap: 2,
+
+            gridTemplateColumns: {
+              xs: "1fr",
+
+              xl: "1fr 1.6fr",
+            },
+
+            alignItems: "start",
+          }}
+        >
+          {/* STAGES */}
+
+          <Paper elevation={0} sx={softCard}>
+            <Typography sx={{ fontSize: 17, fontWeight: 600, color: INK }}>
+              {t("clientProgress")}
+            </Typography>
+
+            {stageBreakdown.length === 0 ? (
+              <Typography sx={{ mt: 2, fontSize: 14, color: INK_MUTED }}>
+                {t("noClientData")}
+              </Typography>
+            ) : (
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.25,
+                }}
+              >
+                {stageBreakdown.map((item) => (
+                  <Box
+                    key={item.stage}
+                    sx={{
+                      display: "flex",
+
+                      alignItems: "center",
+
+                      justifyContent: "space-between",
+
+                      gap: 1.5,
+
+                      px: 2,
+
+                      py: 1.25,
+
+                      borderRadius: 2,
+
+                      bgcolor: "rgba(16, 122, 100, 0.05)",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: 14, color: INK_BODY }}>
+                      {item.stage}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        px: 1.25,
+
+                        py: 0.25,
+
+                        borderRadius: 999,
+
+                        bgcolor: "#ffffff",
+
+                        fontSize: 13,
+
+                        fontWeight: 600,
+
+                        color: BRAND,
+                      }}
+                    >
+                      {item.count}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Paper>
+
+          {/* RECENT PAYMENTS */}
+
+          <Paper
+            elevation={0}
+            sx={{
+              ...softCard,
+              p: 0,
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                px: { xs: 2.5, md: 3 },
+
+                py: 2,
+
+                borderBottom: `1px solid ${HAIRLINE}`,
+              }}
+            >
+              <Typography sx={{ fontSize: 17, fontWeight: 600, color: INK }}>
+                {t("recentPayments")}
+              </Typography>
+            </Box>
+
+            <TableContainer>
+              <Table size="small" sx={{ minWidth: 700 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ ...headCellSx, pl: { xs: 2.5, md: 3 } }}>
+                      {t("client")}
+                    </TableCell>
+
+                    <TableCell sx={headCellSx}>{t("fee")}</TableCell>
+
+                    <TableCell sx={headCellSx} align="right">
+                      {t("amount")}
+                    </TableCell>
+
+                    <TableCell sx={headCellSx}>{t("staff")}</TableCell>
+
+                    <TableCell sx={{ ...headCellSx, pr: { xs: 2.5, md: 3 } }}>
+                      {t("date")}
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {recentPayments.map((payment) => (
+                    <TableRow key={payment._id} hover={false} sx={rowSx}>
+                      <TableCell sx={{ ...bodyCellSx, pl: { xs: 2.5, md: 3 } }}>
+                        <Typography
+                          component="span"
+                          onClick={() => handleClientClick(payment.clientId)}
+                          sx={{
+                            fontSize: 14,
+
+                            fontWeight: 600,
+
+                            color: BRAND,
+
+                            cursor: "pointer",
+
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          {payment.clientId}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell sx={bodyCellSx}>{payment.paymentName}</TableCell>
+
+                      <TableCell
+                        align="right"
+                        sx={{ ...bodyCellSx, fontWeight: 600 }}
+                      >
+                        ¥{formatAmount(payment.amountPaid)}
+                      </TableCell>
+
+                      <TableCell sx={{ ...bodyCellSx, color: INK_MUTED }}>
+                        {payment.creditedStaffName}
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          ...bodyCellSx,
+                          pr: { xs: 2.5, md: 3 },
+                          color: INK_MUTED,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {formatJapanDate(payment.paymentDate)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  {recentPayments.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        align="center"
+                        sx={{
+                          ...bodyCellSx,
+                          py: 5,
+                          color: INK_MUTED,
+                          borderBottom: 0,
+                        }}
+                      >
+                        {t("noPayments")}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Box>
       </Box>
     </Box>
   );

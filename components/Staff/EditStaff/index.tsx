@@ -1,21 +1,99 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Breadcrumb from "@/components/Breadcrumb";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+
 import { useEditStaffHook } from "./hook";
 import {
   STAFF_LOCATIONS,
-  staffEditSchema,
+  createStaffEditSchema,
   type StaffEditFormValues,
 } from "./types";
+
+// =================================================
+// THEME TOKENS (matches Add Staff / dashboards / sidebar)
+// =================================================
+
+const BRAND = "#107A64";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+
+const softCard = {
+  borderRadius: 3,
+
+  border: "1px solid",
+
+  borderColor: HAIRLINE,
+
+  bgcolor: "#ffffff",
+
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
+const fieldLabelSx = {
+  display: "block",
+
+  mb: 0.75,
+
+  fontSize: 13,
+
+  fontWeight: 600,
+
+  color: INK,
+};
+
+const fieldInputSx = {
+  height: 44,
+
+  borderRadius: 2,
+
+  bgcolor: "#ffffff",
+
+  fontSize: 14,
+
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(17, 24, 39, 0.12)",
+  },
+
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "rgba(16, 122, 100, 0.4)",
+  },
+
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: BRAND,
+
+    borderWidth: 1,
+  },
+
+  "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#DC2626",
+  },
+};
+
+const fieldErrorSx = {
+  mt: 0.5,
+
+  fontSize: 12,
+
+  color: "#DC2626",
+};
 
 const defaultValues: StaffEditFormValues = {
   name: "",
@@ -25,8 +103,20 @@ const defaultValues: StaffEditFormValues = {
 };
 
 export default function EditStaff() {
+  const t = useTranslations("editStaff");
   const { staff, isLoading, isError, errorMessage, updateStaff } =
     useEditStaffHook();
+  const staffEditSchema = useMemo(
+    () =>
+      createStaffEditSchema({
+        nameRequired: t("validation.nameRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        locationRequired: t("validation.locationRequired"),
+        phoneRequired: t("validation.phoneRequired"),
+      }),
+    [t],
+  );
+
   const {
     register,
     reset,
@@ -53,98 +143,171 @@ export default function EditStaff() {
   };
 
   if (isLoading) {
-    return <StatusMessage message="Loading staff details..." />;
+    return <StatusScreen message={t("loading")} loading />;
   }
 
   if (isError || !staff) {
     return (
-      <StatusMessage
-        message={errorMessage || "Staff member could not be found."}
+      <StatusScreen
+        message={errorMessage || t("notFound")}
       />
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-slate-50">
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Breadcrumb
-            items={[
-              { label: "Dashboard", href: "/admin/dashboard" },
-              { label: "Staff", href: "/admin/staff" },
-              { label: "Edit Staff", current: true },
-            ]}
-          />
-        </div>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#F7F8F6" }}>
+      <Box
+        component="main"
+        sx={{
+          maxWidth: 900,
+
+          mx: "auto",
+
+          px: { xs: 2, sm: 3, md: 4 },
+
+          py: { xs: 3, md: 4 },
+        }}
+      >
+        {/* BACK LINK */}
 
         <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
+          component="a"
+          href="/admin/staff"
           sx={{
-            width: "calc(100% - 20px)",
-            m: "10px",
-            p: { xs: 2.5, sm: 4 },
-            border: "1px solid #e2e8f0",
-            borderRadius: "16px",
-            backgroundColor: "#fff",
-            boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
+            display: "inline-flex",
+
+            alignItems: "center",
+
+            gap: 0.75,
+
+            mb: 2.5,
+
+            fontSize: 13,
+
+            fontWeight: 600,
+
+            color: INK_MUTED,
+
+            textDecoration: "none",
+
+            transition: "color 200ms ease",
+
+            "&:hover": {
+              color: BRAND,
+            },
           }}
         >
-          <Typography
-            component="h1"
-            sx={{
-              mb: 0.75,
-              fontSize: { xs: "1.35rem", sm: "1.5rem" },
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
-          >
-            Edit staff member
-          </Typography>
+          <ArrowBackRoundedIcon sx={{ fontSize: 16 }} />
+          {t("backToStaff")}
+        </Box>
 
-          <Typography sx={{ mb: 3, fontSize: "14px", color: "#64748b" }}>
-            Update the staff member&apos;s account details. Leave the password
-            blank to keep the current password.
-          </Typography>
+        {/* HEADER */}
 
+        <Box
+          sx={{
+            display: "flex",
+
+            alignItems: "center",
+
+            gap: 2,
+
+            mb: 3,
+          }}
+        >
           <Box
             sx={{
               display: "grid",
+
+              placeItems: "center",
+
+              flexShrink: 0,
+
+              width: 48,
+
+              height: 48,
+
+              borderRadius: 2.5,
+
+              bgcolor: "rgba(16, 122, 100, 0.08)",
+
+              color: BRAND,
+            }}
+          >
+            <EditOutlinedIcon fontSize="small" />
+          </Box>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: { xs: 22, md: 26 },
+                fontWeight: 600,
+                letterSpacing: -0.4,
+                color: INK,
+              }}
+            >
+              {t("title")}
+            </Typography>
+
+            <Typography sx={{ mt: 0.5, fontSize: 14, color: INK_MUTED }}>
+              {t("description")}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* FORM CARD */}
+
+        <Paper
+          elevation={0}
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          sx={{ ...softCard, p: { xs: 2.5, sm: 4 } }}
+        >
+          <Box
+            sx={{
+              display: "grid",
+
               gridTemplateColumns: {
                 xs: "1fr",
                 md: "repeat(2, minmax(0, 1fr))",
               },
+
               gap: { xs: 2, sm: 2.5 },
             }}
           >
             <FormInput
               id="name"
-              label="Name"
+              label={t("fields.name.label")}
               register={register("name")}
               error={errors.name?.message}
-              placeholder="Enter staff name"
+              placeholder={t("fields.name.placeholder")}
               autoFocus
             />
+
             <FormInput
               id="phone"
-              label="Phone"
+              label={t("fields.phone.label")}
               type="tel"
               register={register("phone")}
               error={errors.phone?.message}
-              placeholder="Enter phone number"
+              placeholder={t("fields.phone.placeholder")}
             />
+
             <FormInput
               id="email"
-              label="Email"
+              label={t("fields.email.label")}
               type="email"
               register={register("email")}
               error={errors.email?.message}
-              placeholder="yamada@example.com"
+              placeholder={t("fields.email.placeholder")}
             />
 
+            {/* Location */}
             <Box>
-              <FieldLabel htmlFor="location">Location</FieldLabel>
+              <FieldLabel htmlFor="location">
+                {t("fields.location.label")}
+              </FieldLabel>
+
               <Select
                 {...register("location")}
                 id="location"
@@ -152,48 +315,95 @@ export default function EditStaff() {
                 displayEmpty
                 error={Boolean(errors.location)}
                 defaultValue=""
-                sx={{ height: "40px" }}
+                sx={fieldInputSx}
               >
                 <MenuItem value="" disabled>
-                  Select location
+                  {t("fields.location.placeholder")}
                 </MenuItem>
+
                 {STAFF_LOCATIONS.map((location) => (
                   <MenuItem key={location} value={location}>
-                    {location}
+                    {t(`locations.${location}`)}
                   </MenuItem>
                 ))}
               </Select>
+
               <ErrorMessage message={errors.location?.message} />
             </Box>
 
+            {/* Actions */}
             <Box
               sx={{
                 display: "flex",
+
                 justifyContent: "flex-end",
+
                 gridColumn: { xs: "auto", md: "1 / -1" },
+
+                mt: 1,
+
+                pt: 2,
+
+                borderTop: `1px solid ${HAIRLINE}`,
               }}
             >
               <Button
                 type="submit"
                 variant="contained"
+                disableElevation
                 disabled={updateStaff.isPending}
-                sx={{ mt: 1, height: "45px" }}
+                sx={{
+                  height: 44,
+
+                  px: 3.5,
+
+                  borderRadius: 2.5,
+
+                  textTransform: "none",
+
+                  fontWeight: 600,
+
+                  fontSize: 14,
+
+                  bgcolor: BRAND,
+
+                  boxShadow: "none",
+
+                  "&:hover": {
+                    bgcolor: "#0C5F4F",
+
+                    boxShadow: "none",
+                  },
+
+                  "&.Mui-disabled": {
+                    bgcolor: "rgba(16, 122, 100, 0.35)",
+
+                    color: "#ffffff",
+                  },
+                }}
               >
-                {updateStaff.isPending ? "Saving..." : "Save changes"}
+                {updateStaff.isPending ? t("saving") : t("saveChanges")}
               </Button>
             </Box>
           </Box>
 
           {updateStaff.isError && (
-            <Typography role="alert" sx={{ mt: 2, color: "error.main" }}>
-              {getErrorMessage(updateStaff.error)}
+            <Typography
+              role="alert"
+              sx={{ mt: 2, fontSize: 13, color: "#DC2626" }}
+            >
+              {getErrorMessage(updateStaff.error, t("updateError"))}
             </Typography>
           )}
-        </Box>
-      </main>
-    </div>
+        </Paper>
+      </Box>
+    </Box>
   );
 }
+
+// =================================================
+// FIELD PRIMITIVES
+// =================================================
 
 type FormInputProps = {
   id: keyof StaffEditFormValues;
@@ -221,6 +431,7 @@ function FormInput({
   return (
     <Box>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
+
       <OutlinedInput
         {...register}
         id={id}
@@ -231,8 +442,9 @@ function FormInput({
         placeholder={placeholder}
         error={Boolean(error)}
         aria-invalid={Boolean(error)}
-        sx={{ height: "40px" }}
+        sx={fieldInputSx}
       />
+
       <ErrorMessage message={error} />
     </Box>
   );
@@ -246,17 +458,7 @@ function FieldLabel({
   children: React.ReactNode;
 }) {
   return (
-    <Typography
-      component="label"
-      htmlFor={htmlFor}
-      sx={{
-        display: "block",
-        mb: 0.75,
-        fontSize: "14px",
-        fontWeight: 600,
-        color: "#333",
-      }}
-    >
+    <Typography component="label" htmlFor={htmlFor} sx={fieldLabelSx}>
       {children}
     </Typography>
   );
@@ -264,21 +466,48 @@ function FieldLabel({
 
 function ErrorMessage({ message }: { message?: string }) {
   return message ? (
-    <Typography
-      role="alert"
-      sx={{ mt: 0.5, fontSize: "12px", color: "error.main" }}
-    >
+    <Typography role="alert" sx={fieldErrorSx}>
       {message}
     </Typography>
   ) : null;
 }
 
-function StatusMessage({ message }: { message: string }) {
-  return <Box sx={{ p: 4, color: "#64748b" }}>{message}</Box>;
+// =================================================
+// LOADING / ERROR STATE
+// =================================================
+
+function StatusScreen({
+  message,
+  loading,
+}: {
+  message: string;
+  loading?: boolean;
+}) {
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+
+        bgcolor: "#F7F8F6",
+
+        display: "grid",
+
+        placeItems: "center",
+      }}
+    >
+      <Box sx={{ textAlign: "center" }}>
+        {loading && (
+          <CircularProgress size={24} sx={{ color: BRAND, mb: 1.5 }} />
+        )}
+
+        <Typography sx={{ fontSize: 14, color: INK_MUTED }}>
+          {message}
+        </Typography>
+      </Box>
+    </Box>
+  );
 }
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : "Unable to update staff member.";
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }

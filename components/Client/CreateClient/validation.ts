@@ -2,19 +2,34 @@ import { z } from "zod";
 
 import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 
-export const createClientSchema = z.object({
+type CreateClientValidationMessages = {
+  fullNameRequired: string;
+  phoneRequired: string;
+  visaTypeRequired: string;
+};
+
+const defaultValidationMessages: CreateClientValidationMessages = {
+  fullNameRequired: "Full name is required",
+  phoneRequired: "Phone number is required",
+  visaTypeRequired: "Visa type is required",
+};
+
+export const createCreateClientSchema = (
+  messages: CreateClientValidationMessages = defaultValidationMessages,
+) =>
+  z.object({
   // =================================================
   // CLIENT
   // =================================================
 
-  fullName: z.string().trim().min(1, "Full name is required"),
+  fullName: z.string().trim().min(1, messages.fullNameRequired),
 
-  phone: z.string().trim().min(1, "Phone number is required"),
+  phone: z.string().trim().min(1, messages.phoneRequired),
 
   visaType: z
     .union([z.enum(VISA_TYPES), z.literal("")])
     .refine((value) => value !== "", {
-      message: "Visa type is required",
+      message: messages.visaTypeRequired,
     }),
 
   assignedStaff: z.string(),
@@ -96,7 +111,9 @@ export const createClientSchema = z.object({
   clientImage: z.instanceof(File).nullable(),
 
   cv: z.instanceof(File).nullable(),
-});
+  });
+
+export const createClientSchema = createCreateClientSchema();
 
 // =================================================
 // FORM TYPE

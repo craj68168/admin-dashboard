@@ -2,13 +2,28 @@ import { z } from "zod";
 
 import { PAYMENT_METHODS } from "./type";
 
-export const paymentSchema = z.object({
-  feeId: z.string().trim().min(1, "Please select a fee"),
+const defaultMessages = {
+  feeRequired: "Please select a fee",
+  amountRequired: "Amount is required",
+  amountPositive: "Amount must be greater than 0",
+  paymentMethodRequired: "Payment method is required",
+  paymentDateRequired: "Payment date is required",
+  referenceNumberMax: "Reference number is too long",
+  receiptNumberMax: "Receipt number is too long",
+  bankNameMax: "Bank name is too long",
+  noteMax: "Note cannot exceed 3000 characters",
+};
+
+export const createPaymentSchema = (
+  messages: typeof defaultMessages = defaultMessages,
+) =>
+  z.object({
+  feeId: z.string().trim().min(1, messages.feeRequired),
 
   amountPaid: z
     .string()
     .trim()
-    .min(1, "Amount is required")
+    .min(1, messages.amountRequired)
     .refine(
       (value) => {
         const amount = Number(value);
@@ -16,23 +31,25 @@ export const paymentSchema = z.object({
         return Number.isFinite(amount) && amount > 0;
       },
       {
-        message: "Amount must be greater than 0",
+        message: messages.amountPositive,
       },
     ),
 
   paymentMethod: z
     .union([z.enum(PAYMENT_METHODS), z.literal("")])
     .refine((value) => value !== "", {
-      message: "Payment method is required",
+      message: messages.paymentMethodRequired,
     }),
 
-  paymentDate: z.string().min(1, "Payment date is required"),
+  paymentDate: z.string().min(1, messages.paymentDateRequired),
 
-  referenceNumber: z.string().trim().max(200, "Reference number is too long"),
+  referenceNumber: z.string().trim().max(200, messages.referenceNumberMax),
 
-  receiptNumber: z.string().trim().max(200, "Receipt number is too long"),
+  receiptNumber: z.string().trim().max(200, messages.receiptNumberMax),
 
-  bankName: z.string().trim().max(200, "Bank name is too long"),
+  bankName: z.string().trim().max(200, messages.bankNameMax),
 
-  note: z.string().trim().max(3000, "Note cannot exceed 3000 characters"),
+  note: z.string().trim().max(3000, messages.noteMax),
 });
+
+export const paymentSchema = createPaymentSchema();

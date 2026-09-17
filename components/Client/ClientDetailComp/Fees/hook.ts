@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -11,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import { clientFeeSchema } from "./validation";
+import { createClientFeeSchema } from "./validation";
 
 import type {
   ClientFee,
@@ -59,6 +60,8 @@ const getTokyoDateInputValue = (value?: string | null) => {
 };
 
 export const useClientFeesHook = (clientId: string) => {
+  const t = useTranslations("clientFees");
+
   const queryClient = useQueryClient();
 
   const user = useAuthStore((state) => state.user);
@@ -73,6 +76,18 @@ export const useClientFeesHook = (clientId: string) => {
 
   const [successMessage, setSuccessMessage] = useState("");
 
+  const schema = useMemo(
+    () =>
+      createClientFeeSchema({
+        feeNameRequired: t("validation.feeNameRequired"),
+        feeNameMax: t("validation.feeNameMax"),
+        expectedAmountRequired: t("validation.expectedAmountRequired"),
+        expectedAmountPositive: t("validation.expectedAmountPositive"),
+        noteMax: t("validation.noteMax"),
+      }),
+    [t],
+  );
+
   const {
     control,
     handleSubmit,
@@ -80,7 +95,7 @@ export const useClientFeesHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<ClientFeeFormValues>({
-    resolver: zodResolver(clientFeeSchema),
+    resolver: zodResolver(schema),
 
     defaultValues,
   });
@@ -220,11 +235,11 @@ export const useClientFeesHook = (clientId: string) => {
           values,
         });
 
-        setSuccessMessage(response.message || "Fee updated successfully.");
+        setSuccessMessage(response.message || t("messages.updated"));
       } else {
         const response = await createFee(values);
 
-        setSuccessMessage(response.message || "Fee created successfully.");
+        setSuccessMessage(response.message || t("messages.created"));
       }
 
       setEditingFeeId(null);
@@ -234,12 +249,12 @@ export const useClientFeesHook = (clientId: string) => {
       console.error("Client fee error:", error);
 
       if (axios.isAxiosError(error)) {
-        setServerError(error.response?.data?.message || "Failed to save fee.");
+        setServerError(error.response?.data?.message || t("messages.saveFailed"));
 
         return;
       }
 
-      setServerError("Failed to save fee.");
+      setServerError(t("messages.saveFailed"));
     }
   };
 
@@ -303,7 +318,7 @@ export const useClientFeesHook = (clientId: string) => {
 
       const response = await cancelFee(feeToCancel._id);
 
-      setSuccessMessage(response.message || "Fee cancelled successfully.");
+      setSuccessMessage(response.message || t("messages.cancelled"));
 
       if (editingFeeId === feeToCancel._id) {
         setEditingFeeId(null);
@@ -317,10 +332,10 @@ export const useClientFeesHook = (clientId: string) => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to cancel fee.",
+          error.response?.data?.message || t("messages.cancelFailed"),
         );
       } else {
-        setServerError("Failed to cancel fee.");
+        setServerError(t("messages.cancelFailed"));
       }
 
       setFeeToCancel(null);
@@ -336,9 +351,9 @@ export const useClientFeesHook = (clientId: string) => {
   if (isFeesError) {
     if (axios.isAxiosError(feesError)) {
       loadError =
-        feesError.response?.data?.message || "Failed to load client fees.";
+        feesError.response?.data?.message || t("messages.loadFailed");
     } else {
-      loadError = "Failed to load client fees.";
+      loadError = t("messages.loadFailed");
     }
   }
 

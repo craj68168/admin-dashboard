@@ -12,16 +12,39 @@ export interface LoginViewProps {
 
 const STAFF_LOCATIONS = ["USA", "Japan", "Nepal", "Other"] as const;
 
-export const staffAddSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  email: z.string().email("Please enter a valid email address"),
-  location: z.string().min(1, "location is required"),
-  phone: z.string().min(1, "phone is required"),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
+type StaffAddValidationMessages = {
+  nameRequired: string;
+  emailInvalid: string;
+  locationRequired: string;
+  phoneRequired: string;
+  passwordRequired: string;
+  passwordMin: string;
+};
+
+const defaultValidationMessages: StaffAddValidationMessages = {
+  nameRequired: "Name is required",
+  emailInvalid: "Please enter a valid email address",
+  locationRequired: "Location is required",
+  phoneRequired: "Phone is required",
+  passwordRequired: "Password is required",
+  passwordMin: "Password must be at least 6 characters",
+};
+
+export const createStaffAddSchema = (
+  messages: StaffAddValidationMessages = defaultValidationMessages,
+) =>
+  z.object({
+    name: z.string().min(1, messages.nameRequired),
+    email: z.string().email(messages.emailInvalid),
+    location: z.string().min(1, messages.locationRequired),
+    phone: z.string().min(1, messages.phoneRequired),
+    password: z
+      .string()
+      .min(1, messages.passwordRequired)
+      .min(6, messages.passwordMin),
+  });
+
+export const staffAddSchema = createStaffAddSchema();
 
 export type StaffAddFormValues = z.infer<typeof staffAddSchema>;
 export { STAFF_LOCATIONS };

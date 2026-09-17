@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import axios from "axios";
+import { useTranslations } from "next-intl";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -13,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import { remarkSchema } from "./validation";
+import { createRemarkSchema } from "./validation";
 
 import type {
   CreateRemarkResponse,
@@ -35,11 +36,24 @@ const getTokyoDate = () => {
 };
 
 export const useRemarksHook = (clientId: string) => {
+  const t = useTranslations("clientRemarks");
+
   const queryClient = useQueryClient();
 
   const user = useAuthStore((state) => state.user);
 
   const [serverError, setServerError] = useState("");
+
+  const schema = useMemo(
+    () =>
+      createRemarkSchema({
+        dateRequired: t("validation.dateRequired"),
+        mediumRequired: t("validation.mediumRequired"),
+        memoRequired: t("validation.memoRequired"),
+        memoMax: t("validation.memoMax"),
+      }),
+    [t],
+  );
 
   // =================================================
   // FORM
@@ -52,7 +66,7 @@ export const useRemarksHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<RemarkFormValues>({
-    resolver: zodResolver(remarkSchema),
+    resolver: zodResolver(schema),
 
     defaultValues: {
       remarkDate: getTokyoDate(),
@@ -141,13 +155,13 @@ export const useRemarksHook = (clientId: string) => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to save remark.",
+          error.response?.data?.message || t("messages.saveFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to save remark.");
+      setServerError(t("messages.saveFailed"));
     }
   };
 
@@ -160,9 +174,9 @@ export const useRemarksHook = (clientId: string) => {
   if (isRemarksError) {
     if (axios.isAxiosError(remarksError)) {
       loadError =
-        remarksError.response?.data?.message || "Failed to load remarks.";
+        remarksError.response?.data?.message || t("messages.loadFailed");
     } else {
-      loadError = "Failed to load remarks.";
+      loadError = t("messages.loadFailed");
     }
   }
 

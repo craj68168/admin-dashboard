@@ -2,31 +2,63 @@ import { z } from "zod";
 
 import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 
-const optionalEmail = z
+type EditClientValidationMessages = {
+  emailInvalid: string;
+  invalidFile: string;
+  fullNameRequired: string;
+  fullNameMin: string;
+  phoneRequired: string;
+  phoneMin: string;
+  phoneMax: string;
+  visaTypeRequired: string;
+  assignedStaffRequired: string;
+};
+
+const defaultValidationMessages: EditClientValidationMessages = {
+  emailInvalid: "Enter a valid email address",
+  invalidFile: "Invalid file",
+  fullNameRequired: "Full name is required",
+  fullNameMin: "Full name must be at least 2 characters",
+  phoneRequired: "Phone number is required",
+  phoneMin: "Phone number must be at least 7 characters",
+  phoneMax: "Phone number cannot exceed 20 characters",
+  visaTypeRequired: "Visa type is required",
+  assignedStaffRequired: "Assigned staff is required",
+};
+
+const createOptionalEmail = (message: string) =>
+  z
   .string()
   .trim()
   .refine((value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-    message: "Enter a valid email address",
+    message,
   });
 
-const optionalFile = z.custom<File | null>(
-  (value) => {
-    if (value === null) {
-      return true;
-    }
+const createOptionalFile = (message: string) =>
+  z.custom<File | null>(
+    (value) => {
+      if (value === null) {
+        return true;
+      }
 
-    if (typeof File === "undefined") {
-      return true;
-    }
+      if (typeof File === "undefined") {
+        return true;
+      }
 
-    return value instanceof File;
-  },
-  {
-    message: "Invalid file",
-  },
-);
+      return value instanceof File;
+    },
+    {
+      message,
+    },
+  );
 
-export const editClientSchema = z.object({
+export const createEditClientSchema = (
+  messages: EditClientValidationMessages = defaultValidationMessages,
+) => {
+  const optionalEmail = createOptionalEmail(messages.emailInvalid);
+  const optionalFile = createOptionalFile(messages.invalidFile);
+
+  return z.object({
   // =================================================
   // CLIENT
   // =================================================
@@ -34,23 +66,23 @@ export const editClientSchema = z.object({
   fullName: z
     .string()
     .trim()
-    .min(1, "Full name is required")
-    .min(2, "Full name must be at least 2 characters"),
+    .min(1, messages.fullNameRequired)
+    .min(2, messages.fullNameMin),
 
   phone: z
     .string()
     .trim()
-    .min(1, "Phone number is required")
-    .min(7, "Phone number must be at least 7 characters")
-    .max(20, "Phone number cannot exceed 20 characters"),
+    .min(1, messages.phoneRequired)
+    .min(7, messages.phoneMin)
+    .max(20, messages.phoneMax),
 
   visaType: z
     .union([z.enum(VISA_TYPES), z.literal("")])
     .refine((value) => value !== "", {
-      message: "Visa type is required",
+      message: messages.visaTypeRequired,
     }),
 
-  assignedStaff: z.string().trim().min(1, "Assigned staff is required"),
+  assignedStaff: z.string().trim().min(1, messages.assignedStaffRequired),
 
   coeStatus: z.enum(COE_STATUSES),
 
@@ -129,4 +161,7 @@ export const editClientSchema = z.object({
   clientImage: optionalFile,
 
   cv: optionalFile,
-});
+  });
+};
+
+export const editClientSchema = createEditClientSchema();

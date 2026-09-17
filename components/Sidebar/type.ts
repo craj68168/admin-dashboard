@@ -8,6 +8,7 @@ export type SidebarProps = {
 
 export type SidebarNavItemProps = {
   item: SidebarItem;
+  label: string;
   active: boolean;
   collapsed: boolean;
   onSelect: () => void;

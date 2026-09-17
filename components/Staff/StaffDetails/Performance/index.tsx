@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -20,6 +21,89 @@ import { Controller } from "react-hook-form";
 import type { PerformanceProps, PerformanceStatus } from "./type";
 
 import { usePerformanceHook } from "./hook";
+
+// =================================================
+// DESIGN SYSTEM
+// =================================================
+
+const BRAND = "#107A64";
+const BRAND_HOVER = "#0C5F4F";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const BRAND_BORDER = "rgba(16, 122, 100, 0.42)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+const PAGE_BG = "#F7F8F6";
+const CARD_BG = "#ffffff";
+const DANGER = "#DC2626";
+const DANGER_SOFT = "#FEF2F2";
+const AMBER = "#B7791F";
+const AMBER_SOFT = "#FFFBEB";
+const TRANSITION = "200ms ease";
+const LAYOUT_TRANSITION = "300ms ease";
+
+const softCard = {
+  bgcolor: CARD_BG,
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 3,
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
+const fieldSx = {
+  "& .MuiInputLabel-root": {
+    color: INK_MUTED,
+    fontSize: 14,
+    transition: `color ${TRANSITION}`,
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: BRAND,
+  },
+  "& .MuiInputLabel-root.Mui-error": {
+    color: DANGER,
+  },
+  "& .MuiOutlinedInput-root": {
+    bgcolor: CARD_BG,
+    borderRadius: 2.5,
+    color: INK,
+    fontSize: 14,
+    transition: `border-color ${TRANSITION}, background-color ${TRANSITION}`,
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: HAIRLINE,
+      borderWidth: "1px",
+      transition: `border-color ${TRANSITION}`,
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: BRAND_BORDER,
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      borderColor: BRAND,
+      borderWidth: "1px",
+    },
+    "&.Mui-error .MuiOutlinedInput-notchedOutline": {
+      borderColor: DANGER,
+      borderWidth: "1px",
+    },
+  },
+  "& .MuiFormHelperText-root": {
+    mx: 0,
+    mt: 0.75,
+    color: INK_MUTED,
+    fontSize: 12,
+  },
+  "& .MuiFormHelperText-root.Mui-error": {
+    color: DANGER,
+  },
+};
+
+const alertSx = {
+  mb: 3,
+  borderRadius: 2.5,
+  border: `1px solid ${HAIRLINE}`,
+  boxShadow: "none",
+  fontSize: 14,
+  alignItems: "center",
+};
 
 // =================================================
 // AMOUNT
@@ -65,10 +149,16 @@ const SummaryCard = ({ label, value, icon }: SummaryCardProps) => {
   return (
     <Box
       sx={{
-        border: "1px solid",
-        borderColor: "divider",
-        borderRadius: 2,
-        p: 2.5,
+        ...softCard,
+        p: { xs: 2, sm: 2.5 },
+        minWidth: 0,
+        transition: `transform ${TRANSITION}, border-color ${TRANSITION}, box-shadow ${TRANSITION}`,
+        "&:hover": {
+          borderColor: BRAND_BORDER,
+          transform: "translateY(-1px)",
+          boxShadow:
+            "0 1px 2px rgba(17,24,39,0.04), 0 16px 36px -24px rgba(17,24,39,0.34)",
+        },
       }}
     >
       <Box
@@ -79,19 +169,49 @@ const SummaryCard = ({ label, value, icon }: SummaryCardProps) => {
           gap: 2,
         }}
       >
-        <Box>
-          <Typography variant="caption" color="text.secondary">
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              color: INK_MUTED,
+              fontSize: 12,
+              fontWeight: 600,
+              lineHeight: 1.4,
+            }}
+          >
             {label}
           </Typography>
 
-          <Typography variant="h6" sx={{ mt: 0.5, fontWeight: 700 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              mt: 0.75,
+              color: INK,
+              fontSize: { xs: 20, sm: 22 },
+              fontWeight: 600,
+              lineHeight: 1.25,
+              letterSpacing: "-0.02em",
+              overflowWrap: "anywhere",
+            }}
+          >
             {value}
           </Typography>
         </Box>
 
         <Box
           sx={{
-            color: "text.secondary",
+            width: 40,
+            height: 40,
+            flexShrink: 0,
+            display: "grid",
+            placeItems: "center",
+            borderRadius: 2.5,
+            bgcolor: BRAND_SOFT,
+            color: BRAND,
+            "& svg": {
+              fontSize: 21,
+            },
           }}
         >
           {icon}
@@ -106,6 +226,8 @@ const SummaryCard = ({ label, value, icon }: SummaryCardProps) => {
 // =================================================
 
 const Performance = ({ staffId }: PerformanceProps) => {
+  const t = useTranslations("staffPerformance");
+
   const {
     isAdmin,
 
@@ -142,327 +264,519 @@ const Performance = ({ staffId }: PerformanceProps) => {
     100,
   );
 
-  return (
-    <Box>
-      {/* HEADER */}
+  const performanceStatusLabel: Record<PerformanceStatus, string> = {
+    "No Target": t("status.noTarget"),
+    "Not Started": t("status.notStarted"),
+    "In Progress": t("status.inProgress"),
+    Achieved: t("status.achieved"),
+  };
 
+  return (
+    <Box
+      sx={{
+        minHeight: "100%",
+        bgcolor: PAGE_BG,
+        py: { xs: 2, sm: 3, md: 4 },
+      }}
+    >
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-
-          alignItems: {
-            xs: "flex-start",
-            md: "center",
-          },
-
-          flexDirection: {
-            xs: "column",
-            md: "row",
-          },
-
-          gap: 2,
-
-          mb: 3,
+          width: "100%",
+          maxWidth: 1320,
+          mx: "auto",
+          px: { xs: 2, sm: 3, md: 4 },
+          transition: `padding ${LAYOUT_TRANSITION}`,
         }}
       >
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Collection Performance
-          </Typography>
+        {/* HEADER */}
 
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Monthly payment collection performance for this staff member.
-          </Typography>
-        </Box>
-
-        <TextField
-          type="month"
-          size="small"
-          label="Month"
-          value={selectedMonth}
-          onChange={(event) => handleMonthChange(event.target.value)}
-          slotProps={{
-            inputLabel: {
-              shrink: true,
-            },
-          }}
-          sx={{
-            width: {
-              xs: "100%",
-              sm: 200,
-            },
-          }}
-        />
-      </Box>
-
-      {loadError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {loadError}
-        </Alert>
-      )}
-
-      {serverError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {serverError}
-        </Alert>
-      )}
-
-      {successMessage && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {successMessage}
-        </Alert>
-      )}
-
-      {isPerformanceLoading ? (
         <Box
           sx={{
-            minHeight: 200,
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: "space-between",
+            alignItems: {
+              xs: "stretch",
+              md: "center",
+            },
+            flexDirection: {
+              xs: "column",
+              md: "row",
+            },
+            gap: { xs: 2, md: 3 },
+            mb: { xs: 2.5, sm: 3 },
           }}
         >
-          <CircularProgress size={30} />
-        </Box>
-      ) : (
-        <>
-          {/* STAFF / STATUS */}
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                color: INK,
+                fontSize: { xs: 22, sm: 24, md: 26 },
+                fontWeight: 600,
+                lineHeight: 1.2,
+                letterSpacing: "-0.025em",
+              }}
+            >
+              {t("title")}
+            </Typography>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 2,
-              flexWrap: "wrap",
-              mb: 3,
-            }}
-          >
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                {staff?.name || staffId}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                {staffId}
-              </Typography>
-            </Box>
-
-            <Chip
-              label={performance.status}
-              color={getStatusColor(performance.status)}
-            />
+            <Typography
+              variant="body2"
+              sx={{
+                mt: 0.75,
+                color: INK_MUTED,
+                fontSize: { xs: 14, sm: 15 },
+                lineHeight: 1.6,
+              }}
+            >
+              {t("description")}
+            </Typography>
           </Box>
 
-          {/* SUMMARY CARDS */}
-
-          <Box
-            sx={{
-              display: "grid",
-
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                xl: "repeat(4, 1fr)",
+          <TextField
+            type="month"
+            size="small"
+            label={t("month")}
+            value={selectedMonth}
+            onChange={(event) => handleMonthChange(event.target.value)}
+            slotProps={{
+              inputLabel: {
+                shrink: true,
               },
+            }}
+            sx={{
+              ...fieldSx,
+              width: {
+                xs: "100%",
+                sm: 220,
+              },
+              flexShrink: 0,
+            }}
+          />
+        </Box>
 
-              gap: 2,
-
-              mb: 3,
+        {loadError && (
+          <Alert
+            severity="error"
+            sx={{
+              ...alertSx,
+              color: DANGER,
+              bgcolor: DANGER_SOFT,
+              "& .MuiAlert-icon": { color: DANGER },
             }}
           >
-            <SummaryCard
-              label="Target"
-              value={`¥${formatAmount(performance.targetAmount)}`}
-              icon={<TrackChangesOutlinedIcon />}
-            />
+            {loadError}
+          </Alert>
+        )}
 
-            <SummaryCard
-              label="Collected"
-              value={`¥${formatAmount(performance.totalCollected)}`}
-              icon={<PaymentsOutlinedIcon />}
-            />
+        {serverError && (
+          <Alert
+            severity="error"
+            sx={{
+              ...alertSx,
+              color: DANGER,
+              bgcolor: DANGER_SOFT,
+              "& .MuiAlert-icon": { color: DANGER },
+            }}
+          >
+            {serverError}
+          </Alert>
+        )}
 
-            <SummaryCard
-              label="Remaining"
-              value={`¥${formatAmount(performance.remainingAmount)}`}
-              icon={<AccountBalanceWalletOutlinedIcon />}
-            />
+        {successMessage && (
+          <Alert
+            severity="success"
+            sx={{
+              ...alertSx,
+              color: BRAND,
+              bgcolor: BRAND_SOFT,
+              "& .MuiAlert-icon": { color: BRAND },
+            }}
+          >
+            {successMessage}
+          </Alert>
+        )}
 
-            <SummaryCard
-              label="Achievement"
-              value={`${performance.achievementPercentage}%`}
-              icon={<PercentOutlinedIcon />}
-            />
-          </Box>
-
-          {/* PROGRESS BAR */}
-
+        {isPerformanceLoading ? (
           <Box
             sx={{
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: 2,
-              p: 2.5,
-              mb: 3,
+              ...softCard,
+              minHeight: 220,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
+            <CircularProgress size={30} sx={{ color: BRAND }} />
+          </Box>
+        ) : (
+          <>
+            {/* STAFF / STATUS */}
+
             <Box
               sx={{
+                ...softCard,
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center",
-                mb: 1.5,
+                alignItems: { xs: "flex-start", sm: "center" },
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                p: { xs: 2, sm: 2.5 },
+                mb: 2,
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                Monthly Progress
-              </Typography>
-
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {performance.achievementPercentage}%
-              </Typography>
-            </Box>
-
-            <LinearProgress
-              variant="determinate"
-              value={progressValue}
-              sx={{
-                height: 10,
-                borderRadius: 10,
-              }}
-            />
-
-            <Box
-              sx={{
-                display: "flex",
-                gap: 4,
-                flexWrap: "wrap",
-                mt: 2,
-              }}
-            >
-              <Typography variant="body2">
-                <strong>Payments:</strong> {performance.paymentCount}
-              </Typography>
-
-              <Typography variant="body2">
-                <strong>Clients:</strong> {performance.clientCount}
-              </Typography>
-            </Box>
-
-            {isPerformanceFetching && !isPerformanceLoading && (
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{
-                  display: "block",
-                  mt: 1,
-                }}
-              >
-                Refreshing...
-              </Typography>
-            )}
-          </Box>
-
-          {/* ADMIN TARGET FORM */}
-
-          {isAdmin && (
-            <Box
-              sx={{
-                maxWidth: 550,
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 2,
-                p: 3,
-              }}
-            >
-              <Typography variant="subtitle1" sx={{ mb: 0.5, fontWeight: 600 }}>
-                {target ? "Update Target" : "Set Monthly Target"}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Target month: {selectedMonth}
-              </Typography>
-
-              <Box
-                component="form"
-                noValidate
-                onSubmit={handleSubmit(onSubmit)}
-              >
-                <Controller
-                  name="targetAmount"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      required
-                      type="number"
-                      label="Target Amount"
-                      placeholder="1000000"
-                      error={Boolean(errors.targetAmount)}
-                      helperText={errors.targetAmount?.message}
-                      slotProps={{
-                        htmlInput: {
-                          min: 1,
-                        },
-                      }}
-                      sx={{
-                        mb: 2.5,
-                      }}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="note"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      multiline
-                      minRows={4}
-                      label="Note"
-                      placeholder="Optional target note..."
-                      error={Boolean(errors.note)}
-                      helperText={errors.note?.message}
-                    />
-                  )}
-                />
-
-                <Box
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
                   sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    mt: 3,
+                    color: INK,
+                    fontSize: 17,
+                    fontWeight: 600,
+                    lineHeight: 1.35,
                   }}
                 >
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={saving}
-                    startIcon={
-                      saving ? (
-                        <CircularProgress size={17} color="inherit" />
-                      ) : (
-                        <SaveOutlinedIcon />
-                      )
-                    }
+                  {staff?.name || staffId}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: 0.35,
+                    color: INK_MUTED,
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {staffId}
+                </Typography>
+              </Box>
+
+              <Chip
+                label={performanceStatusLabel[performance.status]}
+                color={getStatusColor(performance.status)}
+                sx={{
+                  height: 30,
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.01em",
+                  border: "1px solid transparent",
+                  transition: `background-color ${TRANSITION}, color ${TRANSITION}, border-color ${TRANSITION}`,
+                  "& .MuiChip-label": {
+                    px: 1.5,
+                  },
+                  "&.MuiChip-colorSuccess": {
+                    color: BRAND,
+                    bgcolor: BRAND_SOFT,
+                    borderColor: HAIRLINE,
+                  },
+                  "&.MuiChip-colorWarning": {
+                    color: AMBER,
+                    bgcolor: AMBER_SOFT,
+                    borderColor: HAIRLINE,
+                  },
+                  "&.MuiChip-colorInfo": {
+                    color: BRAND,
+                    bgcolor: BRAND_SOFT,
+                    borderColor: HAIRLINE,
+                  },
+                  "&.MuiChip-colorDefault": {
+                    color: DANGER,
+                    bgcolor: DANGER_SOFT,
+                    borderColor: HAIRLINE,
+                  },
+                }}
+              />
+            </Box>
+
+            {/* SUMMARY CARDS */}
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  md: "repeat(2, minmax(0, 1fr))",
+                  lg: "repeat(4, minmax(0, 1fr))",
+                },
+                gap: 2,
+                mb: 2,
+                transition: `grid-template-columns ${LAYOUT_TRANSITION}`,
+              }}
+            >
+              <SummaryCard
+                label={t("summary.target")}
+                value={`¥${formatAmount(performance.targetAmount)}`}
+                icon={<TrackChangesOutlinedIcon />}
+              />
+
+              <SummaryCard
+                label={t("summary.collected")}
+                value={`¥${formatAmount(performance.totalCollected)}`}
+                icon={<PaymentsOutlinedIcon />}
+              />
+
+              <SummaryCard
+                label={t("summary.remaining")}
+                value={`¥${formatAmount(performance.remainingAmount)}`}
+                icon={<AccountBalanceWalletOutlinedIcon />}
+              />
+
+              <SummaryCard
+                label={t("summary.achievement")}
+                value={`${performance.achievementPercentage}%`}
+                icon={<PercentOutlinedIcon />}
+              />
+            </Box>
+
+            {/* PROGRESS BAR */}
+
+            <Box
+              sx={{
+                ...softCard,
+                p: { xs: 2, sm: 2.5, md: 3 },
+                mb: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 2,
+                  mb: 1.5,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: INK,
+                    fontSize: 15,
+                    fontWeight: 600,
+                  }}
+                >
+                  {t("monthlyProgress")}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: BRAND,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    flexShrink: 0,
+                  }}
+                >
+                  {performance.achievementPercentage}%
+                </Typography>
+              </Box>
+
+              <LinearProgress
+                variant="determinate"
+                value={progressValue}
+                sx={{
+                  height: 8,
+                  borderRadius: 999,
+                  bgcolor: BRAND_SOFT,
+                  "& .MuiLinearProgress-bar": {
+                    borderRadius: 999,
+                    bgcolor: BRAND,
+                    transition: `transform ${LAYOUT_TRANSITION}`,
+                  },
+                }}
+              />
+
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: { xs: 2.5, sm: 4 },
+                  flexWrap: "wrap",
+                  mt: 2.25,
+                  pt: 2,
+                  borderTop: `1px solid ${HAIRLINE}`,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: INK_MUTED, fontSize: 14 }}
+                >
+                  <Box component="strong" sx={{ color: INK, fontWeight: 600 }}>
+                    {t("payments")}:
+                  </Box>{" "}
+                  {performance.paymentCount}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{ color: INK_MUTED, fontSize: 14 }}
+                >
+                  <Box component="strong" sx={{ color: INK, fontWeight: 600 }}>
+                    {t("clients")}:
+                  </Box>{" "}
+                  {performance.clientCount}
+                </Typography>
+              </Box>
+
+              {isPerformanceFetching && !isPerformanceLoading && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    mt: 1.25,
+                    color: INK_MUTED,
+                    fontSize: 12,
+                  }}
+                >
+                  {t("refreshing")}
+                </Typography>
+              )}
+            </Box>
+
+            {/* ADMIN TARGET FORM */}
+
+            {isAdmin && (
+              <Box
+                sx={{
+                  ...softCard,
+                  width: "100%",
+                  maxWidth: 900,
+                  p: { xs: 2, sm: 2.5, md: 3 },
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: 0.5,
+                    color: INK,
+                    fontSize: 17,
+                    fontWeight: 600,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {target ? t("updateTarget") : t("setMonthlyTarget")}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mb: 3,
+                    color: INK_MUTED,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {t("targetMonth", { month: selectedMonth })}
+                </Typography>
+
+                <Box
+                  component="form"
+                  noValidate
+                  onSubmit={handleSubmit(onSubmit)}
+                >
+                  <Controller
+                    name="targetAmount"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        required
+                        type="number"
+                        label={t("form.targetAmount")}
+                        placeholder={t("form.targetAmountPlaceholder")}
+                        error={Boolean(errors.targetAmount)}
+                        helperText={errors.targetAmount?.message}
+                        slotProps={{
+                          htmlInput: {
+                            min: 1,
+                          },
+                        }}
+                        sx={{
+                          ...fieldSx,
+                          mb: 2.5,
+                        }}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    name="note"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        multiline
+                        minRows={4}
+                        label={t("form.note")}
+                        placeholder={t("form.notePlaceholder")}
+                        error={Boolean(errors.note)}
+                        helperText={errors.note?.message}
+                        sx={fieldSx}
+                      />
+                    )}
+                  />
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: { xs: "stretch", sm: "flex-end" },
+                      mt: 3,
+                    }}
                   >
-                    {saving
-                      ? "Saving..."
-                      : target
-                        ? "Update Target"
-                        : "Set Target"}
-                  </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={saving}
+                      disableElevation
+                      startIcon={
+                        saving ? (
+                          <CircularProgress size={17} color="inherit" />
+                        ) : (
+                          <SaveOutlinedIcon />
+                        )
+                      }
+                      sx={{
+                        width: { xs: "100%", sm: "auto" },
+                        minHeight: 42,
+                        px: 2.5,
+                        bgcolor: BRAND,
+                        color: CARD_BG,
+                        borderRadius: 2.5,
+                        textTransform: "none",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        boxShadow: "none",
+                        transition: `background-color ${TRANSITION}, transform ${TRANSITION}, box-shadow ${TRANSITION}`,
+                        "&:hover": {
+                          bgcolor: BRAND_HOVER,
+                          boxShadow: "none",
+                        },
+                        "&:focus-visible": {
+                          outline: `2px solid ${BRAND}`,
+                          outlineOffset: 2,
+                        },
+                        "&.Mui-disabled": {
+                          bgcolor: BRAND_BORDER,
+                          color: CARD_BG,
+                        },
+                      }}
+                    >
+                      {saving
+                        ? t("saving")
+                        : target
+                          ? t("updateTarget")
+                          : t("setTarget")}
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </Box>
     </Box>
   );
 };

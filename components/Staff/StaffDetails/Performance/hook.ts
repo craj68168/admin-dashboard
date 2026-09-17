@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import axios from "axios";
 
@@ -14,7 +15,7 @@ import { api } from "@/lib/axios";
 
 import { useAuthStore } from "@/store/auth-store";
 
-import { staffTargetSchema } from "./validation";
+import { createStaffTargetSchema } from "./validation";
 
 import type {
   StaffTargetFormValues,
@@ -55,6 +56,8 @@ const defaultValues: StaffTargetFormValues = {
 // =================================================
 
 export const usePerformanceHook = (staffId: string) => {
+  const t = useTranslations("staffPerformance");
+
   const queryClient = useQueryClient();
 
   const user = useAuthStore((state) => state.user);
@@ -80,7 +83,13 @@ export const usePerformanceHook = (staffId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<StaffTargetFormValues>({
-    resolver: zodResolver(staffTargetSchema),
+    resolver: zodResolver(
+      createStaffTargetSchema({
+        targetAmountRequired: t("validation.targetAmountRequired"),
+        targetAmountPositive: t("validation.targetAmountPositive"),
+        noteMax: t("validation.noteMax"),
+      }),
+    ),
 
     defaultValues,
   });
@@ -248,13 +257,13 @@ export const usePerformanceHook = (staffId: string) => {
         });
 
         setSuccessMessage(
-          response.message || "Staff target updated successfully.",
+          response.message || t("messages.targetUpdated"),
         );
       } else {
         const response = await createTarget(values);
 
         setSuccessMessage(
-          response.message || "Staff target created successfully.",
+          response.message || t("messages.targetCreated"),
         );
       }
 
@@ -264,13 +273,13 @@ export const usePerformanceHook = (staffId: string) => {
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message || "Failed to save staff target.",
+          error.response?.data?.message || t("messages.saveFailed"),
         );
 
         return;
       }
 
-      setServerError("Failed to save staff target.");
+      setServerError(t("messages.saveFailed"));
     }
   };
 
@@ -295,9 +304,9 @@ export const usePerformanceHook = (staffId: string) => {
     if (axios.isAxiosError(performanceError)) {
       loadError =
         performanceError.response?.data?.message ||
-        "Failed to load staff performance.";
+        t("messages.loadFailed");
     } else {
-      loadError = "Failed to load staff performance.";
+      loadError = t("messages.loadFailed");
     }
   }
 
