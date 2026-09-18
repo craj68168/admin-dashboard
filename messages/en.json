@@ -437,7 +437,7 @@
       },
       "gender": {
         "label": "Gender",
-        "placeholder": "Enter gender"
+        "placeholder": "Select gender"
       },
       "email": {
         "label": "Email",
@@ -460,15 +460,15 @@
       },
       "statusOfResidence": {
         "label": "Status of Residence",
-        "placeholder": "Enter status of residence"
+        "placeholder": "Select status of residence"
       },
       "lastQualification": {
         "label": "Last Qualification",
-        "placeholder": "Example: Bachelor"
+        "placeholder": "Select qualification"
       },
       "japaneseLanguageLevel": {
         "label": "Japanese Language Level",
-        "placeholder": "Example: N3"
+        "placeholder": "Select Japanese language level"
       },
       "schoolName": {
         "label": "School Name",
@@ -504,7 +504,7 @@
       },
       "sponsorRelationship": {
         "label": "Sponsor Relationship",
-        "placeholder": "Enter relationship"
+        "placeholder": "Select relationship"
       },
       "sponsorStatusOfResidence": {
         "label": "Sponsor Status of Residence",
@@ -512,7 +512,7 @@
       },
       "visaStatus": {
         "label": "Visa Status",
-        "placeholder": "Enter visa status"
+        "placeholder": "Select visa status"
       },
       "clientImage": {
         "upload": "Upload Client Image"
@@ -544,6 +544,65 @@
       "Visa Rejected": "Visa Rejected",
       "Departed": "Departed",
       "Arrived in Japan": "Arrived in Japan"
+    },
+    "options": {
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "preferNotToSay": "Prefer not to say"
+      },
+      "statusOfResidence": {
+        "citizen": "Citizen",
+        "permanentResident": "Permanent Resident",
+        "temporaryResident": "Temporary Resident",
+        "studentVisa": "Student Visa",
+        "workVisa": "Work Visa",
+        "dependentVisa": "Dependent Visa",
+        "refugee": "Refugee",
+        "other": "Other"
+      },
+      "lastQualification": {
+        "slcSee": "SLC / SEE",
+        "plusTwoIntermediate": "+2 / Intermediate",
+        "bachelorsDegree": "Bachelor's Degree",
+        "mastersDegree": "Master's Degree",
+        "phd": "PhD",
+        "diploma": "Diploma",
+        "certificateCourse": "Certificate Course",
+        "other": "Other"
+      },
+      "japaneseLanguageLevel": {
+        "none": "None",
+        "n5": "N5",
+        "n4": "N4",
+        "n3": "N3",
+        "n2": "N2",
+        "n1": "N1",
+        "jlptNotTaken": "JLPT Not Taken",
+        "natTest": "NAT-Test",
+        "jTest": "J-Test"
+      },
+      "sponsorRelationship": {
+        "father": "Father",
+        "mother": "Mother",
+        "brother": "Brother",
+        "sister": "Sister",
+        "spouse": "Spouse",
+        "uncle": "Uncle",
+        "aunt": "Aunt",
+        "grandparent": "Grandparent",
+        "self": "Self",
+        "guardian": "Guardian",
+        "other": "Other"
+      },
+      "visaStatus": {
+        "notApplied": "Not Applied",
+        "applied": "Applied",
+        "processing": "Processing",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
     },
     "validation": {
       "fullNameRequired": "Full name is required",
@@ -597,98 +656,6 @@
         "description": "Selecting a new file will replace the currently uploaded file."
       }
     },
-    "fields": {
-      "fullName": {
-        "label": "Full Name"
-      },
-      "phone": {
-        "label": "Phone"
-      },
-      "visaType": {
-        "label": "Visa Type",
-        "placeholder": "Select visa type"
-      },
-      "assignedStaff": {
-        "label": "Assigned Staff",
-        "placeholder": "Select staff",
-        "readOnlyHelper": "Staff assignment cannot be changed."
-      },
-      "coeStatus": {
-        "label": "COE Status"
-      },
-      "clientStatus": {
-        "label": "Client Status"
-      },
-      "dateOfBirth": {
-        "label": "Date of Birth"
-      },
-      "gender": {
-        "label": "Gender"
-      },
-      "email": {
-        "label": "Email"
-      },
-      "nationality": {
-        "label": "Nationality"
-      },
-      "address": {
-        "label": "Address"
-      },
-      "passportNumber": {
-        "label": "Passport Number"
-      },
-      "passportExpiryDate": {
-        "label": "Passport Expiry Date"
-      },
-      "statusOfResidence": {
-        "label": "Status of Residence"
-      },
-      "lastQualification": {
-        "label": "Last Qualification"
-      },
-      "japaneseLanguageLevel": {
-        "label": "Japanese Language Level"
-      },
-      "schoolName": {
-        "label": "School Name"
-      },
-      "course": {
-        "label": "Course"
-      },
-      "intake": {
-        "label": "Intake"
-      },
-      "jobCategory": {
-        "label": "Job Category"
-      },
-      "jobTitle": {
-        "label": "Job Title"
-      },
-      "companyName": {
-        "label": "Company Name"
-      },
-      "workLocation": {
-        "label": "Work Location"
-      },
-      "sponsorName": {
-        "label": "Sponsor Name"
-      },
-      "sponsorRelationship": {
-        "label": "Sponsor Relationship"
-      },
-      "sponsorStatusOfResidence": {
-        "label": "Sponsor Status of Residence"
-      },
-      "visaStatus": {
-        "label": "Visa Status"
-      },
-      "clientImage": {
-        "replace": "Replace Client Image"
-      },
-      "cv": {
-        "replace": "Replace CV"
-      }
-    },
     "visaTypes": {
       "Student": "Student",
       "Working": "Working",
@@ -730,6 +697,7 @@
       "loadFailed": "Failed to load client.",
       "updateFailed": "Failed to update client."
     }
+
   },
   "clientDetail": {
     "breadcrumbs": {
@@ -815,6 +783,7 @@
       "loadFailed": "Failed to load client."
     }
   },
+
   "clientFees": {
     "title": "Client Fees",
     "description": "Required fees, payments and outstanding balances.",
@@ -876,6 +845,63 @@
       "cancelFailed": "Failed to cancel fee.",
       "loadFailed": "Failed to load client fees."
     }
+  },
+  "genders": {
+    "Male": "Male",
+    "Female": "Female",
+    "Other": "Other",
+    "Prefer not to say": "Prefer not to say"
+  },
+  "residenceStatuses": {
+    "Citizen": "Citizen",
+    "Permanent Resident": "Permanent Resident",
+    "Temporary Resident": "Temporary Resident",
+    "Student Visa": "Student Visa",
+    "Work Visa": "Work Visa",
+    "Dependent Visa": "Dependent Visa",
+    "Refugee": "Refugee",
+    "Other": "Other"
+  },
+  "qualifications": {
+    "SLC / SEE": "SLC / SEE",
+    "+2 / Intermediate": "+2 / Intermediate",
+    "Bachelor's Degree": "Bachelor's Degree",
+    "Master's Degree": "Master's Degree",
+    "PhD": "PhD",
+    "Diploma": "Diploma",
+    "Certificate Course": "Certificate Course",
+    "Other": "Other"
+  },
+  "japaneseLanguageLevels": {
+    "None": "None",
+    "N5": "N5",
+    "N4": "N4",
+    "N3": "N3",
+    "N2": "N2",
+    "N1": "N1",
+    "JLPT Not Taken": "JLPT Not Taken",
+    "NAT-Test": "NAT-Test",
+    "J-Test": "J-Test"
+  },
+  "sponsorRelationships": {
+    "Father": "Father",
+    "Mother": "Mother",
+    "Brother": "Brother",
+    "Sister": "Sister",
+    "Spouse": "Spouse",
+    "Uncle": "Uncle",
+    "Aunt": "Aunt",
+    "Grandparent": "Grandparent",
+    "Self": "Self",
+    "Guardian": "Guardian",
+    "Other": "Other"
+  },
+  "visaStatuses": {
+    "Not Applied": "Not Applied",
+    "Applied": "Applied",
+    "Processing": "Processing",
+    "Approved": "Approved",
+    "Rejected": "Rejected"
   },
   "clientPayments": {
     "title": "Payments",
@@ -1050,6 +1076,21 @@
     "messages": {
       "saveFailed": "Failed to save remark.",
       "loadFailed": "Failed to load remarks."
+    }
+  },
+  "profile": {
+    "unavailable": "Profile is unavailable.",
+    "backToDashboard": "Back to dashboard",
+    "accountInformation": "Account Information",
+    "accountDescription": "Your authenticated account details and access information.",
+    "notSpecified": "Not specified",
+    "fields": {
+      "fullName": "Full name",
+      "emailAddress": "Email address",
+      "role": "Role",
+      "location": "Location",
+      "userId": "User ID",
+      "staffId": "Staff ID"
     }
   }
 }

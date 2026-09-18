@@ -8,6 +8,7 @@ export type ClientStaffRecord = {
   location?: string;
 };
 
+
 export type ClientRecord = {
   _id?: string;
   clientId: number | string;
@@ -66,3 +67,12 @@ export type Staff = {
   updatedAt: string;
   __v: number;
 };
+
+export type ClientFilterValues = {
+  keyword: string;
+  visaType: string;
+  coeStatus: string;
+  clientStatus: string;
+  assignedStaff: string;
+};
+

@@ -815,6 +815,65 @@
       "loadFailed": "顧客を読み込めませんでした。"
     }
   },
+  "options": {
+    "gender": {
+      "male": "男性",
+      "female": "女性",
+      "other": "その他",
+      "preferNotToSay": "回答しない"
+    },
+    "statusOfResidence": {
+      "citizen": "市民",
+      "permanentResident": "永住者",
+      "temporaryResident": "一時滞在者",
+      "studentVisa": "留学ビザ",
+      "workVisa": "就労ビザ",
+      "dependentVisa": "家族滞在ビザ",
+      "refugee": "難民",
+      "other": "その他"
+    },
+    "lastQualification": {
+      "slcSee": "SLC / SEE",
+      "plusTwoIntermediate": "+2 / 中等教育",
+      "bachelorsDegree": "学士",
+      "mastersDegree": "修士",
+      "phd": "博士",
+      "diploma": "ディプロマ",
+      "certificateCourse": "修了証コース",
+      "other": "その他"
+    },
+    "japaneseLanguageLevel": {
+      "none": "なし",
+      "n5": "N5",
+      "n4": "N4",
+      "n3": "N3",
+      "n2": "N2",
+      "n1": "N1",
+      "jlptNotTaken": "JLPT未受験",
+      "natTest": "NAT-Test",
+      "jTest": "J-Test"
+    },
+    "sponsorRelationship": {
+      "father": "父",
+      "mother": "母",
+      "brother": "兄弟",
+      "sister": "姉妹",
+      "spouse": "配偶者",
+      "uncle": "叔父",
+      "aunt": "叔母",
+      "grandparent": "祖父母",
+      "self": "本人",
+      "guardian": "保護者",
+      "other": "その他"
+    },
+    "visaStatus": {
+      "notApplied": "未申請",
+      "applied": "申請済み",
+      "processing": "審査中",
+      "approved": "承認済み",
+      "rejected": "却下"
+    }
+  },
   "clientFees": {
     "title": "顧客料金",
     "description": "必要な料金、支払い、未払い残高を管理します。",
@@ -1050,6 +1109,22 @@
     "messages": {
       "saveFailed": "備考を保存できませんでした。",
       "loadFailed": "備考を読み込めませんでした。"
+    }
+  },
+
+  "profile": {
+    "unavailable": "プロフィール情報を利用できません。",
+    "backToDashboard": "ダッシュボードに戻る",
+    "accountInformation": "アカウント情報",
+    "accountDescription": "認証済みアカウントの詳細情報とアクセス情報です。",
+    "notSpecified": "未設定",
+    "fields": {
+      "fullName": "氏名",
+      "emailAddress": "メールアドレス",
+      "role": "役割",
+      "location": "所在地",
+      "userId": "ユーザーID",
+      "staffId": "スタッフID"
     }
   }
 }

@@ -1,43 +1,87 @@
 "use client";
 
 import Link from "next/link";
+
+import { useTranslations } from "next-intl";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import WorkspacesRoundedIcon from "@mui/icons-material/WorkspacesRounded";
+
 import { useAuthStore } from "@/store/auth-store";
 
+const BRAND = "#107A64";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const INK = "#111827";
+const INK_MUTED = "#4B5563";
+
+const softCard = {
+  bgcolor: "#ffffff",
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 3,
+  boxShadow:
+    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+};
+
 export default function Profile() {
+  const t = useTranslations("profile");
   const user = useAuthStore((state) => state.user);
-  const initials = user?.name
-    ?.split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   if (!user) {
     return (
-      <div className="p-8 text-sm text-slate-500">Profile is unavailable.</div>
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#F7F8F6",
+          px: { xs: 2, sm: 3, md: 4 },
+          py: 4,
+        }}
+      >
+        <Box sx={{ ...softCard, maxWidth: 900, mx: "auto", p: 3 }}>
+          <Typography sx={{ color: INK_MUTED, fontSize: 14 }}>
+            {t("unavailable")}
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
   const details = [
-    { label: "Full name", value: user.name, icon: PersonRoundedIcon },
-    { label: "Email address", value: user.email, icon: EmailRoundedIcon },
-    { label: "Role", value: user.role, icon: WorkspacesRoundedIcon },
     {
-      label: "Location",
-      value: user.location || "Not specified",
+      label: t("fields.fullName"),
+      value: user.name,
+      icon: PersonRoundedIcon,
+    },
+    {
+      label: t("fields.emailAddress"),
+      value: user.email,
+      icon: EmailRoundedIcon,
+    },
+    {
+      label: t("fields.role"),
+      value: user.role,
+      icon: WorkspacesRoundedIcon,
+    },
+    {
+      label: t("fields.location"),
+      value: user.location || t("notSpecified"),
       icon: LocationOnRoundedIcon,
     },
-    { label: "User ID", value: String(user.id), icon: BadgeRoundedIcon },
+    {
+      label: t("fields.userId"),
+      value: String(user.id),
+      icon: BadgeRoundedIcon,
+    },
     ...(user.staffId
       ? [
           {
-            label: "Staff ID",
+            label: t("fields.staffId"),
             value: String(user.staffId),
             icon: BadgeRoundedIcon,
           },
@@ -46,62 +90,140 @@ export default function Profile() {
   ];
 
   return (
-    <main className="min-h-[calc(100vh-72px)] bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        <Link
+    <Box
+      component="main"
+      sx={{
+        minHeight: "calc(100vh - 72px)",
+        bgcolor: "#F7F8F6",
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, md: 4 },
+      }}
+    >
+      <Box sx={{ width: "100%", maxWidth: 900, mx: "auto" }}>
+        <Box
+          component={Link}
           href="/admin/dashboard"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-blue-600"
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.75,
+            mb: 3,
+            color: INK_MUTED,
+            fontSize: 13.5,
+            fontWeight: 600,
+            textDecoration: "none",
+            transition: "color 200ms ease, transform 200ms ease",
+            "&:hover": {
+              color: BRAND,
+              transform: "translateX(-2px)",
+            },
+          }}
         >
           <ArrowBackRoundedIcon sx={{ fontSize: 18 }} />
-          Back to dashboard
-        </Link>
+          {t("backToDashboard")}
+        </Box>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_32px_rgba(15,23,42,0.06)]">
-          <div className="relative bg-slate-900 px-6 py-8 sm:px-10 sm:py-10">
-            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-blue-500/20 blur-3xl" />
-            <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-blue-400 to-cyan-500 text-2xl font-bold text-white shadow-lg ring-4 ring-white/10">
-                {initials}
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-                  Account profile
-                </p>
-                <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
-                  {user.name}
-                </h1>
-                <p className="mt-2 text-sm text-slate-300">
-                  Your authenticated account details and access information.
-                </p>
-              </div>
-              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold capitalize text-cyan-200 sm:ml-auto">
-                {user.role}
-              </span>
-            </div>
-          </div>
+        <Box sx={{ ...softCard, width: "100%", overflow: "hidden" }}>
+          <Box
+            sx={{
+              px: { xs: 2.5, sm: 3.5 },
+              py: { xs: 2.5, sm: 3 },
+              borderBottom: `1px solid ${HAIRLINE}`,
+            }}
+          >
+            <Typography
+              sx={{
+                color: INK,
+                fontSize: { xs: 18, sm: 20 },
+                fontWeight: 600,
+                lineHeight: 1.4,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {t("accountInformation")}
+            </Typography>
 
-          <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-10">
-            {details.map(({ label, value, icon: Icon }) => (
-              <div
+            <Typography
+              sx={{
+                mt: 0.4,
+                color: INK_MUTED,
+                fontSize: 13,
+                lineHeight: 1.5,
+              }}
+            >
+              {t("accountDescription")}
+            </Typography>
+          </Box>
+
+          <Box sx={{ px: { xs: 2.5, sm: 3.5 } }}>
+            {details.map(({ label, value, icon: Icon }, index) => (
+              <Box
                 key={label}
-                className="flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50/70 p-4"
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "44px minmax(0, 1fr)",
+                    sm: "44px 190px minmax(0, 1fr)",
+                  },
+                  alignItems: "center",
+                  gap: { xs: 1.25, sm: 1.75 },
+                  py: 2.25,
+                  borderBottom:
+                    index < details.length - 1
+                      ? `1px solid ${HAIRLINE}`
+                      : "none",
+                  transition: "background-color 200ms ease",
+                  "&:hover": {
+                    bgcolor: "rgba(16, 122, 100, 0.025)",
+                  },
+                }}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm">
-                  <Icon sx={{ fontSize: 21 }} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    {label}
-                  </p>
-                  <p className="mt-1 truncate text-sm font-semibold text-slate-800">
-                    {value}
-                  </p>
-                </div>
-              </div>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 2,
+                    bgcolor: BRAND_SOFT,
+                    color: BRAND,
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon sx={{ fontSize: 19 }} />
+                </Box>
+
+                <Typography
+                  sx={{
+                    color: INK_MUTED,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    gridColumn: { xs: "2", sm: "auto" },
+                  }}
+                >
+                  {label}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    color: INK,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    fontWeight: 600,
+                    wordBreak: "break-word",
+                    gridColumn: { xs: "2", sm: "auto" },
+                  }}
+                >
+                  {value}
+                </Typography>
+              </Box>
             ))}
-          </div>
-        </section>
-      </div>
-    </main>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }

@@ -133,36 +133,22 @@ export default function Sidebar({
           width: collapsed
             ? { xs: DRAWER_WIDTH, md: RAIL_WIDTH }
             : DRAWER_WIDTH,
-
           position: { xs: "fixed", md: "sticky" },
-
           top: 0,
-
           left: 0,
-
           zIndex: { xs: 1300, md: 1 },
-
           transform: {
             xs: collapsed ? "translateX(-100%)" : "translateX(0)",
             md: "none",
           },
-
           display: "flex",
-
           flexShrink: 0,
-
           flexDirection: "column",
-
           height: "100vh",
-
           overflowY: "auto",
-
           borderRight: `1px solid ${HAIRLINE}`,
-
           bgcolor: "#ffffff",
-
           color: INK,
-
           p: 1.5,
 
           boxShadow: {
@@ -178,18 +164,13 @@ export default function Sidebar({
         <Box
           sx={{
             mb: 4,
-
             display: "flex",
-
             flexDirection: { xs: "row", md: collapsed ? "column" : "row" },
-
             alignItems: "center",
-
             justifyContent: {
               xs: "space-between",
               md: collapsed ? "center" : "space-between",
             },
-
             gap: { xs: 0, md: collapsed ? 1.5 : 0 },
           }}
         >
@@ -198,15 +179,10 @@ export default function Sidebar({
             aria-label={t("goToDashboard")}
             sx={{
               display: "flex",
-
               alignItems: "center",
-
               overflow: "hidden",
-
               borderRadius: 2.5,
-
               p: 0.5,
-
               transition: "background-color 200ms ease",
 
               "&:hover": {
@@ -229,30 +205,18 @@ export default function Sidebar({
             aria-label={t("toggleSidebar")}
             sx={{
               display: "flex",
-
               alignItems: "center",
-
               justifyContent: "center",
-
               width: 36,
-
               height: 36,
-
               borderRadius: 2,
-
               border: "1px solid",
-
               borderColor: "rgba(17, 24, 39, 0.08)",
-
               color: INK_MUTED,
-
               transition: "all 200ms ease",
-
               "&:hover": {
                 borderColor: "rgba(16, 122, 100, 0.3)",
-
                 bgcolor: BRAND_SOFT,
-
                 color: BRAND,
               },
             }}
@@ -276,17 +240,11 @@ export default function Sidebar({
               },
 
               mb: 1.5,
-
               px: 1.5,
-
               fontSize: 10,
-
               fontWeight: 700,
-
               textTransform: "uppercase",
-
               letterSpacing: "0.18em",
-
               color: INK_MUTED,
             }}
           >

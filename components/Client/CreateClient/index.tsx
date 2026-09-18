@@ -21,6 +21,68 @@ import { useCreateClientHook } from "./hook";
 
 import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 
+const GENDER_OPTIONS = [
+  { value: "Male", key: "male" },
+  { value: "Female", key: "female" },
+  { value: "Other", key: "other" },
+  { value: "Prefer not to say", key: "preferNotToSay" },
+];
+
+const RESIDENCE_STATUS_OPTIONS = [
+  { value: "Citizen", key: "citizen" },
+  { value: "Permanent Resident", key: "permanentResident" },
+  { value: "Temporary Resident", key: "temporaryResident" },
+  { value: "Student Visa", key: "studentVisa" },
+  { value: "Work Visa", key: "workVisa" },
+  { value: "Dependent Visa", key: "dependentVisa" },
+  { value: "Refugee", key: "refugee" },
+  { value: "Other", key: "other" },
+];
+
+const QUALIFICATION_OPTIONS = [
+  { value: "SLC / SEE", key: "slcSee" },
+  { value: "+2 / Intermediate", key: "plusTwoIntermediate" },
+  { value: "Bachelor's Degree", key: "bachelorsDegree" },
+  { value: "Master's Degree", key: "mastersDegree" },
+  { value: "PhD", key: "phd" },
+  { value: "Diploma", key: "diploma" },
+  { value: "Certificate Course", key: "certificateCourse" },
+  { value: "Other", key: "other" },
+];
+
+const JAPANESE_LEVEL_OPTIONS = [
+  { value: "None", key: "none" },
+  { value: "N5", key: "n5" },
+  { value: "N4", key: "n4" },
+  { value: "N3", key: "n3" },
+  { value: "N2", key: "n2" },
+  { value: "N1", key: "n1" },
+  { value: "JLPT Not Taken", key: "jlptNotTaken" },
+  { value: "NAT-Test", key: "natTest" },
+  { value: "J-Test", key: "jTest" },
+];
+
+const SPONSOR_RELATIONSHIP_OPTIONS = [
+  { value: "Father", key: "father" },
+  { value: "Mother", key: "mother" },
+  { value: "Brother", key: "brother" },
+  { value: "Sister", key: "sister" },
+  { value: "Spouse", key: "spouse" },
+  { value: "Uncle", key: "uncle" },
+  { value: "Aunt", key: "aunt" },
+  { value: "Grandparent", key: "grandparent" },
+  { value: "Self", key: "self" },
+  { value: "Guardian", key: "guardian" },
+  { value: "Other", key: "other" },
+];
+
+const VISA_STATUS_OPTIONS = [
+  { value: "Not Applied", key: "notApplied" },
+  { value: "Applied", key: "applied" },
+  { value: "Processing", key: "processing" },
+  { value: "Approved", key: "approved" },
+  { value: "Rejected", key: "rejected" },
+];
 // =================================================
 // DESIGN SYSTEM
 // =================================================
@@ -415,7 +477,9 @@ const CreateClient = () => {
                     helperText={errors.visaType?.message}
                     sx={fieldSx}
                   >
-                    <MenuItem value="">{t("fields.visaType.placeholder")}</MenuItem>
+                    <MenuItem value="">
+                      {t("fields.visaType.placeholder")}
+                    </MenuItem>
 
                     {VISA_TYPES.map((item) => (
                       <MenuItem key={item} value={item}>
@@ -446,7 +510,9 @@ const CreateClient = () => {
                       helperText={errors.assignedStaff?.message}
                       sx={fieldSx}
                     >
-                      <MenuItem value="">{t("fields.assignedStaff.placeholder")}</MenuItem>
+                      <MenuItem value="">
+                        {t("fields.assignedStaff.placeholder")}
+                      </MenuItem>
 
                       {activeStaff.map((staff) => (
                         <MenuItem key={staff.staffId} value={staff.staffId}>
@@ -565,11 +631,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.gender.label")}
-                    placeholder={t("fields.gender.placeholder")}
+                    error={Boolean(errors.gender)}
+                    helperText={errors.gender?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.gender.placeholder")}
+                    </MenuItem>
+                    {GENDER_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.gender.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
 
@@ -686,11 +763,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.statusOfResidence.label")}
-                    placeholder={t("fields.statusOfResidence.placeholder")}
+                    error={Boolean(errors.statusOfResidence)}
+                    helperText={errors.statusOfResidence?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.statusOfResidence.placeholder")}
+                    </MenuItem>
+                    {RESIDENCE_STATUS_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.statusOfResidence.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
             </FormGrid>
@@ -718,11 +806,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.lastQualification.label")}
-                    placeholder={t("fields.lastQualification.placeholder")}
+                    error={Boolean(errors.lastQualification)}
+                    helperText={errors.lastQualification?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.lastQualification.placeholder")}
+                    </MenuItem>
+                    {QUALIFICATION_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.lastQualification.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
 
@@ -732,11 +831,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.japaneseLanguageLevel.label")}
-                    placeholder={t("fields.japaneseLanguageLevel.placeholder")}
+                    error={Boolean(errors.japaneseLanguageLevel)}
+                    helperText={errors.japaneseLanguageLevel?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.japaneseLanguageLevel.placeholder")}
+                    </MenuItem>
+                    {JAPANESE_LEVEL_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.japaneseLanguageLevel.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
 
@@ -894,11 +1004,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.sponsorRelationship.label")}
-                    placeholder={t("fields.sponsorRelationship.placeholder")}
+                    error={Boolean(errors.sponsorRelationship)}
+                    helperText={errors.sponsorRelationship?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.sponsorRelationship.placeholder")}
+                    </MenuItem>
+                    {SPONSOR_RELATIONSHIP_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.sponsorRelationship.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
 
@@ -910,7 +1031,9 @@ const CreateClient = () => {
                     {...field}
                     fullWidth
                     label={t("fields.sponsorStatusOfResidence.label")}
-                    placeholder={t("fields.sponsorStatusOfResidence.placeholder")}
+                    placeholder={t(
+                      "fields.sponsorStatusOfResidence.placeholder",
+                    )}
                     sx={fieldSx}
                   />
                 )}
@@ -940,11 +1063,22 @@ const CreateClient = () => {
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.visaStatus.label")}
-                    placeholder={t("fields.visaStatus.placeholder")}
+                    error={Boolean(errors.visaStatus)}
+                    helperText={errors.visaStatus?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.visaStatus.placeholder")}
+                    </MenuItem>
+                    {VISA_STATUS_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.visaStatus.${option.key}`)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
             </FormGrid>
@@ -991,9 +1125,7 @@ const CreateClient = () => {
 
                         bgcolor: "#ffffff",
 
-                        borderColor: errors.clientImage
-                          ? "#DC2626"
-                          : HAIRLINE,
+                        borderColor: errors.clientImage ? "#DC2626" : HAIRLINE,
 
                         borderRadius: 2.5,
 

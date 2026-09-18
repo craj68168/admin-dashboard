@@ -18,7 +18,75 @@ export const COE_STATUSES = [
   "Rejected",
 ] as const;
 
+export const GENDER_OPTIONS = [
+  "Male",
+  "Female",
+  "Other",
+  "Prefer not to say",
+] as const;
+
+export const STATUS_OF_RESIDENCE_OPTIONS = [
+  "Citizen",
+  "Permanent Resident",
+  "Temporary Resident",
+  "Student Visa",
+  "Work Visa",
+  "Dependent Visa",
+  "Refugee",
+  "Other",
+] as const;
+
+export const LAST_QUALIFICATION_OPTIONS = [
+  "SLC / SEE",
+  "+2 / Intermediate",
+  "Bachelor's Degree",
+  "Master's Degree",
+  "PhD",
+  "Diploma",
+  "Certificate Course",
+  "Other",
+] as const;
+
+export const JAPANESE_LANGUAGE_LEVEL_OPTIONS = [
+  "None",
+  "N5",
+  "N4",
+  "N3",
+  "N2",
+  "N1",
+  "JLPT Not Taken",
+  "NAT-Test",
+  "J-Test",
+] as const;
+
+export const SPONSOR_RELATIONSHIP_OPTIONS = [
+  "Father",
+  "Mother",
+  "Brother",
+  "Sister",
+  "Spouse",
+  "Uncle",
+  "Aunt",
+  "Grandparent",
+  "Self",
+  "Guardian",
+  "Other",
+] as const;
+
+export const VISA_STATUS_OPTIONS = [
+  "Not Applied",
+  "Applied",
+  "Processing",
+  "Approved",
+  "Rejected",
+] as const;
 export type CoeStatus = (typeof COE_STATUSES)[number];
+export type Gender = (typeof GENDER_OPTIONS)[number];
+export type StatusOfResidence = (typeof STATUS_OF_RESIDENCE_OPTIONS)[number];
+export type LastQualification = (typeof LAST_QUALIFICATION_OPTIONS)[number];
+export type JapaneseLanguageLevel = (typeof JAPANESE_LANGUAGE_LEVEL_OPTIONS)[number];
+export type SponsorRelationship = (typeof SPONSOR_RELATIONSHIP_OPTIONS)[number];
+export type VisaStatus = (typeof VISA_STATUS_OPTIONS)[number];
 
 // =================================================
 // CLIENT STATUSES

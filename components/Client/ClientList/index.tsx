@@ -18,6 +18,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Breadcrumb from "@/components/Breadcrumb";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
 import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
+import SearchFilter from "@/components/common/SearchFilter";
+
+import type { FilterField } from "@/components/common/SearchFilter/types";
+import type { ClientFilterValues } from "./type";
 
 import { useClientHook } from "./hook";
 import { useRouter } from "next/navigation";
@@ -55,14 +59,133 @@ const ClientListPage = () => {
     role,
 
     clientData,
+    filteredClients,
     isClientLoading,
 
     deleteClient,
     isDeleting,
 
     handleCreateClient,
+
+    initialClientFilters,
+    handleClientSearch,
+    handleClientFilterReset,
   } = useClientHook();
 
+  // =================================================
+  // CLIENT SEARCH / FILTER FIELDS
+  // =================================================
+
+  const clientFilterFields: FilterField<ClientFilterValues>[] = [
+    {
+      type: "select",
+      name: "visaType",
+      label: "Visa Type",
+      placeholder: "All visa types",
+      options: [
+        {
+          label: "Student",
+          value: "Student",
+        },
+        {
+          label: "Working",
+          value: "Working",
+        },
+        {
+          label: "Dependent",
+          value: "Dependent",
+        },
+      ],
+    },
+
+    {
+      type: "select",
+      name: "coeStatus",
+      label: "COE Status",
+      placeholder: "All COE statuses",
+      options: [
+        {
+          label: "Not Applied",
+          value: "Not Applied",
+        },
+        {
+          label: "Applied",
+          value: "Applied",
+        },
+        {
+          label: "Processing",
+          value: "Processing",
+        },
+        {
+          label: "Received",
+          value: "Received",
+        },
+        {
+          label: "Rejected",
+          value: "Rejected",
+        },
+      ],
+    },
+
+    {
+      type: "select",
+      name: "clientStatus",
+      label: "Client Status",
+      placeholder: "All client statuses",
+      options: [
+        {
+          label: "New",
+          value: "New",
+        },
+        {
+          label: "Document Collection",
+          value: "Document Collection",
+        },
+        {
+          label: "Processing",
+          value: "Processing",
+        },
+        {
+          label: "COE Applied",
+          value: "COE Applied",
+        },
+        {
+          label: "COE Received",
+          value: "COE Received",
+        },
+        {
+          label: "Visa Applied",
+          value: "Visa Applied",
+        },
+        {
+          label: "Visa Approved",
+          value: "Visa Approved",
+        },
+        {
+          label: "Visa Rejected",
+          value: "Visa Rejected",
+        },
+        {
+          label: "Departed",
+          value: "Departed",
+        },
+        {
+          label: "Arrived in Japan",
+          value: "Arrived in Japan",
+        },
+      ],
+    },
+
+    {
+      type: "select",
+      name: "assignedStaff",
+      label: "Assigned Staff",
+      placeholder: "All staff",
+
+      // We will populate this from actual staff data next.
+      options: [],
+    },
+  ];
   // =================================================
   // DELETE DIALOG
   // =================================================
@@ -420,6 +543,34 @@ const ClientListPage = () => {
           </Box>
 
           {/* =================================================
+    SEARCH / FILTER
+================================================= */}
+
+          <Box
+            sx={{
+              mb: {
+                xs: 2.5,
+                md: 3,
+              },
+            }}
+          >
+            <SearchFilter<ClientFilterValues>
+              searchField={{
+                name: "keyword",
+                label: "What are you looking for?",
+                placeholder: "Client ID, name, or phone",
+              }}
+              fields={clientFilterFields}
+              initialValues={initialClientFilters}
+              onSearch={handleClientSearch}
+              onReset={handleClientFilterReset}
+              searchButtonText="Search clients"
+              resetButtonText="Clear"
+              isLoading={isClientLoading}
+            />
+          </Box>
+
+          {/* =================================================
               CLIENT TABLE
           ================================================= */}
 
@@ -433,7 +584,7 @@ const ClientListPage = () => {
             }}
           >
             <DataGrid
-              rows={clientData?.data || []}
+              rows={filteredClients}
               columns={columns}
               getRowId={(row) => row.clientId}
               loading={isClientLoading}
