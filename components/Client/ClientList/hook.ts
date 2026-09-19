@@ -81,7 +81,8 @@ export const useClientHook = () => {
     data?: Array<{ staffId: string; name: string; isActive: boolean }>;
   }>({
     queryKey: ["staffList"],
-    queryFn: async () => (await api.get("/staff")).data,
+    queryFn: async () =>
+      (await api.get("/staff", { params: { page: 1, limit: 100 } })).data,
     enabled: role === "superadmin",
   });
 

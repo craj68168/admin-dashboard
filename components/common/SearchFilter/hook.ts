@@ -1,7 +1,6 @@
   "use client";
 
   import {
-    useEffect,
     useState,
     type KeyboardEvent,
   } from "react";
@@ -24,14 +23,6 @@
   }: SearchFilterProps<T>) => {
     const [values, setValues] =
       useState<T>(initialValues);
-
-    // =====================================
-    // SYNC INITIAL VALUES
-    // =====================================
-
-    useEffect(() => {
-      setValues(initialValues);
-    }, [initialValues]);
 
     // =====================================
     // CHANGE FIELD VALUE

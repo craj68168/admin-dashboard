@@ -530,6 +530,7 @@ const ClientListPage = () => {
             }}
           >
             <SearchFilter<ClientFilterValues>
+              key={JSON.stringify(clientFilters)}
               searchField={{
                 name: "keyword",
                 label: "What are you looking for?",

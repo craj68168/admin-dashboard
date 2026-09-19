@@ -24,8 +24,13 @@ import { useAuthStore } from "@/store/auth-store";
 import { formatCreatedAt } from "@/utils/format-date";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
 import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
+import SearchFilter from "@/components/common/SearchFilter";
+import type { FilterField } from "@/components/common/SearchFilter/types";
+import Pagination from "@/components/common/Pagination";
+import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
 
 import { useStaffHook } from "./hook";
+import type { StaffFilterValues } from "./type";
 
 // =================================================
 // THEME TOKENS (matches Staff/Admin dashboards + Sidebar)
@@ -56,8 +61,48 @@ export default function StaffPage() {
   const t = useTranslations("staffList");
   const role = useAuthStore((state) => state.user?.role);
 
-  const { isLoading, staffData, updateStaffStatus, isUpdatingStatus } =
-    useStaffHook();
+  const {
+    isLoading,
+    staffData,
+    pagination,
+    staffFilters,
+    staffOptions,
+    onPageChange,
+    handleStaffSearch,
+    handleStaffFilterReset,
+    updateStaffStatus,
+    isUpdatingStatus,
+  } = useStaffHook();
+
+  const staffFilterFields: FilterField<StaffFilterValues>[] = [
+    {
+      type: "select",
+      name: "staffId",
+      label: "Staff member",
+      placeholder: "All staff members",
+      options: staffOptions,
+    },
+    {
+      type: "select",
+      name: "location",
+      label: "Location",
+      placeholder: "All locations",
+      options: ["USA", "Japan", "Nepal", "Other"].map((value) => ({
+        label: value,
+        value,
+      })),
+    },
+    {
+      type: "select",
+      name: "isActive",
+      label: "Account status",
+      placeholder: "All statuses",
+      options: [
+        { label: "Active", value: "true" },
+        { label: "Inactive", value: "false" },
+      ],
+    },
+  ];
 
   const [statusDialog, setStatusDialog] = useState<{
     open: boolean;
@@ -405,11 +450,57 @@ export default function StaffPage() {
             )}
           </Box>
 
+          <Box sx={{ mb: 3 }}>
+            <SearchFilter<StaffFilterValues>
+              key={JSON.stringify(staffFilters)}
+              searchField={{
+                name: "keyword",
+                label: "What are you looking for?",
+                placeholder: "Staff ID, name, email, or phone",
+              }}
+              fields={staffFilterFields}
+              initialValues={staffFilters}
+              onSearch={handleStaffSearch}
+              onReset={handleStaffFilterReset}
+              searchButtonText="Search staff"
+              resetButtonText="Clear"
+              isLoading={isLoading}
+            />
+          </Box>
+
           {/* TABLE */}
 
           <Paper elevation={0} sx={{ ...softCard, overflow: "hidden" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: { xs: "stretch", sm: "center" },
+                justifyContent: "space-between",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                px: { xs: 2, sm: 2.5 },
+                py: 1.75,
+                borderBottom: `1px solid ${HAIRLINE}`,
+                bgcolor: "#FAFAFA",
+              }}
+            >
+              <PaginationRowsLabel
+                count={pagination?.total ?? 0}
+                from={pagination?.from ?? null}
+                to={pagination?.to ?? null}
+                itemLabel="staff members"
+              />
+              <Pagination
+                page={pagination?.current_page ?? 1}
+                total={pagination?.total ?? 0}
+                pageSize={pagination?.per_page ?? 10}
+                disabled={isLoading}
+                onPageChange={onPageChange}
+              />
+            </Box>
+
             <DataGrid
-              rows={staffData?.data || []}
+              rows={staffData}
               getRowId={(row) => row.staffId}
               columns={columns}
               disableColumnMenu
@@ -482,6 +573,34 @@ export default function StaffPage() {
                 },
               }}
             />
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: { xs: "stretch", sm: "center" },
+                justifyContent: "space-between",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                px: { xs: 2, sm: 2.5 },
+                py: 1.75,
+                borderTop: `1px solid ${HAIRLINE}`,
+                bgcolor: "#FAFAFA",
+              }}
+            >
+              <PaginationRowsLabel
+                count={pagination?.total ?? 0}
+                from={pagination?.from ?? null}
+                to={pagination?.to ?? null}
+                itemLabel="staff members"
+              />
+              <Pagination
+                page={pagination?.current_page ?? 1}
+                total={pagination?.total ?? 0}
+                pageSize={pagination?.per_page ?? 10}
+                disabled={isLoading}
+                onPageChange={onPageChange}
+              />
+            </Box>
           </Paper>
         </Box>
       </Box>
