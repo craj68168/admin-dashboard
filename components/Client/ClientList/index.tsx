@@ -2,29 +2,25 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
-
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-
 import AddIcon from "@mui/icons-material/Add";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 import Breadcrumb from "@/components/Breadcrumb";
 import NoDataOverlay from "@/components/common/NoDataOverlay";
 import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
 import SearchFilter from "@/components/common/SearchFilter";
-
 import type { FilterField } from "@/components/common/SearchFilter/types";
 import type { ClientFilterValues } from "./type";
-
 import { useClientHook } from "./hook";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
+import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
 
 // =================================================
 // DESIGN SYSTEM
@@ -54,22 +50,19 @@ type DeleteDialogState = {
 const ClientListPage = () => {
   const router = useRouter();
   const t = useTranslations("clientList");
-
   const {
     role,
-
     clientData,
-    filteredClients,
+    clientFilters,
     isClientLoading,
-
     deleteClient,
     isDeleting,
-
     handleCreateClient,
-
-    initialClientFilters,
     handleClientSearch,
     handleClientFilterReset,
+    pagination,
+    onPageChange,
+    staffOptions,
   } = useClientHook();
 
   // =================================================
@@ -181,9 +174,8 @@ const ClientListPage = () => {
       name: "assignedStaff",
       label: "Assigned Staff",
       placeholder: "All staff",
-
-      // We will populate this from actual staff data next.
-      options: [],
+      options: staffOptions,
+      disabled: role !== "superadmin",
     },
   ];
   // =================================================
@@ -424,13 +416,11 @@ const ClientListPage = () => {
         sx={{
           minHeight: "100vh",
           bgcolor: "#F7F8F6",
-
           px: {
             xs: 2,
             sm: 3,
             md: 4,
           },
-
           pb: {
             xs: 3,
             md: 4,
@@ -447,7 +437,6 @@ const ClientListPage = () => {
           {/* =================================================
               BREADCRUMB
           ================================================= */}
-
           <Box
             sx={{
               mb: {
@@ -499,38 +488,25 @@ const ClientListPage = () => {
                   xs: "100%",
                   sm: "auto",
                 },
-
                 minHeight: 42,
-
                 px: 2.25,
-
                 bgcolor: BRAND,
-
                 color: "#ffffff",
-
                 borderRadius: 2.5,
-
                 fontSize: 14,
-
                 fontWeight: 600,
-
                 textTransform: "none",
-
                 boxShadow: "none",
-
                 transition:
                   "background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease",
-
                 "&:hover": {
                   bgcolor: BRAND_HOVER,
                   boxShadow: "none",
                 },
-
                 "&:focus-visible": {
                   outline: `3px solid ${BRAND_SOFT}`,
                   outlineOffset: 2,
                 },
-
                 "& .MuiButton-startIcon": {
                   "& .MuiSvgIcon-root": {
                     fontSize: 19,
@@ -545,7 +521,6 @@ const ClientListPage = () => {
           {/* =================================================
     SEARCH / FILTER
 ================================================= */}
-
           <Box
             sx={{
               mb: {
@@ -561,7 +536,7 @@ const ClientListPage = () => {
                 placeholder: "Client ID, name, or phone",
               }}
               fields={clientFilterFields}
-              initialValues={initialClientFilters}
+              initialValues={clientFilters}
               onSearch={handleClientSearch}
               onReset={handleClientFilterReset}
               searchButtonText="Search clients"
@@ -583,8 +558,35 @@ const ClientListPage = () => {
               overflow: "hidden",
             }}
           >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: { xs: "stretch", sm: "center" },
+                justifyContent: "space-between",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                px: { xs: 2, sm: 2.5 },
+                py: 1.75,
+                borderBottom: `1px solid ${HAIRLINE}`,
+                bgcolor: "#FAFAFA",
+              }}
+            >
+              <PaginationRowsLabel
+                count={pagination?.total ?? 0}
+                from={pagination?.from ?? null}
+                to={pagination?.to ?? null}
+              />
+              <Pagination
+                page={pagination?.current_page ?? 1}
+                total={pagination?.total ?? 0}
+                pageSize={pagination?.per_page ?? 10}
+                disabled={isClientLoading}
+                onPageChange={onPageChange}
+              />
+            </Box>
+
             <DataGrid
-              rows={filteredClients}
+              rows={clientData}
               columns={columns}
               getRowId={(row) => row.clientId}
               loading={isClientLoading}
@@ -773,6 +775,33 @@ const ClientListPage = () => {
                 },
               }}
             />
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: { xs: "stretch", sm: "center" },
+                justifyContent: "space-between",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: 2,
+                px: { xs: 2, sm: 2.5 },
+                py: 1.75,
+                borderTop: `1px solid ${HAIRLINE}`,
+                bgcolor: "#FAFAFA",
+              }}
+            >
+              <PaginationRowsLabel
+                count={pagination?.total ?? 0}
+                from={pagination?.from ?? null}
+                to={pagination?.to ?? null}
+              />
+              <Pagination
+                page={pagination?.current_page ?? 1}
+                total={pagination?.total ?? 0}
+                pageSize={pagination?.per_page ?? 10}
+                disabled={isClientLoading}
+                onPageChange={onPageChange}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>

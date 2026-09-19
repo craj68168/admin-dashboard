@@ -10,12 +10,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-
 import SearchIcon from "@mui/icons-material/Search";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
-
 import { useSearchFilter } from "./hook";
-
 import type { FilterValues, SearchFilterProps } from "./types";
 
 export default function SearchFilter<T extends FilterValues>(
@@ -23,33 +20,17 @@ export default function SearchFilter<T extends FilterValues>(
 ) {
   const {
     searchField,
-
     fields,
-
     title = "What are you looking for?",
-
     refineTitle = "REFINE RESULTS",
-
     searchButtonText = "Search",
-
     resetButtonText = "Clear",
-
     isLoading = false,
-
     rightAction,
   } = props;
 
-  const {
-    values,
-
-    handleChange,
-
-    handleSearch,
-
-    handleReset,
-
-    handleKeyDown,
-  } = useSearchFilter(props);
+  const { values, handleChange, handleSearch, handleReset, handleKeyDown } =
+    useSearchFilter(props);
 
   return (
     <Paper
@@ -57,11 +38,8 @@ export default function SearchFilter<T extends FilterValues>(
       sx={{
         border: "1px solid",
         borderColor: "#d9e2ec",
-
         borderRadius: 2,
-
         overflow: "hidden",
-
         backgroundColor: "#ffffff",
       }}
     >

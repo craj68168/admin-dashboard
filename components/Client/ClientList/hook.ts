@@ -1,255 +1,130 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-
+import { useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
-
 import type {
-  Client,
   ClientFilterValues,
+  ClientListApiResponse,
+  ClientListQuery,
 } from "./type";
 
-// =================================================
-// INITIAL FILTER VALUES
-// =================================================
+const DEFAULT_PAGE_SIZE = 10;
 
-const INITIAL_CLIENT_FILTERS: ClientFilterValues = {
-  keyword: "",
-  visaType: "",
-  coeStatus: "",
-  clientStatus: "",
-  assignedStaff: "",
+const readPositiveInteger = (value: string | null, fallback: number) => {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
 export const useClientHook = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-
   const user = useAuthStore((state) => state.user);
-
   const role = user?.role;
 
-  // =================================================
-  // APPLIED CLIENT FILTERS
-  //
-  // These values change only when Search or Clear
-  // is clicked from the shared SearchFilter.
-  // =================================================
+  const clientQuery = useMemo<ClientListQuery>(
+    () => ({
+      keyword: searchParams.get("keyword") ?? "",
+      visaType: searchParams.get("visaType") ?? "",
+      coeStatus: searchParams.get("coeStatus") ?? "",
+      clientStatus: searchParams.get("clientStatus") ?? "",
+      assignedStaff: searchParams.get("assignedStaff") ?? "",
+      page: readPositiveInteger(searchParams.get("page"), 1),
+      limit: readPositiveInteger(searchParams.get("limit"), DEFAULT_PAGE_SIZE),
+    }),
+    [searchParams],
+  );
+  const filterValues = useMemo<ClientFilterValues>(
+    () => ({
+      keyword: clientQuery.keyword,
+      visaType: clientQuery.visaType,
+      coeStatus: clientQuery.coeStatus,
+      clientStatus: clientQuery.clientStatus,
+      assignedStaff: clientQuery.assignedStaff,
+    }),
+    [clientQuery],
+  );
 
-  const [clientFilters, setClientFilters] =
-    useState<ClientFilterValues>(
-      INITIAL_CLIENT_FILTERS,
-    );
+  const applyQuery = (nextQuery: ClientListQuery) => {
+    const params = new URLSearchParams();
+    Object.entries(nextQuery).forEach(([key, value]) => {
+      if (value !== "" && value !== undefined && value !== null) {
+        params.set(key, String(value));
+      }
+    });
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
-  // =================================================
-  // GET CLIENTS
-  //
-  // Admin:
-  // backend returns all clients
-  //
-  // Staff:
-  // backend returns only their assigned clients
-  //
-  // Search/filter backend is not ready yet,
-  // so filtering is temporarily done below.
-  // =================================================
-
-  const {
-    data: clientData,
-    isLoading: isClientLoading,
-    isError: isClientError,
-    error: clientError,
-  } = useQuery({
-    queryKey: ["clients"],
-
+  const clientsQuery = useQuery<ClientListApiResponse>({
+    queryKey: ["clients", clientQuery],
     queryFn: async () => {
-      const response = await api.get("/clients", {
+      const response = await api.get<ClientListApiResponse>("/clients", {
         params: {
-          page: 1,
-          limit: 100,
+          page: clientQuery.page,
+          limit: clientQuery.limit,
+          free_word: clientQuery.keyword || undefined,
+          visaType: clientQuery.visaType || undefined,
+          coeStatus: clientQuery.coeStatus || undefined,
+          clientStatus: clientQuery.clientStatus || undefined,
+          staffId: clientQuery.assignedStaff || undefined,
         },
       });
-
       return response.data;
     },
   });
 
-  // =================================================
-  // SEARCH
-  // =================================================
+  const staffQuery = useQuery<{
+    data?: Array<{ staffId: string; name: string; isActive: boolean }>;
+  }>({
+    queryKey: ["staffList"],
+    queryFn: async () => (await api.get("/staff")).data,
+    enabled: role === "superadmin",
+  });
 
-  const handleClientSearch = (
-    values: ClientFilterValues,
-  ) => {
-    setClientFilters(values);
-  };
+  const onPageChange = (page: number, limit = clientQuery.limit) =>
+    applyQuery({ ...clientQuery, page, limit });
 
-  // =================================================
-  // RESET SEARCH / FILTER
-  // =================================================
+  const handleClientSearch = (values: ClientFilterValues) =>
+    applyQuery({ ...values, page: 1, limit: clientQuery.limit });
 
-  const handleClientFilterReset = (
-    values: ClientFilterValues,
-  ) => {
-    setClientFilters(values);
-  };
-
-  // =================================================
-  // TEMPORARY FRONTEND SEARCH / FILTER
-  //
-  // Later this moves to backend.
-  // =================================================
-
-  const filteredClients = useMemo(() => {
-    const clients: Client[] =
-      clientData?.data || [];
-
-    const keyword = clientFilters.keyword
-      .trim()
-      .toLowerCase();
-
-    return clients.filter((client) => {
-      // =============================================
-      // KEYWORD SEARCH
-      // =============================================
-
-      const clientId = String(
-        client.clientId ?? "",
-      ).toLowerCase();
-
-      const fullName = String(
-        client.fullName ?? "",
-      ).toLowerCase();
-
-      const phone = String(
-        client.phone ?? "",
-      ).toLowerCase();
-
-      const matchesKeyword =
-        !keyword ||
-        clientId.includes(keyword) ||
-        fullName.includes(keyword) ||
-        phone.includes(keyword);
-
-      // =============================================
-      // VISA TYPE
-      // =============================================
-
-      const matchesVisaType =
-        !clientFilters.visaType ||
-        client.visaType ===
-          clientFilters.visaType;
-
-      // =============================================
-      // COE STATUS
-      // =============================================
-
-      const matchesCoeStatus =
-        !clientFilters.coeStatus ||
-        client.coeStatus ===
-          clientFilters.coeStatus;
-
-      // =============================================
-      // CLIENT STATUS
-      // =============================================
-
-      const matchesClientStatus =
-        !clientFilters.clientStatus ||
-        client.clientStatus ===
-          clientFilters.clientStatus;
-
-      // =============================================
-      // ASSIGNED STAFF
-      // =============================================
-
-      const matchesAssignedStaff =
-        !clientFilters.assignedStaff ||
-        client.assignedStaff ===
-          clientFilters.assignedStaff;
-
-      // =============================================
-      // ALL ACTIVE FILTERS MUST MATCH
-      // =============================================
-
-      return (
-        matchesKeyword &&
-        matchesVisaType &&
-        matchesCoeStatus &&
-        matchesClientStatus &&
-        matchesAssignedStaff
-      );
+  const handleClientFilterReset = () =>
+    applyQuery({
+      keyword: "",
+      visaType: "",
+      coeStatus: "",
+      clientStatus: "",
+      assignedStaff: "",
+      page: 1,
+      limit: clientQuery.limit,
     });
-  }, [
-    clientData,
-    clientFilters,
-  ]);
 
-  // =================================================
-  // DELETE CLIENT
-  // SUPERADMIN ONLY
-  // =================================================
-
-  const {
-    mutate: deleteClient,
-    isPending: isDeleting,
-  } = useMutation({
-    mutationFn: (clientId: string) => {
-      return api.delete(
-        `/clients/${clientId}`,
-      );
-    },
-
+  const { mutate: deleteClient, isPending: isDeleting } = useMutation({
+    mutationFn: (clientId: string) => api.delete(`/clients/${clientId}`),
     onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: ["clients"],
-      });
-
-      void queryClient.invalidateQueries({
-        queryKey: ["staffList"],
-      });
+      void queryClient.invalidateQueries({ queryKey: ["clients"] });
+      void queryClient.invalidateQueries({ queryKey: ["staffList"] });
     },
   });
 
-  // =================================================
-  // CREATE
-  // =================================================
-
-  const handleCreateClient = () => {
-    router.push("/admin/client/add");
-  };
-
-  // =================================================
-  // RETURN
-  // =================================================
-
   return {
     role,
-
-    clientData,
-    filteredClients,
-
-    isClientLoading,
-    isClientError,
-    clientError,
-
+    clientData: clientsQuery.data?.data ?? [],
+    pagination: clientsQuery.data?.pagination,
+    staffOptions: (staffQuery.data?.data ?? [])
+      .filter((staff) => staff.isActive)
+      .map((staff) => ({ label: staff.name, value: staff.staffId })),
+    clientError: clientsQuery.error,
     deleteClient,
     isDeleting,
-
-    handleCreateClient,
-
-    // Search / Filter
-    clientFilters,
-
-    initialClientFilters:
-      INITIAL_CLIENT_FILTERS,
-
+    handleCreateClient: () => router.push("/admin/client/add"),
+    isClientLoading: clientsQuery.isLoading || clientsQuery.isFetching,
+    isClientError: clientsQuery.isError,
+    clientFilters: filterValues,
+    onPageChange,
     handleClientSearch,
     handleClientFilterReset,
   };

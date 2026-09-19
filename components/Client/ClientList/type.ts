@@ -1,71 +1,23 @@
 export type ClientStaffRecord = {
   _id?: string;
-  staffId?: number | string;
-  id?: number | string;
+  staffId?: string;
   name: string;
   email?: string;
-  phone?: string;
-  location?: string;
-};
-
-
-export type ClientRecord = {
-  _id?: string;
-  clientId: number | string;
-  fullName: string;
-  phone?: string;
-  visaType?: string;
-  coeStatus?: string;
-  visaStatus?: string;
-  clientStatus?: string;
-  assignedStaff?: ClientStaffRecord | string | null;
-  assignedStaffId?: number | string | null;
-  assignedStaffName?: string;
-};
-
-export type ClientListApiResponse<T> = {
-  data?: T[];
-};
-
-export type ClientListViewState = {
-  sidebarCollapsed: boolean;
-  staffs: ClientStaffRecord[];
-  clients: ClientRecord[];
-  isLoading: boolean;
-  isError: boolean;
-  canCreateClient: boolean;
-  canAssignClient: boolean;
-  setSidebarCollapsed: (value: boolean | ((previous: boolean) => boolean)) => void;
-  handleCreateClient: () => void;
-  handleAssignClient: (clientId: number | string, staffId: number | string) => void;
 };
 
 export type Client = {
-  assignedStaff: string;
+  _id: string;
   clientId: string;
-  clientStatus: string;
-  coeStatus: string;
-  createdAt: string;
   fullName: string;
   phone: string;
-  updatedAt: string;
   visaType: string;
-  __v: number;
-  _id: string;
-};
-export type Staff = {
-  _id: string;
-  staffId: string;
-  name: string;
-  phone: string;
-  email: string;
-  location: string;
-  role: string;
-  isActive: boolean;
-  totalClients: number;
+  coeStatus: string;
+  clientStatus: string;
+  currentStage?: string;
+  assignedStaff: string;
+  assignedStaffDetails?: ClientStaffRecord | null;
   createdAt: string;
   updatedAt: string;
-  __v: number;
 };
 
 export type ClientFilterValues = {
@@ -76,3 +28,25 @@ export type ClientFilterValues = {
   assignedStaff: string;
 };
 
+export type ClientListQuery = ClientFilterValues & {
+  page: number;
+  limit: number;
+};
+
+export type ClientPagination = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+  has_next_page: boolean;
+  has_previous_page: boolean;
+};
+
+export type ClientListApiResponse = {
+  success: boolean;
+  count: number;
+  data: Client[];
+  pagination: ClientPagination;
+};
