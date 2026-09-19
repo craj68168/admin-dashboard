@@ -2,10 +2,10 @@
 
 import {
   Box,
+  Autocomplete,
   Button,
   Divider,
   InputAdornment,
-  MenuItem,
   Paper,
   TextField,
   Typography,
@@ -227,20 +227,32 @@ export default function SearchFilter<T extends FilterValues>(
                       {field.label}
                     </Typography>
 
-                    <TextField
-                      select
-                      fullWidth
-                      size="small"
-                      value={values[field.name] ?? ""}
-                      disabled={field.disabled}
-                      onChange={(event) =>
-                        handleChange(field.name, event.target.value)
+                    <Autocomplete
+                      disablePortal
+                      options={field.options}
+                      value={
+                        field.options.find(
+                          (option) => option.value === values[field.name],
+                        ) ?? null
                       }
-                      slotProps={{
-                        select: {
-                          displayEmpty: true,
-                        },
-                      }}
+                      fullWidth
+                      disabled={field.disabled}
+                      getOptionLabel={(option) => option.label}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      onChange={(_event, option) =>
+                        handleChange(field.name, option?.value ?? "")
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          placeholder={
+                            field.placeholder || `All ${field.label.toLowerCase()}`
+                          }
+                        />
+                      )}
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           backgroundColor: "#f8fafc",
@@ -258,27 +270,7 @@ export default function SearchFilter<T extends FilterValues>(
                           },
                         },
                       }}
-                    >
-                      <MenuItem value="">
-                        <Typography
-                          component="span"
-                          sx={{
-                            color: "#64748b",
-
-                            fontSize: 14,
-                          }}
-                        >
-                          {field.placeholder ||
-                            `All ${field.label.toLowerCase()}`}
-                        </Typography>
-                      </MenuItem>
-
-                      {field.options.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    />
                   </Box>
                 );
               }
