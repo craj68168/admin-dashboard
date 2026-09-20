@@ -1,47 +1,170 @@
 import { z } from "zod";
 
-import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  NATIONALITIES,
+  STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EDUCATION_TYPE_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
+
+// =================================================
+// OPTION VALUE HELPER
+// =================================================
+
+const optionValues = <
+  T extends readonly {
+    value: string;
+  }[],
+>(
+  options: T,
+) =>
+  options.map((option) => option.value) as [
+    T[number]["value"],
+    ...T[number]["value"][],
+  ];
+
+// =================================================
+// ENUM VALUES
+// =================================================
+
+const GENDER_VALUES =
+  optionValues(GENDER);
+
+const CURRENT_VISA_STATUS_VALUES =
+  optionValues(
+    CURRENT_VISA_STATUS_OPTIONS,
+  );
+
+const PREFER_CATEGORY_VALUES =
+  optionValues(
+    PREFER_CATEGORY_OPTIONS,
+  );
+
+const CURRENT_STAGE_VALUES =
+  optionValues(CURRENT_STAGES);
+
+const NATIONALITY_VALUES =
+  optionValues(NATIONALITIES);
+
+const STATUS_OF_RESIDENCE_VALUES =
+  optionValues(
+    STATUS_OF_RESIDENCE_OPTIONS,
+  );
+
+const JAPANESE_LEVEL_VALUES =
+  optionValues(JAPANESE_LEVELS);
+
+const EDUCATION_TYPE_VALUES =
+  optionValues(
+    EDUCATION_TYPE_OPTIONS,
+  );
+
+const EMPLOYMENT_TYPE_VALUES =
+  optionValues(
+    EMPLOYMENT_TYPE_OPTIONS,
+  );
+
+const PREFECTURE_VALUES =
+  optionValues(PREFECTURE_OPTIONS);
+
+// =================================================
+// VALIDATION MESSAGES
+// =================================================
 
 type EditClientValidationMessages = {
   emailInvalid: string;
+
   invalidFile: string;
+
   fullNameRequired: string;
   fullNameMin: string;
+
   phoneRequired: string;
   phoneMin: string;
   phoneMax: string;
-  visaTypeRequired: string;
+
+  currentVisaStatusRequired: string;
+
+  currentStageRequired: string;
+
   assignedStaffRequired: string;
 };
 
-const defaultValidationMessages: EditClientValidationMessages = {
-  emailInvalid: "Enter a valid email address",
-  invalidFile: "Invalid file",
-  fullNameRequired: "Full name is required",
-  fullNameMin: "Full name must be at least 2 characters",
-  phoneRequired: "Phone number is required",
-  phoneMin: "Phone number must be at least 7 characters",
-  phoneMax: "Phone number cannot exceed 20 characters",
-  visaTypeRequired: "Visa type is required",
-  assignedStaffRequired: "Assigned staff is required",
-};
+const defaultValidationMessages: EditClientValidationMessages =
+  {
+    emailInvalid:
+      "Enter a valid email address",
 
-const createOptionalEmail = (message: string) =>
+    invalidFile: "Invalid file",
+
+    fullNameRequired:
+      "Full name is required",
+
+    fullNameMin:
+      "Full name must be at least 2 characters",
+
+    phoneRequired:
+      "Phone number is required",
+
+    phoneMin:
+      "Phone number must be at least 7 characters",
+
+    phoneMax:
+      "Phone number cannot exceed 20 characters",
+
+    currentVisaStatusRequired:
+      "Current visa status is required",
+
+    currentStageRequired:
+      "Current stage is required",
+
+    assignedStaffRequired:
+      "Assigned staff is required",
+  };
+
+// =================================================
+// OPTIONAL EMAIL
+// =================================================
+
+const createOptionalEmail = (
+  message: string,
+) =>
   z
-  .string()
-  .trim()
-  .refine((value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value), {
-    message,
-  });
+    .string()
+    .trim()
+    .refine(
+      (value) =>
+        value === "" ||
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+          value,
+        ),
+      {
+        message,
+      },
+    );
 
-const createOptionalFile = (message: string) =>
+// =================================================
+// OPTIONAL FILE
+// =================================================
+
+const createOptionalFile = (
+  message: string,
+) =>
   z.custom<File | null>(
     (value) => {
       if (value === null) {
         return true;
       }
 
-      if (typeof File === "undefined") {
+      if (
+        typeof File === "undefined"
+      ) {
         return true;
       }
 
@@ -52,116 +175,230 @@ const createOptionalFile = (message: string) =>
     },
   );
 
+// =================================================
+// EDIT CLIENT SCHEMA
+// =================================================
+
 export const createEditClientSchema = (
-  messages: EditClientValidationMessages = defaultValidationMessages,
+  messages: EditClientValidationMessages =
+    defaultValidationMessages,
 ) => {
-  const optionalEmail = createOptionalEmail(messages.emailInvalid);
-  const optionalFile = createOptionalFile(messages.invalidFile);
+  const optionalEmail =
+    createOptionalEmail(
+      messages.emailInvalid,
+    );
+
+  const optionalFile =
+    createOptionalFile(
+      messages.invalidFile,
+    );
 
   return z.object({
-  // =================================================
-  // CLIENT
-  // =================================================
+    // =================================================
+    // CLIENT
+    // =================================================
 
-  fullName: z
-    .string()
-    .trim()
-    .min(1, messages.fullNameRequired)
-    .min(2, messages.fullNameMin),
+    fullName: z
+      .string()
+      .trim()
+      .min(
+        1,
+        messages.fullNameRequired,
+      )
+      .min(
+        2,
+        messages.fullNameMin,
+      ),
 
-  phone: z
-    .string()
-    .trim()
-    .min(1, messages.phoneRequired)
-    .min(7, messages.phoneMin)
-    .max(20, messages.phoneMax),
+    phone: z
+      .string()
+      .trim()
+      .min(
+        1,
+        messages.phoneRequired,
+      )
+      .min(
+        7,
+        messages.phoneMin,
+      )
+      .max(
+        20,
+        messages.phoneMax,
+      ),
 
-  visaType: z
-    .union([z.enum(VISA_TYPES), z.literal("")])
-    .refine((value) => value !== "", {
-      message: messages.visaTypeRequired,
-    }),
+    currentVisaStatus: z
+      .union([
+        z.enum(
+          CURRENT_VISA_STATUS_VALUES,
+        ),
+        z.literal(""),
+      ])
+      .refine(
+        (value) => value !== "",
+        {
+          message:
+            messages.currentVisaStatusRequired,
+        },
+      ),
 
-  assignedStaff: z.string().trim().min(1, messages.assignedStaffRequired),
+    preferCategory: z.union([
+      z.enum(
+        PREFER_CATEGORY_VALUES,
+      ),
+      z.literal(""),
+    ]),
 
-  coeStatus: z.enum(COE_STATUSES),
+    currentStage: z
+      .union([
+        z.enum(
+          CURRENT_STAGE_VALUES,
+        ),
+        z.literal(""),
+      ])
+      .refine(
+        (value) => value !== "",
+        {
+          message:
+            messages.currentStageRequired,
+        },
+      ),
 
-  clientStatus: z.enum(CLIENT_STATUSES),
+    assignedStaff: z
+      .string()
+      .trim()
+      .min(
+        1,
+        messages.assignedStaffRequired,
+      ),
 
-  // =================================================
-  // PERSONAL
-  // =================================================
+    // =================================================
+    // PERSONAL
+    // =================================================
 
-  dateOfBirth: z.string(),
+    dateOfBirth: z.string(),
 
-  gender: z.string().trim(),
+    gender: z.union([
+      z.enum(GENDER_VALUES),
+      z.literal(""),
+    ]),
 
-  email: optionalEmail,
+    email: optionalEmail,
 
-  address: z.string().trim(),
+    nationality: z.union([
+      z.enum(NATIONALITY_VALUES),
+      z.literal(""),
+    ]),
 
-  nationality: z.string().trim(),
+    address: z.string().trim(),
 
-  // =================================================
-  // PASSPORT
-  // =================================================
+    prefecture: z.union([
+      z.enum(PREFECTURE_VALUES),
+      z.literal(""),
+    ]),
 
-  passportNumber: z.string().trim(),
+    // =================================================
+    // PASSPORT / RESIDENCE
+    // =================================================
 
-  passportExpiryDate: z.string(),
+    passportNumber:
+      z.string().trim(),
 
-  statusOfResidence: z.string().trim(),
+    passportExpiryDate:
+      z.string(),
 
-  // =================================================
-  // EDUCATION
-  // =================================================
+    statusOfResidence: z.union([
+      z.enum(
+        STATUS_OF_RESIDENCE_VALUES,
+      ),
+      z.literal(""),
+    ]),
 
-  lastQualification: z.string().trim(),
+    // =================================================
+    // JAPANESE
+    // =================================================
 
-  japaneseLanguageLevel: z.string().trim(),
+    japaneseLanguageLevel:
+      z.union([
+        z.enum(
+          JAPANESE_LEVEL_VALUES,
+        ),
+        z.literal(""),
+      ]),
 
-  schoolName: z.string().trim(),
+    intake: z.string().trim(),
 
-  course: z.string().trim(),
+    // =================================================
+    // EDUCATION
+    // =================================================
 
-  intake: z.string().trim(),
+    education: z.array(
+      z.object({
+        schoolName:
+          z.string().trim(),
 
-  // =================================================
-  // EMPLOYMENT
-  // =================================================
+        enrollmentDate:
+          z.string(),
 
-  jobCategory: z.string().trim(),
+        graduationDate:
+          z.string(),
 
-  jobTitle: z.string().trim(),
+        educationType:
+          z.union([
+            z.enum(
+              EDUCATION_TYPE_VALUES,
+            ),
+            z.literal(""),
+          ]),
 
-  companyName: z.string().trim(),
+        major:
+          z.string().trim(),
+      }),
+    ),
 
-  workLocation: z.string().trim(),
+    // =================================================
+    // EMPLOYMENT HISTORY
+    // =================================================
 
-  // =================================================
-  // SPONSOR
-  // =================================================
+    employmentHistory: z.array(
+      z.object({
+        companyName:
+          z.string().trim(),
 
-  sponsorName: z.string().trim(),
+        startDate:
+          z.string(),
 
-  sponsorRelationship: z.string().trim(),
+        endDate:
+          z.string(),
 
-  sponsorStatusOfResidence: z.string().trim(),
+        employmentType:
+          z.union([
+            z.enum(
+              EMPLOYMENT_TYPE_VALUES,
+            ),
+            z.literal(""),
+          ]),
+      }),
+    ),
 
-  // =================================================
-  // VISA
-  // =================================================
+    // =================================================
+    // OTHER
+    // =================================================
 
-  visaStatus: z.string().trim(),
+    remark: z.string().trim(),
 
-  // =================================================
-  // FILES
-  // =================================================
+    // =================================================
+    // FILES
+    // =================================================
 
-  clientImage: optionalFile,
+    clientImage: optionalFile,
 
-  cv: optionalFile,
+    cv: optionalFile,
   });
 };
 
-export const editClientSchema = createEditClientSchema();
+// =================================================
+// DEFAULT SCHEMA
+// =================================================
+
+export const editClientSchema =
+  createEditClientSchema();

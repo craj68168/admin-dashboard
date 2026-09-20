@@ -99,6 +99,41 @@ export const CURRENT_VISA_STATUS_OPTIONS = [
   },
 ] as const;
 
+export const EDUCATION_TYPE_OPTIONS = [
+  {
+    value: "Japanese Language School",
+    key: "japaneseLanguageSchool",
+  },
+  {
+    value: "Vocational School",
+    key: "vocationalSchool",
+  },
+  {
+    value: "University",
+    key: "university",
+  },
+  {
+    value: "Junior College",
+    key: "juniorCollege",
+  },
+  {
+    value: "High School",
+    key: "highSchool",
+  },
+  {
+    value: "Technical College",
+    key: "technicalCollege",
+  },
+  {
+    value: "International School",
+    key: "internationalSchool",
+  },
+  {
+    value: "Other",
+    key: "other",
+  },
+] as const;
+
 // =================================================
 // PREFERRED CATEGORY
 // Requirement: COE Status = Prefer Category

@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import axios from "axios";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
@@ -21,11 +23,11 @@ import { createEditClientSchema } from "./validation";
 import type {
   ClientDetailsResponse,
   EditClientFormValues,
-  StaffOption,
+  StaffListResponse,
 } from "./type";
 
 // =================================================
-// DATE → YYYY-MM-DD
+// DATE -> YYYY-MM-DD
 // =================================================
 
 const toDateInputValue = (value?: string) => {
@@ -43,16 +45,24 @@ const toDateInputValue = (value?: string) => {
 };
 
 // =================================================
-// APPEND OPTIONAL VALUE
+// APPEND OPTIONAL STRING VALUE
 // =================================================
 
-const appendValue = (formData: FormData, key: string, value: string) => {
+const appendValue = (
+  formData: FormData,
+  key: string,
+  value: string,
+) => {
   const cleaned = value.trim();
 
   if (cleaned !== "") {
     formData.append(key, cleaned);
   }
 };
+
+// =================================================
+// EDIT CLIENT HOOK
+// =================================================
 
 export const useEditClientHook = () => {
   const t = useTranslations("editClient");
@@ -63,13 +73,17 @@ export const useEditClientHook = () => {
 
   const queryClient = useQueryClient();
 
-  const clientId = searchParams.get("clientId") ?? "";
+  const clientId =
+    searchParams.get("clientId") ?? "";
 
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore(
+    (state) => state.user,
+  );
 
   const role = user?.role;
 
-  const [serverError, setServerError] = useState("");
+  const [serverError, setServerError] =
+    useState("");
 
   // =================================================
   // FORM
@@ -80,65 +94,148 @@ export const useEditClientHook = () => {
     handleSubmit,
     reset,
 
-    formState: { errors, isSubmitting },
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<EditClientFormValues>({
     resolver: zodResolver(
       createEditClientSchema({
-        emailInvalid: t("validation.emailInvalid"),
-        invalidFile: t("validation.invalidFile"),
-        fullNameRequired: t("validation.fullNameRequired"),
-        fullNameMin: t("validation.fullNameMin"),
-        phoneRequired: t("validation.phoneRequired"),
-        phoneMin: t("validation.phoneMin"),
-        phoneMax: t("validation.phoneMax"),
-        visaTypeRequired: t("validation.visaTypeRequired"),
-        assignedStaffRequired: t("validation.assignedStaffRequired"),
+        emailInvalid: t(
+          "validation.emailInvalid",
+        ),
+
+        invalidFile: t(
+          "validation.invalidFile",
+        ),
+
+        fullNameRequired: t(
+          "validation.fullNameRequired",
+        ),
+
+        fullNameMin: t(
+          "validation.fullNameMin",
+        ),
+
+        phoneRequired: t(
+          "validation.phoneRequired",
+        ),
+
+        phoneMin: t(
+          "validation.phoneMin",
+        ),
+
+        phoneMax: t(
+          "validation.phoneMax",
+        ),
+
+        currentVisaStatusRequired: t(
+          "validation.currentVisaStatusRequired",
+        ),
+
+        currentStageRequired: t(
+          "validation.currentStageRequired",
+        ),
+
+        assignedStaffRequired: t(
+          "validation.assignedStaffRequired",
+        ),
       }),
     ),
 
     defaultValues: {
+      // =================================================
+      // CLIENT
+      // =================================================
+
       fullName: "",
+
       phone: "",
-      visaType: "",
+
+      currentVisaStatus: "",
+
+      preferCategory: "",
+
+      currentStage: "",
 
       assignedStaff: "",
 
-      coeStatus: "Not Applied",
-
-      clientStatus: "New",
+      // =================================================
+      // PERSONAL
+      // =================================================
 
       dateOfBirth: "",
+
       gender: "",
+
       email: "",
-      address: "",
+
       nationality: "",
 
+      address: "",
+
+      prefecture: "",
+
+      // =================================================
+      // PASSPORT / RESIDENCE
+      // =================================================
+
       passportNumber: "",
+
       passportExpiryDate: "",
+
       statusOfResidence: "",
 
-      lastQualification: "",
+      // =================================================
+      // EDUCATION
+      // =================================================
+
+      education: [
+        {
+          schoolName: "",
+
+          enrollmentDate: "",
+
+          graduationDate: "",
+
+          educationType: "",
+
+          major: "",
+        },
+      ],
 
       japaneseLanguageLevel: "",
 
-      schoolName: "",
-      course: "",
       intake: "",
 
-      jobCategory: "",
-      jobTitle: "",
-      companyName: "",
-      workLocation: "",
+      // =================================================
+      // EMPLOYMENT HISTORY
+      // =================================================
 
-      sponsorName: "",
+      employmentHistory: [
+        {
+          companyName: "",
 
-      sponsorRelationship: "",
+          startDate: "",
 
-      sponsorStatusOfResidence: "",
+          endDate: "",
 
-      visaStatus: "",
+          employmentType: "",
+        },
+      ],
+
+      // =================================================
+      // OTHER
+      // =================================================
+
+      remark: "",
+
+      // =================================================
+      // REPLACEMENT FILES
+      // =================================================
 
       clientImage: null,
+
       cv: null,
     },
   });
@@ -159,9 +256,10 @@ export const useEditClientHook = () => {
     queryKey: ["client", clientId],
 
     queryFn: async () => {
-      const response = await api.get<ClientDetailsResponse>(
-        `/clients/${clientId}`,
-      );
+      const response =
+        await api.get<ClientDetailsResponse>(
+          `/clients/${clientId}`,
+        );
 
       return response.data;
     },
@@ -182,91 +280,159 @@ export const useEditClientHook = () => {
 
     const profile = client.profile;
 
+    // =================================================
+    // EMPLOYMENT HISTORY
+    // =================================================
+
+const employmentHistory: EditClientFormValues["employmentHistory"] =
+  profile?.employmentHistory?.length
+    ? profile.employmentHistory.map((employment) => ({
+        companyName: employment.companyName ?? "",
+        startDate: toDateInputValue(employment.startDate),
+        endDate: toDateInputValue(employment.endDate),
+        employmentType: employment.employmentType ?? "",
+      }))
+    : [
+        {
+          companyName: "",
+          startDate: "",
+          endDate: "",
+          employmentType: "",
+        },
+      ];
+
+    const profileEducation =
+      profile?.education;
+
+    const education: EditClientFormValues["education"] =
+      Array.isArray(profileEducation) &&
+      profileEducation.length > 0
+        ? profileEducation.map((item) => ({
+            schoolName: item.schoolName ?? "",
+            enrollmentDate: toDateInputValue(item.enrollmentDate),
+            graduationDate: toDateInputValue(item.graduationDate),
+            educationType: item.educationType ?? "",
+            major: item.major ?? "",
+          }))
+        : profileEducation && !Array.isArray(profileEducation)
+          ? [
+              {
+                schoolName: profileEducation.schoolName ?? "",
+                enrollmentDate: toDateInputValue(
+                  profileEducation.enrollmentDate,
+                ),
+                graduationDate: toDateInputValue(
+                  profileEducation.graduationDate,
+                ),
+                educationType: profileEducation.educationType ?? "",
+                major: profileEducation.major ?? "",
+              },
+            ]
+          : [
+              {
+                schoolName: "",
+                enrollmentDate: "",
+                graduationDate: "",
+                educationType: "" as const,
+                major: "",
+              },
+            ];
+
     reset({
       // =================================================
       // CLIENT
       // =================================================
 
-      fullName: client.fullName ?? "",
+      fullName:
+        client.fullName ?? "",
 
-      phone: client.phone ?? "",
+      phone:
+        client.phone ?? "",
 
-      visaType: client.visaType ?? "",
+      currentVisaStatus:
+        client.currentVisaStatus ?? "",
 
-      assignedStaff: client.assignedStaff ?? "",
+      preferCategory:
+        client.preferCategory ?? "",
 
-      coeStatus: client.coeStatus ?? "Not Applied",
+      currentStage:
+        client.currentStage ?? "",
 
-      clientStatus: client.clientStatus ?? "New",
+      assignedStaff:
+        client.assignedStaff ?? "",
 
       // =================================================
       // PERSONAL
       // =================================================
 
-      dateOfBirth: toDateInputValue(profile?.dateOfBirth),
+      dateOfBirth:
+        toDateInputValue(
+          profile?.dateOfBirth,
+        ),
 
-      gender: profile?.gender ?? "",
+      gender:
+        profile?.gender ?? "",
 
-      email: profile?.email ?? "",
+      email:
+        profile?.email ?? "",
 
-      address: profile?.address ?? "",
+      nationality:
+        profile?.nationality ?? "",
 
-      nationality: profile?.nationality ?? "",
+      address:
+        profile?.address ?? "",
+
+      prefecture:
+        profile?.prefecture ?? "",
 
       // =================================================
-      // PASSPORT
+      // PASSPORT / RESIDENCE
       // =================================================
 
-      passportNumber: profile?.passportNumber ?? "",
+      passportNumber:
+        profile?.passportNumber ?? "",
 
-      passportExpiryDate: toDateInputValue(profile?.passportExpiryDate),
+      passportExpiryDate:
+        toDateInputValue(
+          profile?.passportExpiryDate,
+        ),
 
-      statusOfResidence: profile?.statusOfResidence ?? "",
+      statusOfResidence:
+        profile?.statusOfResidence ?? "",
 
       // =================================================
       // EDUCATION
       // =================================================
 
-      lastQualification: profile?.lastQualification ?? "",
+      education,
 
-      japaneseLanguageLevel: profile?.japaneseLanguageLevel ?? "",
+      japaneseLanguageLevel:
+        profile?.japaneseLanguageLevel ??
+        "",
 
-      schoolName: profile?.schoolName ?? "",
-
-      course: profile?.course ?? "",
-
-      intake: profile?.intake ?? "",
-
-      // =================================================
-      // EMPLOYMENT
-      // =================================================
-
-      jobCategory: profile?.jobCategory ?? "",
-
-      jobTitle: profile?.jobTitle ?? "",
-
-      companyName: profile?.companyName ?? "",
-
-      workLocation: profile?.workLocation ?? "",
+      intake:
+        profile?.intake ?? "",
 
       // =================================================
-      // SPONSOR
+      // EMPLOYMENT HISTORY
       // =================================================
 
-      sponsorName: profile?.sponsorName ?? "",
-
-      sponsorRelationship: profile?.sponsorRelationship ?? "",
-
-      sponsorStatusOfResidence: profile?.sponsorStatusOfResidence ?? "",
+      employmentHistory,
 
       // =================================================
-      // VISA
+      // OTHER
       // =================================================
 
-      visaStatus: profile?.visaStatus ?? "",
+      remark:
+        profile?.remark ?? "",
 
-      // Do not put existing string paths
-      // inside File fields.
+      // =================================================
+      // FILES
+      //
+      // Existing file paths must not be put into
+      // File fields.
+      // =================================================
+
       clientImage: null,
 
       cv: null,
@@ -274,20 +440,23 @@ export const useEditClientHook = () => {
   }, [client, reset]);
 
   // =================================================
-  // ADMIN STAFF LIST
+  // STAFF LIST
+  // ONLY SUPER ADMIN FETCHES STAFF LIST
   // =================================================
 
-  const { data: staffList = [], isLoading: isStaffLoading } = useQuery<
-    StaffOption[]
-  >({
-    queryKey: ["staffOptions"],
+  const {
+    data: staffResponse,
+    isLoading: isStaffLoading,
+  } = useQuery({
+    queryKey: ["staffList"],
 
     queryFn: async () => {
-      const response = await api.get("/staff");
+      const response =
+        await api.get<StaffListResponse>(
+          "/staff",
+        );
 
-      const staff = response.data?.data;
-
-      return Array.isArray(staff) ? staff : [];
+      return response.data;
     },
 
     enabled: role === "superadmin",
@@ -297,15 +466,23 @@ export const useEditClientHook = () => {
   // STAFF OPTIONS
   //
   // Active staff +
-  // currently assigned staff even if inactive
+  // currently assigned staff even if inactive.
   // =================================================
 
   const staffOptions = useMemo(() => {
+    const staffList =
+      staffResponse?.data ?? [];
+
     return staffList.filter(
       (staff) =>
-        staff.isActive === true || staff.staffId === client?.assignedStaff,
+        staff.isActive === true ||
+        staff.staffId ===
+          client?.assignedStaff,
     );
-  }, [staffList, client?.assignedStaff]);
+  }, [
+    staffResponse,
+    client?.assignedStaff,
+  ]);
 
   // =================================================
   // UPDATE CLIENT
@@ -316,8 +493,14 @@ export const useEditClientHook = () => {
 
     isPending: isUpdating,
   } = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const response = await api.patch(`/clients/${clientId}`, formData);
+    mutationFn: async (
+      formData: FormData,
+    ) => {
+      const response =
+        await api.patch(
+          `/clients/${clientId}`,
+          formData,
+        );
 
       return response.data;
     },
@@ -328,15 +511,16 @@ export const useEditClientHook = () => {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: ["client", clientId],
+        queryKey: [
+          "client",
+          clientId,
+        ],
       });
 
       void queryClient.invalidateQueries({
         queryKey: ["staffList"],
       });
 
-      // Refresh any Staff Client list
-      // because Admin may have reassigned client.
       void queryClient.invalidateQueries({
         queryKey: ["staff-clients"],
       });
@@ -347,12 +531,16 @@ export const useEditClientHook = () => {
   // SUBMIT
   // =================================================
 
-  const onSubmit = async (values: EditClientFormValues) => {
+  const onSubmit = async (
+    values: EditClientFormValues,
+  ) => {
     try {
       setServerError("");
 
       if (!clientId) {
-        setServerError(t("messages.clientIdMissing"));
+        setServerError(
+          t("messages.clientIdMissing"),
+        );
 
         return;
       }
@@ -363,64 +551,119 @@ export const useEditClientHook = () => {
       // REQUIRED CLIENT FIELDS
       // =================================================
 
-      formData.append("fullName", values.fullName.trim());
+      formData.append(
+        "fullName",
+        values.fullName.trim(),
+      );
 
-      formData.append("phone", values.phone.trim());
+      formData.append(
+        "phone",
+        values.phone.trim(),
+      );
 
-      formData.append("visaType", values.visaType);
+      formData.append(
+        "currentVisaStatus",
+        values.currentVisaStatus,
+      );
+
+      formData.append(
+        "currentStage",
+        values.currentStage,
+      );
 
       // =================================================
-      // STATUS
+      // PREFERRED CATEGORY
       // =================================================
 
-      formData.append("coeStatus", values.coeStatus);
-
-      formData.append("clientStatus", values.clientStatus);
+      appendValue(
+        formData,
+        "preferCategory",
+        values.preferCategory,
+      );
 
       // =================================================
-      // ADMIN ASSIGNMENT
+      // STAFF ASSIGNMENT
       //
-      // Only send it when it actually changed.
-      //
-      // Staff NEVER sends assignedStaff.
+      // Only Super Admin can reassign.
+      // Only send when changed.
       // =================================================
 
       if (
         role === "superadmin" &&
-        values.assignedStaff !== client?.assignedStaff
+        values.assignedStaff !==
+          client?.assignedStaff
       ) {
-        formData.append("assignedStaff", values.assignedStaff);
+        formData.append(
+          "assignedStaff",
+          values.assignedStaff,
+        );
       }
 
       // =================================================
       // PERSONAL
       // =================================================
 
-      appendValue(formData, "dateOfBirth", values.dateOfBirth);
+      appendValue(
+        formData,
+        "dateOfBirth",
+        values.dateOfBirth,
+      );
 
-      appendValue(formData, "gender", values.gender);
+      appendValue(
+        formData,
+        "gender",
+        values.gender,
+      );
 
-      appendValue(formData, "email", values.email);
+      appendValue(
+        formData,
+        "email",
+        values.email,
+      );
 
-      appendValue(formData, "address", values.address);
+      appendValue(
+        formData,
+        "nationality",
+        values.nationality,
+      );
 
-      appendValue(formData, "nationality", values.nationality);
+      appendValue(
+        formData,
+        "address",
+        values.address,
+      );
+
+      appendValue(
+        formData,
+        "prefecture",
+        values.prefecture,
+      );
 
       // =================================================
-      // PASSPORT
+      // PASSPORT / RESIDENCE
       // =================================================
 
-      appendValue(formData, "passportNumber", values.passportNumber);
+      appendValue(
+        formData,
+        "passportNumber",
+        values.passportNumber,
+      );
 
-      appendValue(formData, "passportExpiryDate", values.passportExpiryDate);
+      appendValue(
+        formData,
+        "passportExpiryDate",
+        values.passportExpiryDate,
+      );
 
-      appendValue(formData, "statusOfResidence", values.statusOfResidence);
+      appendValue(
+        formData,
+        "statusOfResidence",
+        values.statusOfResidence,
+      );
 
       // =================================================
-      // EDUCATION
+      // JAPANESE LANGUAGE
       // =================================================
-
-      appendValue(formData, "lastQualification", values.lastQualification);
 
       appendValue(
         formData,
@@ -428,57 +671,80 @@ export const useEditClientHook = () => {
         values.japaneseLanguageLevel,
       );
 
-      appendValue(formData, "schoolName", values.schoolName);
-
-      appendValue(formData, "course", values.course);
-
-      appendValue(formData, "intake", values.intake);
-
       // =================================================
-      // EMPLOYMENT
+      // INTAKE
       // =================================================
-
-      appendValue(formData, "jobCategory", values.jobCategory);
-
-      appendValue(formData, "jobTitle", values.jobTitle);
-
-      appendValue(formData, "companyName", values.companyName);
-
-      appendValue(formData, "workLocation", values.workLocation);
-
-      // =================================================
-      // SPONSOR
-      // =================================================
-
-      appendValue(formData, "sponsorName", values.sponsorName);
-
-      appendValue(formData, "sponsorRelationship", values.sponsorRelationship);
 
       appendValue(
         formData,
-        "sponsorStatusOfResidence",
-        values.sponsorStatusOfResidence,
+        "intake",
+        values.intake,
       );
 
       // =================================================
-      // VISA
+      // EDUCATION
       // =================================================
 
-      appendValue(formData, "visaStatus", values.visaStatus);
+      const cleanedEducation =
+        values.education.filter(
+          (education) =>
+            education.schoolName.trim() !==
+              "" ||
+            education.enrollmentDate.trim() !==
+              "" ||
+            education.graduationDate.trim() !==
+              "" ||
+            education.educationType !== "" ||
+            education.major.trim() !== "",
+        );
+
+      formData.append(
+        "education",
+        JSON.stringify(
+          cleanedEducation,
+        ),
+      );
+
+      // =================================================
+      // EMPLOYMENT HISTORY
+      // =================================================
+
+      formData.append(
+        "employmentHistory",
+        JSON.stringify(
+          values.employmentHistory,
+        ),
+      );
+
+      // =================================================
+      // REMARK
+      // =================================================
+
+      appendValue(
+        formData,
+        "remark",
+        values.remark,
+      );
 
       // =================================================
       // NEW FILES
       //
-      // If user doesn't select new file,
-      // existing file stays unchanged.
+      // If user doesn't select a replacement,
+      // existing file remains unchanged.
       // =================================================
 
       if (values.clientImage) {
-        formData.append("clientImage", values.clientImage);
+        formData.append(
+          "clientImage",
+          values.clientImage,
+        );
       }
 
       if (values.cv) {
-        formData.append("cv", values.cv);
+        formData.append(
+          "cv",
+          values.cv,
+        );
       }
 
       // =================================================
@@ -487,19 +753,30 @@ export const useEditClientHook = () => {
 
       await updateClient(formData);
 
-      router.push(`/admin/client`);
+      router.push("/admin/client");
     } catch (error) {
-      console.error("Update client error:", error);
+      console.error(
+        "Update client error:",
+        error,
+      );
 
-      if (axios.isAxiosError(error)) {
+      if (
+        axios.isAxiosError(error)
+      ) {
         setServerError(
-          error.response?.data?.message || t("messages.updateFailed"),
+          error.response?.data
+            ?.message ||
+            t(
+              "messages.updateFailed",
+            ),
         );
 
         return;
       }
 
-      setServerError(t("messages.updateFailed"));
+      setServerError(
+        t("messages.updateFailed"),
+      );
     }
   };
 
@@ -522,21 +799,33 @@ export const useEditClientHook = () => {
   };
 
   // =================================================
-  // QUERY ERROR MESSAGE
+  // CLIENT LOAD ERROR
   // =================================================
 
   let loadError = "";
 
   if (!clientId) {
-    loadError = t("messages.clientIdMissing");
+    loadError = t(
+      "messages.clientIdMissing",
+    );
   } else if (isClientError) {
-    if (axios.isAxiosError(clientError)) {
+    if (
+      axios.isAxiosError(clientError)
+    ) {
       loadError =
-        clientError.response?.data?.message || t("messages.loadFailed");
+        clientError.response?.data
+          ?.message ||
+        t("messages.loadFailed");
     } else {
-      loadError = t("messages.loadFailed");
+      loadError = t(
+        "messages.loadFailed",
+      );
     }
   }
+
+  // =================================================
+  // RETURN
+  // =================================================
 
   return {
     clientId,
@@ -561,9 +850,12 @@ export const useEditClientHook = () => {
     serverError,
     loadError,
 
-    currentClientImage: client?.profile?.clientImage ?? "",
+    currentClientImage:
+      client?.profile?.clientImage ??
+      "",
 
-    currentCv: client?.profile?.cv ?? "",
+    currentCv:
+      client?.profile?.cv ?? "",
 
     onSubmit,
     handleCancel,

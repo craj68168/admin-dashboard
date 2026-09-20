@@ -6,8 +6,9 @@ import {
   NATIONALITIES,
   STATUS_OF_RESIDENCE_OPTIONS,
   JAPANESE_LEVELS,
-  EMPLOYMENT_TYPE_OPTIONS,
   PREFECTURE_OPTIONS,
+   EDUCATION_TYPE_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
 } from "@/components/constant";
 
 // =================================================
@@ -36,6 +37,9 @@ export type StatusOfResidence =
 export type JapaneseLanguageLevel =
   (typeof JAPANESE_LEVELS)[number]["value"];
 
+export type EducationType =
+  (typeof EDUCATION_TYPE_OPTIONS)[number]["value"];
+
 export type EmploymentType =
   (typeof EMPLOYMENT_TYPE_OPTIONS)[number]["value"];
 
@@ -44,12 +48,14 @@ export type Prefecture =
 
 // =================================================
 // EDUCATION
+
 // =================================================
 
 export type EducationFormValue = {
   schoolName: string;
   enrollmentDate: string;
   graduationDate: string;
+  educationType: EducationType | "";
   major: string;
 };
 
@@ -69,37 +75,30 @@ export type EmploymentHistoryFormValue = {
 // =================================================
 
 export type CreateClientFormValues = {
-  // Client
   fullName: string;
   phone: string;
 
   currentVisaStatus: CurrentVisaStatus | "";
+  assignedStaff: string;
   preferCategory: PreferCategory | "";
   currentStage: CurrentStage | "";
 
-  assignedStaff: string;
-
-  // Profile
   dateOfBirth: string;
   gender: Gender | "";
   email: string;
   nationality: Nationality | "";
-
   address: string;
   prefecture: Prefecture | "";
 
   passportNumber: string;
   passportExpiryDate: string;
-
   statusOfResidence: StatusOfResidence | "";
 
-  japaneseLanguageLevel:
-    | JapaneseLanguageLevel
-    | "";
+  education: EducationFormValue[];
+
+  japaneseLanguageLevel: JapaneseLanguageLevel | "";
 
   intake: string;
-
-  education: EducationFormValue;
 
   employmentHistory: EmploymentHistoryFormValue[];
 

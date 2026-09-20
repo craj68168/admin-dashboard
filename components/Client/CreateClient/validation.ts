@@ -8,6 +8,7 @@ import {
   NATIONALITIES,
   STATUS_OF_RESIDENCE_OPTIONS,
   JAPANESE_LEVELS,
+  EDUCATION_TYPE_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
   PREFECTURE_OPTIONS,
 } from "@/components/constant";
@@ -60,6 +61,10 @@ const JAPANESE_LEVEL_VALUES = optionValues(
   JAPANESE_LEVELS,
 );
 
+const EDUCATION_TYPE_VALUES = optionValues(
+  EDUCATION_TYPE_OPTIONS,
+);
+
 const EMPLOYMENT_TYPE_VALUES = optionValues(
   EMPLOYMENT_TYPE_OPTIONS,
 );
@@ -77,6 +82,7 @@ type CreateClientValidationMessages = {
   phoneRequired: string;
   currentVisaStatusRequired: string;
   currentStageRequired: string;
+  employmentTypeRequired?: string;
 };
 
 const defaultValidationMessages: CreateClientValidationMessages = {
@@ -84,6 +90,7 @@ const defaultValidationMessages: CreateClientValidationMessages = {
   phoneRequired: "Phone number is required",
   currentVisaStatusRequired: "Current visa status is required",
   currentStageRequired: "Current stage is required",
+  employmentTypeRequired: "Employment type is required",
 };
 
 // =================================================
@@ -184,36 +191,65 @@ export const createCreateClientSchema = (
     intake: z.string(),
 
     // =================================================
-    // EDUCATION
+    // EDUCATION HISTORY
     // =================================================
 
-    education: z.object({
-      schoolName: z.string(),
+    education: z.array(
+      z.object({
+        schoolName: z.string(),
 
-      enrollmentDate: z.string(),
+        enrollmentDate: z.string(),
 
-      graduationDate: z.string(),
+        graduationDate: z.string(),
 
-      major: z.string(),
-    }),
+        educationType: z.union([
+          z.enum(EDUCATION_TYPE_VALUES),
+          z.literal(""),
+        ]),
+
+        major: z.string(),
+      }),
+    ),
 
     // =================================================
     // EMPLOYMENT HISTORY
     // =================================================
 
     employmentHistory: z.array(
-      z.object({
-        companyName: z.string(),
+      z
+        .object({
+          companyName: z.string(),
 
-        startDate: z.string(),
+          startDate: z.string(),
 
-        endDate: z.string(),
+          endDate: z.string(),
 
-        employmentType: z.union([
-          z.enum(EMPLOYMENT_TYPE_VALUES),
-          z.literal(""),
-        ]),
-      }),
+          employmentType: z.union([
+            z.enum(EMPLOYMENT_TYPE_VALUES),
+            z.literal(""),
+          ]),
+        })
+        .superRefine((employment, context) => {
+          const hasEmploymentHistoryValue =
+            employment.companyName.trim() !== "" ||
+            employment.startDate.trim() !== "" ||
+            employment.endDate.trim() !== "" ||
+            employment.employmentType !== "";
+
+          if (
+            hasEmploymentHistoryValue &&
+            employment.employmentType === ""
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["employmentType"],
+              message:
+                messages.employmentTypeRequired ??
+                defaultValidationMessages.employmentTypeRequired ??
+                "Employment type is required",
+            });
+          }
+        }),
     ),
 
     // =================================================

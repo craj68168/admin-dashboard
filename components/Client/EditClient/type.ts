@@ -1,86 +1,139 @@
-export const VISA_TYPES = ["Student", "Working", "Dependent"] as const;
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  CLIENT_STATUSES,
+  NATIONALITIES,
+    STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EDUCATION_TYPE_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
 
-export const COE_STATUSES = [
-  "Not Applied",
-  "Applied",
-  "Processing",
-  "Received",
-  "Rejected",
-] as const;
+// =================================================
+// SHARED OPTION TYPES
+// =================================================
 
-export const CLIENT_STATUSES = [
-  "New",
-  "Document Collection",
-  "Processing",
-  "COE Applied",
-  "COE Received",
-  "Visa Applied",
-  "Visa Approved",
-  "Visa Rejected",
-  "Departed",
-  "Arrived in Japan",
-] as const;
+export type Gender =
+  (typeof GENDER)[number]["value"];
 
-export type VisaType = (typeof VISA_TYPES)[number];
+export type CurrentVisaStatus =
+  (typeof CURRENT_VISA_STATUS_OPTIONS)[number]["value"];
 
-export type CoeStatus = (typeof COE_STATUSES)[number];
+export type PreferCategory =
+  (typeof PREFER_CATEGORY_OPTIONS)[number]["value"];
 
-export type ClientStatus = (typeof CLIENT_STATUSES)[number];
+export type CurrentStage =
+  (typeof CURRENT_STAGES)[number]["value"];
+
+export type ClientStatus =
+  (typeof CLIENT_STATUSES)[number]["value"];
+
+export type Nationality =
+  (typeof NATIONALITIES)[number]["value"];
+
+export type StatusOfResidence =
+  (typeof STATUS_OF_RESIDENCE_OPTIONS)[number]["value"];
+
+export type JapaneseLanguageLevel =
+  (typeof JAPANESE_LEVELS)[number]["value"];
+
+export type EducationType =
+  (typeof EDUCATION_TYPE_OPTIONS)[number]["value"];
+
+export type EmploymentType =
+  (typeof EMPLOYMENT_TYPE_OPTIONS)[number]["value"];
+
+export type Prefecture =
+  (typeof PREFECTURE_OPTIONS)[number]["value"];
+
+
+  // =================================================
+// EDUCATION
+// =================================================
+
+export type EducationFormValue = {
+  schoolName: string;
+  enrollmentDate: string;
+  graduationDate: string;
+  educationType: EducationType | "";
+  major: string;
+};
+
+// =================================================
+// EMPLOYMENT HISTORY
+// =================================================
+
+export type EmploymentHistoryFormValue = {
+  companyName: string;
+  startDate: string;
+  endDate: string;
+  employmentType: EmploymentType | "";
+};
+
+// =================================================
+// EDIT CLIENT FORM
+// =================================================
 
 export type EditClientFormValues = {
   // Client
   fullName: string;
   phone: string;
-  visaType: VisaType | "";
+
+  currentVisaStatus: CurrentVisaStatus | "";
+  preferCategory: PreferCategory | "";
+  currentStage: CurrentStage | "";
+
   assignedStaff: string;
-  coeStatus: CoeStatus;
-  clientStatus: ClientStatus;
 
-  // Personal
+  // Profile
   dateOfBirth: string;
-  gender: string;
-  email: string;
-  address: string;
-  nationality: string;
+  gender: Gender | "";
 
-  // Passport / Residence
+  email: string;
+
+  nationality: Nationality | "";
+
+  address: string;
+  prefecture: Prefecture | "";
+
   passportNumber: string;
   passportExpiryDate: string;
-  statusOfResidence: string;
 
-  // Education
-  lastQualification: string;
-  japaneseLanguageLevel: string;
-  schoolName: string;
-  course: string;
+  statusOfResidence: StatusOfResidence | "";
+
+  japaneseLanguageLevel:
+    | JapaneseLanguageLevel
+    | "";
+
   intake: string;
 
-  // Employment
-  jobCategory: string;
-  jobTitle: string;
-  companyName: string;
-  workLocation: string;
+  education: EducationFormValue[];
 
-  // Sponsor
-  sponsorName: string;
-  sponsorRelationship: string;
-  sponsorStatusOfResidence: string;
+  employmentHistory: EmploymentHistoryFormValue[];
 
-  // Visa
-  visaStatus: string;
+  remark: string;
 
-  // New replacement files
+  // Replacement files
   clientImage: File | null;
   cv: File | null;
 };
+
+// =================================================
+// STAFF
+// =================================================
 
 export type StaffOption = {
   _id: string;
   staffId: string;
   name: string;
+
   phone?: string;
   email?: string;
   location?: string;
+
   isActive: boolean;
 };
 
@@ -89,62 +142,106 @@ export type StaffListResponse = {
   data: StaffOption[];
 };
 
+// =================================================
+// CLIENT PROFILE RESPONSE
+// =================================================
+
 export type ClientProfile = {
-  _id: string;
-  clientId: string;
+  _id?: string;
+
+  clientId?: string;
 
   dateOfBirth?: string;
-  gender?: string;
+
+  gender?: Gender;
+
   email?: string;
+
   address?: string;
-  nationality?: string;
+
+  prefecture?: Prefecture;
+
+  nationality?: Nationality;
 
   passportNumber?: string;
+
   passportExpiryDate?: string;
-  statusOfResidence?: string;
 
-  lastQualification?: string;
-  japaneseLanguageLevel?: string;
+  statusOfResidence?: StatusOfResidence;
 
-  schoolName?: string;
-  course?: string;
+  japaneseLanguageLevel?: JapaneseLanguageLevel;
+
   intake?: string;
 
-  jobCategory?: string;
-  jobTitle?: string;
-  companyName?: string;
-  workLocation?: string;
+  education?:
+    | Array<{
+        schoolName?: string;
+        enrollmentDate?: string;
+        graduationDate?: string;
+        educationType?: EducationType;
+        major?: string;
+      }>
+    | {
+    schoolName?: string;
+    enrollmentDate?: string;
+    graduationDate?: string;
+    educationType?: EducationType;
+    major?: string;
+  };
 
-  sponsorName?: string;
-  sponsorRelationship?: string;
-  sponsorStatusOfResidence?: string;
+  employmentHistory?: Array<{
+    companyName?: string;
+    startDate?: string;
+    endDate?: string;
+    employmentType?: EmploymentType;
+  }>;
 
-  visaStatus?: string;
+  remark?: string;
 
   clientImage?: string;
+
   cv?: string;
 };
 
+// =================================================
+// ASSIGNED STAFF DETAILS
+// =================================================
+
 export type AssignedStaffDetails = {
   _id: string;
+
   staffId: string;
+
   name: string;
+
   email?: string;
   phone?: string;
   location?: string;
+
   isActive: boolean;
 };
 
+// =================================================
+// CLIENT DETAILS
+// =================================================
+
 export type ClientDetails = {
   _id: string;
+
   clientId: string;
 
   fullName: string;
+
   phone: string;
 
-  visaType: VisaType;
-  coeStatus: CoeStatus;
-  clientStatus: ClientStatus;
+  currentVisaStatus: CurrentVisaStatus;
+
+  preferCategory: PreferCategory;
+
+  currentStage: CurrentStage;
+
+  // Backend-derived display/status value.
+  clientStatus?: ClientStatus | string;
 
   assignedStaff: string;
 
@@ -153,10 +250,16 @@ export type ClientDetails = {
   profile?: ClientProfile | null;
 
   createdAt: string;
+
   updatedAt: string;
 };
 
+// =================================================
+// CLIENT DETAILS RESPONSE
+// =================================================
+
 export type ClientDetailsResponse = {
   success: boolean;
+
   data: ClientDetails;
 };

@@ -363,360 +363,385 @@
       "cancel": "No"
     }
   },
-"createClient": {
-  "breadcrumbs": {
-    "dashboard": "Dashboard",
-    "clients": "Clients",
-    "createClient": "Create Client"
-  },
-  "title": "Create Client",
-  "description": "Enter the client's information and assign them to a staff member.",
-  "create": "Create Client",
-  "creating": "Creating...",
-  "cancel": "Cancel",
+  "createClient": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "createClient": "Create Client"
+    },
+    "title": "Create Client",
+    "description": "Enter the client's information and assign them to a staff member.",
+    "create": "Create Client",
+    "creating": "Creating...",
+    "cancel": "Cancel",
 
-  "sections": {
-    "basic": {
-      "title": "Basic Information",
-      "description": "Required client information, assignment and current progress."
+    "sections": {
+      "basic": {
+        "title": "Basic Information",
+        "description": "Required client information, assignment and current progress."
+      },
+      "personal": {
+        "title": "Personal Information",
+        "description": "Personal, contact and current address information."
+      },
+      "passport": {
+        "title": "Passport & Residence",
+        "description": "Passport and status of residence information."
+      },
+      "education": {
+        "title": "Education & Japanese Language",
+        "description": "Education history and Japanese language proficiency."
+      },
+      "employment": {
+        "title": "Employment History",
+        "description": "Add the client's previous employment history."
+      },
+      "documents": {
+        "title": "Documents",
+        "description": "Upload the client image and CV if available."
+      }
     },
-    "personal": {
-      "title": "Personal Information",
-      "description": "Personal, contact and current address information."
+
+    "fields": {
+      "fullName": {
+        "label": "Full Name",
+        "placeholder": "Enter full name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Enter phone number"
+      },
+
+      "currentVisaStatus": {
+        "label": "Current Visa Status",
+        "placeholder": "Select current visa status"
+      },
+
+      "assignedStaff": {
+        "label": "Assigned Staff",
+        "placeholder": "Select staff",
+        "autoHelper": "This client will automatically be assigned to you."
+      },
+
+      "preferCategory": {
+        "label": "Preferred Category",
+        "placeholder": "Select preferred category"
+      },
+
+      "currentStage": {
+        "label": "Current Stage",
+        "placeholder": "Select current stage"
+      },
+
+      "dateOfBirth": {
+        "label": "Date of Birth"
+      },
+
+      "gender": {
+        "label": "Gender",
+        "placeholder": "Select gender"
+      },
+
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter email"
+      },
+
+      "nationality": {
+        "label": "Nationality",
+        "placeholder": "Select nationality"
+      },
+
+      "address": {
+        "label": "Address",
+        "placeholder": "Enter current address"
+      },
+
+      "prefecture": {
+        "label": "Prefecture",
+        "placeholder": "Select prefecture"
+      },
+
+      "passportNumber": {
+        "label": "Passport Number",
+        "placeholder": "Enter passport number"
+      },
+
+      "passportExpiryDate": {
+        "label": "Passport Expiry Date"
+      },
+
+      "statusOfResidence": {
+        "label": "Status of Residence",
+        "placeholder": "Select status of residence"
+      },
+
+      "schoolName": {
+        "label": "School",
+        "placeholder": "Enter school name"
+      },
+
+      "enrollmentDate": {
+        "label": "Enrollment Date"
+      },
+
+      "graduationDate": {
+        "label": "Graduation Date"
+      },
+
+      "educationType": {
+        "label": "Education Type",
+        "placeholder": "Select education type"
+      },
+
+      "major": {
+        "label": "Major / Course",
+        "placeholder": "Enter major or course"
+      },
+      "educationType": {
+        "label": "School Type",
+        "placeholder": "Select school type"
+      },
+
+      "japaneseLanguageLevel": {
+        "label": "Japanese Language Level",
+        "placeholder": "Select Japanese language level"
+      },
+
+      "intake": {
+        "label": "Intake",
+        "placeholder": "Example: April 2027"
+      },
+
+      "companyName": {
+        "label": "Company Name",
+        "placeholder": "Enter company name"
+      },
+
+      "startDate": {
+        "label": "Start Date"
+      },
+
+      "endDate": {
+        "label": "End Date"
+      },
+
+      "employmentType": {
+        "label": "Employment Type",
+        "placeholder": "Select employment type"
+      },
+
+      "clientImage": {
+        "upload": "Upload Client Image"
+      },
+
+      "cv": {
+        "upload": "Upload CV"
+      }
     },
-    "passport": {
-      "title": "Passport & Residence",
-      "description": "Passport and status of residence information."
-    },
+
     "education": {
-      "title": "Education & Japanese Language",
-      "description": "Education history and Japanese language proficiency."
+      "add": "Add Education",
+      "itemLabel": "Education {number}"
     },
+
     "employment": {
-      "title": "Employment History",
-      "description": "Add the client's previous employment history."
+      "add": "Add Employment"
     },
-    "documents": {
-      "title": "Documents",
-      "description": "Upload the client image and CV if available."
+
+    "options": {
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+
+      "currentVisaStatus": {
+        "student": "Student",
+        "dependent": "Dependent",
+        "designatedActivitiesJobHunting": "Designated Activities - Job Hunting",
+        "designatedActivities": "Designated Activities - Other",
+        "engineerHumanitiesInternationalServices": "Engineer / Humanities / International Services",
+        "specifiedSkilledWorker1": "Specified Skilled Worker 1",
+        "specifiedSkilledWorker2": "Specified Skilled Worker 2",
+        "skilledLabor": "Skilled Labor",
+        "technicalInternTraining": "Technical Intern Training",
+        "intraCompanyTransferee": "Intra-company Transferee",
+        "nursingCare": "Nursing Care",
+        "highlySkilledProfessional": "Highly Skilled Professional",
+        "businessManager": "Business Manager",
+        "permanentResident": "Permanent Resident",
+        "spouseChildOfJapaneseNational": "Spouse / Child of Japanese National",
+        "spouseChildOfPermanentResident": "Spouse / Child of Permanent Resident",
+        "longTermResident": "Long-Term Resident",
+        "other": "Other"
+      },
+
+      "preferCategory": {
+        "newJob": "Shushoku / New Job",
+        "jobChange": "Tenshoku / Job Change",
+        "dependentVisaRenewal": "Dependent Visa Renewal",
+        "visaServiceOnlyRenewal": "Visa Service Only / Renewal",
+        "visaServiceOnlyChange": "Visa Service Only / Change",
+        "otherVisaService": "Other Visa Service"
+      },
+
+      "currentStage": {
+        "registeredPaid": "Registered / Paid",
+        "vacancySearching": "Vacancy Searching",
+        "interviewFixedPreparation": "Interview Fixed / Preparation",
+        "interviewFailed": "Interview Failed",
+        "jobOfferReceived": "Naitei / Job Offer Received",
+        "jobOfferAccepted": "Job Offer Accepted",
+        "jobOfferNotAccepted": "Job Offer Not Accepted",
+        "visaDocumentsSubmitted": "Visa Documents Submitted",
+        "visaAppliedResultWaiting": "Visa Applied / Result Waiting",
+        "visaApproved": "Visa Approved",
+        "visaRejected": "Visa Rejected",
+        "companyJoining": "Waiting for Nyusha / Company Joining",
+        "employmentStartedCompanyJoined": "Employment Started / Company Joined",
+        "visaRenewal1Year": "Visa Renewal - 1 Year",
+        "visaRenewal3Years": "Visa Renewal - 3 Years",
+        "visaRenewal5Years": "Visa Renewal - 5 Years",
+        "returnToNepal": "Return to Nepal"
+      },
+
+      "nationality": {
+        "nepali": "Nepali",
+        "indian": "Indian",
+        "pakistani": "Pakistani",
+        "bangladeshi": "Bangladeshi",
+        "sriLankan": "Sri Lankan",
+        "vietnamese": "Vietnamese",
+        "myanmar": "Myanmar",
+        "indonesian": "Indonesian",
+        "filipino": "Filipino",
+        "chinese": "Chinese",
+        "other": "Other"
+      },
+
+      "statusOfResidence": {
+        "student": "Student",
+        "dependent": "Dependent",
+        "engineerSpecialistInHumanitiesInternationalServices": "Engineer / Specialist in Humanities / International Services",
+        "specifiedSkilledWorkerNo1": "Specified Skilled Worker No. 1",
+        "specifiedSkilledWorkerNo2": "Specified Skilled Worker No. 2",
+        "technicalInternTraining": "Technical Intern Training",
+        "designatedActivities": "Designated Activities",
+        "highlySkilledProfessional": "Highly Skilled Professional",
+        "skilledLabor": "Skilled Labor",
+        "intraCompanyTransferee": "Intra-company Transferee",
+        "nursingCare": "Nursing Care",
+        "businessManager": "Business Manager",
+        "instructor": "Instructor",
+        "researcher": "Researcher",
+        "professor": "Professor",
+        "medicalServices": "Medical Services",
+        "permanentResident": "Permanent Resident",
+        "longTermResident": "Long-Term Resident",
+        "spouseOrChildOfJapaneseNational": "Spouse or Child of Japanese National",
+        "spouseOrChildOfPermanentResident": "Spouse or Child of Permanent Resident",
+        "culturalActivities": "Cultural Activities",
+        "trainee": "Trainee",
+        "other": "Other"
+      },
+
+      "japaneseLanguageLevel": {
+        "n1": "N1",
+        "n2": "N2",
+        "n3": "N3",
+        "n4": "N4",
+        "n5": "N5",
+        "none": "No JLPT / None"
+      },
+      "educationType": {
+        "japaneseLanguageSchool": "Japanese Language School",
+        "vocationalSchool": "Vocational School",
+        "university": "University",
+        "juniorCollege": "Junior College",
+        "highSchool": "High School",
+        "technicalCollege": "Technical College",
+        "internationalSchool": "International School",
+        "other": "Other"
+      },
+
+      "employmentType": {
+        "partTime": "Part-time",
+        "fullTime": "Full-time / Regular Employee",
+        "contract": "Contract Employee",
+        "temporaryDispatchEmployee": "Temporary / Dispatch Employee",
+        "other": "Other"
+      },
+
+      "prefecture": {
+        "hokkaido": "Hokkaido",
+        "aomori": "Aomori",
+        "iwate": "Iwate",
+        "miyagi": "Miyagi",
+        "akita": "Akita",
+        "yamagata": "Yamagata",
+        "fukushima": "Fukushima",
+        "ibaraki": "Ibaraki",
+        "tochigi": "Tochigi",
+        "gunma": "Gunma",
+        "saitama": "Saitama",
+        "chiba": "Chiba",
+        "tokyo": "Tokyo",
+        "kanagawa": "Kanagawa",
+        "niigata": "Niigata",
+        "toyama": "Toyama",
+        "ishikawa": "Ishikawa",
+        "fukui": "Fukui",
+        "yamanashi": "Yamanashi",
+        "nagano": "Nagano",
+        "gifu": "Gifu",
+        "shizuoka": "Shizuoka",
+        "aichi": "Aichi",
+        "mie": "Mie",
+        "shiga": "Shiga",
+        "kyoto": "Kyoto",
+        "osaka": "Osaka",
+        "hyogo": "Hyogo",
+        "nara": "Nara",
+        "wakayama": "Wakayama",
+        "tottori": "Tottori",
+        "shimane": "Shimane",
+        "okayama": "Okayama",
+        "hiroshima": "Hiroshima",
+        "yamaguchi": "Yamaguchi",
+        "tokushima": "Tokushima",
+        "kagawa": "Kagawa",
+        "ehime": "Ehime",
+        "kochi": "Kochi",
+        "fukuoka": "Fukuoka",
+        "saga": "Saga",
+        "nagasaki": "Nagasaki",
+        "kumamoto": "Kumamoto",
+        "oita": "Oita",
+        "miyazaki": "Miyazaki",
+        "kagoshima": "Kagoshima",
+        "okinawa": "Okinawa"
+      }
+    },
+
+    "validation": {
+      "fullNameRequired": "Full name is required",
+      "phoneRequired": "Phone number is required",
+      "currentVisaStatusRequired": "Current visa status is required",
+      "currentStageRequired": "Current stage is required"
+    },
+
+    "messages": {
+      "createFailed": "Failed to create client."
     }
   },
-
-  "fields": {
-    "fullName": {
-      "label": "Full Name",
-      "placeholder": "Enter full name"
-    },
-    "phone": {
-      "label": "Phone",
-      "placeholder": "Enter phone number"
-    },
-
-    "currentVisaStatus": {
-      "label": "Current Visa Status",
-      "placeholder": "Select current visa status"
-    },
-
-    "assignedStaff": {
-      "label": "Assigned Staff",
-      "placeholder": "Select staff",
-      "autoHelper": "This client will automatically be assigned to you."
-    },
-
-    "preferCategory": {
-      "label": "Preferred Category",
-      "placeholder": "Select preferred category"
-    },
-
-    "currentStage": {
-      "label": "Current Stage",
-      "placeholder": "Select current stage"
-    },
-
-    "dateOfBirth": {
-      "label": "Date of Birth"
-    },
-
-    "gender": {
-      "label": "Gender",
-      "placeholder": "Select gender"
-    },
-
-    "email": {
-      "label": "Email",
-      "placeholder": "Enter email"
-    },
-
-    "nationality": {
-      "label": "Nationality",
-      "placeholder": "Select nationality"
-    },
-
-    "address": {
-      "label": "Current Address",
-      "placeholder": "Enter current address"
-    },
-
-    "prefecture": {
-      "label": "Prefecture",
-      "placeholder": "Select prefecture"
-    },
-
-    "passportNumber": {
-      "label": "Passport Number",
-      "placeholder": "Enter passport number"
-    },
-
-    "passportExpiryDate": {
-      "label": "Passport Expiry Date"
-    },
-
-    "statusOfResidence": {
-      "label": "Status of Residence",
-      "placeholder": "Select status of residence"
-    },
-
-    "schoolName": {
-      "label": "School / College Name",
-      "placeholder": "Enter school or college name"
-    },
-
-    "enrollmentDate": {
-      "label": "Enrollment Date"
-    },
-
-    "graduationDate": {
-      "label": "Graduation Date"
-    },
-
-    "major": {
-      "label": "Major / Course",
-      "placeholder": "Enter major or course"
-    },
-
-    "japaneseLanguageLevel": {
-      "label": "Japanese Language Level",
-      "placeholder": "Select Japanese language level"
-    },
-
-    "intake": {
-      "label": "Intake",
-      "placeholder": "Example: April 2027"
-    },
-
-    "companyName": {
-      "label": "Company Name",
-      "placeholder": "Enter company name"
-    },
-
-    "startDate": {
-      "label": "Start Date"
-    },
-
-    "endDate": {
-      "label": "End Date"
-    },
-
-    "employmentType": {
-      "label": "Employment Type",
-      "placeholder": "Select employment type"
-    },
-
-    "clientImage": {
-      "upload": "Upload Client Image"
-    },
-
-    "cv": {
-      "upload": "Upload CV"
-    }
-  },
-
-  "employment": {
-    "add": "Add Employment"
-  },
-
-  "options": {
-    "gender": {
-      "male": "Male",
-      "female": "Female",
-      "other": "Other"
-    },
-
-    "currentVisaStatus": {
-      "student": "Student",
-      "dependent": "Dependent",
-      "designatedActivitiesJobHunting": "Designated Activities - Job Hunting",
-      "designatedActivities": "Designated Activities - Other",
-      "engineerHumanitiesInternationalServices": "Engineer / Humanities / International Services",
-      "specifiedSkilledWorker1": "Specified Skilled Worker 1",
-      "specifiedSkilledWorker2": "Specified Skilled Worker 2",
-      "skilledLabor": "Skilled Labor",
-      "technicalInternTraining": "Technical Intern Training",
-      "intraCompanyTransferee": "Intra-company Transferee",
-      "nursingCare": "Nursing Care",
-      "highlySkilledProfessional": "Highly Skilled Professional",
-      "businessManager": "Business Manager",
-      "permanentResident": "Permanent Resident",
-      "spouseChildOfJapaneseNational": "Spouse / Child of Japanese National",
-      "spouseChildOfPermanentResident": "Spouse / Child of Permanent Resident",
-      "longTermResident": "Long-Term Resident",
-      "other": "Other"
-    },
-
-    "preferCategory": {
-      "newJob": "Shushoku / New Job",
-      "jobChange": "Tenshoku / Job Change",
-      "dependentVisaRenewal": "Dependent Visa Renewal",
-      "visaServiceOnlyRenewal": "Visa Service Only / Renewal",
-      "visaServiceOnlyChange": "Visa Service Only / Change",
-      "otherVisaService": "Other Visa Service"
-    },
-
-    "currentStage": {
-      "registeredPaid": "Registered / Paid",
-      "vacancySearching": "Vacancy Searching",
-      "interviewFixedPreparation": "Interview Fixed / Preparation",
-      "interviewFailed": "Interview Failed",
-      "jobOfferReceived": "Naitei / Job Offer Received",
-      "jobOfferAccepted": "Job Offer Accepted",
-      "jobOfferNotAccepted": "Job Offer Not Accepted",
-      "visaDocumentsSubmitted": "Visa Documents Submitted",
-      "visaAppliedResultWaiting": "Visa Applied / Result Waiting",
-      "visaApproved": "Visa Approved",
-      "visaRejected": "Visa Rejected",
-      "companyJoining": "Waiting for Nyusha / Company Joining",
-      "employmentStartedCompanyJoined": "Employment Started / Company Joined",
-      "visaRenewal1Year": "Visa Renewal - 1 Year",
-      "visaRenewal3Years": "Visa Renewal - 3 Years",
-      "visaRenewal5Years": "Visa Renewal - 5 Years",
-      "returnToNepal": "Return to Nepal"
-    },
-
-    "nationality": {
-      "nepali": "Nepali",
-      "indian": "Indian",
-      "pakistani": "Pakistani",
-      "bangladeshi": "Bangladeshi",
-      "sriLankan": "Sri Lankan",
-      "vietnamese": "Vietnamese",
-      "myanmar": "Myanmar",
-      "indonesian": "Indonesian",
-      "filipino": "Filipino",
-      "chinese": "Chinese",
-      "other": "Other"
-    },
-
-    "statusOfResidence": {
-      "student": "Student",
-      "dependent": "Dependent",
-      "engineerSpecialistInHumanitiesInternationalServices": "Engineer / Specialist in Humanities / International Services",
-      "specifiedSkilledWorkerNo1": "Specified Skilled Worker No. 1",
-      "specifiedSkilledWorkerNo2": "Specified Skilled Worker No. 2",
-      "technicalInternTraining": "Technical Intern Training",
-      "designatedActivities": "Designated Activities",
-      "highlySkilledProfessional": "Highly Skilled Professional",
-      "skilledLabor": "Skilled Labor",
-      "intraCompanyTransferee": "Intra-company Transferee",
-      "nursingCare": "Nursing Care",
-      "businessManager": "Business Manager",
-      "instructor": "Instructor",
-      "researcher": "Researcher",
-      "professor": "Professor",
-      "medicalServices": "Medical Services",
-      "permanentResident": "Permanent Resident",
-      "longTermResident": "Long-Term Resident",
-      "spouseOrChildOfJapaneseNational": "Spouse or Child of Japanese National",
-      "spouseOrChildOfPermanentResident": "Spouse or Child of Permanent Resident",
-      "culturalActivities": "Cultural Activities",
-      "trainee": "Trainee",
-      "other": "Other"
-    },
-
-    "japaneseLanguageLevel": {
-      "n1": "N1",
-      "n2": "N2",
-      "n3": "N3",
-      "n4": "N4",
-      "n5": "N5",
-      "none": "No JLPT / None"
-    },
-
-    "employmentType": {
-      "partTime": "Part-time",
-      "fullTime": "Full-time / Regular Employee",
-      "contract": "Contract Employee",
-      "temporaryDispatchEmployee": "Temporary / Dispatch Employee",
-      "other": "Other"
-    },
-
-    "prefecture": {
-      "hokkaido": "Hokkaido",
-      "aomori": "Aomori",
-      "iwate": "Iwate",
-      "miyagi": "Miyagi",
-      "akita": "Akita",
-      "yamagata": "Yamagata",
-      "fukushima": "Fukushima",
-      "ibaraki": "Ibaraki",
-      "tochigi": "Tochigi",
-      "gunma": "Gunma",
-      "saitama": "Saitama",
-      "chiba": "Chiba",
-      "tokyo": "Tokyo",
-      "kanagawa": "Kanagawa",
-      "niigata": "Niigata",
-      "toyama": "Toyama",
-      "ishikawa": "Ishikawa",
-      "fukui": "Fukui",
-      "yamanashi": "Yamanashi",
-      "nagano": "Nagano",
-      "gifu": "Gifu",
-      "shizuoka": "Shizuoka",
-      "aichi": "Aichi",
-      "mie": "Mie",
-      "shiga": "Shiga",
-      "kyoto": "Kyoto",
-      "osaka": "Osaka",
-      "hyogo": "Hyogo",
-      "nara": "Nara",
-      "wakayama": "Wakayama",
-      "tottori": "Tottori",
-      "shimane": "Shimane",
-      "okayama": "Okayama",
-      "hiroshima": "Hiroshima",
-      "yamaguchi": "Yamaguchi",
-      "tokushima": "Tokushima",
-      "kagawa": "Kagawa",
-      "ehime": "Ehime",
-      "kochi": "Kochi",
-      "fukuoka": "Fukuoka",
-      "saga": "Saga",
-      "nagasaki": "Nagasaki",
-      "kumamoto": "Kumamoto",
-      "oita": "Oita",
-      "miyazaki": "Miyazaki",
-      "kagoshima": "Kagoshima",
-      "okinawa": "Okinawa"
-    }
-  },
-
-  "validation": {
-    "fullNameRequired": "Full name is required",
-    "phoneRequired": "Phone number is required",
-    "currentVisaStatusRequired": "Current visa status is required",
-    "currentStageRequired": "Current stage is required"
-  },
-
-  "messages": {
-    "createFailed": "Failed to create client."
-  }
-},
   "editClient": {
     "breadcrumbs": {
       "dashboard": "Dashboard",
       "clients": "Clients",
       "editClient": "Edit Client"
     },
+
     "title": "Edit Client",
     "clientIdLabel": "Client ID:",
     "inactive": "Inactive",
@@ -724,78 +749,197 @@
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "cancel": "Cancel",
+
     "sections": {
       "basic": {
         "title": "Basic Information",
-        "description": "Client information, status and staff assignment."
+        "description": "Update client information, assignment and current progress."
       },
+
       "personal": {
         "title": "Personal Information",
-        "description": "Personal and contact details."
+        "description": "Update personal, contact and current address information."
       },
+
       "passport": {
         "title": "Passport & Residence",
-        "description": "Passport and residence information."
+        "description": "Update passport and status of residence information."
       },
+
       "education": {
-        "title": "Education & Japanese Language"
+        "title": "Education & Japanese Language",
+        "description": "Update education history and Japanese language proficiency."
       },
+
       "employment": {
-        "title": "Employment"
+        "title": "Employment History",
+        "description": "Update the client's employment history."
       },
-      "sponsor": {
-        "title": "Sponsor"
-      },
-      "visa": {
-        "title": "Visa Information"
-      },
+
       "documents": {
         "title": "Documents",
         "description": "Selecting a new file will replace the currently uploaded file."
       }
     },
-    "visaTypes": {
-      "Student": "Student",
-      "Working": "Working",
-      "Dependent": "Dependent"
+
+    "fields": {
+      "fullName": {
+        "label": "Full Name"
+      },
+
+      "phone": {
+        "label": "Phone"
+      },
+
+      "currentVisaStatus": {
+        "label": "Current Visa Status",
+        "placeholder": "Select current visa status"
+      },
+
+      "assignedStaff": {
+        "label": "Assigned Staff",
+        "placeholder": "Select staff",
+        "readOnlyHelper": "Staff assignment cannot be changed from this account."
+      },
+
+      "preferCategory": {
+        "label": "Preferred Category",
+        "placeholder": "Select preferred category"
+      },
+
+      "currentStage": {
+        "label": "Current Stage",
+        "placeholder": "Select current stage"
+      },
+
+      "dateOfBirth": {
+        "label": "Date of Birth"
+      },
+
+      "gender": {
+        "label": "Gender",
+        "placeholder": "Select gender"
+      },
+
+      "email": {
+        "label": "Email"
+      },
+
+      "nationality": {
+        "label": "Nationality",
+        "placeholder": "Select nationality"
+      },
+
+      "address": {
+        "label": "Current Address",
+        "placeholder": "Enter current address"
+      },
+
+      "prefecture": {
+        "label": "Prefecture",
+        "placeholder": "Select prefecture"
+      },
+
+      "passportNumber": {
+        "label": "Passport Number"
+      },
+
+      "passportExpiryDate": {
+        "label": "Passport Expiry Date"
+      },
+
+      "statusOfResidence": {
+        "label": "Status of Residence",
+        "placeholder": "Select status of residence"
+      },
+
+      "schoolName": {
+        "label": "School / College Name",
+        "placeholder": "Enter school or college name"
+      },
+
+      "enrollmentDate": {
+        "label": "Enrollment Date"
+      },
+
+      "graduationDate": {
+        "label": "Graduation Date"
+      },
+
+      "major": {
+        "label": "Major / Course",
+        "placeholder": "Enter major or course"
+      },
+
+      "japaneseLanguageLevel": {
+        "label": "Japanese Language Level",
+        "placeholder": "Select Japanese language level"
+      },
+
+      "intake": {
+        "label": "Intake",
+        "placeholder": "Example: April 2027"
+      },
+
+      "companyName": {
+        "label": "Company Name",
+        "placeholder": "Enter company name"
+      },
+
+      "startDate": {
+        "label": "Start Date"
+      },
+
+      "endDate": {
+        "label": "End Date"
+      },
+
+      "employmentType": {
+        "label": "Employment Type",
+        "placeholder": "Select employment type"
+      },
+
+      "clientImage": {
+        "replace": "Replace Client Image"
+      },
+
+      "cv": {
+        "replace": "Replace CV"
+      }
     },
-    "coeStatuses": {
-      "Not Applied": "Not Applied",
-      "Applied": "Applied",
-      "Processing": "Processing",
-      "Received": "Received",
-      "Rejected": "Rejected"
+
+    "employment": {
+      "add": "Add Employment"
     },
-    "clientStatuses": {
-      "New": "New",
-      "Document Collection": "Document Collection",
-      "Processing": "Processing",
-      "COE Applied": "COE Applied",
-      "COE Received": "COE Received",
-      "Visa Applied": "Visa Applied",
-      "Visa Approved": "Visa Approved",
-      "Visa Rejected": "Visa Rejected",
-      "Departed": "Departed",
-      "Arrived in Japan": "Arrived in Japan"
+
+    "education": {
+      "add": "Add Education",
+      "itemLabel": "Education {number}"
     },
+
     "validation": {
       "emailInvalid": "Enter a valid email address",
       "invalidFile": "Invalid file",
+
       "fullNameRequired": "Full name is required",
       "fullNameMin": "Full name must be at least 2 characters",
+
       "phoneRequired": "Phone number is required",
       "phoneMin": "Phone number must be at least 7 characters",
       "phoneMax": "Phone number cannot exceed 20 characters",
-      "visaTypeRequired": "Visa type is required",
+
+      "currentVisaStatusRequired": "Current visa status is required",
+      "currentStageRequired": "Current stage is required",
+
       "assignedStaffRequired": "Assigned staff is required"
     },
+
     "messages": {
       "notFound": "Client not found.",
       "clientIdMissing": "Client ID is missing.",
       "loadFailed": "Failed to load client.",
       "updateFailed": "Failed to update client."
     }
-
   },
   "clientDetail": {
     "breadcrumbs": {

@@ -6,11 +6,7 @@ import { useTranslations } from "next-intl";
 
 import axios from "axios";
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useForm } from "react-hook-form";
 
@@ -19,10 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import type {
-  CreateClientFormValues,
-  StaffListResponse,
-} from "./type";
+import type { CreateClientFormValues, StaffListResponse } from "./type";
 
 import { createCreateClientSchema } from "./validation";
 
@@ -31,11 +24,7 @@ import { createCreateClientSchema } from "./validation";
 // Empty optional string fields are not sent.
 // =================================================
 
-const appendValue = (
-  formData: FormData,
-  key: string,
-  value: string,
-) => {
+const appendValue = (formData: FormData, key: string, value: string) => {
   const cleanValue = value.trim();
 
   if (cleanValue !== "") {
@@ -69,10 +58,7 @@ export const useCreateClientHook = () => {
     handleSubmit,
     setValue,
 
-    formState: {
-      errors,
-      isSubmitting,
-    },
+    formState: { errors, isSubmitting },
   } = useForm<CreateClientFormValues>({
     resolver: zodResolver(
       createCreateClientSchema({
@@ -80,13 +66,9 @@ export const useCreateClientHook = () => {
 
         phoneRequired: t("validation.phoneRequired"),
 
-        currentVisaStatusRequired: t(
-          "validation.currentVisaStatusRequired",
-        ),
+        currentVisaStatusRequired: t("validation.currentVisaStatusRequired"),
 
-        currentStageRequired: t(
-          "validation.currentStageRequired",
-        ),
+        currentStageRequired: t("validation.currentStageRequired"),
       }),
     ),
 
@@ -137,15 +119,15 @@ export const useCreateClientHook = () => {
       // EDUCATION
       // =================================================
 
-      education: {
-        schoolName: "",
-
-        enrollmentDate: "",
-
-        graduationDate: "",
-
-        major: "",
-      },
+      education: [
+        {
+          schoolName: "",
+          enrollmentDate: "",
+          graduationDate: "",
+          educationType: "",
+          major: "",
+        },
+      ],
 
       japaneseLanguageLevel: "",
 
@@ -200,15 +182,11 @@ export const useCreateClientHook = () => {
   // ONLY SUPER ADMIN calls /staff
   // =================================================
 
-  const {
-    data: staffResponse,
-    isLoading: isStaffLoading,
-  } = useQuery({
+  const { data: staffResponse, isLoading: isStaffLoading } = useQuery({
     queryKey: ["staffList"],
 
     queryFn: async () => {
-      const response =
-        await api.get<StaffListResponse>("/staff");
+      const response = await api.get<StaffListResponse>("/staff");
 
       return response.data;
     },
@@ -221,11 +199,7 @@ export const useCreateClientHook = () => {
   // =================================================
 
   const activeStaff = useMemo(() => {
-    return (
-      staffResponse?.data?.filter(
-        (staff) => staff.isActive,
-      ) ?? []
-    );
+    return staffResponse?.data?.filter((staff) => staff.isActive) ?? [];
   }, [staffResponse]);
 
   // =================================================
@@ -238,10 +212,8 @@ export const useCreateClientHook = () => {
     isPending: isCreating,
   } = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await api.post(
-        "/clients",
-        formData,
-      );
+      console.log("Data",formData)
+      const response = await api.post("/clients", formData);
 
       return response.data;
     },
@@ -265,9 +237,7 @@ export const useCreateClientHook = () => {
   // SUBMIT
   // =================================================
 
-  const onSubmit = async (
-    values: CreateClientFormValues,
-  ) => {
+  const onSubmit = async (values: CreateClientFormValues) => {
     try {
       setServerError("");
 
@@ -277,30 +247,15 @@ export const useCreateClientHook = () => {
       // REQUIRED CLIENT FIELDS
       // =================================================
 
-      formData.append(
-        "fullName",
-        values.fullName.trim(),
-      );
+      formData.append("fullName", values.fullName.trim());
 
-      formData.append(
-        "phone",
-        values.phone.trim(),
-      );
+      formData.append("phone", values.phone.trim());
 
-      formData.append(
-        "currentVisaStatus",
-        values.currentVisaStatus,
-      );
+      formData.append("currentVisaStatus", values.currentVisaStatus);
 
-      formData.append(
-        "preferCategory",
-        values.preferCategory,
-      );
+      formData.append("preferCategory", values.preferCategory);
 
-      formData.append(
-        "currentStage",
-        values.currentStage,
-      );
+      formData.append("currentStage", values.currentStage);
 
       // =================================================
       // STAFF ASSIGNMENT
@@ -310,73 +265,34 @@ export const useCreateClientHook = () => {
       // =================================================
 
       if (role === "superadmin") {
-        formData.append(
-          "assignedStaff",
-          values.assignedStaff,
-        );
+        formData.append("assignedStaff", values.assignedStaff);
       }
 
       // =================================================
       // PERSONAL
       // =================================================
 
-      appendValue(
-        formData,
-        "dateOfBirth",
-        values.dateOfBirth,
-      );
+      appendValue(formData, "dateOfBirth", values.dateOfBirth);
 
-      appendValue(
-        formData,
-        "gender",
-        values.gender,
-      );
+      appendValue(formData, "gender", values.gender);
 
-      appendValue(
-        formData,
-        "email",
-        values.email,
-      );
+      appendValue(formData, "email", values.email);
 
-      appendValue(
-        formData,
-        "nationality",
-        values.nationality,
-      );
+      appendValue(formData, "nationality", values.nationality);
 
-      appendValue(
-        formData,
-        "address",
-        values.address,
-      );
+      appendValue(formData, "address", values.address);
 
-      appendValue(
-        formData,
-        "prefecture",
-        values.prefecture,
-      );
+      appendValue(formData, "prefecture", values.prefecture);
 
       // =================================================
       // PASSPORT / RESIDENCE
       // =================================================
 
-      appendValue(
-        formData,
-        "passportNumber",
-        values.passportNumber,
-      );
+      appendValue(formData, "passportNumber", values.passportNumber);
 
-      appendValue(
-        formData,
-        "passportExpiryDate",
-        values.passportExpiryDate,
-      );
+      appendValue(formData, "passportExpiryDate", values.passportExpiryDate);
 
-      appendValue(
-        formData,
-        "statusOfResidence",
-        values.statusOfResidence,
-      );
+      appendValue(formData, "statusOfResidence", values.statusOfResidence);
 
       // =================================================
       // JAPANESE LEVEL
@@ -392,85 +308,77 @@ export const useCreateClientHook = () => {
       // INTAKE
       // =================================================
 
-      appendValue(
-        formData,
-        "intake",
-        values.intake,
-      );
+      appendValue(formData, "intake", values.intake);
 
       // =================================================
       // EDUCATION
       // =================================================
 
-      formData.append(
-        "education",
-        JSON.stringify(values.education),
+      const cleanedEducation = values.education.filter(
+        (education) =>
+          education.schoolName.trim() !== "" ||
+          education.enrollmentDate.trim() !== "" ||
+          education.graduationDate.trim() !== "" ||
+          education.educationType !== "" ||
+          education.major.trim() !== "",
       );
+
+      formData.append("education", JSON.stringify(cleanedEducation));
 
       // =================================================
       // EMPLOYMENT HISTORY
       // =================================================
 
-      formData.append(
-        "employmentHistory",
-        JSON.stringify(
-          values.employmentHistory,
-        ),
+      const cleanedEmploymentHistory = values.employmentHistory.filter(
+        (employment) =>
+          employment.companyName.trim() !== "" ||
+          employment.startDate.trim() !== "" ||
+          employment.endDate.trim() !== "" ||
+          employment.employmentType !== "",
       );
 
+      formData.append(
+        "employmentHistory",
+        JSON.stringify(cleanedEmploymentHistory),
+      );
       // =================================================
       // REMARK
       // =================================================
 
-      appendValue(
-        formData,
-        "remark",
-        values.remark,
-      );
+      appendValue(formData, "remark", values.remark);
 
       // =================================================
       // FILES
       // =================================================
 
       if (values.clientImage) {
-        formData.append(
-          "clientImage",
-          values.clientImage,
-        );
+        formData.append("clientImage", values.clientImage);
       }
 
       if (values.cv) {
-        formData.append(
-          "cv",
-          values.cv,
-        );
+        formData.append("cv", values.cv);
       }
 
       // =================================================
       // CREATE
       // =================================================
+      console.log("formData", formData);
 
       await createClient(formData);
 
       router.push("/admin/client");
     } catch (error) {
-      console.error(
-        "Create client error:",
-        error,
-      );
+      console.error("Create client error:", error);
 
       if (axios.isAxiosError(error)) {
         setServerError(
-          error.response?.data?.message ||
-            t("messages.createFailed"),
+          error.response?.data?.message || t("messages.createFailed"),
         );
 
         return;
       }
 
-      setServerError(
-        t("messages.createFailed"),
-      );
+      setServerError(t("messages.createFailed"));
     }
   };
 
