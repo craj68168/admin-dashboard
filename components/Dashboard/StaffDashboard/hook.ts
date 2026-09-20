@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
 import axios from "axios";
-
 import { useQuery } from "@tanstack/react-query";
-
 import { useRouter } from "next/navigation";
 
 import { api } from "@/lib/axios";
@@ -19,7 +16,6 @@ import type { StaffDashboardResponse } from "./type";
 const getCurrentJapanMonth = () => {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Tokyo",
-
     year: "numeric",
     month: "2-digit",
   }).formatToParts(new Date());
@@ -36,32 +32,23 @@ export const useStaffDashboard = () => {
 
   const [selectedMonth, setSelectedMonth] = useState(getCurrentJapanMonth());
 
-  const {
-    data,
+  const { data, isLoading, isFetching, isError, error } =
+    useQuery<StaffDashboardResponse>({
+      queryKey: ["staffDashboard", selectedMonth],
 
-    isLoading,
-
-    isFetching,
-
-    isError,
-
-    error,
-  } = useQuery({
-    queryKey: ["staffDashboard", selectedMonth],
-
-    queryFn: async () => {
-      const response = await api.get<StaffDashboardResponse>(
-        "/dashboard/staff",
-        {
-          params: {
-            month: selectedMonth,
+      queryFn: async () => {
+        const response = await api.get<StaffDashboardResponse>(
+          "/dashboard/staff",
+          {
+            params: {
+              month: selectedMonth,
+            },
           },
-        },
-      );
+        );
 
-      return response.data;
-    },
-  });
+        return response.data;
+      },
+    });
 
   let loadError = "";
 
@@ -83,7 +70,6 @@ export const useStaffDashboard = () => {
 
   return {
     selectedMonth,
-
     handleMonthChange,
 
     staff: data?.staff,
@@ -97,9 +83,7 @@ export const useStaffDashboard = () => {
     recentPayments: data?.recentPayments ?? [],
 
     isLoading,
-
     isFetching,
-
     loadError,
 
     handleClientClick,

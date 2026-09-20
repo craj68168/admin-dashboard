@@ -24,7 +24,6 @@ import {
 import { useClientDetailHook } from "./hook";
 import Remarks from "./Remarks";
 import Progress from "./Progress";
-import ClientFees from "./Fees";
 import Payments from "./Payments";
 // =================================================
 // DESIGN
@@ -821,13 +820,8 @@ const ClientDetail = () => {
           <Box>
             <Progress clientId={client.clientId} />
           </Box>
-          {/* FEES */}
           <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
-          <Box>
-            <ClientFees clientId={client.clientId} />
-          </Box>
           {/* PAYMENTS */}
-          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
           <Box>
             <Payments clientId={client.clientId} />
           </Box>

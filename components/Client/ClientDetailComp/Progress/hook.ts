@@ -1,29 +1,67 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { api } from "@/lib/axios";
+
 import { progressStageSchema } from "./validation";
+
 import type {
   ClientStageHistoryResponse,
   ClientStageListResponse,
   ClientStageUpdateResponse,
-  ProgressFormValues,
+  ProgressUpdatePayload,
 } from "./type";
+
+const PAYMENT_METHODS = [
+  "Cash",
+  "Bank Transfer",
+  "Online Payment",
+  "Cheque",
+  "Other",
+] as const;
+
+const getLocalDate = () => {
+  const now = new Date();
+
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60 * 1000);
+
+  return local.toISOString().slice(0, 10);
+};
+
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || fallback;
   }
+
   return fallback;
 };
+
 export const useProgressHook = (clientId: string) => {
   const queryClient = useQueryClient();
+
   const [selectedStage, setSelectedStage] = useState("");
+
   const [note, setNote] = useState("");
+
+  const [paymentMethod, setPaymentMethod] = useState("");
+
+  const [paymentDate, setPaymentDate] = useState(getLocalDate());
+
+  const [referenceNumber, setReferenceNumber] = useState("");
+
+  const [receiptNumber, setReceiptNumber] = useState("");
+
+  const [bankName, setBankName] = useState("");
+
   const [formError, setFormError] = useState("");
+
   const [successMessage, setSuccessMessage] = useState("");
+
   // =================================================
-  // CLIENT CURRENT STAGE + HISTORY
+  // CLIENT PROGRESS
   // =================================================
   const {
     data: historyResponse,
@@ -33,16 +71,20 @@ export const useProgressHook = (clientId: string) => {
     error: historyError,
   } = useQuery<ClientStageHistoryResponse>({
     queryKey: ["clientProgress", clientId],
+
     queryFn: async () => {
       const response = await api.get<ClientStageHistoryResponse>(
         `/client-stages/${encodeURIComponent(clientId)}`,
       );
+
       return response.data;
     },
+
     enabled: Boolean(clientId),
   });
+
   // =================================================
-  // ACTIVE STAGE MASTER
+  // STAGE MASTER
   // =================================================
   const {
     data: stageResponse,
@@ -52,185 +94,266 @@ export const useProgressHook = (clientId: string) => {
     error: stageError,
   } = useQuery<ClientStageListResponse>({
     queryKey: ["clientStageOptions"],
+
     queryFn: async () => {
       const response = await api.get<ClientStageListResponse>("/stages");
+
       return response.data;
     },
   });
-  // =================================================
-  // SAFE HISTORY DATA
-  //
-  // Backend now returns:
-  // data:{
-  //   clientId,
-  //   currentStage,
-  //   currentStageName,
-  //   currentStageAmount,
-  //   history:[]
-  // }
-  // =================================================
+
   const historyData = historyResponse?.data;
+
   const history = Array.isArray(historyData?.history)
     ? historyData.history
     : [];
+
   const currentStage = historyData?.currentStage ?? "";
+
   const currentStageName = historyData?.currentStageName || currentStage || "-";
-  // =================================================
-  // STAGE OPTIONS
-  // =================================================
+
   const stageOptions = useMemo(() => {
     return [...(stageResponse?.data ?? [])]
       .filter((stage) => stage.isActive)
       .sort((a, b) => a.displayOrder - b.displayOrder);
   }, [stageResponse]);
-  // =================================================
-  // CURRENT STAGE AMOUNT
-  // Backend sends the current configured amount.
-  // Fallback to stage master if needed.
-  // =================================================
+
   const currentStageFromOptions = stageOptions.find(
-    (item) => item.key === currentStage,
+    (stage) => stage.key === currentStage,
   );
+
   const currentStageAmount =
     typeof historyData?.currentStageAmount === "number"
       ? historyData.currentStageAmount
       : (currentStageFromOptions?.amount ?? 0);
-  // =================================================
-  // SELECTED STAGE
-  //
-  // No useEffect needed.
-  // Empty local selection means use current stage.
-  // =================================================
+
   const selectedStageValue = selectedStage || currentStage;
-  const selectedStageDetails = useMemo(() => {
-    return (
-      stageOptions.find((stage) => stage.key === selectedStageValue) ?? null
-    );
-  }, [stageOptions, selectedStageValue]);
+
+  const selectedStageDetails =
+    stageOptions.find((stage) => stage.key === selectedStageValue) ?? null;
+
+  const requiresPayment =
+    selectedStageValue !== currentStage &&
+    Number(selectedStageDetails?.amount ?? 0) > 0;
+
   // =================================================
-  // UPDATE STAGE
+  // UPDATE
   // =================================================
   const { mutateAsync: updateStage, isPending: isUpdatingStage } = useMutation<
     ClientStageUpdateResponse,
     unknown,
-    ProgressFormValues
+    ProgressUpdatePayload
   >({
     mutationFn: async (values) => {
       const response = await api.post<ClientStageUpdateResponse>(
         `/client-stages/${encodeURIComponent(clientId)}`,
-        {
-          stage: values.stage,
-          note: values.note.trim(),
-        },
+        values,
       );
+
       return response.data;
     },
   });
+
   // =================================================
-  // REFRESH RELATED DATA
+  // REFRESH
   // =================================================
   const refreshAfterStageChange = async () => {
     await Promise.all([
       queryClient.invalidateQueries({
         queryKey: ["clientProgress", clientId],
       }),
+
+      queryClient.invalidateQueries({
+        queryKey: ["clientPayments", clientId],
+      }),
+
       queryClient.invalidateQueries({
         queryKey: ["client", clientId],
       }),
+
       queryClient.invalidateQueries({
         queryKey: ["clients"],
       }),
+
       queryClient.invalidateQueries({
         queryKey: ["adminDashboard"],
       }),
+
       queryClient.invalidateQueries({
         queryKey: ["staffDashboard"],
       }),
+
+      queryClient.invalidateQueries({
+        queryKey: ["staffTarget"],
+      }),
+
+      queryClient.invalidateQueries({
+        queryKey: ["staffPerformance"],
+      }),
     ]);
   };
+
+  // =================================================
+  // RESET PAYMENT
+  // =================================================
+  const resetPaymentFields = () => {
+    setPaymentMethod("");
+    setPaymentDate(getLocalDate());
+    setReferenceNumber("");
+    setReceiptNumber("");
+    setBankName("");
+  };
+
   // =================================================
   // STAGE CHANGE
   // =================================================
   const handleStageChange = (value: string) => {
     setSelectedStage(value);
+
     setFormError("");
     setSuccessMessage("");
+
+    resetPaymentFields();
   };
-  // =================================================
-  // NOTE CHANGE
-  // =================================================
-  const handleNoteChange = (value: string) => {
-    setNote(value);
-    setFormError("");
-    setSuccessMessage("");
-  };
+
   // =================================================
   // SUBMIT
   // =================================================
   const handleUpdateStage = async () => {
     setFormError("");
     setSuccessMessage("");
+
     const values = {
       stage: selectedStageValue,
       note,
+      paymentMethod,
+      paymentDate,
+      referenceNumber,
+      receiptNumber,
+      bankName,
     };
+
     const result = progressStageSchema.safeParse(values);
+
     if (!result.success) {
-      setFormError(
-        result.error.issues[0]?.message ||
-          "Please check the stage information.",
-      );
+      setFormError(result.error.issues[0]?.message || "Please check the form.");
+
       return;
     }
+
     if (result.data.stage === currentStage) {
       setFormError("Please select a different stage.");
+
       return;
     }
+
+    if (requiresPayment) {
+      if (
+        !PAYMENT_METHODS.includes(
+          result.data.paymentMethod as (typeof PAYMENT_METHODS)[number],
+        )
+      ) {
+        setFormError("Please select a payment method.");
+
+        return;
+      }
+
+      if (!result.data.paymentDate) {
+        setFormError("Payment date is required.");
+
+        return;
+      }
+    }
+
+    const payload: ProgressUpdatePayload = {
+      stage: result.data.stage,
+
+      note: result.data.note,
+    };
+
+    if (requiresPayment) {
+      payload.paymentMethod = result.data.paymentMethod;
+
+      payload.paymentDate = result.data.paymentDate;
+
+      payload.referenceNumber = result.data.referenceNumber;
+
+      payload.receiptNumber = result.data.receiptNumber;
+
+      payload.bankName = result.data.bankName;
+    }
+
     try {
-      const response = await updateStage(result.data);
+      const response = await updateStage(payload);
+
       setSelectedStage("");
       setNote("");
+
+      resetPaymentFields();
+
       setSuccessMessage(
         response.message || "Client stage updated successfully.",
       );
+
       await refreshAfterStageChange();
     } catch (error) {
       console.error("Update client stage error:", error);
+
       setFormError(getErrorMessage(error, "Failed to update client stage."));
     }
   };
-  // =================================================
-  // HISTORY LOAD ERROR
-  // =================================================
+
   const historyLoadError = isHistoryError
     ? getErrorMessage(historyError, "Failed to load client progress.")
     : "";
-  // =================================================
-  // STAGE LOAD ERROR
-  // =================================================
+
   const stageLoadError = isStageError
     ? getErrorMessage(stageError, "Failed to load stages.")
     : "";
-  // =================================================
-  // RETURN
-  // =================================================
+
   return {
     history,
+
     currentStage,
     currentStageName,
     currentStageAmount,
+
     stageOptions,
+
     selectedStageValue,
     selectedStageDetails,
+
+    requiresPayment,
+
     note,
+    setNote,
+
+    paymentMethod,
+    setPaymentMethod,
+
+    paymentDate,
+    setPaymentDate,
+
+    referenceNumber,
+    setReferenceNumber,
+
+    receiptNumber,
+    setReceiptNumber,
+
+    bankName,
+    setBankName,
+
     handleStageChange,
-    handleNoteChange,
     handleUpdateStage,
+
     isHistoryLoading,
     isHistoryFetching,
+
     isStageLoading,
     isStageFetching,
+
     isUpdatingStage,
+
     historyLoadError,
     stageLoadError,
     formError,

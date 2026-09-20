@@ -1,7 +1,8 @@
 "use client";
 
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -19,7 +20,7 @@ import Typography from "@mui/material/Typography";
 
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
 
 import Breadcrumb from "@/components/Breadcrumb";
@@ -29,21 +30,22 @@ import { useStaffDashboard } from "./hook";
 import type { StaffDashboardStatus } from "./type";
 
 // =================================================
-// THEME TOKENS
+// THEME
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 
-// Text colours. MUI's default text.secondary is rgba(0,0,0,0.6),
-// which reads washed out on the off-white background.
-const INK = "#111827"; // headings, values, primary cells
-const INK_BODY = "#1F2937"; // regular table body text
-const INK_MUTED = "#4B5563"; // labels, captions, secondary cells
+const INK = "#111827";
+const INK_BODY = "#1F2937";
+const INK_MUTED = "#4B5563";
 
 const softCard = {
-  p: { xs: 2.5, md: 3 },
+  p: {
+    xs: 2.5,
+    md: 3,
+  },
 
   borderRadius: 3,
 
@@ -110,7 +112,7 @@ const formatAmount = (value: number) =>
   new Intl.NumberFormat("ja-JP").format(Number(value || 0));
 
 // =================================================
-// JAPAN DATE
+// DATE
 // =================================================
 
 const formatJapanDate = (value: string) => {
@@ -130,7 +132,7 @@ const formatJapanDate = (value: string) => {
 };
 
 // =================================================
-// PERFORMANCE STATUS
+// STATUS
 // =================================================
 
 const getStatusColor = (
@@ -157,11 +159,8 @@ const getStatusColor = (
 
 type SummaryCardProps = {
   label: string;
-
   value: string;
-
   subtitle?: string;
-
   icon: ReactNode;
 };
 
@@ -171,7 +170,6 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
       elevation={0}
       sx={{
         ...softCard,
-
         height: "100%",
 
         transition: "transform 400ms ease, box-shadow 400ms ease",
@@ -187,15 +185,16 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
       <Box
         sx={{
           display: "flex",
-
           alignItems: "flex-start",
-
           justifyContent: "space-between",
-
           gap: 2,
         }}
       >
-        <Box sx={{ minWidth: 0 }}>
+        <Box
+          sx={{
+            minWidth: 0,
+          }}
+        >
           <Typography sx={labelSx}>{label}</Typography>
 
           <Typography sx={valueSx}>{value}</Typography>
@@ -216,19 +215,12 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
         <Box
           sx={{
             display: "grid",
-
             placeItems: "center",
-
             flexShrink: 0,
-
             width: 42,
-
             height: 42,
-
             borderRadius: 2.5,
-
             bgcolor: BRAND_SOFT,
-
             color: BRAND,
           }}
         >
@@ -245,16 +237,26 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
 
 type StatProps = {
   label: string;
-
   value: string;
-
   color?: string;
 };
 
 function Stat({ label, value, color }: StatProps) {
   return (
-    <Box sx={{ flex: "1 1 160px", minWidth: 140 }}>
-      <Typography sx={{ fontSize: 12, color: INK_MUTED }}>{label}</Typography>
+    <Box
+      sx={{
+        flex: "1 1 160px",
+        minWidth: 140,
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: 12,
+          color: INK_MUTED,
+        }}
+      >
+        {label}
+      </Typography>
 
       <Typography
         sx={{
@@ -279,25 +281,15 @@ export default function StaffDashboard() {
 
   const {
     selectedMonth,
-
     handleMonthChange,
-
     staff,
-
     overview,
-
     stageBreakdown,
-
     recentClients,
-
     recentPayments,
-
     isLoading,
-
     isFetching,
-
     loadError,
-
     handleClientClick,
   } = useStaffDashboard();
 
@@ -306,15 +298,17 @@ export default function StaffDashboard() {
       <Box
         sx={{
           minHeight: "60vh",
-
           display: "grid",
-
           placeItems: "center",
-
           bgcolor: "#F7F8F6",
         }}
       >
-        <CircularProgress size={28} sx={{ color: BRAND }} />
+        <CircularProgress
+          size={28}
+          sx={{
+            color: BRAND,
+          }}
+        />
       </Box>
     );
   }
@@ -326,8 +320,11 @@ export default function StaffDashboard() {
 
   const performanceStatusLabel: Record<StaffDashboardStatus, string> = {
     "No Target": t("status.noTarget"),
+
     "Not Started": t("status.notStarted"),
+
     "In Progress": t("status.inProgress"),
+
     Achieved: t("status.achieved"),
   };
 
@@ -335,18 +332,33 @@ export default function StaffDashboard() {
     <Box
       sx={{
         bgcolor: "#F7F8F6",
-
         minHeight: "100vh",
 
-        px: { xs: 2, sm: 3, md: 4 },
+        px: {
+          xs: 2,
+          sm: 3,
+          md: 4,
+        },
 
-        py: { xs: 3, md: 4 },
+        py: {
+          xs: 3,
+          md: 4,
+        },
       }}
     >
-      <Box sx={{ maxWidth: 1180, mx: "auto" }}>
+      <Box
+        sx={{
+          maxWidth: 1180,
+          mx: "auto",
+        }}
+      >
         {/* BREADCRUMB */}
 
-        <Box sx={{ mb: 2 }}>
+        <Box
+          sx={{
+            mb: 2,
+          }}
+        >
           <Breadcrumb
             items={[
               {
@@ -362,25 +374,27 @@ export default function StaffDashboard() {
         <Box
           sx={{
             display: "flex",
-
             flexWrap: "wrap",
-
             alignItems: "flex-end",
-
             justifyContent: "space-between",
-
             gap: 2.5,
           }}
         >
           <Box>
             <Typography
               sx={{
-                fontSize: { xs: 24, md: 30 },
+                fontSize: {
+                  xs: 24,
+                  md: 30,
+                },
+
                 fontWeight: 600,
                 letterSpacing: -0.4,
               }}
             >
-              {t("welcome", { name: staff.name })}
+              {t("welcome", {
+                name: staff.name,
+              })}
             </Typography>
 
             <Typography
@@ -390,7 +404,9 @@ export default function StaffDashboard() {
                 color: INK_MUTED,
               }}
             >
-              {staff.staffId} - {t("description")}
+              {staff.staffId}
+              {" - "}
+              {t("description")}
             </Typography>
           </Box>
 
@@ -413,7 +429,6 @@ export default function StaffDashboard() {
 
               "& .MuiOutlinedInput-root": {
                 borderRadius: 2.5,
-
                 bgcolor: "#ffffff",
 
                 "& fieldset": {
@@ -446,9 +461,7 @@ export default function StaffDashboard() {
           </Alert>
         )}
 
-        {/* =============================================
-            SUMMARY CARDS
-        ============================================== */}
+        {/* SUMMARY */}
 
         <Box
           sx={{
@@ -460,37 +473,30 @@ export default function StaffDashboard() {
 
             gridTemplateColumns: {
               xs: "1fr",
-
               sm: "repeat(2, 1fr)",
-
               lg: "repeat(4, 1fr)",
             },
           }}
         >
           <SummaryCard
             label={t("assignedClients")}
-            value={formatAmount(overview.totalAssignedClients)}
+            value={String(overview.totalAssignedClients)}
             subtitle={t("currentlyAssigned")}
             icon={<GroupsOutlinedIcon fontSize="small" />}
           />
 
           <SummaryCard
-            label={t("collectedThisMonth")}
+            label="Collected This Month"
             value={`¥${formatAmount(overview.totalCollected)}`}
-            subtitle={t("paymentsFromClients", {
-              payments: overview.paymentCount,
-              clients: overview.payingClientCount,
-            })}
+            subtitle={`${overview.payingClientCount} paying clients`}
             icon={<PaymentsOutlinedIcon fontSize="small" />}
           />
 
           <SummaryCard
-            label={t("outstandingClientFees")}
-            value={`¥${formatAmount(overview.totalOutstanding)}`}
-            subtitle={t("feesOutstanding", {
-              count: overview.outstandingFeeCount,
-            })}
-            icon={<AccountBalanceWalletOutlinedIcon fontSize="small" />}
+            label="Completed Payments"
+            value={String(overview.paymentCount)}
+            subtitle={`${overview.allTimePaymentCount} completed all time`}
+            icon={<ReceiptLongOutlinedIcon fontSize="small" />}
           />
 
           <SummaryCard
@@ -503,26 +509,31 @@ export default function StaffDashboard() {
           />
         </Box>
 
-        {/* =============================================
-            PERFORMANCE
-        ============================================== */}
+        {/* PERFORMANCE */}
 
-        <Paper elevation={0} sx={{ ...softCard, mt: 2 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            ...softCard,
+            mt: 2,
+          }}
+        >
           <Box
             sx={{
               display: "flex",
-
               flexWrap: "wrap",
-
               alignItems: "center",
-
               justifyContent: "space-between",
-
               gap: 1.5,
             }}
           >
             <Box>
-              <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
+              <Typography
+                sx={{
+                  fontSize: 17,
+                  fontWeight: 600,
+                }}
+              >
                 {t("monthlyPerformance")}
               </Typography>
 
@@ -570,7 +581,7 @@ export default function StaffDashboard() {
             />
 
             <Stat
-              label={t("remaining")}
+              label="Target Remaining"
               value={`¥${formatAmount(overview.remainingAmount)}`}
             />
 
@@ -585,11 +596,8 @@ export default function StaffDashboard() {
             value={progressValue}
             sx={{
               mt: 3,
-
               height: 10,
-
               borderRadius: 999,
-
               bgcolor: "rgba(17, 24, 39, 0.06)",
 
               "& .MuiLinearProgress-bar": {
@@ -615,13 +623,23 @@ export default function StaffDashboard() {
           )}
         </Paper>
 
-        {/* =============================================
-            CLIENT FINANCIAL FOLLOW-UP
-        ============================================== */}
+        {/* ALL-TIME COLLECTION */}
 
-        <Paper elevation={0} sx={{ ...softCard, mt: 2 }}>
-          <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
-            {t("clientFeeFollowUp")}
+        <Paper
+          elevation={0}
+          sx={{
+            ...softCard,
+            mt: 2,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 17,
+              fontWeight: 600,
+              color: INK,
+            }}
+          >
+            Collection Summary
           </Typography>
 
           <Box
@@ -633,27 +651,24 @@ export default function StaffDashboard() {
             }}
           >
             <Stat
-              label={t("totalExpected")}
-              value={`¥${formatAmount(overview.totalExpected)}`}
-            />
-
-            <Stat
-              label={t("paid")}
-              value={`¥${formatAmount(overview.totalPaidAgainstFees)}`}
+              label="All-Time Collected"
+              value={`¥${formatAmount(overview.allTimeCollected)}`}
               color={BRAND}
             />
 
             <Stat
-              label={t("outstanding")}
-              value={`¥${formatAmount(overview.totalOutstanding)}`}
-              color="#B7791F"
+              label="Completed Payments"
+              value={String(overview.allTimePaymentCount)}
+            />
+
+            <Stat
+              label="Paying Clients"
+              value={String(overview.allTimePayingClientCount)}
             />
           </Box>
         </Paper>
 
-        {/* =============================================
-            BOTTOM GRID
-        ============================================== */}
+        {/* BOTTOM GRID */}
 
         <Box
           sx={{
@@ -674,7 +689,12 @@ export default function StaffDashboard() {
           {/* STAGES */}
 
           <Paper elevation={0} sx={softCard}>
-            <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
+            <Typography
+              sx={{
+                fontSize: 17,
+                fontWeight: 600,
+              }}
+            >
               {t("myClientProgress")}
             </Typography>
 
@@ -699,41 +719,34 @@ export default function StaffDashboard() {
               >
                 {stageBreakdown.map((item) => (
                   <Box
-                    key={item.stage}
+                    key={item.stage || item.stageName}
                     sx={{
                       display: "flex",
-
                       alignItems: "center",
-
                       justifyContent: "space-between",
-
                       gap: 1.5,
-
                       px: 2,
-
                       py: 1.25,
-
                       borderRadius: 2,
-
                       bgcolor: "rgba(16, 122, 100, 0.05)",
                     }}
                   >
-                    <Typography sx={{ fontSize: 14 }}>{item.stage}</Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                      }}
+                    >
+                      {item.stageName}
+                    </Typography>
 
                     <Typography
                       sx={{
                         px: 1.25,
-
                         py: 0.25,
-
                         borderRadius: 999,
-
                         bgcolor: "#ffffff",
-
                         fontSize: 13,
-
                         fontWeight: 600,
-
                         color: BRAND,
                       }}
                     >
@@ -757,31 +770,60 @@ export default function StaffDashboard() {
           >
             <Box
               sx={{
-                px: { xs: 2.5, md: 3 },
+                px: {
+                  xs: 2.5,
+                  md: 3,
+                },
 
                 py: 2,
 
                 borderBottom: `1px solid ${HAIRLINE}`,
               }}
             >
-              <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
+              <Typography
+                sx={{
+                  fontSize: 17,
+                  fontWeight: 600,
+                }}
+              >
                 {t("myRecentClients")}
               </Typography>
             </Box>
 
             <TableContainer>
-              <Table size="small" sx={{ minWidth: 560 }}>
+              <Table
+                size="small"
+                sx={{
+                  minWidth: 650,
+                }}
+              >
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ ...headCellSx, pl: { xs: 2.5, md: 3 } }}>
+                    <TableCell
+                      sx={{
+                        ...headCellSx,
+                        pl: {
+                          xs: 2.5,
+                          md: 3,
+                        },
+                      }}
+                    >
                       {t("client")}
                     </TableCell>
 
                     <TableCell sx={headCellSx}>{t("name")}</TableCell>
 
-                    <TableCell sx={headCellSx}>{t("visa")}</TableCell>
+                    <TableCell sx={headCellSx}>Visa Status</TableCell>
 
-                    <TableCell sx={{ ...headCellSx, pr: { xs: 2.5, md: 3 } }}>
+                    <TableCell
+                      sx={{
+                        ...headCellSx,
+                        pr: {
+                          xs: 2.5,
+                          md: 3,
+                        },
+                      }}
+                    >
                       {t("currentStage")}
                     </TableCell>
                   </TableRow>
@@ -792,10 +834,21 @@ export default function StaffDashboard() {
                     <TableRow
                       key={client.clientId}
                       hover={false}
-                      sx={{ ...rowSx, cursor: "pointer" }}
+                      sx={{
+                        ...rowSx,
+                        cursor: "pointer",
+                      }}
                       onClick={() => handleClientClick(client.clientId)}
                     >
-                      <TableCell sx={{ ...bodyCellSx, pl: { xs: 2.5, md: 3 } }}>
+                      <TableCell
+                        sx={{
+                          ...bodyCellSx,
+                          pl: {
+                            xs: 2.5,
+                            md: 3,
+                          },
+                        }}
+                      >
                         <Typography
                           sx={{
                             fontSize: 14,
@@ -809,16 +862,32 @@ export default function StaffDashboard() {
 
                       <TableCell sx={bodyCellSx}>{client.fullName}</TableCell>
 
-                      <TableCell sx={{ ...bodyCellSx, color: INK_MUTED }}>
-                        {client.visaType || "-"}
+                      <TableCell
+                        sx={{
+                          ...bodyCellSx,
+                          color: INK_MUTED,
+                        }}
+                      >
+                        {client.currentVisaStatus || "-"}
                       </TableCell>
 
-                      <TableCell sx={{ ...bodyCellSx, pr: { xs: 2.5, md: 3 } }}>
+                      <TableCell
+                        sx={{
+                          ...bodyCellSx,
+                          pr: {
+                            xs: 2.5,
+                            md: 3,
+                          },
+                        }}
+                      >
                         <Chip
                           size="small"
                           variant="outlined"
-                          label={client.currentStage}
-                          sx={{ borderRadius: 999, fontWeight: 500 }}
+                          label={client.currentStageName}
+                          sx={{
+                            borderRadius: 999,
+                            fontWeight: 500,
+                          }}
                         />
                       </TableCell>
                     </TableRow>
@@ -846,9 +915,7 @@ export default function StaffDashboard() {
           </Paper>
         </Box>
 
-        {/* =============================================
-            RECENT PAYMENTS
-        ============================================== */}
+        {/* RECENT PAYMENTS */}
 
         <Paper
           elevation={0}
@@ -861,7 +928,10 @@ export default function StaffDashboard() {
         >
           <Box
             sx={{
-              px: { xs: 2.5, md: 3 },
+              px: {
+                xs: 2.5,
+                md: 3,
+              },
 
               py: 2,
 
@@ -878,24 +948,47 @@ export default function StaffDashboard() {
               gap: 1,
             }}
           >
-            <Typography sx={{ fontSize: 17, fontWeight: 600 }}>
+            <Typography
+              sx={{
+                fontSize: 17,
+                fontWeight: 600,
+              }}
+            >
               {t("myRecentCollections")}
             </Typography>
 
-            <Typography sx={{ fontSize: 12, color: INK_MUTED }}>
-              {t("collectionsDescription")}
+            <Typography
+              sx={{
+                fontSize: 12,
+                color: INK_MUTED,
+              }}
+            >
+              Full stage payments credited to you
             </Typography>
           </Box>
 
           <TableContainer>
-            <Table size="small" sx={{ minWidth: 760 }}>
+            <Table
+              size="small"
+              sx={{
+                minWidth: 700,
+              }}
+            >
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ ...headCellSx, pl: { xs: 2.5, md: 3 } }}>
+                  <TableCell
+                    sx={{
+                      ...headCellSx,
+                      pl: {
+                        xs: 2.5,
+                        md: 3,
+                      },
+                    }}
+                  >
                     {t("client")}
                   </TableCell>
 
-                  <TableCell sx={headCellSx}>{t("fee")}</TableCell>
+                  <TableCell sx={headCellSx}>Stage</TableCell>
 
                   <TableCell sx={headCellSx} align="right">
                     {t("amount")}
@@ -903,9 +996,15 @@ export default function StaffDashboard() {
 
                   <TableCell sx={headCellSx}>{t("method")}</TableCell>
 
-                  <TableCell sx={headCellSx}>{t("stage")}</TableCell>
-
-                  <TableCell sx={{ ...headCellSx, pr: { xs: 2.5, md: 3 } }}>
+                  <TableCell
+                    sx={{
+                      ...headCellSx,
+                      pr: {
+                        xs: 2.5,
+                        md: 3,
+                      },
+                    }}
+                  >
                     {t("date")}
                   </TableCell>
                 </TableRow>
@@ -914,17 +1013,22 @@ export default function StaffDashboard() {
               <TableBody>
                 {recentPayments.map((payment) => (
                   <TableRow key={payment._id} hover={false} sx={rowSx}>
-                    <TableCell sx={{ ...bodyCellSx, pl: { xs: 2.5, md: 3 } }}>
+                    <TableCell
+                      sx={{
+                        ...bodyCellSx,
+                        pl: {
+                          xs: 2.5,
+                          md: 3,
+                        },
+                      }}
+                    >
                       <Typography
                         component="span"
                         onClick={() => handleClientClick(payment.clientId)}
                         sx={{
                           fontSize: 14,
-
                           fontWeight: 600,
-
                           color: BRAND,
-
                           cursor: "pointer",
 
                           "&:hover": {
@@ -936,27 +1040,34 @@ export default function StaffDashboard() {
                       </Typography>
                     </TableCell>
 
-                    <TableCell sx={bodyCellSx}>{payment.paymentName}</TableCell>
+                    <TableCell sx={bodyCellSx}>{payment.stageName}</TableCell>
 
                     <TableCell
                       align="right"
-                      sx={{ ...bodyCellSx, fontWeight: 600 }}
+                      sx={{
+                        ...bodyCellSx,
+                        fontWeight: 600,
+                      }}
                     >
                       ¥{formatAmount(payment.amountPaid)}
-                    </TableCell>
-
-                    <TableCell sx={{ ...bodyCellSx, color: INK_MUTED }}>
-                      {payment.paymentMethod}
-                    </TableCell>
-
-                    <TableCell sx={{ ...bodyCellSx, color: INK_MUTED }}>
-                      {payment.stageAtPayment}
                     </TableCell>
 
                     <TableCell
                       sx={{
                         ...bodyCellSx,
-                        pr: { xs: 2.5, md: 3 },
+                        color: INK_MUTED,
+                      }}
+                    >
+                      {payment.paymentMethod}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        ...bodyCellSx,
+                        pr: {
+                          xs: 2.5,
+                          md: 3,
+                        },
                         color: INK_MUTED,
                         whiteSpace: "nowrap",
                       }}
@@ -969,7 +1080,7 @@ export default function StaffDashboard() {
                 {recentPayments.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={5}
                       align="center"
                       sx={{
                         ...bodyCellSx,

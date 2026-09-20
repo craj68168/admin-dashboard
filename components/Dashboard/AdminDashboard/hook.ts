@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
 import axios from "axios";
-
 import { useQuery } from "@tanstack/react-query";
-
 import { useRouter } from "next/navigation";
 
 import { api } from "@/lib/axios";
@@ -19,7 +16,6 @@ import type { AdminDashboardResponse } from "./type";
 const getCurrentJapanMonth = () => {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Tokyo",
-
     year: "numeric",
     month: "2-digit",
   }).formatToParts(new Date());
@@ -36,34 +32,23 @@ export const useAdminDashboard = () => {
 
   const [selectedMonth, setSelectedMonth] = useState(getCurrentJapanMonth());
 
-  const {
-    data,
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useQuery<AdminDashboardResponse>({
+      queryKey: ["adminDashboard", selectedMonth],
 
-    isLoading,
-
-    isFetching,
-
-    isError,
-
-    error,
-
-    refetch,
-  } = useQuery({
-    queryKey: ["adminDashboard", selectedMonth],
-
-    queryFn: async () => {
-      const response = await api.get<AdminDashboardResponse>(
-        "/dashboard/admin",
-        {
-          params: {
-            month: selectedMonth,
+      queryFn: async () => {
+        const response = await api.get<AdminDashboardResponse>(
+          "/dashboard/admin",
+          {
+            params: {
+              month: selectedMonth,
+            },
           },
-        },
-      );
+        );
 
-      return response.data;
-    },
-  });
+        return response.data;
+      },
+    });
 
   let loadError = "";
 
@@ -89,7 +74,6 @@ export const useAdminDashboard = () => {
 
   return {
     selectedMonth,
-
     handleMonthChange,
 
     overview: data?.overview,
@@ -101,15 +85,11 @@ export const useAdminDashboard = () => {
     recentPayments: data?.recentPayments ?? [],
 
     isLoading,
-
     isFetching,
-
     loadError,
-
     refetch,
 
     handleStaffClick,
-
     handleClientClick,
   };
 };

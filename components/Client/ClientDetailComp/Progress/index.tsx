@@ -1,4 +1,5 @@
 "use client";
+
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -7,60 +8,78 @@ import CircularProgress from "@mui/material/CircularProgress";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import UpdateRoundedIcon from "@mui/icons-material/UpdateRounded";
 import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+
 import type { ProgressProps } from "./type";
+
 import { useProgressHook } from "./hook";
-// =================================================
-// DESIGN
-// =================================================
+
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.08)";
 const INK = "#111827";
 const INK_MUTED = "#6B7280";
+
+const PAYMENT_METHODS = [
+  "Cash",
+  "Bank Transfer",
+  "Online Payment",
+  "Cheque",
+  "Other",
+];
+
 const fieldSx = {
   "& .MuiInputLabel-root": {
     fontSize: 13.5,
+
     "&.Mui-focused": {
       color: BRAND,
     },
   },
+
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
     bgcolor: "#ffffff",
+
     "& fieldset": {
       borderColor: HAIRLINE,
     },
+
     "&:hover fieldset": {
       borderColor: "rgba(16, 122, 100, 0.35)",
     },
+
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
       borderWidth: "1px",
     },
   },
+
   "& .MuiInputBase-input": {
     fontSize: 13.5,
   },
+
   "& .MuiSelect-select": {
     fontSize: 13.5,
   },
 };
-// =================================================
-// DATE
-// =================================================
+
 const formatDateTime = (value?: string | null) => {
   if (!value) {
     return "-";
   }
+
   const date = new Date(value);
+
   if (Number.isNaN(date.getTime())) {
     return value;
   }
+
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
@@ -69,45 +88,68 @@ const formatDateTime = (value?: string | null) => {
     minute: "2-digit",
   }).format(date);
 };
-// =================================================
-// AMOUNT
-// =================================================
+
 const formatAmount = (amount?: number | null) => {
   return new Intl.NumberFormat("ja-JP").format(Number(amount ?? 0));
 };
-// =================================================
-// PROGRESS
-// =================================================
+
 const Progress = ({ clientId }: ProgressProps) => {
   const {
     history,
+
     currentStage,
     currentStageName,
     currentStageAmount,
+
     stageOptions,
+
     selectedStageValue,
     selectedStageDetails,
+
+    requiresPayment,
+
     note,
+    setNote,
+
+    paymentMethod,
+    setPaymentMethod,
+
+    paymentDate,
+    setPaymentDate,
+
+    referenceNumber,
+    setReferenceNumber,
+
+    receiptNumber,
+    setReceiptNumber,
+
+    bankName,
+    setBankName,
+
     handleStageChange,
-    handleNoteChange,
     handleUpdateStage,
+
     isHistoryLoading,
     isHistoryFetching,
+
     isStageLoading,
     isStageFetching,
+
     isUpdatingStage,
+
     historyLoadError,
     stageLoadError,
     formError,
     successMessage,
   } = useProgressHook(clientId);
+
   const loading = isHistoryLoading || isStageLoading;
+
   const refreshing = isHistoryFetching || isStageFetching;
+
   const sameStage =
     Boolean(currentStage) && selectedStageValue === currentStage;
-  // =================================================
-  // LABEL HELPER
-  // =================================================
+
   const getStageName = (
     stageKey?: string | null,
     storedName?: string | null,
@@ -115,16 +157,16 @@ const Progress = ({ clientId }: ProgressProps) => {
     if (storedName) {
       return storedName;
     }
+
     if (!stageKey) {
       return "-";
     }
+
     return (
       stageOptions.find((stage) => stage.key === stageKey)?.name || stageKey
     );
   };
-  // =================================================
-  // LOADING
-  // =================================================
+
   if (loading) {
     return (
       <Box
@@ -144,11 +186,10 @@ const Progress = ({ clientId }: ProgressProps) => {
       </Box>
     );
   }
+
   return (
     <Box>
-      {/* =================================================
-HEADER
-================================================= */}
+      {/* HEADER */}
       <Box
         sx={{
           display: "flex",
@@ -179,6 +220,7 @@ HEADER
                 color: BRAND,
               }}
             />
+
             <Typography
               sx={{
                 color: INK,
@@ -189,6 +231,7 @@ HEADER
               Progress
             </Typography>
           </Box>
+
           <Typography
             sx={{
               mt: 0.5,
@@ -197,9 +240,10 @@ HEADER
               lineHeight: 1.5,
             }}
           >
-            {`Manage the client's current stage and review stage history.`}
+            Payment is required in full before entering a paid stage.
           </Typography>
         </Box>
+
         {refreshing && !loading && (
           <CircularProgress
             size={18}
@@ -209,9 +253,7 @@ HEADER
           />
         )}
       </Box>
-      {/* =================================================
-ERRORS
-================================================= */}
+
       {historyLoadError && (
         <Alert
           severity="error"
@@ -223,6 +265,7 @@ ERRORS
           {historyLoadError}
         </Alert>
       )}
+
       {stageLoadError && (
         <Alert
           severity="error"
@@ -234,6 +277,7 @@ ERRORS
           {stageLoadError}
         </Alert>
       )}
+
       {formError && (
         <Alert
           severity="error"
@@ -245,6 +289,7 @@ ERRORS
           {formError}
         </Alert>
       )}
+
       {successMessage && (
         <Alert
           severity="success"
@@ -256,9 +301,8 @@ ERRORS
           {successMessage}
         </Alert>
       )}
-      {/* =================================================
-CURRENT STAGE
-================================================= */}
+
+      {/* CURRENT STAGE */}
       <Box
         sx={{
           display: "grid",
@@ -289,6 +333,7 @@ CURRENT STAGE
           >
             Current Stage
           </Typography>
+
           <Box
             sx={{
               mt: 1,
@@ -308,16 +353,8 @@ CURRENT STAGE
               }}
             />
           </Box>
-          <Typography
-            sx={{
-              mt: 1,
-              color: INK_MUTED,
-              fontSize: 12,
-            }}
-          >
-            Key: {currentStage || "-"}
-          </Typography>
         </Box>
+
         <Box
           sx={{
             p: 2,
@@ -339,6 +376,7 @@ CURRENT STAGE
                 color: BRAND,
               }}
             />
+
             <Typography
               sx={{
                 color: INK_MUTED,
@@ -348,9 +386,10 @@ CURRENT STAGE
                 letterSpacing: "0.06em",
               }}
             >
-              Configured Stage Amount
+              Current Stage Amount
             </Typography>
           </Box>
+
           <Typography
             sx={{
               mt: 1,
@@ -361,22 +400,10 @@ CURRENT STAGE
           >
             ¥{formatAmount(currentStageAmount)}
           </Typography>
-          <Typography
-            sx={{
-              mt: 0.5,
-              color: INK_MUTED,
-              fontSize: 12,
-              lineHeight: 1.4,
-            }}
-          >
-            This is the current stage configuration. It does not automatically
-            create a payment.
-          </Typography>
         </Box>
       </Box>
-      {/* =================================================
-CHANGE STAGE
-================================================= */}
+
+      {/* CHANGE STAGE */}
       <Box
         sx={{
           p: {
@@ -403,6 +430,7 @@ CHANGE STAGE
               color: BRAND,
             }}
           />
+
           <Typography
             sx={{
               color: INK,
@@ -410,55 +438,217 @@ CHANGE STAGE
               fontWeight: 700,
             }}
           >
-            Update Stage
+            Change Stage
           </Typography>
         </Box>
+
+        <TextField
+          select
+          size="small"
+          fullWidth
+          label="Next Stage"
+          value={selectedStageValue}
+          disabled={
+            isStageLoading || isUpdatingStage || Boolean(stageLoadError)
+          }
+          onChange={(event) => {
+            handleStageChange(event.target.value);
+          }}
+          sx={fieldSx}
+        >
+          {stageOptions.map((stage) => (
+            <MenuItem key={stage._id} value={stage.key}>
+              {stage.name} — ¥{formatAmount(stage.amount)}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        {selectedStageDetails && selectedStageDetails.key !== currentStage && (
+          <Box
+            sx={{
+              mt: 2,
+              p: 1.75,
+              borderRadius: 2,
+              bgcolor: requiresPayment ? "#FFF7ED" : BRAND_SOFT,
+              border: requiresPayment
+                ? "1px solid rgba(234, 88, 12, 0.15)"
+                : "1px solid rgba(16, 122, 100, 0.12)",
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: requiresPayment ? "#C2410C" : BRAND,
+              }}
+            >
+              {selectedStageDetails.name}
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 0.5,
+                fontSize: 20,
+                fontWeight: 700,
+                color: INK,
+              }}
+            >
+              ¥{formatAmount(selectedStageDetails.amount)}
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 0.5,
+                fontSize: 12.5,
+                color: INK_MUTED,
+              }}
+            >
+              {requiresPayment
+                ? "Full payment is required before this stage can be applied."
+                : "No payment is required for this stage."}
+            </Typography>
+          </Box>
+        )}
+
+        {/* PAYMENT FORM */}
+        {requiresPayment && (
+          <Box
+            sx={{
+              mt: 2,
+              p: {
+                xs: 1.5,
+                sm: 2,
+              },
+              border: `1px solid ${HAIRLINE}`,
+              borderRadius: 2,
+              bgcolor: "#FAFBFA",
+            }}
+          >
+            <Typography
+              sx={{
+                mb: 2,
+                fontSize: 14,
+                fontWeight: 700,
+                color: INK,
+              }}
+            >
+              Full Payment Details
+            </Typography>
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  md: "repeat(2, minmax(0, 1fr))",
+                },
+                gap: 1.5,
+              }}
+            >
+              <TextField
+                select
+                size="small"
+                fullWidth
+                label="Payment Method"
+                value={paymentMethod}
+                disabled={isUpdatingStage}
+                onChange={(event) => {
+                  setPaymentMethod(event.target.value);
+                }}
+                sx={fieldSx}
+              >
+                {PAYMENT_METHODS.map((method) => (
+                  <MenuItem key={method} value={method}>
+                    {method}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                size="small"
+                fullWidth
+                type="date"
+                label="Payment Date"
+                value={paymentDate}
+                disabled={isUpdatingStage}
+                onChange={(event) => {
+                  setPaymentDate(event.target.value);
+                }}
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+                sx={fieldSx}
+              />
+
+              <TextField
+                size="small"
+                fullWidth
+                label="Reference Number"
+                value={referenceNumber}
+                disabled={isUpdatingStage}
+                onChange={(event) => {
+                  setReferenceNumber(event.target.value);
+                }}
+                sx={fieldSx}
+              />
+
+              <TextField
+                size="small"
+                fullWidth
+                label="Receipt Number"
+                value={receiptNumber}
+                disabled={isUpdatingStage}
+                onChange={(event) => {
+                  setReceiptNumber(event.target.value);
+                }}
+                sx={fieldSx}
+              />
+
+              {paymentMethod === "Bank Transfer" && (
+                <TextField
+                  size="small"
+                  fullWidth
+                  label="Bank Name"
+                  value={bankName}
+                  disabled={isUpdatingStage}
+                  onChange={(event) => {
+                    setBankName(event.target.value);
+                  }}
+                  sx={fieldSx}
+                />
+              )}
+            </Box>
+          </Box>
+        )}
+
+        <TextField
+          size="small"
+          fullWidth
+          multiline
+          minRows={2}
+          maxRows={5}
+          label="Note"
+          placeholder="Optional note about this stage change"
+          value={note}
+          disabled={isUpdatingStage}
+          onChange={(event) => {
+            setNote(event.target.value);
+          }}
+          sx={{
+            ...fieldSx,
+            mt: 2,
+          }}
+        />
+
         <Box
           sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "minmax(0, 1fr) minmax(0, 1.5fr) auto",
-            },
-            gap: 1.5,
-            alignItems: "start",
+            mt: 2,
+            display: "flex",
+            justifyContent: "flex-end",
           }}
         >
-          <TextField
-            select
-            size="small"
-            fullWidth
-            label="Stage"
-            value={selectedStageValue}
-            disabled={
-              isStageLoading || isUpdatingStage || Boolean(stageLoadError)
-            }
-            onChange={(event) => {
-              handleStageChange(event.target.value);
-            }}
-            sx={fieldSx}
-          >
-            {stageOptions.map((stage) => (
-              <MenuItem key={stage._id} value={stage.key}>
-                {stage.name} — ¥{formatAmount(stage.amount)}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            size="small"
-            fullWidth
-            multiline
-            minRows={1}
-            maxRows={4}
-            label="Note"
-            placeholder="Optional note about this stage change"
-            value={note}
-            disabled={isUpdatingStage}
-            onChange={(event) => {
-              handleNoteChange(event.target.value);
-            }}
-            sx={fieldSx}
-          />
           <Button
             type="button"
             variant="contained"
@@ -478,62 +668,31 @@ CHANGE STAGE
               )
             }
             sx={{
-              minHeight: 40,
-              px: 2,
+              minHeight: 42,
+              px: 2.25,
               borderRadius: 2,
               bgcolor: BRAND,
               fontSize: 13.5,
               fontWeight: 700,
               textTransform: "none",
-              whiteSpace: "nowrap",
+
               "&:hover": {
                 bgcolor: BRAND_HOVER,
               },
-              "&.Mui-disabled": {
-                bgcolor: "rgba(16, 122, 100, 0.35)",
-                color: "#ffffff",
-              },
             }}
           >
-            {isUpdatingStage ? "Updating..." : "Update Stage"}
+            {isUpdatingStage
+              ? "Processing..."
+              : requiresPayment
+                ? `Pay ¥${formatAmount(
+                    selectedStageDetails?.amount,
+                  )} & Update Stage`
+                : "Update Stage"}
           </Button>
         </Box>
-        {selectedStageDetails && selectedStageDetails.key !== currentStage && (
-          <Box
-            sx={{
-              mt: 1.5,
-              px: 1.5,
-              py: 1.25,
-              borderRadius: 1.5,
-              bgcolor: BRAND_SOFT,
-            }}
-          >
-            <Typography
-              sx={{
-                color: BRAND,
-                fontSize: 12.5,
-                fontWeight: 600,
-              }}
-            >
-              Selected stage: {selectedStageDetails.name} — ¥
-              {formatAmount(selectedStageDetails.amount)}
-            </Typography>
-            <Typography
-              sx={{
-                mt: 0.3,
-                color: INK_MUTED,
-                fontSize: 12,
-              }}
-            >
-              The configured amount will be saved in stage history as a
-              snapshot.
-            </Typography>
-          </Box>
-        )}
       </Box>
-      {/* =================================================
-HISTORY
-================================================= */}
+
+      {/* HISTORY */}
       <Box>
         <Box
           sx={{
@@ -549,6 +708,7 @@ HISTORY
               color: BRAND,
             }}
           />
+
           <Typography
             sx={{
               color: INK,
@@ -559,6 +719,7 @@ HISTORY
             Stage History
           </Typography>
         </Box>
+
         {history.length === 0 ? (
           <Box
             sx={{
@@ -583,167 +744,175 @@ HISTORY
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 0,
+              gap: 1.5,
             }}
           >
             {history.map((item, index) => {
-              const fromStageName = item.fromStage
+              const fromName = item.fromStage
                 ? getStageName(item.fromStage, item.fromStageName)
                 : "Initial";
-              const toStageName = getStageName(item.toStage, item.toStageName);
-              const stageAmount = item.toStageAmount ?? 0;
+
+              const toName = getStageName(item.toStage, item.toStageName);
+
               return (
                 <Box
                   key={item._id}
                   sx={{
-                    position: "relative",
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "26px minmax(0, 1fr)",
-                      sm: "32px minmax(0, 1fr)",
-                    },
-                    columnGap: 1.5,
-                    pb: index === history.length - 1 ? 0 : 2.5,
+                    p: 2,
+                    border: `1px solid ${HAIRLINE}`,
+                    borderRadius: 2,
+                    bgcolor: index === 0 ? "rgba(16,122,100,0.035)" : "#ffffff",
                   }}
                 >
-                  {/* TIMELINE */}
                   <Box
                     sx={{
-                      position: "relative",
                       display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: "relative",
-                        zIndex: 2,
-                        width: 12,
-                        height: 12,
-                        mt: 0.75,
-                        borderRadius: "50%",
-                        bgcolor: index === 0 ? BRAND : "#D1D5DB",
-                        border: "2px solid #ffffff",
-                        boxShadow: `0 0 0 2px ${
-                          index === 0
-                            ? "rgba(16,122,100,0.20)"
-                            : "rgba(107,114,128,0.15)"
-                        }`,
-                      }}
-                    />
-                    {index !== history.length - 1 && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: 18,
-                          bottom: -7,
-                          width: "1px",
-                          bgcolor: HAIRLINE,
-                        }}
-                      />
-                    )}
-                  </Box>
-                  {/* HISTORY CARD */}
-                  <Box
-                    sx={{
-                      p: {
-                        xs: 1.5,
-                        sm: 1.75,
+                      alignItems: {
+                        xs: "flex-start",
+                        sm: "center",
                       },
-                      border: `1px solid ${HAIRLINE}`,
-                      borderRadius: 2,
-                      bgcolor:
-                        index === 0 ? "rgba(16,122,100,0.035)" : "#ffffff",
+                      justifyContent: "space-between",
+                      flexDirection: {
+                        xs: "column",
+                        sm: "row",
+                      },
+                      gap: 1,
                     }}
                   >
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: {
-                          xs: "flex-start",
-                          sm: "center",
-                        },
-                        justifyContent: "space-between",
-                        flexDirection: {
-                          xs: "column",
-                          sm: "row",
-                        },
-                        gap: 1,
+                        gap: 0.75,
+                        alignItems: "center",
+                        flexWrap: "wrap",
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 0.75,
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 13,
-                          }}
-                        >
-                          {fromStageName}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 13,
-                          }}
-                        >
-                          →
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: BRAND,
-                            fontSize: 13.5,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {toStageName}
-                        </Typography>
-                        {index === 0 && (
-                          <Chip
-                            label="Latest"
-                            size="small"
-                            sx={{
-                              height: 22,
-                              bgcolor: BRAND_SOFT,
-                              color: BRAND,
-                              fontSize: 10.5,
-                              fontWeight: 700,
-                            }}
-                          />
-                        )}
-                      </Box>
                       <Typography
                         sx={{
                           color: INK_MUTED,
-                          fontSize: 11.5,
-                          whiteSpace: "nowrap",
+                          fontSize: 13,
                         }}
                       >
-                        {formatDateTime(item.createdAt)}
+                        {fromName}
                       </Typography>
+
+                      <Typography
+                        sx={{
+                          color: INK_MUTED,
+                        }}
+                      >
+                        →
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          color: BRAND,
+                          fontSize: 13.5,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {toName}
+                      </Typography>
+
+                      {index === 0 && (
+                        <Chip
+                          size="small"
+                          label="Latest"
+                          sx={{
+                            height: 22,
+                            bgcolor: BRAND_SOFT,
+                            color: BRAND,
+                            fontSize: 10.5,
+                            fontWeight: 700,
+                          }}
+                        />
+                      )}
                     </Box>
-                    <Box
+
+                    <Typography
                       sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        flexWrap: "wrap",
-                        mt: 1.25,
+                        color: INK_MUTED,
+                        fontSize: 11.5,
                       }}
                     >
+                      {formatDateTime(item.createdAt)}
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      mt: 1.25,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 2,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: INK_MUTED,
+                        fontSize: 12,
+                      }}
+                    >
+                      Stage amount:{" "}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: INK,
+                          fontWeight: 700,
+                        }}
+                      >
+                        ¥{formatAmount(item.toStageAmount)}
+                      </Box>
+                    </Typography>
+
+                    {item.paymentRef && (
+                      <>
+                        <Typography
+                          sx={{
+                            color: INK_MUTED,
+                            fontSize: 12,
+                          }}
+                        >
+                          Payment:{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: BRAND,
+                              fontWeight: 700,
+                            }}
+                          >
+                            ¥{formatAmount(item.paymentRef.amountPaid)}
+                          </Box>
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            color: INK_MUTED,
+                            fontSize: 12,
+                          }}
+                        >
+                          Method:{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: INK,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {item.paymentRef.paymentMethod}
+                          </Box>
+                        </Typography>
+                      </>
+                    )}
+
+                    {item.changedByName && (
                       <Typography
                         sx={{
                           color: INK_MUTED,
                           fontSize: 12,
                         }}
                       >
-                        Stage amount:{" "}
+                        Changed by:{" "}
                         <Box
                           component="span"
                           sx={{
@@ -751,73 +920,34 @@ HISTORY
                             fontWeight: 600,
                           }}
                         >
-                          ¥{formatAmount(stageAmount)}
+                          {item.changedByName}
                         </Box>
                       </Typography>
-                      {item.changedByName && (
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 12,
-                          }}
-                        >
-                          Changed by:{" "}
-                          <Box
-                            component="span"
-                            sx={{
-                              color: INK,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {item.changedByName}
-                          </Box>
-                        </Typography>
-                      )}
-                      {item.changedByRole && (
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 12,
-                            textTransform: "capitalize",
-                          }}
-                        >
-                          Role:{" "}
-                          <Box
-                            component="span"
-                            sx={{
-                              color: INK,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {item.changedByRole}
-                          </Box>
-                        </Typography>
-                      )}
-                    </Box>
-                    {item.note && (
-                      <Box
-                        sx={{
-                          mt: 1.25,
-                          px: 1.25,
-                          py: 1,
-                          borderRadius: 1.5,
-                          bgcolor: "#F9FAFB",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 12.5,
-                            lineHeight: 1.55,
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {item.note}
-                        </Typography>
-                      </Box>
                     )}
                   </Box>
+
+                  {item.note && (
+                    <Box
+                      sx={{
+                        mt: 1.25,
+                        px: 1.25,
+                        py: 1,
+                        borderRadius: 1.5,
+                        bgcolor: "#F9FAFB",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: INK_MUTED,
+                          fontSize: 12.5,
+                          lineHeight: 1.55,
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
+                        {item.note}
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               );
             })}
@@ -827,4 +957,5 @@ HISTORY
     </Box>
   );
 };
+
 export default Progress;

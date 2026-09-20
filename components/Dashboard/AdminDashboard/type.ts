@@ -11,11 +11,11 @@ export type DashboardOverview = {
 
   activeStaff: number;
 
-  totalExpected: number;
+  totalCollectedAllTime: number;
 
-  totalPaid: number;
+  totalCompletedPayments: number;
 
-  totalOutstanding: number;
+  totalPayingClients: number;
 
   monthlyCollected: number;
 
@@ -41,6 +41,8 @@ export type StaffRanking = {
 
   totalCollected: number;
 
+  // Staff target remaining.
+  // Not client outstanding.
   remainingAmount: number;
 
   achievementPercentage: number;
@@ -54,6 +56,9 @@ export type StaffRanking = {
 
 export type StageBreakdown = {
   stage: string;
+
+  stageName: string;
+
   count: number;
 };
 
@@ -62,7 +67,11 @@ export type RecentDashboardPayment = {
 
   clientId: string;
 
-  paymentName: string;
+  stageKey: string;
+
+  stageName: string;
+
+  stageAmount: number;
 
   amountPaid: number;
 
@@ -70,13 +79,19 @@ export type RecentDashboardPayment = {
 
   paymentDate: string;
 
+  paymentStatus: "Completed";
+
   creditedStaff: string;
 
   creditedStaffName: string;
 
   collectedByName: string;
 
-  stageAtPayment: string;
+  referenceNumber?: string;
+
+  receiptNumber?: string;
+
+  bankName?: string;
 
   createdAt: string;
 };

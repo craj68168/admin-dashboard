@@ -25,6 +25,8 @@ export type StaffDashboardOverview = {
 
   totalCollected: number;
 
+  // Monthly staff target remaining.
+  // NOT client outstanding.
   remainingAmount: number;
 
   achievementPercentage: number;
@@ -35,17 +37,18 @@ export type StaffDashboardOverview = {
 
   payingClientCount: number;
 
-  totalExpected: number;
+  allTimeCollected: number;
 
-  totalPaidAgainstFees: number;
+  allTimePaymentCount: number;
 
-  totalOutstanding: number;
-
-  outstandingFeeCount: number;
+  allTimePayingClientCount: number;
 };
 
 export type StaffStageBreakdown = {
   stage: string;
+
+  stageName: string;
+
   count: number;
 };
 
@@ -56,9 +59,11 @@ export type StaffRecentClient = {
 
   phone?: string;
 
-  visaType?: string;
+  currentVisaStatus?: string;
 
   currentStage: string;
+
+  currentStageName: string;
 
   createdAt: string;
 };
@@ -68,7 +73,11 @@ export type StaffRecentPayment = {
 
   clientId: string;
 
-  paymentName: string;
+  stageKey: string;
+
+  stageName: string;
+
+  stageAmount: number;
 
   amountPaid: number;
 
@@ -76,7 +85,13 @@ export type StaffRecentPayment = {
 
   paymentDate: string;
 
-  stageAtPayment: string;
+  paymentStatus: "Completed";
+
+  referenceNumber?: string;
+
+  receiptNumber?: string;
+
+  bankName?: string;
 
   createdAt: string;
 };

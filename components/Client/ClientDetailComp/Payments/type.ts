@@ -1,128 +1,52 @@
-export const PAYMENT_METHODS = [
-  "Cash",
-  "Bank Transfer",
-  "Online Payment",
-  "Cheque",
-  "Other",
-] as const;
-
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
-
-export type PaymentStatus = "Completed" | "Cancelled" | "Refunded";
-
-export type PaymentFormValues = {
-  feeId: string;
-
-  amountPaid: string;
-
-  paymentMethod: PaymentMethod | "";
-
-  paymentDate: string;
-
-  referenceNumber: string;
-
-  receiptNumber: string;
-
-  bankName: string;
-
-  note: string;
-};
-
-export type CreditedStaffRef = {
+export type ClientPayment = {
   _id: string;
-  name: string;
-  email?: string;
-  staffId: string;
-};
-
-export type PaymentFeeRef = {
-  _id: string;
-
-  feeName: string;
-
-  expectedAmount: number;
-
-  status: string;
-
-  dueDate?: string | null;
-};
-
-export type Payment = {
-  _id: string;
-
-  clientRef: string;
   clientId: string;
 
-  clientFeeRef?: PaymentFeeRef | string | null;
-
-  paymentName: string;
-
-  expectedAmount: number;
+  stageKey: string;
+  stageName: string;
+  stageAmount: number;
 
   amountPaid: number;
 
-  paymentMethod: PaymentMethod;
+  paymentMethod:
+    | "Cash"
+    | "Bank Transfer"
+    | "Online Payment"
+    | "Cheque"
+    | "Other";
 
   paymentDate: string;
 
-  paymentStatus: PaymentStatus;
-
-  stageAtPayment: string;
-
-  collectedBy: string;
+  paymentStatus: "Completed" | "Cancelled" | "Refunded";
 
   collectedByRole: "superadmin" | "staff";
 
   collectedByName: string;
 
-  creditedStaffRef?: CreditedStaffRef | null;
-
   creditedStaff: string;
-
   creditedStaffName: string;
 
   referenceNumber?: string;
-
   receiptNumber?: string;
-
   bankName?: string;
-
   note?: string;
 
   createdAt: string;
   updatedAt: string;
 };
 
-export type PaymentSummary = {
-  totalPaid: number;
-};
-
-export type PaymentsResponse = {
+export type ClientPaymentResponse = {
   success: boolean;
-
   count: number;
 
-  summary: PaymentSummary;
-
-  data: Payment[];
-};
-
-export type CreatePaymentResponse = {
-  success: boolean;
-
-  message: string;
-
   summary: {
-    feeExpected: number;
-
-    totalPaid: number;
-
-    outstanding: number;
-
-    paymentProgressStatus: "Unpaid" | "Partial" | "Paid";
+    totalCollected: number;
+    completedCount: number;
+    cancelledCount: number;
+    refundedCount: number;
   };
 
-  data: Payment;
+  data: ClientPayment[];
 };
 
 export type PaymentsProps = {
