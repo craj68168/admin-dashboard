@@ -12,16 +12,29 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 
 import Breadcrumb from "@/components/Breadcrumb";
 
 import { useEditClientHook } from "./hook";
 
-import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  NATIONALITIES,
+  STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EDUCATION_TYPE_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
 
 // =================================================
 // DESIGN SYSTEM
@@ -30,14 +43,19 @@ import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
 
 const softCard = {
   bgcolor: "#ffffff",
+
   border: `1px solid ${HAIRLINE}`,
+
   borderRadius: 3,
+
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
@@ -45,6 +63,7 @@ const softCard = {
 const fieldSx = {
   "& .MuiInputLabel-root": {
     color: INK_MUTED,
+
     fontSize: 14,
 
     "&.Mui-focused": {
@@ -62,7 +81,9 @@ const fieldSx = {
 
   "& .MuiOutlinedInput-root": {
     color: INK,
+
     bgcolor: "#ffffff",
+
     borderRadius: 2.5,
 
     transition:
@@ -70,6 +91,7 @@ const fieldSx = {
 
     "& fieldset": {
       borderColor: HAIRLINE,
+
       transition: "border-color 200ms ease",
     },
 
@@ -79,6 +101,7 @@ const fieldSx = {
 
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
+
       borderWidth: "1px",
     },
 
@@ -100,6 +123,7 @@ const fieldSx = {
 
     "&::placeholder": {
       color: INK_MUTED,
+
       opacity: 0.65,
     },
 
@@ -114,8 +138,11 @@ const fieldSx = {
 
   "& .MuiFormHelperText-root": {
     ml: 0.25,
+
     mt: 0.75,
+
     fontSize: 11.5,
+
     color: INK_MUTED,
 
     "&.Mui-error": {
@@ -140,9 +167,13 @@ const SectionTitle = ({
       <Typography
         sx={{
           color: INK,
+
           fontSize: 17,
+
           lineHeight: 1.35,
+
           fontWeight: 600,
+
           letterSpacing: "-0.01em",
         }}
       >
@@ -154,8 +185,11 @@ const SectionTitle = ({
           variant="body2"
           sx={{
             mt: 0.5,
+
             color: INK_MUTED,
+
             fontSize: 13.5,
+
             lineHeight: 1.6,
           }}
         >
@@ -178,14 +212,71 @@ const FormGrid = ({ children }: { children: ReactNode }) => {
 
         gridTemplateColumns: {
           xs: "1fr",
+
           md: "1fr 1fr",
         },
 
         gap: {
           xs: 2,
+
           sm: 2.5,
+
           md: 3,
         },
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+// =================================================
+// EDUCATION GRID
+// =================================================
+
+const EducationGrid = ({ children }: { children: ReactNode }) => {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+
+        gridTemplateColumns: {
+          xs: "1fr",
+
+          sm: "1fr 1fr",
+
+          lg: "1.4fr 1fr 1fr 1.2fr 0.9fr",
+        },
+
+        gap: 2,
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+// =================================================
+// EMPLOYMENT GRID
+// =================================================
+
+const EmploymentGrid = ({ children }: { children: ReactNode }) => {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+
+        gridTemplateColumns: {
+          xs: "1fr",
+
+          sm: "1fr 1fr",
+
+          lg: "1.4fr 1fr 1fr 1.2fr auto",
+        },
+
+        gap: 2,
+
+        alignItems: "start",
       }}
     >
       {children}
@@ -207,9 +298,14 @@ const getFileName = (path: string) => {
   return parts[parts.length - 1] || path;
 };
 
+// =================================================
+// EDIT CLIENT
+// =================================================
+
 const EditClient = () => {
   const t = useTranslations("editClient");
 
+  const optionT = useTranslations("createClient.options");
   const {
     clientId,
 
@@ -240,6 +336,38 @@ const EditClient = () => {
     handleCancel,
   } = useEditClientHook();
 
+  // =================================================
+  // EDUCATION HISTORY
+  // =================================================
+
+  const {
+    fields: educationFields,
+
+    append: appendEducation,
+
+    remove: removeEducation,
+  } = useFieldArray({
+    control,
+
+    name: "education",
+  });
+
+  // =================================================
+  // EMPLOYMENT HISTORY
+  // =================================================
+
+  const {
+    fields: employmentFields,
+
+    append: appendEmployment,
+
+    remove: removeEmployment,
+  } = useFieldArray({
+    control,
+
+    name: "employmentHistory",
+  });
+
   const loading = isSubmitting || isUpdating;
 
   // =================================================
@@ -251,10 +379,13 @@ const EditClient = () => {
       <Box
         sx={{
           minHeight: "100vh",
+
           bgcolor: "#F7F8F6",
 
           display: "flex",
+
           alignItems: "center",
+
           justifyContent: "center",
         }}
       >
@@ -263,10 +394,13 @@ const EditClient = () => {
             ...softCard,
 
             width: 92,
+
             height: 92,
 
             display: "flex",
+
             alignItems: "center",
+
             justifyContent: "center",
           }}
         >
@@ -291,11 +425,14 @@ const EditClient = () => {
       <Box
         sx={{
           minHeight: "100vh",
+
           bgcolor: "#F7F8F6",
 
           px: {
             xs: 2,
+
             sm: 3,
+
             md: 4,
           },
 
@@ -305,7 +442,9 @@ const EditClient = () => {
         <Box
           sx={{
             width: "100%",
+
             maxWidth: 900,
+
             mx: "auto",
           }}
         >
@@ -339,16 +478,20 @@ const EditClient = () => {
     <Box
       sx={{
         minHeight: "100vh",
+
         bgcolor: "#F7F8F6",
 
         px: {
           xs: 2,
+
           sm: 3,
+
           md: 4,
         },
 
         pb: {
           xs: 3,
+
           md: 4,
         },
       }}
@@ -356,7 +499,9 @@ const EditClient = () => {
       <Box
         sx={{
           width: "100%",
-          maxWidth: 1100,
+
+          maxWidth: 1180,
+
           mx: "auto",
         }}
       >
@@ -368,6 +513,7 @@ const EditClient = () => {
           sx={{
             mb: {
               xs: 2.5,
+
               md: 3,
             },
           }}
@@ -376,21 +522,27 @@ const EditClient = () => {
             items={[
               {
                 label: t("breadcrumbs.dashboard"),
+
                 href: "/admin/dashboard",
               },
 
               {
                 label: t("breadcrumbs.clients"),
+
                 href: "/admin/client",
               },
 
               {
                 label: client.fullName,
-                href: `/admin/client/clientDetailPage?clientId=${clientId}`,
+
+                href: `/admin/client/clientDetailPage?clientId=${encodeURIComponent(
+                  clientId,
+                )}`,
               },
 
               {
                 label: t("breadcrumbs.editClient"),
+
                 current: true,
               },
             ]}
@@ -407,7 +559,9 @@ const EditClient = () => {
 
             p: {
               xs: 2,
+
               sm: 3,
+
               md: 4,
             },
           }}
@@ -420,6 +574,7 @@ const EditClient = () => {
             sx={{
               mb: {
                 xs: 3,
+
                 md: 4,
               },
             }}
@@ -430,7 +585,9 @@ const EditClient = () => {
 
                 fontSize: {
                   xs: 22,
+
                   sm: 25,
+
                   md: 28,
                 },
 
@@ -453,6 +610,7 @@ const EditClient = () => {
 
                 fontSize: {
                   xs: 13.5,
+
                   sm: 14,
                 },
 
@@ -464,6 +622,7 @@ const EditClient = () => {
                 component="strong"
                 sx={{
                   color: BRAND,
+
                   fontWeight: 600,
                 }}
               >
@@ -512,6 +671,8 @@ const EditClient = () => {
             />
 
             <FormGrid>
+              {/* FULL NAME */}
+
               <Controller
                 name="fullName"
                 control={control}
@@ -527,6 +688,8 @@ const EditClient = () => {
                   />
                 )}
               />
+
+              {/* PHONE */}
 
               <Controller
                 name="phone"
@@ -544,8 +707,10 @@ const EditClient = () => {
                 )}
               />
 
+              {/* CURRENT VISA STATUS */}
+
               <Controller
-                name="visaType"
+                name="currentVisaStatus"
                 control={control}
                 render={({ field }) => (
                   <TextField
@@ -553,16 +718,18 @@ const EditClient = () => {
                     select
                     required
                     fullWidth
-                    label={t("fields.visaType.label")}
-                    error={Boolean(errors.visaType)}
-                    helperText={errors.visaType?.message}
+                    label={t("fields.currentVisaStatus.label")}
+                    error={Boolean(errors.currentVisaStatus)}
+                    helperText={errors.currentVisaStatus?.message}
                     sx={fieldSx}
                   >
-                    <MenuItem value="">{t("fields.visaType.placeholder")}</MenuItem>
+                    <MenuItem value="">
+                      {t("fields.currentVisaStatus.placeholder")}
+                    </MenuItem>
 
-                    {VISA_TYPES.map((item) => (
-                      <MenuItem key={item} value={item}>
-                        {t(`visaTypes.${item}`)}
+                    {CURRENT_VISA_STATUS_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`currentVisaStatus.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -570,7 +737,7 @@ const EditClient = () => {
               />
 
               {/* =================================================
-                  ADMIN STAFF SELECT
+                  SUPER ADMIN STAFF SELECT
               ================================================= */}
 
               {role === "superadmin" && (
@@ -589,7 +756,9 @@ const EditClient = () => {
                       helperText={errors.assignedStaff?.message}
                       sx={fieldSx}
                     >
-                      <MenuItem value="">{t("fields.assignedStaff.placeholder")}</MenuItem>
+                      <MenuItem value="">
+                        {t("fields.assignedStaff.placeholder")}
+                      </MenuItem>
 
                       {staffOptions.map((staff) => (
                         <MenuItem key={staff.staffId} value={staff.staffId}>
@@ -603,7 +772,7 @@ const EditClient = () => {
               )}
 
               {/* =================================================
-                  STAFF READ-ONLY ASSIGNMENT
+                  STAFF READ ONLY
               ================================================= */}
 
               {role === "staff" && (
@@ -612,10 +781,10 @@ const EditClient = () => {
                   disabled
                   label={t("fields.assignedStaff.label")}
                   value={
-                    user
-                      ? `${user.name} (${user.staffId})`
-                      : client.assignedStaffDetails?.name
-                        ? `${client.assignedStaffDetails.name} (${client.assignedStaff})`
+                    client.assignedStaffDetails?.name
+                      ? `${client.assignedStaffDetails.name} (${client.assignedStaff})`
+                      : user?.staffId
+                        ? `${user.name} (${user.staffId})`
                         : client.assignedStaff
                   }
                   helperText={t("fields.assignedStaff.readOnlyHelper")}
@@ -623,40 +792,57 @@ const EditClient = () => {
                 />
               )}
 
+              {/* PREFERRED CATEGORY */}
+
               <Controller
-                name="coeStatus"
+                name="preferCategory"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     select
                     fullWidth
-                    label={t("fields.coeStatus.label")}
+                    label={t("fields.preferCategory.label")}
+                    error={Boolean(errors.preferCategory)}
+                    helperText={errors.preferCategory?.message}
                     sx={fieldSx}
                   >
-                    {COE_STATUSES.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {t(`coeStatuses.${status}`)}
+                    <MenuItem value="">
+                      {t("fields.preferCategory.placeholder")}
+                    </MenuItem>
+
+                    {PREFER_CATEGORY_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`preferCategory.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
                 )}
               />
 
+              {/* CURRENT STAGE */}
+
               <Controller
-                name="clientStatus"
+                name="currentStage"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     select
+                    required
                     fullWidth
-                    label={t("fields.clientStatus.label")}
+                    label={t("fields.currentStage.label")}
+                    error={Boolean(errors.currentStage)}
+                    helperText={errors.currentStage?.message}
                     sx={fieldSx}
                   >
-                    {CLIENT_STATUSES.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {t(`clientStatuses.${status}`)}
+                    <MenuItem value="">
+                      {t("fields.currentStage.placeholder")}
+                    </MenuItem>
+
+                    {CURRENT_STAGES.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`currentStage.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -666,10 +852,7 @@ const EditClient = () => {
 
             <Divider
               sx={{
-                my: {
-                  xs: 3.5,
-                  md: 4,
-                },
+                my: 4,
 
                 borderColor: HAIRLINE,
               }}
@@ -685,6 +868,8 @@ const EditClient = () => {
             />
 
             <FormGrid>
+              {/* DATE OF BIRTH */}
+
               <Controller
                 name="dateOfBirth"
                 control={control}
@@ -704,18 +889,35 @@ const EditClient = () => {
                 )}
               />
 
+              {/* GENDER */}
+
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.gender.label")}
+                    error={Boolean(errors.gender)}
+                    helperText={errors.gender?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.gender.placeholder")}
+                    </MenuItem>
+
+                    {GENDER.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`gender.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
+
+              {/* EMAIL */}
 
               <Controller
                 name="email"
@@ -733,53 +935,89 @@ const EditClient = () => {
                 )}
               />
 
+              {/* NATIONALITY */}
+
               <Controller
                 name="nationality"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.nationality.label")}
+                    error={Boolean(errors.nationality)}
+                    helperText={errors.nationality?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="">
+                      {t("fields.nationality.placeholder")}
+                    </MenuItem>
+
+                    {NATIONALITIES.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`nationality.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
+
+              {/* CURRENT ADDRESS */}
+
+              <Controller
+                name="address"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label={t("fields.address.label")}
+                    placeholder={t("fields.address.placeholder")}
                     sx={fieldSx}
                   />
                 )}
               />
 
-              <Box
-                sx={{
-                  gridColumn: {
-                    xs: "auto",
-                    md: "1 / -1",
-                  },
-                }}
-              >
-                <Controller
-                  name="address"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      label={t("fields.address.label")}
-                      sx={fieldSx}
-                    />
-                  )}
-                />
-              </Box>
+              {/* PREFECTURE */}
+
+              <Controller
+                name="prefecture"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    select
+                    fullWidth
+                    label={t("fields.prefecture.label")}
+                    error={Boolean(errors.prefecture)}
+                    helperText={errors.prefecture?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="">
+                      {t("fields.prefecture.placeholder")}
+                    </MenuItem>
+
+                    {PREFECTURE_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`prefecture.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
             </FormGrid>
 
             <Divider
               sx={{
                 my: 4,
+
                 borderColor: HAIRLINE,
               }}
             />
 
             {/* =================================================
-                PASSPORT
+                PASSPORT / RESIDENCE
             ================================================= */}
 
             <SectionTitle
@@ -788,6 +1026,8 @@ const EditClient = () => {
             />
 
             <FormGrid>
+              {/* PASSPORT NUMBER */}
+
               <Controller
                 name="passportNumber"
                 control={control}
@@ -800,6 +1040,8 @@ const EditClient = () => {
                   />
                 )}
               />
+
+              {/* PASSPORT EXPIRY */}
 
               <Controller
                 name="passportExpiryDate"
@@ -820,16 +1062,31 @@ const EditClient = () => {
                 )}
               />
 
+              {/* STATUS OF RESIDENCE */}
+
               <Controller
                 name="statusOfResidence"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.statusOfResidence.label")}
+                    error={Boolean(errors.statusOfResidence)}
+                    helperText={errors.statusOfResidence?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.statusOfResidence.placeholder")}
+                    </MenuItem>
+
+                    {STATUS_OF_RESIDENCE_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(`statusOfResidence.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
             </FormGrid>
@@ -837,69 +1094,281 @@ const EditClient = () => {
             <Divider
               sx={{
                 my: 4,
+
                 borderColor: HAIRLINE,
               }}
             />
 
             {/* =================================================
-                EDUCATION
+                EDUCATION HISTORY
             ================================================= */}
 
-            <SectionTitle title={t("sections.education.title")} />
+            <SectionTitle
+              title={t("sections.education.title")}
+              description={t("sections.education.description")}
+            />
 
-            <FormGrid>
-              <Controller
-                name="lastQualification"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.lastQualification.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+            <Box
+              sx={{
+                display: "flex",
 
+                flexDirection: "column",
+
+                gap: 2.5,
+              }}
+            >
+              {educationFields.map((education, index) => (
+                <Box
+                  key={education.id}
+                  sx={{
+                    p: 2.5,
+
+                    border: `1px solid ${HAIRLINE}`,
+
+                    borderRadius: 2.5,
+
+                    bgcolor: "#FAFBFA",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 2,
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: INK,
+                        fontSize: 14,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {t("education.itemLabel", {
+                        number: index + 1,
+                      })}
+                    </Typography>
+
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={educationFields.length === 1}
+                      onClick={() => removeEducation(index)}
+                      sx={{
+                        minWidth: 44,
+                        height: 40,
+                        borderRadius: 2.5,
+                        borderColor: HAIRLINE,
+                        color: "#DC2626",
+
+                        "&:hover": {
+                          borderColor: "rgba(220, 38, 38, 0.35)",
+                          bgcolor: "rgba(220, 38, 38, 0.04)",
+                        },
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </Box>
+
+                  <EducationGrid>
+                    <Controller
+                      name={`education.${index}.educationType`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          label={t("fields.educationType.label")}
+                          error={Boolean(
+                            errors.education?.[index]?.educationType,
+                          )}
+                          helperText={
+                            errors.education?.[index]?.educationType?.message
+                          }
+                          sx={fieldSx}
+                        >
+                          <MenuItem value="">
+                            {t("fields.educationType.placeholder")}
+                          </MenuItem>
+
+                          {EDUCATION_TYPE_OPTIONS.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {optionT(
+                                `educationType.${option.key}` as never,
+                              )}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
+
+                    <Controller
+                      name={`education.${index}.schoolName`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label={t("fields.schoolName.label")}
+                          placeholder={t("fields.schoolName.placeholder")}
+                          error={Boolean(errors.education?.[index]?.schoolName)}
+                          helperText={
+                            errors.education?.[index]?.schoolName?.message
+                          }
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`education.${index}.enrollmentDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.enrollmentDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          error={Boolean(
+                            errors.education?.[index]?.enrollmentDate,
+                          )}
+                          helperText={
+                            errors.education?.[index]?.enrollmentDate?.message
+                          }
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`education.${index}.graduationDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.graduationDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          error={Boolean(
+                            errors.education?.[index]?.graduationDate,
+                          )}
+                          helperText={
+                            errors.education?.[index]?.graduationDate?.message
+                          }
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`education.${index}.major`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label={t("fields.major.label")}
+                          placeholder={t("fields.major.placeholder")}
+                          error={Boolean(errors.education?.[index]?.major)}
+                          helperText={errors.education?.[index]?.major?.message}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+                  </EducationGrid>
+                </Box>
+              ))}
+
+              <Box>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() =>
+                    appendEducation({
+                      schoolName: "",
+                      enrollmentDate: "",
+                      graduationDate: "",
+                      educationType: "",
+                      major: "",
+                    })
+                  }
+                  sx={{
+                    borderRadius: 2.5,
+                    borderColor: "rgba(16, 122, 100, 0.25)",
+                    color: BRAND,
+                    textTransform: "none",
+                    fontWeight: 600,
+
+                    "&:hover": {
+                      bgcolor: BRAND_SOFT,
+                      borderColor: BRAND,
+                    },
+                  }}
+                >
+                  {t("education.add")}
+                </Button>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                mt: 3,
+                maxWidth: 500,
+              }}
+            >
               <Controller
                 name="japaneseLanguageLevel"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.japaneseLanguageLevel.label")}
+                    error={Boolean(errors.japaneseLanguageLevel)}
+                    helperText={errors.japaneseLanguageLevel?.message}
                     sx={fieldSx}
-                  />
+                  >
+                    <MenuItem value="">
+                      {t("fields.japaneseLanguageLevel.placeholder")}
+                    </MenuItem>
+
+                    {JAPANESE_LEVELS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {optionT(
+                          `japaneseLanguageLevel.${option.key}` as never,
+                        )}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
               />
+            </Box>
 
-              <Controller
-                name="schoolName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.schoolName.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+            {/* INTAKE */}
 
-              <Controller
-                name="course"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.course.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+            <Box
+              sx={{
+                mt: 2.5,
 
+                maxWidth: 500,
+              }}
+            >
               <Controller
                 name="intake"
                 control={control}
@@ -908,164 +1377,213 @@ const EditClient = () => {
                     {...field}
                     fullWidth
                     label={t("fields.intake.label")}
+                    placeholder={t("fields.intake.placeholder")}
                     sx={fieldSx}
                   />
                 )}
               />
-            </FormGrid>
+            </Box>
 
             <Divider
               sx={{
                 my: 4,
+
                 borderColor: HAIRLINE,
               }}
             />
 
             {/* =================================================
-                EMPLOYMENT
+                EMPLOYMENT HISTORY
             ================================================= */}
 
-            <SectionTitle title={t("sections.employment.title")} />
-
-            <FormGrid>
-              <Controller
-                name="jobCategory"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.jobCategory.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="jobTitle"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.jobTitle.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="companyName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.companyName.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="workLocation"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.workLocation.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-            </FormGrid>
-
-            <Divider
-              sx={{
-                my: 4,
-                borderColor: HAIRLINE,
-              }}
+            <SectionTitle
+              title={t("sections.employment.title")}
+              description={t("sections.employment.description")}
             />
 
-            {/* =================================================
-                SPONSOR
-            ================================================= */}
-
-            <SectionTitle title={t("sections.sponsor.title")} />
-
-            <FormGrid>
-              <Controller
-                name="sponsorName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.sponsorName.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="sponsorRelationship"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.sponsorRelationship.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="sponsorStatusOfResidence"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.sponsorStatusOfResidence.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-            </FormGrid>
-
-            <Divider
+            <Box
               sx={{
-                my: 4,
-                borderColor: HAIRLINE,
+                display: "flex",
+
+                flexDirection: "column",
+
+                gap: 2.5,
               }}
-            />
+            >
+              {employmentFields.map((employment, index) => (
+                <Box
+                  key={employment.id}
+                  sx={{
+                    p: 2.5,
 
-            {/* =================================================
-                VISA
-            ================================================= */}
+                    border: `1px solid ${HAIRLINE}`,
 
-            <SectionTitle title={t("sections.visa.title")} />
+                    borderRadius: 2.5,
 
-            <FormGrid>
-              <Controller
-                name="visaStatus"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.visaStatus.label")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-            </FormGrid>
+                    bgcolor: "#FAFBFA",
+                  }}
+                >
+                  <EmploymentGrid>
+                    {/* COMPANY NAME */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.companyName`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label={t("fields.companyName.label")}
+                          placeholder={t("fields.companyName.placeholder")}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    {/* START DATE */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.startDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.startDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    {/* END DATE */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.endDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.endDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    {/* EMPLOYMENT TYPE */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.employmentType`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          label={t("fields.employmentType.label")}
+                          sx={fieldSx}
+                        >
+                          <MenuItem value="">
+                            {t("fields.employmentType.placeholder")}
+                          </MenuItem>
+
+                          {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {optionT(`employmentType.${option.key}` as never)}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
+
+                    {/* REMOVE */}
+
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={employmentFields.length === 1}
+                      onClick={() => removeEmployment(index)}
+                      sx={{
+                        minWidth: 44,
+
+                        height: 56,
+
+                        borderRadius: 2.5,
+
+                        borderColor: HAIRLINE,
+
+                        color: "#DC2626",
+
+                        "&:hover": {
+                          borderColor: "rgba(220, 38, 38, 0.35)",
+
+                          bgcolor: "rgba(220, 38, 38, 0.04)",
+                        },
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </EmploymentGrid>
+                </Box>
+              ))}
+
+              {/* ADD EMPLOYMENT */}
+
+              <Box>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() =>
+                    appendEmployment({
+                      companyName: "",
+
+                      startDate: "",
+
+                      endDate: "",
+
+                      employmentType: "",
+                    })
+                  }
+                  sx={{
+                    borderRadius: 2.5,
+
+                    borderColor: "rgba(16, 122, 100, 0.25)",
+
+                    color: BRAND,
+
+                    textTransform: "none",
+
+                    fontWeight: 600,
+
+                    "&:hover": {
+                      bgcolor: BRAND_SOFT,
+
+                      borderColor: BRAND,
+                    },
+                  }}
+                >
+                  {t("employment.add")}
+                </Button>
+              </Box>
+            </Box>
 
             <Divider
               sx={{
                 my: 4,
+
                 borderColor: HAIRLINE,
               }}
             />
@@ -1103,9 +1621,7 @@ const EditClient = () => {
 
                         bgcolor: "#ffffff",
 
-                        borderColor: errors.clientImage
-                          ? "#DC2626"
-                          : HAIRLINE,
+                        borderColor: errors.clientImage ? "#DC2626" : HAIRLINE,
 
                         borderRadius: 2.5,
 
@@ -1126,12 +1642,6 @@ const EditClient = () => {
                           borderColor: "rgba(16, 122, 100, 0.35)",
                         },
 
-                        "&:focus-visible": {
-                          borderColor: BRAND,
-
-                          outline: "none",
-                        },
-
                         "& .MuiButton-startIcon": {
                           color: BRAND,
                         },
@@ -1141,7 +1651,9 @@ const EditClient = () => {
                         component="span"
                         sx={{
                           overflow: "hidden",
+
                           textOverflow: "ellipsis",
+
                           whiteSpace: "nowrap",
                         }}
                       >
@@ -1187,6 +1699,7 @@ const EditClient = () => {
                           component="span"
                           sx={{
                             color: INK,
+
                             fontWeight: 500,
                           }}
                         >
@@ -1250,19 +1763,10 @@ const EditClient = () => {
 
                         overflow: "hidden",
 
-                        transition:
-                          "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
                         "&:hover": {
                           bgcolor: BRAND_SOFT,
 
                           borderColor: "rgba(16, 122, 100, 0.35)",
-                        },
-
-                        "&:focus-visible": {
-                          borderColor: BRAND,
-
-                          outline: "none",
                         },
 
                         "& .MuiButton-startIcon": {
@@ -1274,7 +1778,9 @@ const EditClient = () => {
                         component="span"
                         sx={{
                           overflow: "hidden",
+
                           textOverflow: "ellipsis",
+
                           whiteSpace: "nowrap",
                         }}
                       >
@@ -1320,6 +1826,7 @@ const EditClient = () => {
                           component="span"
                           sx={{
                             color: INK,
+
                             fontWeight: 500,
                           }}
                         >
@@ -1359,6 +1866,7 @@ const EditClient = () => {
 
                 flexDirection: {
                   xs: "column-reverse",
+
                   sm: "row",
                 },
 
@@ -1368,6 +1876,7 @@ const EditClient = () => {
 
                 mt: {
                   xs: 4,
+
                   md: 5,
                 },
 
@@ -1400,19 +1909,12 @@ const EditClient = () => {
 
                   textTransform: "none",
 
-                  transition:
-                    "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
 
                     borderColor: "rgba(16, 122, 100, 0.30)",
 
                     color: BRAND,
-                  },
-
-                  "&.Mui-disabled": {
-                    borderColor: HAIRLINE,
                   },
                 }}
               >
@@ -1449,9 +1951,6 @@ const EditClient = () => {
                   textTransform: "none",
 
                   boxShadow: "none",
-
-                  transition:
-                    "background-color 200ms ease, box-shadow 200ms ease",
 
                   "&:hover": {
                     bgcolor: BRAND_HOVER,

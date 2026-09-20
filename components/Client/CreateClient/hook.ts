@@ -15,17 +15,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 
-import type { StaffListResponse } from "./type";
+import type { CreateClientFormValues, StaffListResponse } from "./type";
 
-import {
-  createCreateClientSchema,
-  type CreateClientFormValues,
-} from "./validation";
+import { createCreateClientSchema } from "./validation";
 
 // =================================================
 // APPEND FORM DATA
-//
-// Empty optional fields are not sent.
+// Empty optional string fields are not sent.
 // =================================================
 
 const appendValue = (formData: FormData, key: string, value: string) => {
@@ -35,6 +31,10 @@ const appendValue = (formData: FormData, key: string, value: string) => {
     formData.append(key, cleanValue);
   }
 };
+
+// =================================================
+// CREATE CLIENT HOOK
+// =================================================
 
 export const useCreateClientHook = () => {
   const t = useTranslations("createClient");
@@ -57,60 +57,110 @@ export const useCreateClientHook = () => {
     control,
     handleSubmit,
     setValue,
+
     formState: { errors, isSubmitting },
   } = useForm<CreateClientFormValues>({
     resolver: zodResolver(
       createCreateClientSchema({
         fullNameRequired: t("validation.fullNameRequired"),
+
         phoneRequired: t("validation.phoneRequired"),
-        visaTypeRequired: t("validation.visaTypeRequired"),
+
+        currentVisaStatusRequired: t("validation.currentVisaStatusRequired"),
+
+        currentStageRequired: t("validation.currentStageRequired"),
       }),
     ),
 
     defaultValues: {
-      // Client
-      fullName: "",
-      phone: "",
-      visaType: "",
-      assignedStaff: "",
-      coeStatus: "Not Applied",
-      clientStatus: "New",
+      // =================================================
+      // CLIENT
+      // =================================================
 
-      // Personal
+      fullName: "",
+
+      phone: "",
+
+      currentVisaStatus: "",
+
+      preferCategory: "otherVisaService",
+
+      currentStage: "registeredPaid",
+
+      assignedStaff: "",
+
+      // =================================================
+      // PERSONAL
+      // =================================================
+
       dateOfBirth: "",
+
       gender: "",
+
       email: "",
-      address: "",
+
       nationality: "",
 
-      // Passport
+      address: "",
+
+      prefecture: "",
+
+      // =================================================
+      // PASSPORT / RESIDENCE
+      // =================================================
+
       passportNumber: "",
+
       passportExpiryDate: "",
+
       statusOfResidence: "",
 
-      // Education
-      lastQualification: "",
+      // =================================================
+      // EDUCATION
+      // =================================================
+
+      education: [
+        {
+          schoolName: "",
+          enrollmentDate: "",
+          graduationDate: "",
+          educationType: "",
+          major: "",
+        },
+      ],
+
       japaneseLanguageLevel: "",
-      schoolName: "",
-      course: "",
+
       intake: "",
 
-      // Employment
-      jobCategory: "",
-      jobTitle: "",
-      companyName: "",
-      workLocation: "",
+      // =================================================
+      // EMPLOYMENT HISTORY
+      // =================================================
 
-      // Sponsor
-      sponsorName: "",
-      sponsorRelationship: "",
-      sponsorStatusOfResidence: "",
+      employmentHistory: [
+        {
+          companyName: "",
 
-      // Visa
-      visaStatus: "",
+          startDate: "",
 
-      // Files
+          endDate: "",
+
+          employmentType: "",
+        },
+      ],
+
+      // =================================================
+      // OTHER
+      // =================================================
+
+      remark: "",
+
+      // =================================================
+      // FILES
+      // =================================================
+
       clientImage: null,
+
       cv: null,
     },
   });
@@ -129,8 +179,7 @@ export const useCreateClientHook = () => {
 
   // =================================================
   // STAFF LIST
-  //
-  // ONLY ADMIN calls /staff
+  // ONLY SUPER ADMIN calls /staff
   // =================================================
 
   const { data: staffResponse, isLoading: isStaffLoading } = useQuery({
@@ -172,6 +221,7 @@ export const useCreateClientHook = () => {
       void queryClient.invalidateQueries({
         queryKey: ["clients"],
       });
+
       void queryClient.invalidateQueries({
         queryKey: ["staff-clients"],
       });
@@ -200,26 +250,22 @@ export const useCreateClientHook = () => {
 
       formData.append("phone", values.phone.trim());
 
-      formData.append("visaType", values.visaType);
+      formData.append("currentVisaStatus", values.currentVisaStatus);
+
+      formData.append("preferCategory", values.preferCategory);
+
+      formData.append("currentStage", values.currentStage);
 
       // =================================================
-      // ADMIN ASSIGNMENT
+      // STAFF ASSIGNMENT
       //
-      // Staff does NOT send this.
-      // Backend automatically uses req.user.staffId.
+      // Super Admin manually selects.
+      // Staff is assigned from authentication backend.
       // =================================================
 
       if (role === "superadmin") {
         formData.append("assignedStaff", values.assignedStaff);
       }
-
-      // =================================================
-      // CLIENT STATUS FIELDS
-      // =================================================
-
-      formData.append("coeStatus", values.coeStatus);
-
-      formData.append("clientStatus", values.clientStatus);
 
       // =================================================
       // PERSONAL
@@ -231,9 +277,11 @@ export const useCreateClientHook = () => {
 
       appendValue(formData, "email", values.email);
 
+      appendValue(formData, "nationality", values.nationality);
+
       appendValue(formData, "address", values.address);
 
-      appendValue(formData, "nationality", values.nationality);
+      appendValue(formData, "prefecture", values.prefecture);
 
       // =================================================
       // PASSPORT / RESIDENCE
@@ -246,10 +294,8 @@ export const useCreateClientHook = () => {
       appendValue(formData, "statusOfResidence", values.statusOfResidence);
 
       // =================================================
-      // EDUCATION
+      // JAPANESE LEVEL
       // =================================================
-
-      appendValue(formData, "lastQualification", values.lastQualification);
 
       appendValue(
         formData,
@@ -257,43 +303,48 @@ export const useCreateClientHook = () => {
         values.japaneseLanguageLevel,
       );
 
-      appendValue(formData, "schoolName", values.schoolName);
-
-      appendValue(formData, "course", values.course);
+      // =================================================
+      // INTAKE
+      // =================================================
 
       appendValue(formData, "intake", values.intake);
 
       // =================================================
-      // EMPLOYMENT
+      // EDUCATION
       // =================================================
 
-      appendValue(formData, "jobCategory", values.jobCategory);
-
-      appendValue(formData, "jobTitle", values.jobTitle);
-
-      appendValue(formData, "companyName", values.companyName);
-
-      appendValue(formData, "workLocation", values.workLocation);
-
-      // =================================================
-      // SPONSOR
-      // =================================================
-
-      appendValue(formData, "sponsorName", values.sponsorName);
-
-      appendValue(formData, "sponsorRelationship", values.sponsorRelationship);
-
-      appendValue(
-        formData,
-        "sponsorStatusOfResidence",
-        values.sponsorStatusOfResidence,
+      const cleanedEducation = values.education.filter(
+        (education) =>
+          education.schoolName.trim() !== "" ||
+          education.enrollmentDate.trim() !== "" ||
+          education.graduationDate.trim() !== "" ||
+          education.educationType !== "" ||
+          education.major.trim() !== "",
       );
 
+      formData.append("education", JSON.stringify(cleanedEducation));
+
       // =================================================
-      // VISA
+      // EMPLOYMENT HISTORY
       // =================================================
 
-      appendValue(formData, "visaStatus", values.visaStatus);
+      const cleanedEmploymentHistory = values.employmentHistory.filter(
+        (employment) =>
+          employment.companyName.trim() !== "" ||
+          employment.startDate.trim() !== "" ||
+          employment.endDate.trim() !== "" ||
+          employment.employmentType !== "",
+      );
+
+      formData.append(
+        "employmentHistory",
+        JSON.stringify(cleanedEmploymentHistory),
+      );
+      // =================================================
+      // REMARK
+      // =================================================
+
+      appendValue(formData, "remark", values.remark);
 
       // =================================================
       // FILES
@@ -337,23 +388,33 @@ export const useCreateClientHook = () => {
     router.push("/admin/client");
   };
 
+  // =================================================
+  // RETURN
+  // =================================================
+
   return {
     user,
+
     role,
 
     control,
+
     errors,
+
     handleSubmit,
 
     activeStaff,
+
     isStaffLoading,
 
     isSubmitting,
+
     isCreating,
 
     serverError,
 
     onSubmit,
+
     handleCancel,
   };
 };

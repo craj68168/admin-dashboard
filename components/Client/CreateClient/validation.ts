@@ -1,122 +1,275 @@
 import { z } from "zod";
 
-import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  NATIONALITIES,
+  STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EDUCATION_TYPE_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
+
+// =================================================
+// HELPER
+// Convert shared option objects into Zod enum values
+// =================================================
+
+const optionValues = <
+  T extends readonly {
+    value: string;
+  }[],
+>(
+  options: T,
+) =>
+  options.map((option) => option.value) as [
+    T[number]["value"],
+    ...T[number]["value"][],
+  ];
+
+// =================================================
+// ENUM VALUES
+// Single source remains components/constant/index.ts
+// =================================================
+
+const GENDER_VALUES = optionValues(GENDER);
+
+const CURRENT_VISA_STATUS_VALUES = optionValues(
+  CURRENT_VISA_STATUS_OPTIONS,
+);
+
+const PREFER_CATEGORY_VALUES = optionValues(
+  PREFER_CATEGORY_OPTIONS,
+);
+
+const CURRENT_STAGE_VALUES = optionValues(
+  CURRENT_STAGES,
+);
+
+const NATIONALITY_VALUES = optionValues(
+  NATIONALITIES,
+);
+
+const STATUS_OF_RESIDENCE_VALUES = optionValues(
+  STATUS_OF_RESIDENCE_OPTIONS,
+);
+
+const JAPANESE_LEVEL_VALUES = optionValues(
+  JAPANESE_LEVELS,
+);
+
+const EDUCATION_TYPE_VALUES = optionValues(
+  EDUCATION_TYPE_OPTIONS,
+);
+
+const EMPLOYMENT_TYPE_VALUES = optionValues(
+  EMPLOYMENT_TYPE_OPTIONS,
+);
+
+const PREFECTURE_VALUES = optionValues(
+  PREFECTURE_OPTIONS,
+);
+
+// =================================================
+// VALIDATION MESSAGES
+// =================================================
 
 type CreateClientValidationMessages = {
   fullNameRequired: string;
   phoneRequired: string;
-  visaTypeRequired: string;
+  currentVisaStatusRequired: string;
+  currentStageRequired: string;
+  employmentTypeRequired?: string;
 };
 
 const defaultValidationMessages: CreateClientValidationMessages = {
   fullNameRequired: "Full name is required",
   phoneRequired: "Phone number is required",
-  visaTypeRequired: "Visa type is required",
+  currentVisaStatusRequired: "Current visa status is required",
+  currentStageRequired: "Current stage is required",
+  employmentTypeRequired: "Employment type is required",
 };
 
+// =================================================
+// SCHEMA FACTORY
+// =================================================
+
 export const createCreateClientSchema = (
-  messages: CreateClientValidationMessages = defaultValidationMessages,
+  messages: CreateClientValidationMessages =
+    defaultValidationMessages,
 ) =>
   z.object({
-  // =================================================
-  // CLIENT
-  // =================================================
+    // =================================================
+    // CLIENT
+    // =================================================
 
-  fullName: z.string().trim().min(1, messages.fullNameRequired),
+    fullName: z
+      .string()
+      .trim()
+      .min(1, messages.fullNameRequired),
 
-  phone: z.string().trim().min(1, messages.phoneRequired),
+    phone: z
+      .string()
+      .trim()
+      .min(1, messages.phoneRequired),
 
-  visaType: z
-    .union([z.enum(VISA_TYPES), z.literal("")])
-    .refine((value) => value !== "", {
-      message: messages.visaTypeRequired,
-    }),
+    currentVisaStatus: z
+      .union([
+        z.enum(CURRENT_VISA_STATUS_VALUES),
+        z.literal(""),
+      ])
+      .refine((value) => value !== "", {
+        message: messages.currentVisaStatusRequired,
+      }),
 
-  assignedStaff: z.string(),
+    preferCategory: z.union([
+      z.enum(PREFER_CATEGORY_VALUES),
+      z.literal(""),
+    ]),
 
-  coeStatus: z.enum(COE_STATUSES),
+    currentStage: z
+      .union([
+        z.enum(CURRENT_STAGE_VALUES),
+        z.literal(""),
+      ])
+      .refine((value) => value !== "", {
+        message: messages.currentStageRequired,
+      }),
 
-  clientStatus: z.enum(CLIENT_STATUSES),
+    assignedStaff: z.string(),
 
-  // =================================================
-  // PERSONAL
-  // =================================================
+    // =================================================
+    // PERSONAL INFORMATION
+    // =================================================
 
-  dateOfBirth: z.string(),
+    dateOfBirth: z.string(),
 
-  gender: z.string(),
+    gender: z.union([
+      z.enum(GENDER_VALUES),
+      z.literal(""),
+    ]),
 
-  email: z.string(),
+    email: z.string(),
 
-  address: z.string(),
+    nationality: z.union([
+      z.enum(NATIONALITY_VALUES),
+      z.literal(""),
+    ]),
 
-  nationality: z.string(),
+    address: z.string(),
 
-  // =================================================
-  // PASSPORT / RESIDENCE
-  // =================================================
+    prefecture: z.union([
+      z.enum(PREFECTURE_VALUES),
+      z.literal(""),
+    ]),
 
-  passportNumber: z.string(),
+    // =================================================
+    // PASSPORT / RESIDENCE
+    // =================================================
 
-  passportExpiryDate: z.string(),
+    passportNumber: z.string(),
 
-  statusOfResidence: z.string(),
+    passportExpiryDate: z.string(),
 
-  // =================================================
-  // EDUCATION
-  // =================================================
+    statusOfResidence: z.union([
+      z.enum(STATUS_OF_RESIDENCE_VALUES),
+      z.literal(""),
+    ]),
 
-  lastQualification: z.string(),
+    // =================================================
+    // JAPANESE LANGUAGE
+    // =================================================
 
-  japaneseLanguageLevel: z.string(),
+    japaneseLanguageLevel: z.union([
+      z.enum(JAPANESE_LEVEL_VALUES),
+      z.literal(""),
+    ]),
 
-  schoolName: z.string(),
+    intake: z.string(),
 
-  course: z.string(),
+    // =================================================
+    // EDUCATION HISTORY
+    // =================================================
 
-  intake: z.string(),
+    education: z.array(
+      z.object({
+        schoolName: z.string(),
 
-  // =================================================
-  // EMPLOYMENT
-  // =================================================
+        enrollmentDate: z.string(),
 
-  jobCategory: z.string(),
+        graduationDate: z.string(),
 
-  jobTitle: z.string(),
+        educationType: z.union([
+          z.enum(EDUCATION_TYPE_VALUES),
+          z.literal(""),
+        ]),
 
-  companyName: z.string(),
+        major: z.string(),
+      }),
+    ),
 
-  workLocation: z.string(),
+    // =================================================
+    // EMPLOYMENT HISTORY
+    // =================================================
 
-  // =================================================
-  // SPONSOR
-  // =================================================
+    employmentHistory: z.array(
+      z
+        .object({
+          companyName: z.string(),
 
-  sponsorName: z.string(),
+          startDate: z.string(),
 
-  sponsorRelationship: z.string(),
+          endDate: z.string(),
 
-  sponsorStatusOfResidence: z.string(),
+          employmentType: z.union([
+            z.enum(EMPLOYMENT_TYPE_VALUES),
+            z.literal(""),
+          ]),
+        })
+        .superRefine((employment, context) => {
+          const hasEmploymentHistoryValue =
+            employment.companyName.trim() !== "" ||
+            employment.startDate.trim() !== "" ||
+            employment.endDate.trim() !== "" ||
+            employment.employmentType !== "";
 
-  // =================================================
-  // VISA
-  // =================================================
+          if (
+            hasEmploymentHistoryValue &&
+            employment.employmentType === ""
+          ) {
+            context.addIssue({
+              code: "custom",
+              path: ["employmentType"],
+              message:
+                messages.employmentTypeRequired ??
+                defaultValidationMessages.employmentTypeRequired ??
+                "Employment type is required",
+            });
+          }
+        }),
+    ),
 
-  visaStatus: z.string(),
+    // =================================================
+    // OTHER
+    // =================================================
 
-  // =================================================
-  // FILES
-  // =================================================
+    remark: z.string(),
 
-  clientImage: z.instanceof(File).nullable(),
+    // =================================================
+    // FILES
+    // =================================================
 
-  cv: z.instanceof(File).nullable(),
+    clientImage: z.instanceof(File).nullable(),
+
+    cv: z.instanceof(File).nullable(),
   });
 
-export const createClientSchema = createCreateClientSchema();
-
 // =================================================
-// FORM TYPE
+// DEFAULT SCHEMA
 // =================================================
 
-export type CreateClientFormValues = z.input<typeof createClientSchema>;
+export const createClientSchema =
+  createCreateClientSchema();
