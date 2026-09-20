@@ -363,197 +363,354 @@
       "cancel": "いいえ"
     }
   },
-  "createClient": {
-    "breadcrumbs": {
-      "dashboard": "ダッシュボード",
-      "clients": "顧客",
-      "createClient": "顧客を作成"
+"createClient": {
+  "breadcrumbs": {
+    "dashboard": "ダッシュボード",
+    "clients": "顧客",
+    "createClient": "顧客を作成"
+  },
+  "title": "顧客を作成",
+  "description": "顧客情報を入力し、担当スタッフを割り当てます。",
+  "create": "顧客を作成",
+  "creating": "作成中...",
+  "cancel": "キャンセル",
+
+  "sections": {
+    "basic": {
+      "title": "基本情報",
+      "description": "必須の顧客情報、担当者、現在の進捗を設定します。"
     },
-    "title": "顧客を作成",
-    "description": "顧客情報を入力し、担当スタッフを割り当てます。",
-    "create": "顧客を作成",
-    "creating": "作成中...",
-    "cancel": "キャンセル",
-    "sections": {
-      "basic": {
-        "title": "基本情報",
-        "description": "必須の顧客情報と担当者設定です。"
-      },
-      "personal": {
-        "title": "個人情報",
-        "description": "個人情報と連絡先情報です。"
-      },
-      "passport": {
-        "title": "パスポート・在留情報",
-        "description": "パスポートと在留に関する情報です。"
-      },
-      "education": {
-        "title": "学歴・日本語",
-        "description": "学歴と日本語能力に関する情報です。"
-      },
-      "employment": {
-        "title": "就労情報",
-        "description": "就労先や希望職種に関する情報です。"
-      },
-      "sponsor": {
-        "title": "スポンサー",
-        "description": "該当する場合のスポンサー情報です。"
-      },
-      "visa": {
-        "title": "ビザ情報",
-        "description": "追加のビザ情報です。"
-      },
-      "documents": {
-        "title": "書類",
-        "description": "顧客画像と履歴書があればアップロードします。"
-      }
+    "personal": {
+      "title": "個人情報",
+      "description": "個人情報、連絡先、現在の住所を入力します。"
     },
-    "fields": {
-      "fullName": {
-        "label": "氏名",
-        "placeholder": "氏名を入力"
-      },
-      "phone": {
-        "label": "電話番号",
-        "placeholder": "電話番号を入力"
-      },
-      "visaType": {
-        "label": "ビザ種別",
-        "placeholder": "ビザ種別を選択"
-      },
-      "assignedStaff": {
-        "label": "担当スタッフ",
-        "placeholder": "スタッフを選択",
-        "autoHelper": "この顧客は自動的にあなたへ割り当てられます。"
-      },
-      "coeStatus": {
-        "label": "COEステータス"
-      },
-      "clientStatus": {
-        "label": "顧客ステータス"
-      },
-      "dateOfBirth": {
-        "label": "生年月日"
-      },
-      "gender": {
-        "label": "性別",
-        "placeholder": "性別を入力"
-      },
-      "email": {
-        "label": "メール",
-        "placeholder": "メールを入力"
-      },
-      "nationality": {
-        "label": "国籍",
-        "placeholder": "国籍を入力"
-      },
-      "address": {
-        "label": "住所",
-        "placeholder": "住所を入力"
-      },
-      "passportNumber": {
-        "label": "パスポート番号",
-        "placeholder": "パスポート番号を入力"
-      },
-      "passportExpiryDate": {
-        "label": "パスポート有効期限"
-      },
-      "statusOfResidence": {
-        "label": "在留資格",
-        "placeholder": "在留資格を入力"
-      },
-      "lastQualification": {
-        "label": "最終学歴",
-        "placeholder": "例: 学士"
-      },
-      "japaneseLanguageLevel": {
-        "label": "日本語レベル",
-        "placeholder": "例: N3"
-      },
-      "schoolName": {
-        "label": "学校名",
-        "placeholder": "学校名を入力"
-      },
-      "course": {
-        "label": "コース",
-        "placeholder": "コースを入力"
-      },
-      "intake": {
-        "label": "入学時期",
-        "placeholder": "例: 2027年4月"
-      },
-      "jobCategory": {
-        "label": "職種カテゴリ",
-        "placeholder": "職種カテゴリを入力"
-      },
-      "jobTitle": {
-        "label": "職種名",
-        "placeholder": "職種名を入力"
-      },
-      "companyName": {
-        "label": "会社名",
-        "placeholder": "会社名を入力"
-      },
-      "workLocation": {
-        "label": "勤務地",
-        "placeholder": "勤務地を入力"
-      },
-      "sponsorName": {
-        "label": "スポンサー名",
-        "placeholder": "スポンサー名を入力"
-      },
-      "sponsorRelationship": {
-        "label": "スポンサーとの関係",
-        "placeholder": "関係を入力"
-      },
-      "sponsorStatusOfResidence": {
-        "label": "スポンサーの在留資格",
-        "placeholder": "スポンサーの在留資格を入力"
-      },
-      "visaStatus": {
-        "label": "ビザステータス",
-        "placeholder": "ビザステータスを入力"
-      },
-      "clientImage": {
-        "upload": "顧客画像をアップロード"
-      },
-      "cv": {
-        "upload": "履歴書をアップロード"
-      }
+    "passport": {
+      "title": "パスポート・在留情報",
+      "description": "パスポートと在留資格に関する情報を入力します。"
     },
-    "visaTypes": {
-      "Student": "留学",
-      "Working": "就労",
-      "Dependent": "家族滞在"
+    "education": {
+      "title": "学歴・日本語能力",
+      "description": "学歴と日本語能力に関する情報を入力します。"
     },
-    "coeStatuses": {
-      "Not Applied": "未申請",
-      "Applied": "申請済み",
-      "Processing": "処理中",
-      "Received": "受領済み",
-      "Rejected": "却下"
+    "employment": {
+      "title": "職歴",
+      "description": "これまでの職歴を追加します。"
     },
-    "clientStatuses": {
-      "New": "新規",
-      "Document Collection": "書類収集中",
-      "Processing": "処理中",
-      "COE Applied": "COE申請済み",
-      "COE Received": "COE受領済み",
-      "Visa Applied": "ビザ申請済み",
-      "Visa Approved": "ビザ承認",
-      "Visa Rejected": "ビザ却下",
-      "Departed": "出国済み",
-      "Arrived in Japan": "日本到着"
-    },
-    "validation": {
-      "fullNameRequired": "氏名は必須です",
-      "phoneRequired": "電話番号は必須です",
-      "visaTypeRequired": "ビザ種別は必須です"
-    },
-    "messages": {
-      "createFailed": "顧客を作成できませんでした。"
+    "documents": {
+      "title": "書類",
+      "description": "顧客画像と履歴書があればアップロードします。"
     }
   },
+
+  "fields": {
+    "fullName": {
+      "label": "氏名",
+      "placeholder": "氏名を入力"
+    },
+    "phone": {
+      "label": "電話番号",
+      "placeholder": "電話番号を入力"
+    },
+
+    "currentVisaStatus": {
+      "label": "現在の在留資格",
+      "placeholder": "現在の在留資格を選択"
+    },
+
+    "assignedStaff": {
+      "label": "担当スタッフ",
+      "placeholder": "スタッフを選択",
+      "autoHelper": "この顧客は自動的にあなたへ割り当てられます。"
+    },
+
+    "preferCategory": {
+      "label": "希望カテゴリー",
+      "placeholder": "希望カテゴリーを選択"
+    },
+
+    "currentStage": {
+      "label": "現在のステージ",
+      "placeholder": "現在のステージを選択"
+    },
+
+    "dateOfBirth": {
+      "label": "生年月日"
+    },
+
+    "gender": {
+      "label": "性別",
+      "placeholder": "性別を選択"
+    },
+
+    "email": {
+      "label": "メール",
+      "placeholder": "メールアドレスを入力"
+    },
+
+    "nationality": {
+      "label": "国籍",
+      "placeholder": "国籍を選択"
+    },
+
+    "address": {
+      "label": "現在の住所",
+      "placeholder": "現在の住所を入力"
+    },
+
+    "prefecture": {
+      "label": "都道府県",
+      "placeholder": "都道府県を選択"
+    },
+
+    "passportNumber": {
+      "label": "パスポート番号",
+      "placeholder": "パスポート番号を入力"
+    },
+
+    "passportExpiryDate": {
+      "label": "パスポート有効期限"
+    },
+
+    "statusOfResidence": {
+      "label": "在留資格",
+      "placeholder": "在留資格を選択"
+    },
+
+    "schoolName": {
+      "label": "学校・大学名",
+      "placeholder": "学校・大学名を入力"
+    },
+
+    "enrollmentDate": {
+      "label": "入学日"
+    },
+
+    "graduationDate": {
+      "label": "卒業日"
+    },
+
+    "major": {
+      "label": "専攻・コース",
+      "placeholder": "専攻またはコースを入力"
+    },
+
+    "japaneseLanguageLevel": {
+      "label": "日本語能力",
+      "placeholder": "日本語レベルを選択"
+    },
+
+    "intake": {
+      "label": "入学時期",
+      "placeholder": "例: 2027年4月"
+    },
+
+    "companyName": {
+      "label": "会社名",
+      "placeholder": "会社名を入力"
+    },
+
+    "startDate": {
+      "label": "勤務開始日"
+    },
+
+    "endDate": {
+      "label": "勤務終了日"
+    },
+
+    "employmentType": {
+      "label": "雇用形態",
+      "placeholder": "雇用形態を選択"
+    },
+
+    "clientImage": {
+      "upload": "顧客画像をアップロード"
+    },
+
+    "cv": {
+      "upload": "履歴書をアップロード"
+    }
+  },
+
+  "employment": {
+    "add": "職歴を追加"
+  },
+
+  "options": {
+    "gender": {
+      "male": "男性",
+      "female": "女性",
+      "other": "その他"
+    },
+
+    "currentVisaStatus": {
+      "student": "留学",
+      "dependent": "家族滞在",
+      "designatedActivitiesJobHunting": "特定活動・就職活動",
+      "designatedActivities": "特定活動・その他",
+      "engineerHumanitiesInternationalServices": "技術・人文知識・国際業務",
+      "specifiedSkilledWorker1": "特定技能1号",
+      "specifiedSkilledWorker2": "特定技能2号",
+      "skilledLabor": "技能",
+      "technicalInternTraining": "技能実習",
+      "intraCompanyTransferee": "企業内転勤",
+      "nursingCare": "介護",
+      "highlySkilledProfessional": "高度専門職",
+      "businessManager": "経営・管理",
+      "permanentResident": "永住者",
+      "spouseChildOfJapaneseNational": "日本人の配偶者等",
+      "spouseChildOfPermanentResident": "永住者の配偶者等",
+      "longTermResident": "定住者",
+      "other": "その他"
+    },
+
+    "preferCategory": {
+      "newJob": "就職 / 新規就職",
+      "jobChange": "転職",
+      "dependentVisaRenewal": "家族滞在ビザ更新",
+      "visaServiceOnlyRenewal": "ビザ手続きのみ / 更新",
+      "visaServiceOnlyChange": "ビザ手続きのみ / 変更",
+      "otherVisaService": "その他のビザ手続き"
+    },
+
+    "currentStage": {
+      "registeredPaid": "登録済み / 支払済み",
+      "vacancySearching": "求人検索中",
+      "interviewFixedPreparation": "面接確定 / 準備中",
+      "interviewFailed": "面接不合格",
+      "jobOfferReceived": "内定 / オファー受領",
+      "jobOfferAccepted": "内定承諾",
+      "jobOfferNotAccepted": "内定未承諾",
+      "visaDocumentsSubmitted": "ビザ書類提出済み",
+      "visaAppliedResultWaiting": "ビザ申請済み / 結果待ち",
+      "visaApproved": "ビザ承認",
+      "visaRejected": "ビザ却下",
+      "companyJoining": "入社待ち",
+      "employmentStartedCompanyJoined": "勤務開始 / 入社済み",
+      "visaRenewal1Year": "ビザ更新 - 1年",
+      "visaRenewal3Years": "ビザ更新 - 3年",
+      "visaRenewal5Years": "ビザ更新 - 5年",
+      "returnToNepal": "ネパールへ帰国"
+    },
+
+    "nationality": {
+      "nepali": "ネパール",
+      "indian": "インド",
+      "pakistani": "パキスタン",
+      "bangladeshi": "バングラデシュ",
+      "sriLankan": "スリランカ",
+      "vietnamese": "ベトナム",
+      "myanmar": "ミャンマー",
+      "indonesian": "インドネシア",
+      "filipino": "フィリピン",
+      "chinese": "中国",
+      "other": "その他"
+    },
+
+    "statusOfResidence": {
+      "student": "留学",
+      "dependent": "家族滞在",
+      "engineerSpecialistInHumanitiesInternationalServices": "技術・人文知識・国際業務",
+      "specifiedSkilledWorkerNo1": "特定技能1号",
+      "specifiedSkilledWorkerNo2": "特定技能2号",
+      "technicalInternTraining": "技能実習",
+      "designatedActivities": "特定活動",
+      "highlySkilledProfessional": "高度専門職",
+      "skilledLabor": "技能",
+      "intraCompanyTransferee": "企業内転勤",
+      "nursingCare": "介護",
+      "businessManager": "経営・管理",
+      "instructor": "教育",
+      "researcher": "研究",
+      "professor": "教授",
+      "medicalServices": "医療",
+      "permanentResident": "永住者",
+      "longTermResident": "定住者",
+      "spouseOrChildOfJapaneseNational": "日本人の配偶者等",
+      "spouseOrChildOfPermanentResident": "永住者の配偶者等",
+      "culturalActivities": "文化活動",
+      "trainee": "研修",
+      "other": "その他"
+    },
+
+    "japaneseLanguageLevel": {
+      "n1": "N1",
+      "n2": "N2",
+      "n3": "N3",
+      "n4": "N4",
+      "n5": "N5",
+      "none": "JLPTなし / 未取得"
+    },
+
+    "employmentType": {
+      "partTime": "アルバイト",
+      "fullTime": "正社員",
+      "contract": "契約社員",
+      "temporaryDispatchEmployee": "派遣社員",
+      "other": "その他"
+    },
+
+    "prefecture": {
+      "hokkaido": "北海道",
+      "aomori": "青森県",
+      "iwate": "岩手県",
+      "miyagi": "宮城県",
+      "akita": "秋田県",
+      "yamagata": "山形県",
+      "fukushima": "福島県",
+      "ibaraki": "茨城県",
+      "tochigi": "栃木県",
+      "gunma": "群馬県",
+      "saitama": "埼玉県",
+      "chiba": "千葉県",
+      "tokyo": "東京都",
+      "kanagawa": "神奈川県",
+      "niigata": "新潟県",
+      "toyama": "富山県",
+      "ishikawa": "石川県",
+      "fukui": "福井県",
+      "yamanashi": "山梨県",
+      "nagano": "長野県",
+      "gifu": "岐阜県",
+      "shizuoka": "静岡県",
+      "aichi": "愛知県",
+      "mie": "三重県",
+      "shiga": "滋賀県",
+      "kyoto": "京都府",
+      "osaka": "大阪府",
+      "hyogo": "兵庫県",
+      "nara": "奈良県",
+      "wakayama": "和歌山県",
+      "tottori": "鳥取県",
+      "shimane": "島根県",
+      "okayama": "岡山県",
+      "hiroshima": "広島県",
+      "yamaguchi": "山口県",
+      "tokushima": "徳島県",
+      "kagawa": "香川県",
+      "ehime": "愛媛県",
+      "kochi": "高知県",
+      "fukuoka": "福岡県",
+      "saga": "佐賀県",
+      "nagasaki": "長崎県",
+      "kumamoto": "熊本県",
+      "oita": "大分県",
+      "miyazaki": "宮崎県",
+      "kagoshima": "鹿児島県",
+      "okinawa": "沖縄県"
+    }
+  },
+
+  "validation": {
+    "fullNameRequired": "氏名は必須です",
+    "phoneRequired": "電話番号は必須です",
+    "currentVisaStatusRequired": "現在の在留資格は必須です",
+    "currentStageRequired": "現在のステージは必須です"
+  },
+
+  "messages": {
+    "createFailed": "顧客を作成できませんでした。"
+  }
+},
   "editClient": {
     "breadcrumbs": {
       "dashboard": "ダッシュボード",

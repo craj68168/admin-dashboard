@@ -1,122 +1,239 @@
 import { z } from "zod";
 
-import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  NATIONALITIES,
+  STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
+
+// =================================================
+// HELPER
+// Convert shared option objects into Zod enum values
+// =================================================
+
+const optionValues = <
+  T extends readonly {
+    value: string;
+  }[],
+>(
+  options: T,
+) =>
+  options.map((option) => option.value) as [
+    T[number]["value"],
+    ...T[number]["value"][],
+  ];
+
+// =================================================
+// ENUM VALUES
+// Single source remains components/constant/index.ts
+// =================================================
+
+const GENDER_VALUES = optionValues(GENDER);
+
+const CURRENT_VISA_STATUS_VALUES = optionValues(
+  CURRENT_VISA_STATUS_OPTIONS,
+);
+
+const PREFER_CATEGORY_VALUES = optionValues(
+  PREFER_CATEGORY_OPTIONS,
+);
+
+const CURRENT_STAGE_VALUES = optionValues(
+  CURRENT_STAGES,
+);
+
+const NATIONALITY_VALUES = optionValues(
+  NATIONALITIES,
+);
+
+const STATUS_OF_RESIDENCE_VALUES = optionValues(
+  STATUS_OF_RESIDENCE_OPTIONS,
+);
+
+const JAPANESE_LEVEL_VALUES = optionValues(
+  JAPANESE_LEVELS,
+);
+
+const EMPLOYMENT_TYPE_VALUES = optionValues(
+  EMPLOYMENT_TYPE_OPTIONS,
+);
+
+const PREFECTURE_VALUES = optionValues(
+  PREFECTURE_OPTIONS,
+);
+
+// =================================================
+// VALIDATION MESSAGES
+// =================================================
 
 type CreateClientValidationMessages = {
   fullNameRequired: string;
   phoneRequired: string;
-  visaTypeRequired: string;
+  currentVisaStatusRequired: string;
+  currentStageRequired: string;
 };
 
 const defaultValidationMessages: CreateClientValidationMessages = {
   fullNameRequired: "Full name is required",
   phoneRequired: "Phone number is required",
-  visaTypeRequired: "Visa type is required",
+  currentVisaStatusRequired: "Current visa status is required",
+  currentStageRequired: "Current stage is required",
 };
 
+// =================================================
+// SCHEMA FACTORY
+// =================================================
+
 export const createCreateClientSchema = (
-  messages: CreateClientValidationMessages = defaultValidationMessages,
+  messages: CreateClientValidationMessages =
+    defaultValidationMessages,
 ) =>
   z.object({
-  // =================================================
-  // CLIENT
-  // =================================================
+    // =================================================
+    // CLIENT
+    // =================================================
 
-  fullName: z.string().trim().min(1, messages.fullNameRequired),
+    fullName: z
+      .string()
+      .trim()
+      .min(1, messages.fullNameRequired),
 
-  phone: z.string().trim().min(1, messages.phoneRequired),
+    phone: z
+      .string()
+      .trim()
+      .min(1, messages.phoneRequired),
 
-  visaType: z
-    .union([z.enum(VISA_TYPES), z.literal("")])
-    .refine((value) => value !== "", {
-      message: messages.visaTypeRequired,
+    currentVisaStatus: z
+      .union([
+        z.enum(CURRENT_VISA_STATUS_VALUES),
+        z.literal(""),
+      ])
+      .refine((value) => value !== "", {
+        message: messages.currentVisaStatusRequired,
+      }),
+
+    preferCategory: z.union([
+      z.enum(PREFER_CATEGORY_VALUES),
+      z.literal(""),
+    ]),
+
+    currentStage: z
+      .union([
+        z.enum(CURRENT_STAGE_VALUES),
+        z.literal(""),
+      ])
+      .refine((value) => value !== "", {
+        message: messages.currentStageRequired,
+      }),
+
+    assignedStaff: z.string(),
+
+    // =================================================
+    // PERSONAL INFORMATION
+    // =================================================
+
+    dateOfBirth: z.string(),
+
+    gender: z.union([
+      z.enum(GENDER_VALUES),
+      z.literal(""),
+    ]),
+
+    email: z.string(),
+
+    nationality: z.union([
+      z.enum(NATIONALITY_VALUES),
+      z.literal(""),
+    ]),
+
+    address: z.string(),
+
+    prefecture: z.union([
+      z.enum(PREFECTURE_VALUES),
+      z.literal(""),
+    ]),
+
+    // =================================================
+    // PASSPORT / RESIDENCE
+    // =================================================
+
+    passportNumber: z.string(),
+
+    passportExpiryDate: z.string(),
+
+    statusOfResidence: z.union([
+      z.enum(STATUS_OF_RESIDENCE_VALUES),
+      z.literal(""),
+    ]),
+
+    // =================================================
+    // JAPANESE LANGUAGE
+    // =================================================
+
+    japaneseLanguageLevel: z.union([
+      z.enum(JAPANESE_LEVEL_VALUES),
+      z.literal(""),
+    ]),
+
+    intake: z.string(),
+
+    // =================================================
+    // EDUCATION
+    // =================================================
+
+    education: z.object({
+      schoolName: z.string(),
+
+      enrollmentDate: z.string(),
+
+      graduationDate: z.string(),
+
+      major: z.string(),
     }),
 
-  assignedStaff: z.string(),
+    // =================================================
+    // EMPLOYMENT HISTORY
+    // =================================================
 
-  coeStatus: z.enum(COE_STATUSES),
+    employmentHistory: z.array(
+      z.object({
+        companyName: z.string(),
 
-  clientStatus: z.enum(CLIENT_STATUSES),
+        startDate: z.string(),
 
-  // =================================================
-  // PERSONAL
-  // =================================================
+        endDate: z.string(),
 
-  dateOfBirth: z.string(),
+        employmentType: z.union([
+          z.enum(EMPLOYMENT_TYPE_VALUES),
+          z.literal(""),
+        ]),
+      }),
+    ),
 
-  gender: z.string(),
+    // =================================================
+    // OTHER
+    // =================================================
 
-  email: z.string(),
+    remark: z.string(),
 
-  address: z.string(),
+    // =================================================
+    // FILES
+    // =================================================
 
-  nationality: z.string(),
+    clientImage: z.instanceof(File).nullable(),
 
-  // =================================================
-  // PASSPORT / RESIDENCE
-  // =================================================
-
-  passportNumber: z.string(),
-
-  passportExpiryDate: z.string(),
-
-  statusOfResidence: z.string(),
-
-  // =================================================
-  // EDUCATION
-  // =================================================
-
-  lastQualification: z.string(),
-
-  japaneseLanguageLevel: z.string(),
-
-  schoolName: z.string(),
-
-  course: z.string(),
-
-  intake: z.string(),
-
-  // =================================================
-  // EMPLOYMENT
-  // =================================================
-
-  jobCategory: z.string(),
-
-  jobTitle: z.string(),
-
-  companyName: z.string(),
-
-  workLocation: z.string(),
-
-  // =================================================
-  // SPONSOR
-  // =================================================
-
-  sponsorName: z.string(),
-
-  sponsorRelationship: z.string(),
-
-  sponsorStatusOfResidence: z.string(),
-
-  // =================================================
-  // VISA
-  // =================================================
-
-  visaStatus: z.string(),
-
-  // =================================================
-  // FILES
-  // =================================================
-
-  clientImage: z.instanceof(File).nullable(),
-
-  cv: z.instanceof(File).nullable(),
+    cv: z.instanceof(File).nullable(),
   });
 
-export const createClientSchema = createCreateClientSchema();
-
 // =================================================
-// FORM TYPE
+// DEFAULT SCHEMA
 // =================================================
 
-export type CreateClientFormValues = z.input<typeof createClientSchema>;
+export const createClientSchema =
+  createCreateClientSchema();

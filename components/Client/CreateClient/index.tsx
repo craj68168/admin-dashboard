@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -11,78 +12,27 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 
 import Breadcrumb from "@/components/Breadcrumb";
 
 import { useCreateClientHook } from "./hook";
 
-import { CLIENT_STATUSES, COE_STATUSES, VISA_TYPES } from "./type";
+import {
+  GENDER,
+  CURRENT_VISA_STATUS_OPTIONS,
+  PREFER_CATEGORY_OPTIONS,
+  CURRENT_STAGES,
+  NATIONALITIES,
+  STATUS_OF_RESIDENCE_OPTIONS,
+  JAPANESE_LEVELS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  PREFECTURE_OPTIONS,
+} from "@/components/constant";
 
-const GENDER_OPTIONS = [
-  { value: "Male", key: "male" },
-  { value: "Female", key: "female" },
-  { value: "Other", key: "other" },
-  { value: "Prefer not to say", key: "preferNotToSay" },
-];
-
-const RESIDENCE_STATUS_OPTIONS = [
-  { value: "Citizen", key: "citizen" },
-  { value: "Permanent Resident", key: "permanentResident" },
-  { value: "Temporary Resident", key: "temporaryResident" },
-  { value: "Student Visa", key: "studentVisa" },
-  { value: "Work Visa", key: "workVisa" },
-  { value: "Dependent Visa", key: "dependentVisa" },
-  { value: "Refugee", key: "refugee" },
-  { value: "Other", key: "other" },
-];
-
-const QUALIFICATION_OPTIONS = [
-  { value: "SLC / SEE", key: "slcSee" },
-  { value: "+2 / Intermediate", key: "plusTwoIntermediate" },
-  { value: "Bachelor's Degree", key: "bachelorsDegree" },
-  { value: "Master's Degree", key: "mastersDegree" },
-  { value: "PhD", key: "phd" },
-  { value: "Diploma", key: "diploma" },
-  { value: "Certificate Course", key: "certificateCourse" },
-  { value: "Other", key: "other" },
-];
-
-const JAPANESE_LEVEL_OPTIONS = [
-  { value: "None", key: "none" },
-  { value: "N5", key: "n5" },
-  { value: "N4", key: "n4" },
-  { value: "N3", key: "n3" },
-  { value: "N2", key: "n2" },
-  { value: "N1", key: "n1" },
-  { value: "JLPT Not Taken", key: "jlptNotTaken" },
-  { value: "NAT-Test", key: "natTest" },
-  { value: "J-Test", key: "jTest" },
-];
-
-const SPONSOR_RELATIONSHIP_OPTIONS = [
-  { value: "Father", key: "father" },
-  { value: "Mother", key: "mother" },
-  { value: "Brother", key: "brother" },
-  { value: "Sister", key: "sister" },
-  { value: "Spouse", key: "spouse" },
-  { value: "Uncle", key: "uncle" },
-  { value: "Aunt", key: "aunt" },
-  { value: "Grandparent", key: "grandparent" },
-  { value: "Self", key: "self" },
-  { value: "Guardian", key: "guardian" },
-  { value: "Other", key: "other" },
-];
-
-const VISA_STATUS_OPTIONS = [
-  { value: "Not Applied", key: "notApplied" },
-  { value: "Applied", key: "applied" },
-  { value: "Processing", key: "processing" },
-  { value: "Approved", key: "approved" },
-  { value: "Rejected", key: "rejected" },
-];
 // =================================================
 // DESIGN SYSTEM
 // =================================================
@@ -241,6 +191,60 @@ const FormGrid = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// =================================================
+// EDUCATION GRID
+// =================================================
+
+const EducationGrid = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "1fr 1fr",
+          lg: "1.4fr 1fr 1fr 1.2fr 0.9fr",
+        },
+
+        gap: 2,
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+// =================================================
+// EMPLOYMENT GRID
+// =================================================
+
+const EmploymentGrid = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Box
+      sx={{
+        display: "grid",
+
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "1fr 1fr",
+          lg: "1.4fr 1fr 1fr 1.2fr auto",
+        },
+
+        gap: 2,
+
+        alignItems: "start",
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+// =================================================
+// CREATE CLIENT
+// =================================================
+
 const CreateClient = () => {
   const t = useTranslations("createClient");
 
@@ -263,6 +267,19 @@ const CreateClient = () => {
     onSubmit,
     handleCancel,
   } = useCreateClientHook();
+
+  // =================================================
+  // EMPLOYMENT HISTORY
+  // =================================================
+
+  const {
+    fields: employmentFields,
+    append: appendEmployment,
+    remove: removeEmployment,
+  } = useFieldArray({
+    control,
+    name: "employmentHistory",
+  });
 
   const loading = isSubmitting || isCreating;
 
@@ -287,7 +304,7 @@ const CreateClient = () => {
       <Box
         sx={{
           width: "100%",
-          maxWidth: 1100,
+          maxWidth: 1180,
           mx: "auto",
         }}
       >
@@ -309,12 +326,10 @@ const CreateClient = () => {
                 label: t("breadcrumbs.dashboard"),
                 href: "/admin/dashboard",
               },
-
               {
                 label: t("breadcrumbs.clients"),
                 href: "/admin/client",
               },
-
               {
                 label: t("breadcrumbs.createClient"),
                 current: true,
@@ -361,9 +376,7 @@ const CreateClient = () => {
                 },
 
                 lineHeight: 1.25,
-
                 fontWeight: 600,
-
                 letterSpacing: "-0.025em",
               }}
             >
@@ -374,7 +387,6 @@ const CreateClient = () => {
               variant="body2"
               sx={{
                 mt: 0.75,
-
                 color: INK_MUTED,
 
                 fontSize: {
@@ -398,15 +410,10 @@ const CreateClient = () => {
               severity="error"
               sx={{
                 mb: 3,
-
                 borderRadius: 2.5,
-
                 border: "1px solid rgba(220, 38, 38, 0.12)",
-
                 bgcolor: "#FEF2F2",
-
                 color: "#991B1B",
-
                 boxShadow: "none",
 
                 "& .MuiAlert-icon": {
@@ -429,6 +436,8 @@ const CreateClient = () => {
             />
 
             <FormGrid>
+              {/* FULL NAME */}
+
               <Controller
                 name="fullName"
                 control={control}
@@ -445,6 +454,8 @@ const CreateClient = () => {
                   />
                 )}
               />
+
+              {/* PHONE */}
 
               <Controller
                 name="phone"
@@ -463,8 +474,10 @@ const CreateClient = () => {
                 )}
               />
 
+              {/* CURRENT VISA STATUS */}
+
               <Controller
-                name="visaType"
+                name="currentVisaStatus"
                 control={control}
                 render={({ field }) => (
                   <TextField
@@ -472,18 +485,20 @@ const CreateClient = () => {
                     select
                     required
                     fullWidth
-                    label={t("fields.visaType.label")}
-                    error={Boolean(errors.visaType)}
-                    helperText={errors.visaType?.message}
+                    label={t("fields.currentVisaStatus.label")}
+                    error={Boolean(errors.currentVisaStatus)}
+                    helperText={errors.currentVisaStatus?.message}
                     sx={fieldSx}
                   >
                     <MenuItem value="">
-                      {t("fields.visaType.placeholder")}
+                      {t("fields.currentVisaStatus.placeholder")}
                     </MenuItem>
 
-                    {VISA_TYPES.map((item) => (
-                      <MenuItem key={item} value={item}>
-                        {t(`visaTypes.${item}`)}
+                    {CURRENT_VISA_STATUS_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(
+                          `options.currentVisaStatus.${option.key}` as never,
+                        )}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -545,40 +560,57 @@ const CreateClient = () => {
                 />
               )}
 
+              {/* PREFERRED CATEGORY */}
+
               <Controller
-                name="coeStatus"
+                name="preferCategory"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     select
                     fullWidth
-                    label={t("fields.coeStatus.label")}
+                    label={t("fields.preferCategory.label")}
+                    error={Boolean(errors.preferCategory)}
+                    helperText={errors.preferCategory?.message}
                     sx={fieldSx}
                   >
-                    {COE_STATUSES.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {t(`coeStatuses.${status}`)}
+                    <MenuItem value="">
+                      {t("fields.preferCategory.placeholder")}
+                    </MenuItem>
+
+                    {PREFER_CATEGORY_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.preferCategory.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
                 )}
               />
 
+              {/* CURRENT STAGE */}
+
               <Controller
-                name="clientStatus"
+                name="currentStage"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     select
+                    required
                     fullWidth
-                    label={t("fields.clientStatus.label")}
+                    label={t("fields.currentStage.label")}
+                    error={Boolean(errors.currentStage)}
+                    helperText={errors.currentStage?.message}
                     sx={fieldSx}
                   >
-                    {CLIENT_STATUSES.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {t(`clientStatuses.${status}`)}
+                    <MenuItem value="">
+                      {t("fields.currentStage.placeholder")}
+                    </MenuItem>
+
+                    {CURRENT_STAGES.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.currentStage.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -588,10 +620,7 @@ const CreateClient = () => {
 
             <Divider
               sx={{
-                my: {
-                  xs: 3.5,
-                  md: 4,
-                },
+                my: 4,
                 borderColor: HAIRLINE,
               }}
             />
@@ -606,6 +635,8 @@ const CreateClient = () => {
             />
 
             <FormGrid>
+              {/* DATE OF BIRTH */}
+
               <Controller
                 name="dateOfBirth"
                 control={control}
@@ -625,6 +656,8 @@ const CreateClient = () => {
                 )}
               />
 
+              {/* GENDER */}
+
               <Controller
                 name="gender"
                 control={control}
@@ -641,14 +674,17 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.gender.placeholder")}
                     </MenuItem>
-                    {GENDER_OPTIONS.map((option) => (
+
+                    {GENDER.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.gender.${option.key}`)}
+                        {t(`options.gender.${option.key}` as never)}
                       </MenuItem>
                     ))}
                   </TextField>
                 )}
               />
+
+              {/* EMAIL */}
 
               <Controller
                 name="email"
@@ -667,44 +703,77 @@ const CreateClient = () => {
                 )}
               />
 
+              {/* NATIONALITY */}
+
               <Controller
                 name="nationality"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    select
                     fullWidth
                     label={t("fields.nationality.label")}
-                    placeholder={t("fields.nationality.placeholder")}
+                    error={Boolean(errors.nationality)}
+                    helperText={errors.nationality?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="">
+                      {t("fields.nationality.placeholder")}
+                    </MenuItem>
+
+                    {NATIONALITIES.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.nationality.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
+
+              {/* CURRENT ADDRESS */}
+
+              <Controller
+                name="address"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label={t("fields.address.label")}
+                    placeholder={t("fields.address.placeholder")}
                     sx={fieldSx}
                   />
                 )}
               />
 
-              <Box
-                sx={{
-                  gridColumn: {
-                    xs: "auto",
-                    md: "1 / -1",
-                  },
-                }}
-              >
-                <Controller
-                  name="address"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      multiline
-                      minRows={2}
-                      label={t("fields.address.label")}
-                      placeholder={t("fields.address.placeholder")}
-                      sx={fieldSx}
-                    />
-                  )}
-                />
-              </Box>
+              {/* PREFECTURE */}
+
+              <Controller
+                name="prefecture"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    select
+                    fullWidth
+                    label={t("fields.prefecture.label")}
+                    error={Boolean(errors.prefecture)}
+                    helperText={errors.prefecture?.message}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="">
+                      {t("fields.prefecture.placeholder")}
+                    </MenuItem>
+
+                    {PREFECTURE_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {t(`options.prefecture.${option.key}` as never)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
             </FormGrid>
 
             <Divider
@@ -715,7 +784,7 @@ const CreateClient = () => {
             />
 
             {/* =================================================
-                PASSPORT
+                PASSPORT / RESIDENCE
             ================================================= */}
 
             <SectionTitle
@@ -724,6 +793,8 @@ const CreateClient = () => {
             />
 
             <FormGrid>
+              {/* PASSPORT NUMBER */}
+
               <Controller
                 name="passportNumber"
                 control={control}
@@ -737,6 +808,8 @@ const CreateClient = () => {
                   />
                 )}
               />
+
+              {/* PASSPORT EXPIRY DATE */}
 
               <Controller
                 name="passportExpiryDate"
@@ -757,6 +830,8 @@ const CreateClient = () => {
                 )}
               />
 
+              {/* STATUS OF RESIDENCE */}
+
               <Controller
                 name="statusOfResidence"
                 control={control}
@@ -773,9 +848,12 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.statusOfResidence.placeholder")}
                     </MenuItem>
-                    {RESIDENCE_STATUS_OPTIONS.map((option) => (
+
+                    {STATUS_OF_RESIDENCE_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.statusOfResidence.${option.key}`)}
+                        {t(
+                          `options.statusOfResidence.${option.key}` as never,
+                        )}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -791,7 +869,7 @@ const CreateClient = () => {
             />
 
             {/* =================================================
-                EDUCATION
+                EDUCATION HISTORY
             ================================================= */}
 
             <SectionTitle
@@ -799,31 +877,82 @@ const CreateClient = () => {
               description={t("sections.education.description")}
             />
 
-            <FormGrid>
+            <EducationGrid>
+              {/* SCHOOL */}
+
               <Controller
-                name="lastQualification"
+                name="education.schoolName"
                 control={control}
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    select
                     fullWidth
-                    label={t("fields.lastQualification.label")}
-                    error={Boolean(errors.lastQualification)}
-                    helperText={errors.lastQualification?.message}
+                    label={t("fields.schoolName.label")}
+                    placeholder={t("fields.schoolName.placeholder")}
                     sx={fieldSx}
-                  >
-                    <MenuItem value="">
-                      {t("fields.lastQualification.placeholder")}
-                    </MenuItem>
-                    {QUALIFICATION_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.lastQualification.${option.key}`)}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  />
                 )}
               />
+
+              {/* ENROLLMENT DATE */}
+
+              <Controller
+                name="education.enrollmentDate"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    type="date"
+                    fullWidth
+                    label={t("fields.enrollmentDate.label")}
+                    slotProps={{
+                      inputLabel: {
+                        shrink: true,
+                      },
+                    }}
+                    sx={fieldSx}
+                  />
+                )}
+              />
+
+              {/* GRADUATION DATE */}
+
+              <Controller
+                name="education.graduationDate"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    type="date"
+                    fullWidth
+                    label={t("fields.graduationDate.label")}
+                    slotProps={{
+                      inputLabel: {
+                        shrink: true,
+                      },
+                    }}
+                    sx={fieldSx}
+                  />
+                )}
+              />
+
+              {/* MAJOR */}
+
+              <Controller
+                name="education.major"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label={t("fields.major.label")}
+                    placeholder={t("fields.major.placeholder")}
+                    sx={fieldSx}
+                  />
+                )}
+              />
+
+              {/* JAPANESE LEVEL */}
 
               <Controller
                 name="japaneseLanguageLevel"
@@ -841,43 +970,22 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.japaneseLanguageLevel.placeholder")}
                     </MenuItem>
-                    {JAPANESE_LEVEL_OPTIONS.map((option) => (
+
+                    {JAPANESE_LEVELS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.japaneseLanguageLevel.${option.key}`)}
+                        {t(
+                          `options.japaneseLanguageLevel.${option.key}` as never,
+                        )}
                       </MenuItem>
                     ))}
                   </TextField>
                 )}
               />
+            </EducationGrid>
 
-              <Controller
-                name="schoolName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.schoolName.label")}
-                    placeholder={t("fields.schoolName.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+            {/* INTAKE */}
 
-              <Controller
-                name="course"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.course.label")}
-                    placeholder={t("fields.course.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
+            <Box sx={{ mt: 2.5, maxWidth: 500 }}>
               <Controller
                 name="intake"
                 control={control}
@@ -891,7 +999,7 @@ const CreateClient = () => {
                   />
                 )}
               />
-            </FormGrid>
+            </Box>
 
             <Divider
               sx={{
@@ -901,7 +1009,7 @@ const CreateClient = () => {
             />
 
             {/* =================================================
-                EMPLOYMENT
+                EMPLOYMENT HISTORY
             ================================================= */}
 
             <SectionTitle
@@ -909,63 +1017,171 @@ const CreateClient = () => {
               description={t("sections.employment.description")}
             />
 
-            <FormGrid>
-              <Controller
-                name="jobCategory"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.jobCategory.label")}
-                    placeholder={t("fields.jobCategory.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2.5,
+              }}
+            >
+              {employmentFields.map((employment, index) => (
+                <Box
+                  key={employment.id}
+                  sx={{
+                    p: 2.5,
+                    border: `1px solid ${HAIRLINE}`,
+                    borderRadius: 2.5,
+                    bgcolor: "#FAFBFA",
+                  }}
+                >
+                  <EmploymentGrid>
+                    {/* COMPANY NAME */}
 
-              <Controller
-                name="jobTitle"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.jobTitle.label")}
-                    placeholder={t("fields.jobTitle.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+                    <Controller
+                      name={`employmentHistory.${index}.companyName`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          fullWidth
+                          label={t("fields.companyName.label")}
+                          placeholder={t("fields.companyName.placeholder")}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
 
-              <Controller
-                name="companyName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.companyName.label")}
-                    placeholder={t("fields.companyName.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
+                    {/* START DATE */}
 
-              <Controller
-                name="workLocation"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.workLocation.label")}
-                    placeholder={t("fields.workLocation.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-            </FormGrid>
+                    <Controller
+                      name={`employmentHistory.${index}.startDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.startDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    {/* END DATE */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.endDate`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          type="date"
+                          fullWidth
+                          label={t("fields.endDate.label")}
+                          slotProps={{
+                            inputLabel: {
+                              shrink: true,
+                            },
+                          }}
+                          sx={fieldSx}
+                        />
+                      )}
+                    />
+
+                    {/* EMPLOYMENT TYPE */}
+
+                    <Controller
+                      name={`employmentHistory.${index}.employmentType`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          label={t("fields.employmentType.label")}
+                          sx={fieldSx}
+                        >
+                          <MenuItem value="">
+                            {t("fields.employmentType.placeholder")}
+                          </MenuItem>
+
+                          {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
+                            <MenuItem
+                              key={option.value}
+                              value={option.value}
+                            >
+                              {t(
+                                `options.employmentType.${option.key}` as never,
+                              )}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
+
+                    {/* REMOVE */}
+
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      disabled={employmentFields.length === 1}
+                      onClick={() => removeEmployment(index)}
+                      sx={{
+                        minWidth: 44,
+                        height: 56,
+                        borderRadius: 2.5,
+                        borderColor: HAIRLINE,
+                        color: "#DC2626",
+
+                        "&:hover": {
+                          borderColor: "rgba(220, 38, 38, 0.35)",
+                          bgcolor: "rgba(220, 38, 38, 0.04)",
+                        },
+                      }}
+                    >
+                      <DeleteIcon />
+                    </Button>
+                  </EmploymentGrid>
+                </Box>
+              ))}
+
+              {/* ADD EMPLOYMENT */}
+
+              <Box>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() =>
+                    appendEmployment({
+                      companyName: "",
+                      startDate: "",
+                      endDate: "",
+                      employmentType: "",
+                    })
+                  }
+                  sx={{
+                    borderRadius: 2.5,
+                    borderColor: "rgba(16, 122, 100, 0.25)",
+                    color: BRAND,
+                    textTransform: "none",
+                    fontWeight: 600,
+
+                    "&:hover": {
+                      bgcolor: BRAND_SOFT,
+                      borderColor: BRAND,
+                    },
+                  }}
+                >
+                  {t("employment.add")}
+                </Button>
+              </Box>
+            </Box>
 
             <Divider
               sx={{
@@ -975,123 +1191,7 @@ const CreateClient = () => {
             />
 
             {/* =================================================
-                SPONSOR
-            ================================================= */}
-
-            <SectionTitle
-              title={t("sections.sponsor.title")}
-              description={t("sections.sponsor.description")}
-            />
-
-            <FormGrid>
-              <Controller
-                name="sponsorName"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.sponsorName.label")}
-                    placeholder={t("fields.sponsorName.placeholder")}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-
-              <Controller
-                name="sponsorRelationship"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label={t("fields.sponsorRelationship.label")}
-                    error={Boolean(errors.sponsorRelationship)}
-                    helperText={errors.sponsorRelationship?.message}
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">
-                      {t("fields.sponsorRelationship.placeholder")}
-                    </MenuItem>
-                    {SPONSOR_RELATIONSHIP_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.sponsorRelationship.${option.key}`)}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-
-              <Controller
-                name="sponsorStatusOfResidence"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label={t("fields.sponsorStatusOfResidence.label")}
-                    placeholder={t(
-                      "fields.sponsorStatusOfResidence.placeholder",
-                    )}
-                    sx={fieldSx}
-                  />
-                )}
-              />
-            </FormGrid>
-
-            <Divider
-              sx={{
-                my: 4,
-                borderColor: HAIRLINE,
-              }}
-            />
-
-            {/* =================================================
-                VISA
-            ================================================= */}
-
-            <SectionTitle
-              title={t("sections.visa.title")}
-              description={t("sections.visa.description")}
-            />
-
-            <FormGrid>
-              <Controller
-                name="visaStatus"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label={t("fields.visaStatus.label")}
-                    error={Boolean(errors.visaStatus)}
-                    helperText={errors.visaStatus?.message}
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">
-                      {t("fields.visaStatus.placeholder")}
-                    </MenuItem>
-                    {VISA_STATUS_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.visaStatus.${option.key}`)}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </FormGrid>
-
-            <Divider
-              sx={{
-                my: 4,
-                borderColor: HAIRLINE,
-              }}
-            />
-
-            {/* =================================================
-                FILES
+                DOCUMENTS
             ================================================= */}
 
             <SectionTitle
@@ -1100,9 +1200,7 @@ const CreateClient = () => {
             />
 
             <FormGrid>
-              {/* =================================================
-                  CLIENT IMAGE
-              ================================================= */}
+              {/* CLIENT IMAGE */}
 
               <Controller
                 name="clientImage"
@@ -1116,40 +1214,28 @@ const CreateClient = () => {
                       startIcon={<CloudUploadOutlinedIcon />}
                       sx={{
                         height: 56,
-
                         justifyContent: "flex-start",
-
                         px: 2,
 
                         color: value ? INK : INK_MUTED,
 
                         bgcolor: "#ffffff",
 
-                        borderColor: errors.clientImage ? "#DC2626" : HAIRLINE,
+                        borderColor: errors.clientImage
+                          ? "#DC2626"
+                          : HAIRLINE,
 
                         borderRadius: 2.5,
 
                         fontSize: 14,
-
                         fontWeight: 500,
-
                         textTransform: "none",
 
                         overflow: "hidden",
 
-                        transition:
-                          "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
                         "&:hover": {
                           bgcolor: BRAND_SOFT,
-
                           borderColor: "rgba(16, 122, 100, 0.35)",
-                        },
-
-                        "&:focus-visible": {
-                          borderColor: BRAND,
-
-                          outline: "none",
                         },
 
                         "& .MuiButton-startIcon": {
@@ -1198,9 +1284,7 @@ const CreateClient = () => {
                 )}
               />
 
-              {/* =================================================
-                  CV
-              ================================================= */}
+              {/* CV */}
 
               <Controller
                 name="cv"
@@ -1214,9 +1298,7 @@ const CreateClient = () => {
                       startIcon={<CloudUploadOutlinedIcon />}
                       sx={{
                         height: 56,
-
                         justifyContent: "flex-start",
-
                         px: 2,
 
                         color: value ? INK : INK_MUTED,
@@ -1228,26 +1310,14 @@ const CreateClient = () => {
                         borderRadius: 2.5,
 
                         fontSize: 14,
-
                         fontWeight: 500,
-
                         textTransform: "none",
 
                         overflow: "hidden",
 
-                        transition:
-                          "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
                         "&:hover": {
                           bgcolor: BRAND_SOFT,
-
                           borderColor: "rgba(16, 122, 100, 0.35)",
-                        },
-
-                        "&:focus-visible": {
-                          borderColor: BRAND,
-
-                          outline: "none",
                         },
 
                         "& .MuiButton-startIcon": {
@@ -1331,7 +1401,6 @@ const CreateClient = () => {
                 onClick={handleCancel}
                 sx={{
                   minHeight: 42,
-
                   px: 2.5,
 
                   borderRadius: 2.5,
@@ -1343,24 +1412,13 @@ const CreateClient = () => {
                   bgcolor: "#ffffff",
 
                   fontSize: 14,
-
                   fontWeight: 600,
-
                   textTransform: "none",
-
-                  transition:
-                    "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
 
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
-
                     borderColor: "rgba(16, 122, 100, 0.30)",
-
                     color: BRAND,
-                  },
-
-                  "&.Mui-disabled": {
-                    borderColor: HAIRLINE,
                   },
                 }}
               >
@@ -1381,7 +1439,6 @@ const CreateClient = () => {
                 }
                 sx={{
                   minHeight: 42,
-
                   px: 2.5,
 
                   bgcolor: BRAND,
@@ -1391,25 +1448,18 @@ const CreateClient = () => {
                   borderRadius: 2.5,
 
                   fontSize: 14,
-
                   fontWeight: 600,
-
                   textTransform: "none",
 
                   boxShadow: "none",
 
-                  transition:
-                    "background-color 200ms ease, box-shadow 200ms ease",
-
                   "&:hover": {
                     bgcolor: BRAND_HOVER,
-
                     boxShadow: "none",
                   },
 
                   "&.Mui-disabled": {
                     bgcolor: "rgba(16, 122, 100, 0.45)",
-
                     color: "#ffffff",
                   },
                 }}
