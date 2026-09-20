@@ -362,7 +362,6 @@ export const useCreateClientHook = () => {
       // =================================================
       // CREATE
       // =================================================
-      console.log("formData", formData);
 
       await createClient(formData);
 
