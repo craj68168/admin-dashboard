@@ -212,7 +212,6 @@ export const useCreateClientHook = () => {
     isPending: isCreating,
   } = useMutation({
     mutationFn: async (formData: FormData) => {
-      console.log("Data",formData)
       const response = await api.post("/clients", formData);
 
       return response.data;
