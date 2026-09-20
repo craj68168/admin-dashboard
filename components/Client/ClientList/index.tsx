@@ -1,197 +1,267 @@
 "use client";
 
 import { useState } from "react";
+
 import { useTranslations } from "next-intl";
+
+import { useRouter } from "next/navigation";
+
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Button from "@mui/material/Button";
+
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
 import AddIcon from "@mui/icons-material/Add";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
+import TableViewOutlinedIcon from "@mui/icons-material/TableViewOutlined";
+
 import Breadcrumb from "@/components/Breadcrumb";
+
 import NoDataOverlay from "@/components/common/NoDataOverlay";
+
 import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
+
 import SearchFilter from "@/components/common/SearchFilter";
+
 import type { FilterField } from "@/components/common/SearchFilter/types";
-import type { ClientFilterValues } from "./type";
-import { useClientHook } from "./hook";
-import { useRouter } from "next/navigation";
+
 import Pagination from "@/components/common/Pagination";
+
 import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
+
+import {
+  CLIENT_STAGES,
+  COE_STATUSES,
+  JAPANESE_LEVELS,
+  VISA_TYPES,
+  type ClientFilterValues,
+} from "./type";
+
+import { useClientHook } from "./hook";
 
 // =================================================
 // DESIGN SYSTEM
 // =================================================
 
 const BRAND = "#107A64";
+
 const BRAND_HOVER = "#0C5F4F";
+
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+
 const INK = "#111827";
+
 const INK_MUTED = "#4B5563";
 
 const softCard = {
   bgcolor: "#ffffff",
+
   border: `1px solid ${HAIRLINE}`,
+
   borderRadius: 3,
+
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
 
+// =================================================
+// DELETE DIALOG
+// =================================================
+
 type DeleteDialogState = {
   open: boolean;
+
   clientId: string;
+
   clientName: string;
 };
 
+// =================================================
+// COMPONENT
+// =================================================
+
 const ClientListPage = () => {
   const router = useRouter();
+
   const t = useTranslations("clientList");
+
   const {
     role,
+
     clientData,
+
     clientFilters,
+
     isClientLoading,
+
     deleteClient,
+
     isDeleting,
+
     handleCreateClient,
+
     handleClientSearch,
+
     handleClientFilterReset,
+
     pagination,
+
     onPageChange,
+
     staffOptions,
+
+    downloadClients,
+
+    exportingFormat,
   } = useClientHook();
 
   // =================================================
-  // CLIENT SEARCH / FILTER FIELDS
+  // FILTER FIELDS
   // =================================================
 
   const clientFilterFields: FilterField<ClientFilterValues>[] = [
+    // =============================================
+    // VISA TYPE
+    // =============================================
+
     {
       type: "select",
+
       name: "visaType",
+
       label: "Visa Type",
+
       placeholder: "All visa types",
-      options: [
-        {
-          label: "Student",
-          value: "Student",
-        },
-        {
-          label: "Working",
-          value: "Working",
-        },
-        {
-          label: "Dependent",
-          value: "Dependent",
-        },
-      ],
+
+      options: VISA_TYPES.map((value) => ({
+        label: value,
+
+        value,
+      })),
     },
+
+    // =============================================
+    // CURRENT STAGE
+    // =============================================
 
     {
       type: "select",
+
+      name: "currentStage",
+
+      label: "Current Stage",
+
+      placeholder: "All stages",
+
+      options: CLIENT_STAGES.map((value) => ({
+        label: value,
+
+        value,
+      })),
+    },
+
+    // =============================================
+    // COE STATUS
+    // =============================================
+
+    {
+      type: "select",
+
       name: "coeStatus",
+
       label: "COE Status",
+
       placeholder: "All COE statuses",
-      options: [
-        {
-          label: "Not Applied",
-          value: "Not Applied",
-        },
-        {
-          label: "Applied",
-          value: "Applied",
-        },
-        {
-          label: "Processing",
-          value: "Processing",
-        },
-        {
-          label: "Received",
-          value: "Received",
-        },
-        {
-          label: "Rejected",
-          value: "Rejected",
-        },
-      ],
+
+      options: COE_STATUSES.map((value) => ({
+        label: value,
+
+        value,
+      })),
     },
+
+    // =============================================
+    // JAPANESE LEVEL
+    // =============================================
 
     {
       type: "select",
-      name: "clientStatus",
-      label: "Client Status",
-      placeholder: "All client statuses",
-      options: [
-        {
-          label: "New",
-          value: "New",
-        },
-        {
-          label: "Document Collection",
-          value: "Document Collection",
-        },
-        {
-          label: "Processing",
-          value: "Processing",
-        },
-        {
-          label: "COE Applied",
-          value: "COE Applied",
-        },
-        {
-          label: "COE Received",
-          value: "COE Received",
-        },
-        {
-          label: "Visa Applied",
-          value: "Visa Applied",
-        },
-        {
-          label: "Visa Approved",
-          value: "Visa Approved",
-        },
-        {
-          label: "Visa Rejected",
-          value: "Visa Rejected",
-        },
-        {
-          label: "Departed",
-          value: "Departed",
-        },
-        {
-          label: "Arrived in Japan",
-          value: "Arrived in Japan",
-        },
-      ],
+
+      name: "japaneseLevel",
+
+      label: "Japanese Level",
+
+      placeholder: "All Japanese levels",
+
+      options: JAPANESE_LEVELS.map((value) => ({
+        label: value,
+
+        value,
+      })),
     },
 
+    // =============================================
+    // NATIONALITY
+    // =============================================
+
     {
-      type: "select",
-      name: "assignedStaff",
-      label: "Assigned Staff",
-      placeholder: "All staff",
-      options: staffOptions,
-      disabled: role !== "superadmin",
+      type: "text",
+
+      name: "nationality",
+
+      label: "Nationality",
+
+      placeholder: "e.g. Nepal",
     },
+
+    // =============================================
+    // ADMIN STAFF FILTER
+    // =============================================
+
+    ...(role === "superadmin"
+      ? [
+          {
+            type: "select" as const,
+
+            name: "assignedStaff" as const,
+
+            label: "Assigned Staff",
+
+            placeholder: "All staff",
+
+            options: staffOptions,
+          },
+        ]
+      : []),
   ];
+
   // =================================================
   // DELETE DIALOG
   // =================================================
 
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>({
     open: false,
+
     clientId: "",
+
     clientName: "",
   });
 
   const closeDeleteDialog = () => {
     setDeleteDialog({
       open: false,
+
       clientId: "",
+
       clientName: "",
     });
   };
@@ -201,11 +271,15 @@ const ClientListPage = () => {
       return;
     }
 
-    deleteClient(deleteDialog.clientId, {
-      onSuccess: () => {
-        closeDeleteDialog();
+    deleteClient(
+      deleteDialog.clientId,
+
+      {
+        onSuccess: () => {
+          closeDeleteDialog();
+        },
       },
-    });
+    );
   };
 
   // =================================================
@@ -215,46 +289,71 @@ const ClientListPage = () => {
   const columns: GridColDef[] = [
     {
       field: "clientId",
+
       headerName: t("columns.id"),
+
       flex: 0.7,
+
       minWidth: 140,
+
       resizable: false,
+
       disableColumnMenu: true,
     },
 
     {
       field: "fullName",
+
       headerName: t("columns.fullName"),
+
       flex: 1.2,
+
       minWidth: 180,
+
       resizable: false,
+
       disableColumnMenu: true,
     },
 
     {
       field: "phone",
+
       headerName: t("columns.phone"),
+
       flex: 1,
+
       minWidth: 150,
+
       resizable: false,
+
       disableColumnMenu: true,
     },
 
     {
       field: "visaType",
+
       headerName: t("columns.visaType"),
+
       flex: 0.9,
+
       minWidth: 140,
+
       resizable: false,
+
       disableColumnMenu: true,
     },
 
     {
       field: "currentStage",
+
       headerName: t("columns.progress"),
+
       flex: 1.3,
+
       minWidth: 230,
+
       resizable: false,
+
       disableColumnMenu: true,
 
       valueGetter: (_value, row) =>
@@ -263,24 +362,34 @@ const ClientListPage = () => {
 
     {
       field: "assignedStaff",
+
       headerName: t("columns.assignedTo"),
+
       flex: 1.1,
+
       minWidth: 180,
+
       resizable: false,
+
       disableColumnMenu: true,
 
-      valueGetter: (_value, row) => {
-        return row.assignedStaffDetails?.name || row.assignedStaff || "-";
-      },
+      valueGetter: (_value, row) =>
+        row.assignedStaffDetails?.name || row.assignedStaff || "-",
     },
 
     {
       field: "actions",
+
       headerName: t("columns.action"),
+
       width: role === "superadmin" ? 150 : 110,
+
       resizable: false,
+
       disableColumnMenu: true,
+
       sortable: false,
+
       filterable: false,
 
       renderCell: ({ row }) => {
@@ -288,8 +397,11 @@ const ClientListPage = () => {
           <Box
             sx={{
               display: "flex",
+
               alignItems: "center",
+
               gap: 0.25,
+
               height: "100%",
             }}
           >
@@ -305,11 +417,12 @@ const ClientListPage = () => {
                 }
                 sx={{
                   width: 34,
-                  height: 34,
-                  borderRadius: 2,
-                  color: BRAND,
 
-                  transition: "background-color 200ms ease, color 200ms ease",
+                  height: 34,
+
+                  borderRadius: 2,
+
+                  color: BRAND,
 
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
@@ -324,28 +437,30 @@ const ClientListPage = () => {
               </IconButton>
             </Tooltip>
 
-            {/* EDIT
-                Admin → any client
-                Staff → own client
-                Backend already protects this
-            */}
+            {/* EDIT */}
 
             <Tooltip title={t("actions.edit")}>
               <IconButton
                 aria-label={t("actions.edit")}
                 onClick={() =>
-                  router.push(`/admin/client/edit?clientId=${row.clientId}`)
+                  router.push(
+                    `/admin/client/edit?clientId=${encodeURIComponent(
+                      row.clientId,
+                    )}`,
+                  )
                 }
                 sx={{
                   width: 34,
-                  height: 34,
-                  borderRadius: 2,
-                  color: INK_MUTED,
 
-                  transition: "background-color 200ms ease, color 200ms ease",
+                  height: 34,
+
+                  borderRadius: 2,
+
+                  color: INK_MUTED,
 
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
+
                     color: BRAND,
                   },
 
@@ -358,9 +473,7 @@ const ClientListPage = () => {
               </IconButton>
             </Tooltip>
 
-            {/* DELETE
-                Super Admin only
-            */}
+            {/* DELETE */}
 
             {role === "superadmin" && (
               <Tooltip title={t("actions.delete")}>
@@ -379,12 +492,12 @@ const ClientListPage = () => {
                     }
                     sx={{
                       width: 34,
-                      height: 34,
-                      borderRadius: 2,
-                      color: "#DC2626",
 
-                      transition:
-                        "background-color 200ms ease, color 200ms ease",
+                      height: 34,
+
+                      borderRadius: 2,
+
+                      color: "#DC2626",
 
                       "&:hover": {
                         bgcolor: "#FEF2F2",
@@ -410,19 +523,29 @@ const ClientListPage = () => {
     },
   ];
 
+  // =================================================
+  // UI
+  // =================================================
+
   return (
     <>
       <Box
         sx={{
           minHeight: "100vh",
+
           bgcolor: "#F7F8F6",
+
           px: {
             xs: 2,
+
             sm: 3,
+
             md: 4,
           },
+
           pb: {
             xs: 3,
+
             md: 4,
           },
         }}
@@ -430,17 +553,19 @@ const ClientListPage = () => {
         <Box
           sx={{
             width: "100%",
+
             maxWidth: 1320,
+
             mx: "auto",
           }}
         >
-          {/* =================================================
-              BREADCRUMB
-          ================================================= */}
+          {/* BREADCRUMB */}
+
           <Box
             sx={{
               mb: {
                 xs: 2.5,
+
                 md: 3,
               },
             }}
@@ -449,19 +574,20 @@ const ClientListPage = () => {
               items={[
                 {
                   label: t("breadcrumbs.dashboard"),
+
                   href: "/admin/dashboard",
                 },
+
                 {
                   label: t("breadcrumbs.clients"),
+
                   current: true,
                 },
               ]}
             />
           </Box>
 
-          {/* =================================================
-              ADD CLIENT
-          ================================================= */}
+          {/* ADD CLIENT */}
 
           <Box
             sx={{
@@ -469,11 +595,13 @@ const ClientListPage = () => {
 
               justifyContent: {
                 xs: "stretch",
+
                 sm: "flex-end",
               },
 
               mb: {
                 xs: 2.5,
+
                 md: 3,
               },
             }}
@@ -486,31 +614,32 @@ const ClientListPage = () => {
               sx={{
                 width: {
                   xs: "100%",
+
                   sm: "auto",
                 },
+
                 minHeight: 42,
+
                 px: 2.25,
+
                 bgcolor: BRAND,
+
                 color: "#ffffff",
+
                 borderRadius: 2.5,
+
                 fontSize: 14,
+
                 fontWeight: 600,
+
                 textTransform: "none",
+
                 boxShadow: "none",
-                transition:
-                  "background-color 200ms ease, box-shadow 200ms ease, transform 200ms ease",
+
                 "&:hover": {
                   bgcolor: BRAND_HOVER,
+
                   boxShadow: "none",
-                },
-                "&:focus-visible": {
-                  outline: `3px solid ${BRAND_SOFT}`,
-                  outlineOffset: 2,
-                },
-                "& .MuiButton-startIcon": {
-                  "& .MuiSvgIcon-root": {
-                    fontSize: 19,
-                  },
                 },
               }}
             >
@@ -518,13 +647,13 @@ const ClientListPage = () => {
             </Button>
           </Box>
 
-          {/* =================================================
-    SEARCH / FILTER
-================================================= */}
+          {/* SEARCH / FILTER */}
+
           <Box
             sx={{
               mb: {
                 xs: 2.5,
+
                 md: 3,
               },
             }}
@@ -533,8 +662,10 @@ const ClientListPage = () => {
               key={JSON.stringify(clientFilters)}
               searchField={{
                 name: "keyword",
+
                 label: "What are you looking for?",
-                placeholder: "Client ID, name, or phone",
+
+                placeholder: "Client ID, name, phone, email...",
               }}
               fields={clientFilterFields}
               initialValues={clientFilters}
@@ -543,12 +674,113 @@ const ClientListPage = () => {
               searchButtonText="Search clients"
               resetButtonText="Clear"
               isLoading={isClientLoading}
+              rightAction={
+                <Box
+                  sx={{
+                    display: "flex",
+
+                    alignItems: "center",
+
+                    gap: 1,
+
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {/* CSV */}
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<DescriptionOutlinedIcon />}
+                    disabled={exportingFormat !== null}
+                    onClick={() => downloadClients("csv")}
+                    sx={{
+                      minHeight: 38,
+
+                      px: 1.75,
+
+                      textTransform: "none",
+
+                      fontWeight: 700,
+
+                      borderColor: BRAND,
+
+                      color: BRAND,
+
+                      "&:hover": {
+                        borderColor: BRAND_HOVER,
+
+                        bgcolor: BRAND_SOFT,
+                      },
+                    }}
+                  >
+                    {exportingFormat === "csv" ? "Downloading..." : "CSV"}
+                  </Button>
+
+                  {/* PDF */}
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<PictureAsPdfOutlinedIcon />}
+                    disabled={exportingFormat !== null}
+                    onClick={() => downloadClients("pdf")}
+                    sx={{
+                      minHeight: 38,
+
+                      px: 1.75,
+
+                      textTransform: "none",
+
+                      fontWeight: 700,
+
+                      borderColor: "#DC2626",
+
+                      color: "#DC2626",
+
+                      "&:hover": {
+                        borderColor: "#B91C1C",
+
+                        bgcolor: "#FEF2F2",
+                      },
+                    }}
+                  >
+                    {exportingFormat === "pdf" ? "Downloading..." : "PDF"}
+                  </Button>
+
+                  {/* EXCEL */}
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<TableViewOutlinedIcon />}
+                    disabled={exportingFormat !== null}
+                    onClick={() => downloadClients("xlsx")}
+                    sx={{
+                      minHeight: 38,
+
+                      px: 1.75,
+
+                      textTransform: "none",
+
+                      fontWeight: 700,
+
+                      borderColor: BRAND,
+
+                      color: BRAND,
+
+                      "&:hover": {
+                        borderColor: BRAND_HOVER,
+
+                        bgcolor: BRAND_SOFT,
+                      },
+                    }}
+                  >
+                    {exportingFormat === "xlsx" ? "Downloading..." : "Excel"}
+                  </Button>
+                </Box>
+              }
             />
           </Box>
 
-          {/* =================================================
-              CLIENT TABLE
-          ================================================= */}
+          {/* CLIENT TABLE */}
 
           <Box
             sx={{
@@ -559,16 +791,38 @@ const ClientListPage = () => {
               overflow: "hidden",
             }}
           >
+            {/* TOP PAGINATION */}
+
             <Box
               sx={{
                 display: "flex",
-                alignItems: { xs: "stretch", sm: "center" },
+
+                alignItems: {
+                  xs: "stretch",
+
+                  sm: "center",
+                },
+
                 justifyContent: "space-between",
-                flexDirection: { xs: "column", sm: "row" },
+
+                flexDirection: {
+                  xs: "column",
+
+                  sm: "row",
+                },
+
                 gap: 2,
-                px: { xs: 2, sm: 2.5 },
+
+                px: {
+                  xs: 2,
+
+                  sm: 2.5,
+                },
+
                 py: 1.75,
+
                 borderBottom: `1px solid ${HAIRLINE}`,
+
                 bgcolor: "#FAFAFA",
               }}
             >
@@ -577,6 +831,7 @@ const ClientListPage = () => {
                 from={pagination?.from ?? null}
                 to={pagination?.to ?? null}
               />
+
               <Pagination
                 page={pagination?.current_page ?? 1}
                 total={pagination?.total ?? 0}
@@ -585,6 +840,8 @@ const ClientListPage = () => {
                 onPageChange={onPageChange}
               />
             </Box>
+
+            {/* GRID */}
 
             <DataGrid
               rows={clientData}
@@ -607,12 +864,9 @@ const ClientListPage = () => {
 
                 fontSize: 14,
 
-                // =============================================
-                // COLUMN HEADERS
-                // =============================================
-
                 "& .MuiDataGrid-columnHeaders": {
                   bgcolor: "#F9FAFB",
+
                   borderBottom: `1px solid ${HAIRLINE}`,
                 },
 
@@ -642,10 +896,6 @@ const ClientListPage = () => {
                   display: "none",
                 },
 
-                // =============================================
-                // ROWS
-                // =============================================
-
                 "& .MuiDataGrid-row": {
                   minHeight: "58px !important",
 
@@ -674,10 +924,6 @@ const ClientListPage = () => {
                   },
                 },
 
-                // =============================================
-                // CELLS
-                // =============================================
-
                 "& .MuiDataGrid-cell": {
                   display: "flex",
 
@@ -694,27 +940,20 @@ const ClientListPage = () => {
                   },
                 },
 
-                // Make name slightly stronger without changing data
                 '& .MuiDataGrid-cell[data-field="fullName"]': {
                   fontWeight: 600,
                 },
 
-                // Muted secondary/supporting columns
                 '& .MuiDataGrid-cell[data-field="clientId"], & .MuiDataGrid-cell[data-field="phone"], & .MuiDataGrid-cell[data-field="visaType"]':
                   {
                     color: INK_MUTED,
                   },
 
-                // Progress gets subtle brand emphasis
                 '& .MuiDataGrid-cell[data-field="currentStage"]': {
                   color: BRAND,
 
                   fontWeight: 600,
                 },
-
-                // =============================================
-                // ACTION COLUMN
-                // =============================================
 
                 '& .MuiDataGrid-cell[data-field="actions"]': {
                   bgcolor: "#ffffff",
@@ -727,10 +966,6 @@ const ClientListPage = () => {
                     bgcolor: "#F3F8F6",
                   },
 
-                // =============================================
-                // LOADING
-                // =============================================
-
                 "& .MuiDataGrid-overlay": {
                   bgcolor: "rgba(255, 255, 255, 0.88)",
                 },
@@ -739,13 +974,10 @@ const ClientListPage = () => {
                   color: BRAND,
                 },
 
-                // =============================================
-                // SCROLLBAR
-                // =============================================
-
                 "& .MuiDataGrid-virtualScroller": {
                   "&::-webkit-scrollbar": {
                     width: 8,
+
                     height: 8,
                   },
 
@@ -755,6 +987,7 @@ const ClientListPage = () => {
 
                   "&::-webkit-scrollbar-thumb": {
                     bgcolor: "rgba(17, 24, 39, 0.12)",
+
                     borderRadius: 999,
                   },
 
@@ -762,31 +995,41 @@ const ClientListPage = () => {
                     bgcolor: "rgba(17, 24, 39, 0.20)",
                   },
                 },
-
-                // =============================================
-                // CHECKBOX / FOCUS / SELECTION CLEANUP
-                // =============================================
-
-                "& .MuiDataGrid-cellCheckbox": {
-                  color: BRAND,
-                },
-
-                "& .MuiDataGrid-columnHeaderCheckbox": {
-                  color: BRAND,
-                },
               }}
             />
+
+            {/* BOTTOM PAGINATION */}
 
             <Box
               sx={{
                 display: "flex",
-                alignItems: { xs: "stretch", sm: "center" },
+
+                alignItems: {
+                  xs: "stretch",
+
+                  sm: "center",
+                },
+
                 justifyContent: "space-between",
-                flexDirection: { xs: "column", sm: "row" },
+
+                flexDirection: {
+                  xs: "column",
+
+                  sm: "row",
+                },
+
                 gap: 2,
-                px: { xs: 2, sm: 2.5 },
+
+                px: {
+                  xs: 2,
+
+                  sm: 2.5,
+                },
+
                 py: 1.75,
+
                 borderTop: `1px solid ${HAIRLINE}`,
+
                 bgcolor: "#FAFAFA",
               }}
             >
@@ -795,6 +1038,7 @@ const ClientListPage = () => {
                 from={pagination?.from ?? null}
                 to={pagination?.to ?? null}
               />
+
               <Pagination
                 page={pagination?.current_page ?? 1}
                 total={pagination?.total ?? 0}
@@ -807,9 +1051,7 @@ const ClientListPage = () => {
         </Box>
       </Box>
 
-      {/* =================================================
-          DELETE CONFIRMATION
-      ================================================= */}
+      {/* DELETE CONFIRMATION */}
 
       <ConfirmActionDialog
         open={deleteDialog.open}
