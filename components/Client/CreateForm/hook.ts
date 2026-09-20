@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
 import { createClientFormSchema } from "./validation";
+import type { CreateStageFormValues } from "./StageModal/type";
 import type {
   ClientDetailsResponse,
   ClientFormValues,
@@ -102,6 +103,8 @@ export const useClientFormHook = (clientId?: string) => {
   const role = user?.role;
   const isEditMode = Boolean(clientId);
   const [serverError, setServerError] = useState("");
+  const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [stageCreateError, setStageCreateError] = useState("");
   // =================================================
   // FORM
   // =================================================
@@ -488,6 +491,54 @@ export const useClientFormHook = (clientId?: string) => {
   const stageLoadError = isStageError
     ? getApiErrorMessage(stageError, "Failed to load client stages.")
     : "";
+
+  const openStageModal = () => {
+    setStageCreateError("");
+    setStageModalOpen(true);
+  };
+  const closeStageModal = () => {
+    if (isCreatingStage) {
+      return;
+    }
+    setStageCreateError("");
+    setStageModalOpen(false);
+  };
+  const handleCreateStage = async (values: CreateStageFormValues) => {
+    try {
+      setStageCreateError("");
+      const response = await createNewStage(values);
+      await queryClient.invalidateQueries({
+        queryKey: ["clientStageOptions"],
+      });
+      const createdStage = response.data;
+      if (!isEditMode && createdStage?.key) {
+        setValue("currentStage", createdStage.key, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      }
+      setStageModalOpen(false);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setStageCreateError(
+          error.response?.data?.message || "Failed to create stage.",
+        );
+        return;
+      }
+      setStageCreateError("Failed to create stage.");
+    }
+  };
+
+  const { mutateAsync: createNewStage, isPending: isCreatingStage } =
+    useMutation({
+      mutationFn: async (values: CreateStageFormValues) => {
+        const response = await api.post("/stages", {
+          name: values.name.trim(),
+          amount: Number(values.amount),
+        });
+        return response.data;
+      },
+    });
   // =================================================
   // RETURN
   // =================================================
@@ -513,5 +564,11 @@ export const useClientFormHook = (clientId?: string) => {
     stageLoadError,
     onSubmit,
     handleCancel,
+    stageModalOpen,
+    isCreatingStage,
+    stageCreateError,
+    openStageModal,
+    closeStageModal,
+    handleCreateStage,
   };
 };

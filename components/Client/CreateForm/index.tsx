@@ -15,6 +15,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
 import { Controller, useFieldArray } from "react-hook-form";
 import Breadcrumb from "@/components/Breadcrumb";
+import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
+import CreateStageModal from "./StageModal";
 import {
   GENDER,
   CURRENT_VISA_STATUS_OPTIONS,
@@ -310,6 +312,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     stageLoadError,
     onSubmit,
     handleCancel,
+    stageModalOpen,
+    isCreatingStage,
+    stageCreateError,
+    openStageModal,
+    closeStageModal,
+    handleCreateStage,
   } = useClientFormHook(clientId);
   // =================================================
   // DYNAMIC EDUCATION
@@ -653,38 +661,78 @@ BASIC
                   </Input>
                 )}
               />
-              <Controller
-                name="currentStage"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    select
-                    required={!isEditMode}
-                    disabled={
-                      isEditMode || isStageLoading || Boolean(stageLoadError)
-                    }
-                    label={t("fields.currentStage.label")}
-                    error={Boolean(errors.currentStage)}
-                    helperText={
-                      isEditMode
-                        ? "Change stage from the Progress section."
-                        : errors.currentStage?.message
-                    }
+              <Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    mb: 0.5,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: INK_MUTED,
+                    }}
                   >
-                    <MenuItem value="">
-                      {isStageLoading
-                        ? "Loading stages..."
-                        : t("fields.currentStage.placeholder")}
-                    </MenuItem>
-                    {stageOptions.map((stage) => (
-                      <MenuItem key={stage._id} value={stage.key}>
-                        {stage.name} — ¥{stage.amount.toLocaleString()}
+                    Current Stage
+                  </Typography>
+                  <Button
+                    type="button"
+                    size="small"
+                    startIcon={<AddCircleOutlineRoundedIcon />}
+                    onClick={openStageModal}
+                    sx={{
+                      minWidth: "auto",
+                      p: 0,
+                      color: BRAND,
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      textTransform: "none",
+                      "&:hover": {
+                        bgcolor: "transparent",
+                        color: BRAND_HOVER,
+                      },
+                    }}
+                  >
+                    Add Stage
+                  </Button>
+                </Box>
+                <Controller
+                  name="currentStage"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      select
+                      required={!isEditMode}
+                      disabled={
+                        isEditMode || isStageLoading || Boolean(stageLoadError)
+                      }
+                      error={Boolean(errors.currentStage)}
+                      helperText={
+                        isEditMode
+                          ? "Change the client's stage from Progress."
+                          : errors.currentStage?.message
+                      }
+                    >
+                      <MenuItem value="">
+                        {isStageLoading
+                          ? "Loading stages..."
+                          : "Select current stage"}
                       </MenuItem>
-                    ))}
-                  </Input>
-                )}
-              />
+                      {stageOptions.map((stage) => (
+                        <MenuItem key={stage._id} value={stage.key}>
+                          {stage.name} — ¥{stage.amount.toLocaleString()}
+                        </MenuItem>
+                      ))}
+                    </Input>
+                  )}
+                />
+              </Box>
             </FormGrid>
             <SectionDivider />
             {/* =================================================
@@ -1356,6 +1404,13 @@ ACTIONS
           </Box>
         </Box>
       </Box>
+      <CreateStageModal
+        open={stageModalOpen}
+        isLoading={isCreatingStage}
+        errorMessage={stageCreateError}
+        onClose={closeStageModal}
+        onSubmit={handleCreateStage}
+      />
     </Box>
   );
 };
