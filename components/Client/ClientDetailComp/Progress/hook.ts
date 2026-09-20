@@ -1,202 +1,239 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-
+import { useMemo, useState } from "react";
 import axios from "axios";
-import { useTranslations } from "next-intl";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { useForm } from "react-hook-form";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-
 import { api } from "@/lib/axios";
-
-import { createProgressSchema } from "./validation";
-
-import type { ProgressFormValues, StageHistoryResponse } from "./type";
-
+import { progressStageSchema } from "./validation";
+import type {
+  ClientStageHistoryResponse,
+  ClientStageListResponse,
+  ClientStageUpdateResponse,
+  ProgressFormValues,
+} from "./type";
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || fallback;
+  }
+  return fallback;
+};
 export const useProgressHook = (clientId: string) => {
-  const t = useTranslations("clientProgress");
-
   const queryClient = useQueryClient();
-
-  const [serverError, setServerError] = useState("");
-
-  const schema = useMemo(
-    () =>
-      createProgressSchema({
-        stageRequired: t("validation.stageRequired"),
-        noteMax: t("validation.noteMax"),
-      }),
-    [t],
-  );
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-
-    formState: { errors, isSubmitting },
-  } = useForm<ProgressFormValues>({
-    resolver: zodResolver(schema),
-
-    defaultValues: {
-      stage: "",
-      note: "",
-    },
-  });
-
+  const [selectedStage, setSelectedStage] = useState("");
+  const [note, setNote] = useState("");
+  const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   // =================================================
-  // GET PROGRESS
+  // CLIENT CURRENT STAGE + HISTORY
   // =================================================
-
   const {
-    data: progressResponse,
-
-    isLoading: isProgressLoading,
-
-    isError: isProgressError,
-
-    error: progressError,
-  } = useQuery({
+    data: historyResponse,
+    isLoading: isHistoryLoading,
+    isFetching: isHistoryFetching,
+    isError: isHistoryError,
+    error: historyError,
+  } = useQuery<ClientStageHistoryResponse>({
     queryKey: ["clientProgress", clientId],
-
     queryFn: async () => {
-      const response = await api.get<StageHistoryResponse>(
-        `/client-stages/${clientId}`,
+      const response = await api.get<ClientStageHistoryResponse>(
+        `/client-stages/${encodeURIComponent(clientId)}`,
       );
-
       return response.data;
     },
-
     enabled: Boolean(clientId),
   });
-
-  const currentStage = progressResponse?.currentStage;
-
-  const history = progressResponse?.data ?? [];
-
   // =================================================
-  // SET CURRENT STAGE IN SELECT
+  // ACTIVE STAGE MASTER
   // =================================================
-
-  useEffect(() => {
-    if (!currentStage) {
-      return;
-    }
-
-    reset({
-      stage: currentStage,
-      note: "",
-    });
-  }, [currentStage, reset]);
-
-  // =================================================
-  // CHANGE STAGE
-  // =================================================
-
   const {
-    mutateAsync: changeStage,
-
-    isPending: isChangingStage,
-  } = useMutation({
-    mutationFn: async (values: ProgressFormValues) => {
-      const response = await api.post(`/client-stages/${clientId}`, {
-        stage: values.stage,
-
-        note: values.note.trim(),
-      });
-
+    data: stageResponse,
+    isLoading: isStageLoading,
+    isFetching: isStageFetching,
+    isError: isStageError,
+    error: stageError,
+  } = useQuery<ClientStageListResponse>({
+    queryKey: ["clientStageOptions"],
+    queryFn: async () => {
+      const response = await api.get<ClientStageListResponse>("/stages");
       return response.data;
     },
-
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ["clientProgress", clientId],
-        }),
-
-        queryClient.invalidateQueries({
-          queryKey: ["client", clientId],
-        }),
-
-        queryClient.invalidateQueries({
-          queryKey: ["clients"],
-        }),
-      ]);
+  });
+  // =================================================
+  // SAFE HISTORY DATA
+  //
+  // Backend now returns:
+  // data:{
+  //   clientId,
+  //   currentStage,
+  //   currentStageName,
+  //   currentStageAmount,
+  //   history:[]
+  // }
+  // =================================================
+  const historyData = historyResponse?.data;
+  const history = Array.isArray(historyData?.history)
+    ? historyData.history
+    : [];
+  const currentStage = historyData?.currentStage ?? "";
+  const currentStageName = historyData?.currentStageName || currentStage || "-";
+  // =================================================
+  // STAGE OPTIONS
+  // =================================================
+  const stageOptions = useMemo(() => {
+    return [...(stageResponse?.data ?? [])]
+      .filter((stage) => stage.isActive)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+  }, [stageResponse]);
+  // =================================================
+  // CURRENT STAGE AMOUNT
+  // Backend sends the current configured amount.
+  // Fallback to stage master if needed.
+  // =================================================
+  const currentStageFromOptions = stageOptions.find(
+    (item) => item.key === currentStage,
+  );
+  const currentStageAmount =
+    typeof historyData?.currentStageAmount === "number"
+      ? historyData.currentStageAmount
+      : (currentStageFromOptions?.amount ?? 0);
+  // =================================================
+  // SELECTED STAGE
+  //
+  // No useEffect needed.
+  // Empty local selection means use current stage.
+  // =================================================
+  const selectedStageValue = selectedStage || currentStage;
+  const selectedStageDetails = useMemo(() => {
+    return (
+      stageOptions.find((stage) => stage.key === selectedStageValue) ?? null
+    );
+  }, [stageOptions, selectedStageValue]);
+  // =================================================
+  // UPDATE STAGE
+  // =================================================
+  const { mutateAsync: updateStage, isPending: isUpdatingStage } = useMutation<
+    ClientStageUpdateResponse,
+    unknown,
+    ProgressFormValues
+  >({
+    mutationFn: async (values) => {
+      const response = await api.post<ClientStageUpdateResponse>(
+        `/client-stages/${encodeURIComponent(clientId)}`,
+        {
+          stage: values.stage,
+          note: values.note.trim(),
+        },
+      );
+      return response.data;
     },
   });
-
+  // =================================================
+  // REFRESH RELATED DATA
+  // =================================================
+  const refreshAfterStageChange = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ["clientProgress", clientId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["client", clientId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["clients"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["adminDashboard"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["staffDashboard"],
+      }),
+    ]);
+  };
+  // =================================================
+  // STAGE CHANGE
+  // =================================================
+  const handleStageChange = (value: string) => {
+    setSelectedStage(value);
+    setFormError("");
+    setSuccessMessage("");
+  };
+  // =================================================
+  // NOTE CHANGE
+  // =================================================
+  const handleNoteChange = (value: string) => {
+    setNote(value);
+    setFormError("");
+    setSuccessMessage("");
+  };
   // =================================================
   // SUBMIT
   // =================================================
-
-  const onSubmit = async (values: ProgressFormValues) => {
+  const handleUpdateStage = async () => {
+    setFormError("");
+    setSuccessMessage("");
+    const values = {
+      stage: selectedStageValue,
+      note,
+    };
+    const result = progressStageSchema.safeParse(values);
+    if (!result.success) {
+      setFormError(
+        result.error.issues[0]?.message ||
+          "Please check the stage information.",
+      );
+      return;
+    }
+    if (result.data.stage === currentStage) {
+      setFormError("Please select a different stage.");
+      return;
+    }
     try {
-      setServerError("");
-
-      if (values.stage === currentStage) {
-        setServerError(t("messages.selectDifferentStage"));
-
-        return;
-      }
-
-      await changeStage(values);
-
-      reset({
-        stage: values.stage,
-
-        note: "",
-      });
+      const response = await updateStage(result.data);
+      setSelectedStage("");
+      setNote("");
+      setSuccessMessage(
+        response.message || "Client stage updated successfully.",
+      );
+      await refreshAfterStageChange();
     } catch (error) {
-      console.error("Change stage error:", error);
-
-      if (axios.isAxiosError(error)) {
-        setServerError(
-          error.response?.data?.message || t("messages.updateFailed"),
-        );
-
-        return;
-      }
-
-      setServerError(t("messages.updateFailed"));
+      console.error("Update client stage error:", error);
+      setFormError(getErrorMessage(error, "Failed to update client stage."));
     }
   };
-
   // =================================================
-  // LOAD ERROR
+  // HISTORY LOAD ERROR
   // =================================================
-
-  let loadError = "";
-
-  if (isProgressError) {
-    if (axios.isAxiosError(progressError)) {
-      loadError =
-        progressError.response?.data?.message ||
-        t("messages.loadFailed");
-    } else {
-      loadError = t("messages.loadFailed");
-    }
-  }
-
+  const historyLoadError = isHistoryError
+    ? getErrorMessage(historyError, "Failed to load client progress.")
+    : "";
+  // =================================================
+  // STAGE LOAD ERROR
+  // =================================================
+  const stageLoadError = isStageError
+    ? getErrorMessage(stageError, "Failed to load stages.")
+    : "";
+  // =================================================
+  // RETURN
+  // =================================================
   return {
-    currentStage,
     history,
-
-    control,
-    errors,
-    handleSubmit,
-
-    onSubmit,
-
-    isProgressLoading,
-
-    isSubmitting,
-    isChangingStage,
-
-    serverError,
-    loadError,
+    currentStage,
+    currentStageName,
+    currentStageAmount,
+    stageOptions,
+    selectedStageValue,
+    selectedStageDetails,
+    note,
+    handleStageChange,
+    handleNoteChange,
+    handleUpdateStage,
+    isHistoryLoading,
+    isHistoryFetching,
+    isStageLoading,
+    isStageFetching,
+    isUpdatingStage,
+    historyLoadError,
+    stageLoadError,
+    formError,
+    successMessage,
   };
 };

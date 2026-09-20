@@ -1,7 +1,6 @@
 "use client";
-
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
@@ -9,24 +8,17 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
-import TextField, { TextFieldProps } from "@mui/material/TextField";
+import TextField, { type TextFieldProps } from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-
 import { Controller, useFieldArray } from "react-hook-form";
-
 import Breadcrumb from "@/components/Breadcrumb";
-
-import { useCreateClientHook } from "./hook";
-
 import {
   GENDER,
   CURRENT_VISA_STATUS_OPTIONS,
   PREFER_CATEGORY_OPTIONS,
-  CURRENT_STAGES,
   NATIONALITIES,
   STATUS_OF_RESIDENCE_OPTIONS,
   JAPANESE_LEVELS,
@@ -34,11 +26,11 @@ import {
   EMPLOYMENT_TYPE_OPTIONS,
   PREFECTURE_OPTIONS,
 } from "@/components/constant";
-
+import { useClientFormHook } from "./hook";
+import type { ClientFormProps } from "./type";
 // =================================================
-// DESIGN SYSTEM
+// DESIGN
 // =================================================
-
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
@@ -46,9 +38,7 @@ const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
 const DANGER = "#DC2626";
-
 const FIELD_HEIGHT = 40;
-
 const softCard = {
   bgcolor: "#ffffff",
   border: `1px solid ${HAIRLINE}`,
@@ -56,51 +46,60 @@ const softCard = {
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
-
 const fieldSx = {
   "& .MuiInputLabel-root": {
     color: INK_MUTED,
     fontSize: 13.5,
-
-    "&.Mui-focused": { color: BRAND },
-    "&.Mui-error": { color: DANGER },
+    "&.Mui-focused": {
+      color: BRAND,
+    },
+    "&.Mui-error": {
+      color: DANGER,
+    },
   },
-
   "& .MuiOutlinedInput-root": {
     color: INK,
     bgcolor: "#ffffff",
     borderRadius: 2,
     minHeight: FIELD_HEIGHT,
-
-    transition: "border-color 200ms ease, background-color 200ms ease",
-
     "& fieldset": {
       borderColor: HAIRLINE,
-      transition: "border-color 200ms ease",
     },
-    "&:hover fieldset": { borderColor: "rgba(16, 122, 100, 0.35)" },
-    "&.Mui-focused fieldset": { borderColor: BRAND, borderWidth: "1px" },
-    "&.Mui-error fieldset": { borderColor: DANGER },
-    "&.Mui-disabled": { bgcolor: "#F9FAFB" },
+    "&:hover fieldset": {
+      borderColor: "rgba(16, 122, 100, 0.35)",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: BRAND,
+      borderWidth: "1px",
+    },
+    "&.Mui-error fieldset": {
+      borderColor: DANGER,
+    },
+    "&.Mui-disabled": {
+      bgcolor: "#F9FAFB",
+    },
   },
-
   "& .MuiInputBase-input": {
     fontSize: 13.5,
-    "&::placeholder": { color: INK_MUTED, opacity: 0.65 },
+    "&::placeholder": {
+      color: INK_MUTED,
+      opacity: 0.65,
+    },
   },
-
-  "& .MuiSelect-select": { fontSize: 13.5 },
-
+  "& .MuiSelect-select": {
+    fontSize: 13.5,
+  },
   "& .MuiFormHelperText-root": {
     ml: 0.25,
     mt: 0.4,
     fontSize: 11,
     lineHeight: 1.3,
     color: INK_MUTED,
-    "&.Mui-error": { color: DANGER },
+    "&.Mui-error": {
+      color: DANGER,
+    },
   },
 };
-
 const addButtonSx = {
   borderRadius: 2,
   borderColor: "rgba(16, 122, 100, 0.25)",
@@ -110,13 +109,11 @@ const addButtonSx = {
   fontSize: 13,
   minHeight: 34,
   px: 1.5,
-
   "&:hover": {
     bgcolor: BRAND_SOFT,
     borderColor: BRAND,
   },
 } as const;
-
 const uploadButtonSx = (hasValue: boolean, hasError: boolean) =>
   ({
     height: FIELD_HEIGHT,
@@ -130,33 +127,37 @@ const uploadButtonSx = (hasValue: boolean, hasError: boolean) =>
     fontWeight: 500,
     textTransform: "none",
     overflow: "hidden",
-
     "&:hover": {
       bgcolor: BRAND_SOFT,
       borderColor: "rgba(16, 122, 100, 0.35)",
     },
-
-    "& .MuiButton-startIcon": { color: BRAND },
+    "& .MuiButton-startIcon": {
+      color: BRAND,
+    },
   }) as const;
-
 // =================================================
-// SMALL BUILDING BLOCKS
+// INPUT
 // =================================================
-
-// Compact text field (small size, full width, shared styling)
 const Input = (props: TextFieldProps) => (
   <TextField size="small" fullWidth {...props} sx={fieldSx} />
 );
-
-// Compact date field (label always shrunk so it never overlaps the picker)
+// =================================================
+// DATE
+// =================================================
 const DateInput = (props: TextFieldProps) => (
   <Input
     type="date"
     {...props}
-    slotProps={{ inputLabel: { shrink: true } }}
+    slotProps={{
+      inputLabel: {
+        shrink: true,
+      },
+    }}
   />
 );
-
+// =================================================
+// TITLE
+// =================================================
 const SectionTitle = ({
   title,
   description,
@@ -176,7 +177,6 @@ const SectionTitle = ({
     >
       {title}
     </Typography>
-
     {description && (
       <Typography
         variant="body2"
@@ -192,9 +192,10 @@ const SectionTitle = ({
     )}
   </Box>
 );
-
-// One grid for the whole form: 1 col on mobile, 2 on tablet, 3 on desktop
-const FormGrid = ({ children }: { children: React.ReactNode }) => (
+// =================================================
+// GRID
+// =================================================
+const FormGrid = ({ children }: { children: ReactNode }) => (
   <Box
     sx={{
       display: "grid",
@@ -211,33 +212,43 @@ const FormGrid = ({ children }: { children: React.ReactNode }) => (
     {children}
   </Box>
 );
-
+// =================================================
+// DIVIDER
+// =================================================
 const SectionDivider = () => (
-  <Divider sx={{ my: 2.75, borderColor: HAIRLINE }} />
+  <Divider
+    sx={{
+      my: 2.75,
+      borderColor: HAIRLINE,
+    }}
+  />
 );
-
-// Repeatable item card (education / employment)
+// =================================================
+// ITEM CARD
+// =================================================
 const ItemCard = ({
   children,
   onRemove,
   removeDisabled,
   label,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   onRemove: () => void;
   removeDisabled: boolean;
-  label?: string;
+  label: string;
 }) => (
   <Box
     sx={{
       position: "relative",
-      p: { xs: 1.5, sm: 2 },
+      p: {
+        xs: 1.5,
+        sm: 2,
+      },
       border: `1px solid ${HAIRLINE}`,
       borderRadius: 2,
       bgcolor: "#FAFBFA",
     }}
   >
-    {label && (
     <Box
       sx={{
         display: "flex",
@@ -247,10 +258,15 @@ const ItemCard = ({
         mb: 1.25,
       }}
     >
-      <Typography sx={{ color: INK, fontSize: 13, fontWeight: 600 }}>
+      <Typography
+        sx={{
+          color: INK,
+          fontSize: 13,
+          fontWeight: 600,
+        }}
+      >
         {label}
       </Typography>
-
       <IconButton
         size="small"
         disabled={removeDisabled}
@@ -258,72 +274,153 @@ const ItemCard = ({
         sx={{
           color: DANGER,
           borderRadius: 1.5,
-          "&:hover": { bgcolor: "rgba(220, 38, 38, 0.06)" },
+          "&:hover": {
+            bgcolor: "rgba(220, 38, 38, 0.06)",
+          },
         }}
       >
         <DeleteIcon fontSize="small" />
       </IconButton>
     </Box>
-    )}
-
     {children}
   </Box>
 );
-
 // =================================================
-// CREATE CLIENT
+// CLIENT FORM
 // =================================================
-
-const CreateClient = () => {
+const ClientForm = ({ clientId }: ClientFormProps) => {
   const t = useTranslations("createClient");
-
   const {
     user,
     role,
-
+    isEditMode,
     control,
     errors,
     handleSubmit,
-
     activeStaff,
+    stageOptions,
+    existingFiles,
     isStaffLoading,
-
+    isStageLoading,
+    isClientLoading,
     isSubmitting,
-    isCreating,
-
+    isSaving,
     serverError,
-
+    clientLoadError,
+    stageLoadError,
     onSubmit,
     handleCancel,
-  } = useCreateClientHook();
-
+  } = useClientFormHook(clientId);
+  // =================================================
+  // DYNAMIC EDUCATION
+  // =================================================
   const {
     fields: educationFields,
     append: appendEducation,
     remove: removeEducation,
-  } = useFieldArray({ control, name: "education" });
-
+  } = useFieldArray({
+    control,
+    name: "education",
+  });
+  // =================================================
+  // DYNAMIC EMPLOYMENT
+  // =================================================
   const {
     fields: employmentFields,
     append: appendEmployment,
     remove: removeEmployment,
-  } = useFieldArray({ control, name: "employmentHistory" });
-
-  const loading = isSubmitting || isCreating;
-
+  } = useFieldArray({
+    control,
+    name: "employmentHistory",
+  });
+  const loading = isSubmitting || isSaving;
+  // =================================================
+  // INITIAL EDIT LOAD
+  // =================================================
+  if (isEditMode && isClientLoading) {
+    return (
+      <Box
+        sx={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "#F7F8F6",
+        }}
+      >
+        <CircularProgress
+          size={30}
+          sx={{
+            color: BRAND,
+          }}
+        />
+      </Box>
+    );
+  }
+  // =================================================
+  // CLIENT LOAD ERROR
+  // =================================================
+  if (isEditMode && clientLoadError) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#F7F8F6",
+          p: 3,
+        }}
+      >
+        <Box
+          sx={{
+            maxWidth: 1180,
+            mx: "auto",
+          }}
+        >
+          <Alert severity="error">{clientLoadError}</Alert>
+          <Button
+            onClick={handleCancel}
+            sx={{
+              mt: 2,
+              color: BRAND,
+            }}
+          >
+            Back
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
   return (
     <Box
       sx={{
         minHeight: "100vh",
         bgcolor: "#F7F8F6",
-        px: { xs: 1.5, sm: 2.5, md: 3 },
-        pb: { xs: 2, md: 3 },
+        px: {
+          xs: 1.5,
+          sm: 2.5,
+          md: 3,
+        },
+        pb: {
+          xs: 2,
+          md: 3,
+        },
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 1180, mx: "auto" }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 1180,
+          mx: "auto",
+        }}
+      >
         {/* BREADCRUMB */}
-
-        <Box sx={{ mb: { xs: 1.5, md: 2 } }}>
+        <Box
+          sx={{
+            mb: {
+              xs: 1.5,
+              md: 2,
+            },
+          }}
+        >
           <Breadcrumb
             items={[
               {
@@ -334,32 +431,58 @@ const CreateClient = () => {
                 label: t("breadcrumbs.clients"),
                 href: "/admin/client",
               },
+              ...(isEditMode && clientId
+                ? [
+                    {
+                      label: clientId,
+                      href: `/admin/client/${encodeURIComponent(clientId)}`,
+                    },
+                  ]
+                : []),
               {
-                label: t("breadcrumbs.createClient"),
+                label: isEditMode
+                  ? "Edit Client"
+                  : t("breadcrumbs.createClient"),
                 current: true,
               },
             ]}
           />
         </Box>
-
         {/* CARD */}
-
-        <Box sx={{ ...softCard, p: { xs: 1.75, sm: 2.5, md: 3 } }}>
-          {/* PAGE HEADER */}
-
-          <Box sx={{ mb: { xs: 2, md: 2.5 } }}>
+        <Box
+          sx={{
+            ...softCard,
+            p: {
+              xs: 1.75,
+              sm: 2.5,
+              md: 3,
+            },
+          }}
+        >
+          {/* HEADER */}
+          <Box
+            sx={{
+              mb: {
+                xs: 2,
+                md: 2.5,
+              },
+            }}
+          >
             <Typography
               sx={{
                 color: INK,
-                fontSize: { xs: 20, sm: 22, md: 24 },
+                fontSize: {
+                  xs: 20,
+                  sm: 22,
+                  md: 24,
+                },
                 lineHeight: 1.25,
                 fontWeight: 600,
                 letterSpacing: "-0.02em",
               }}
             >
-              {t("title")}
+              {isEditMode ? "Edit Client" : t("title")}
             </Typography>
-
             <Typography
               variant="body2"
               sx={{
@@ -369,40 +492,42 @@ const CreateClient = () => {
                 lineHeight: 1.5,
               }}
             >
-              {t("description")}
+              {isEditMode
+                ? "Update the client's information. Change progress from the client Progress section."
+                : t("description")}
             </Typography>
           </Box>
-
-          {/* ERROR */}
-
+          {/* ERRORS */}
           {serverError && (
             <Alert
               severity="error"
               sx={{
                 mb: 2,
-                py: 0.25,
                 borderRadius: 2,
-                border: "1px solid rgba(220, 38, 38, 0.12)",
-                bgcolor: "#FEF2F2",
-                color: "#991B1B",
-                boxShadow: "none",
-                "& .MuiAlert-icon": { color: DANGER },
               }}
             >
               {serverError}
             </Alert>
           )}
-
+          {stageLoadError && (
+            <Alert
+              severity="error"
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+              }}
+            >
+              {stageLoadError}
+            </Alert>
+          )}
           <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
             {/* =================================================
-                BASIC INFORMATION
-            ================================================= */}
-
+BASIC
+================================================= */}
             <SectionTitle
               title={t("sections.basic.title")}
               description={t("sections.basic.description")}
             />
-
             <FormGrid>
               <Controller
                 name="fullName"
@@ -418,7 +543,6 @@ const CreateClient = () => {
                   />
                 )}
               />
-
               <Controller
                 name="phone"
                 control={control}
@@ -433,7 +557,6 @@ const CreateClient = () => {
                   />
                 )}
               />
-
               <Controller
                 name="currentVisaStatus"
                 control={control}
@@ -449,7 +572,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.currentVisaStatus.placeholder")}
                     </MenuItem>
-
                     {CURRENT_VISA_STATUS_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.currentVisaStatus.${option.key}` as never)}
@@ -458,9 +580,7 @@ const CreateClient = () => {
                   </Input>
                 )}
               />
-
-              {/* ADMIN SELECT STAFF */}
-
+              {/* ASSIGNED STAFF - ADMIN */}
               {role === "superadmin" && (
                 <Controller
                   name="assignedStaff"
@@ -476,9 +596,10 @@ const CreateClient = () => {
                       helperText={errors.assignedStaff?.message}
                     >
                       <MenuItem value="">
-                        {t("fields.assignedStaff.placeholder")}
+                        {isStaffLoading
+                          ? "Loading staff..."
+                          : t("fields.assignedStaff.placeholder")}
                       </MenuItem>
-
                       {activeStaff.map((staff) => (
                         <MenuItem key={staff.staffId} value={staff.staffId}>
                           {staff.name} ({staff.staffId})
@@ -488,24 +609,28 @@ const CreateClient = () => {
                   )}
                 />
               )}
-
-              {/* STAFF AUTO ASSIGN */}
-
+              {/* ASSIGNED STAFF - STAFF */}
               {role === "staff" && (
                 <Controller
                   name="assignedStaff"
                   control={control}
-                  render={() => (
+                  render={({ field }) => (
                     <Input
+                      {...field}
                       disabled
                       label={t("fields.assignedStaff.label")}
-                      value={user ? `${user.name} (${user.staffId})` : ""}
+                      value={
+                        isEditMode
+                          ? field.value
+                          : user
+                            ? `${user.name} (${user.staffId})`
+                            : ""
+                      }
                       helperText={t("fields.assignedStaff.autoHelper")}
                     />
                   )}
                 />
               )}
-
               <Controller
                 name="preferCategory"
                 control={control}
@@ -520,7 +645,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.preferCategory.placeholder")}
                     </MenuItem>
-
                     {PREFER_CATEGORY_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.preferCategory.${option.key}` as never)}
@@ -529,7 +653,6 @@ const CreateClient = () => {
                   </Input>
                 )}
               />
-
               <Controller
                 name="currentStage"
                 control={control}
@@ -537,48 +660,48 @@ const CreateClient = () => {
                   <Input
                     {...field}
                     select
-                    required
+                    required={!isEditMode}
+                    disabled={
+                      isEditMode || isStageLoading || Boolean(stageLoadError)
+                    }
                     label={t("fields.currentStage.label")}
                     error={Boolean(errors.currentStage)}
-                    helperText={errors.currentStage?.message}
+                    helperText={
+                      isEditMode
+                        ? "Change stage from the Progress section."
+                        : errors.currentStage?.message
+                    }
                   >
                     <MenuItem value="">
-                      {t("fields.currentStage.placeholder")}
+                      {isStageLoading
+                        ? "Loading stages..."
+                        : t("fields.currentStage.placeholder")}
                     </MenuItem>
-
-                    {CURRENT_STAGES.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.currentStage.${option.key}` as never)}
+                    {stageOptions.map((stage) => (
+                      <MenuItem key={stage._id} value={stage.key}>
+                        {stage.name} — ¥{stage.amount.toLocaleString()}
                       </MenuItem>
                     ))}
                   </Input>
                 )}
               />
             </FormGrid>
-
             <SectionDivider />
-
             {/* =================================================
-                PERSONAL INFORMATION
-            ================================================= */}
-
+PERSONAL
+================================================= */}
             <SectionTitle
               title={t("sections.personal.title")}
               description={t("sections.personal.description")}
             />
-
             <FormGrid>
               <Controller
                 name="dateOfBirth"
                 control={control}
                 render={({ field }) => (
-                  <DateInput
-                    {...field}
-                    label={t("fields.dateOfBirth.label")}
-                  />
+                  <DateInput {...field} label={t("fields.dateOfBirth.label")} />
                 )}
               />
-
               <Controller
                 name="gender"
                 control={control}
@@ -593,7 +716,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.gender.placeholder")}
                     </MenuItem>
-
                     {GENDER.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.gender.${option.key}` as never)}
@@ -602,7 +724,6 @@ const CreateClient = () => {
                   </Input>
                 )}
               />
-
               <Controller
                 name="email"
                 control={control}
@@ -617,7 +738,6 @@ const CreateClient = () => {
                   />
                 )}
               />
-
               <Controller
                 name="nationality"
                 control={control}
@@ -632,7 +752,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.nationality.placeholder")}
                     </MenuItem>
-
                     {NATIONALITIES.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.nationality.${option.key}` as never)}
@@ -641,7 +760,6 @@ const CreateClient = () => {
                   </Input>
                 )}
               />
-
               <Controller
                 name="prefecture"
                 control={control}
@@ -656,7 +774,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.prefecture.placeholder")}
                     </MenuItem>
-
                     {PREFECTURE_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.prefecture.${option.key}` as never)}
@@ -665,7 +782,6 @@ const CreateClient = () => {
                   </Input>
                 )}
               />
-
               <Controller
                 name="address"
                 control={control}
@@ -678,18 +794,14 @@ const CreateClient = () => {
                 )}
               />
             </FormGrid>
-
             <SectionDivider />
-
             {/* =================================================
-                PASSPORT / RESIDENCE
-            ================================================= */}
-
+PASSPORT
+================================================= */}
             <SectionTitle
               title={t("sections.passport.title")}
               description={t("sections.passport.description")}
             />
-
             <FormGrid>
               <Controller
                 name="passportNumber"
@@ -702,7 +814,6 @@ const CreateClient = () => {
                   />
                 )}
               />
-
               <Controller
                 name="passportExpiryDate"
                 control={control}
@@ -713,7 +824,6 @@ const CreateClient = () => {
                   />
                 )}
               />
-
               <Controller
                 name="statusOfResidence"
                 control={control}
@@ -728,7 +838,6 @@ const CreateClient = () => {
                     <MenuItem value="">
                       {t("fields.statusOfResidence.placeholder")}
                     </MenuItem>
-
                     {STATUS_OF_RESIDENCE_OPTIONS.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {t(`options.statusOfResidence.${option.key}` as never)}
@@ -738,23 +847,25 @@ const CreateClient = () => {
                 )}
               />
             </FormGrid>
-
             <SectionDivider />
-
             {/* =================================================
-                EDUCATION HISTORY
-            ================================================= */}
-
+EDUCATION
+================================================= */}
             <SectionTitle
               title={t("sections.education.title")}
               description={t("sections.education.description")}
             />
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+              }}
+            >
               {educationFields.map((education, index) => (
                 <ItemCard
                   key={education.id}
-                  label={t("education.itemLabel", { number: index + 1 })}
+                  label={`Education ${index + 1}`}
                   removeDisabled={educationFields.length === 1}
                   onRemove={() => removeEducation(index)}
                 >
@@ -777,7 +888,6 @@ const CreateClient = () => {
                           <MenuItem value="">
                             {t("fields.educationType.placeholder")}
                           </MenuItem>
-
                           {EDUCATION_TYPE_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
                               {t(
@@ -788,7 +898,6 @@ const CreateClient = () => {
                         </Input>
                       )}
                     />
-
                     <Controller
                       name={`education.${index}.schoolName`}
                       control={control}
@@ -804,7 +913,6 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
                     <Controller
                       name={`education.${index}.major`}
                       control={control}
@@ -818,7 +926,6 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
                     <Controller
                       name={`education.${index}.enrollmentDate`}
                       control={control}
@@ -835,7 +942,6 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
                     <Controller
                       name={`education.${index}.graduationDate`}
                       control={control}
@@ -852,12 +958,9 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
-                    {/* JAPANESE LEVEL sits in the same row, only on the first card's row */}
                   </FormGrid>
                 </ItemCard>
               ))}
-
               <Box>
                 <Button
                   type="button"
@@ -874,13 +977,11 @@ const CreateClient = () => {
                   }
                   sx={addButtonSx}
                 >
-                  {t("education.add")}
+                  Add Education
                 </Button>
               </Box>
             </Box>
-
-            {/* JAPANESE LANGUAGE LEVEL */}
-
+            {/* JAPANESE + INTAKE */}
             <Box sx={{ mt: 2 }}>
               <FormGrid>
                 <Controller
@@ -897,7 +998,6 @@ const CreateClient = () => {
                       <MenuItem value="">
                         {t("fields.japaneseLanguageLevel.placeholder")}
                       </MenuItem>
-
                       {JAPANESE_LEVELS.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {t(
@@ -908,24 +1008,38 @@ const CreateClient = () => {
                     </Input>
                   )}
                 />
+                <Controller
+                  name="intake"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Intake"
+                      placeholder="e.g. April 2015"
+                    />
+                  )}
+                />
               </FormGrid>
             </Box>
-
             <SectionDivider />
-
             {/* =================================================
-                EMPLOYMENT HISTORY
-            ================================================= */}
-
+EMPLOYMENT
+================================================= */}
             <SectionTitle
               title={t("sections.employment.title")}
               description={t("sections.employment.description")}
             />
-
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+              }}
+            >
               {employmentFields.map((employment, index) => (
                 <ItemCard
                   key={employment.id}
+                  label={`Employment ${index + 1}`}
                   removeDisabled={employmentFields.length === 1}
                   onRemove={() => removeEmployment(index)}
                 >
@@ -941,7 +1055,6 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
                     <Controller
                       name={`employmentHistory.${index}.employmentType`}
                       control={control}
@@ -961,7 +1074,6 @@ const CreateClient = () => {
                           <MenuItem value="">
                             {t("fields.employmentType.placeholder")}
                           </MenuItem>
-
                           {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
                               {t(
@@ -972,31 +1084,6 @@ const CreateClient = () => {
                         </Input>
                       )}
                     />
-
-                    {/* REMOVE (top-right slot on desktop, last on mobile) */}
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        height: FIELD_HEIGHT,
-                        order: { xs: 99, md: 0 },
-                      }}
-                    >
-                      <IconButton
-                        size="small"
-                        disabled={employmentFields.length === 1}
-                        onClick={() => removeEmployment(index)}
-                        sx={{
-                          color: DANGER,
-                          borderRadius: 1.5,
-                          "&:hover": { bgcolor: "rgba(220, 38, 38, 0.06)" },
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-
                     <Controller
                       name={`employmentHistory.${index}.startDate`}
                       control={control}
@@ -1007,7 +1094,6 @@ const CreateClient = () => {
                         />
                       )}
                     />
-
                     <Controller
                       name={`employmentHistory.${index}.endDate`}
                       control={control}
@@ -1021,7 +1107,6 @@ const CreateClient = () => {
                   </FormGrid>
                 </ItemCard>
               ))}
-
               <Box>
                 <Button
                   type="button"
@@ -1037,25 +1122,19 @@ const CreateClient = () => {
                   }
                   sx={addButtonSx}
                 >
-                  {t("employment.add")}
+                  Add Employment
                 </Button>
               </Box>
             </Box>
-
             <SectionDivider />
-
             {/* =================================================
-                DOCUMENTS
-            ================================================= */}
-
+DOCUMENTS
+================================================= */}
             <SectionTitle
               title={t("sections.documents.title")}
               description={t("sections.documents.description")}
             />
-
             <FormGrid>
-              {/* CLIENT IMAGE */}
-
               <Controller
                 name="clientImage"
                 control={control}
@@ -1066,7 +1145,10 @@ const CreateClient = () => {
                       variant="outlined"
                       fullWidth
                       startIcon={<CloudUploadOutlinedIcon />}
-                      sx={uploadButtonSx(Boolean(value), Boolean(errors.clientImage))}
+                      sx={uploadButtonSx(
+                        Boolean(value),
+                        Boolean(errors.clientImage),
+                      )}
                     >
                       <Box
                         component="span"
@@ -1076,9 +1158,12 @@ const CreateClient = () => {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {value ? value.name : t("fields.clientImage.upload")}
+                        {value
+                          ? value.name
+                          : isEditMode && existingFiles.clientImage
+                            ? "Replace Client Image"
+                            : t("fields.clientImage.upload")}
                       </Box>
-
                       <input
                         {...field}
                         hidden
@@ -1090,27 +1175,34 @@ const CreateClient = () => {
                         }}
                       />
                     </Button>
-
+                    {isEditMode && existingFiles.clientImage && !value && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          mt: 0.5,
+                          color: INK_MUTED,
+                        }}
+                      >
+                        Existing image will be kept unless a new image is
+                        uploaded.
+                      </Typography>
+                    )}
                     {errors.clientImage?.message && (
                       <Typography
                         variant="caption"
                         sx={{
                           display: "block",
                           mt: 0.4,
-                          ml: 0.25,
                           color: DANGER,
-                          fontSize: 11,
                         }}
                       >
-                        {errors.clientImage.message}
+                        {String(errors.clientImage.message)}
                       </Typography>
                     )}
                   </Box>
                 )}
               />
-
-              {/* CV */}
-
               <Controller
                 name="cv"
                 control={control}
@@ -1131,9 +1223,12 @@ const CreateClient = () => {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {value ? value.name : t("fields.cv.upload")}
+                        {value
+                          ? value.name
+                          : isEditMode && existingFiles.cv
+                            ? "Replace CV"
+                            : t("fields.cv.upload")}
                       </Box>
-
                       <input
                         {...field}
                         hidden
@@ -1145,37 +1240,50 @@ const CreateClient = () => {
                         }}
                       />
                     </Button>
-
+                    {isEditMode && existingFiles.cv && !value && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          mt: 0.5,
+                          color: INK_MUTED,
+                        }}
+                      >
+                        Existing CV will be kept unless a new CV is uploaded.
+                      </Typography>
+                    )}
                     {errors.cv?.message && (
                       <Typography
                         variant="caption"
                         sx={{
                           display: "block",
                           mt: 0.4,
-                          ml: 0.25,
                           color: DANGER,
-                          fontSize: 11,
                         }}
                       >
-                        {errors.cv.message}
+                        {String(errors.cv.message)}
                       </Typography>
                     )}
                   </Box>
                 )}
               />
             </FormGrid>
-
             {/* =================================================
-                BUTTONS
-            ================================================= */}
-
+ACTIONS
+================================================= */}
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column-reverse", sm: "row" },
+                flexDirection: {
+                  xs: "column-reverse",
+                  sm: "row",
+                },
                 justifyContent: "flex-end",
                 gap: 1,
-                mt: { xs: 3, md: 3.5 },
+                mt: {
+                  xs: 3,
+                  md: 3.5,
+                },
                 pt: 2,
                 borderTop: `1px solid ${HAIRLINE}`,
               }}
@@ -1195,7 +1303,6 @@ const CreateClient = () => {
                   fontSize: 13.5,
                   fontWeight: 600,
                   textTransform: "none",
-
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
                     borderColor: "rgba(16, 122, 100, 0.30)",
@@ -1203,14 +1310,13 @@ const CreateClient = () => {
                   },
                 }}
               >
-                {t("cancel")}
+                Cancel
               </Button>
-
               <Button
                 type="submit"
                 variant="contained"
                 disableElevation
-                disabled={loading}
+                disabled={loading || isStageLoading || Boolean(stageLoadError)}
                 startIcon={
                   loading ? (
                     <CircularProgress size={16} color="inherit" />
@@ -1228,19 +1334,23 @@ const CreateClient = () => {
                   fontWeight: 600,
                   textTransform: "none",
                   boxShadow: "none",
-
                   "&:hover": {
                     bgcolor: BRAND_HOVER,
                     boxShadow: "none",
                   },
-
                   "&.Mui-disabled": {
                     bgcolor: "rgba(16, 122, 100, 0.45)",
                     color: "#ffffff",
                   },
                 }}
               >
-                {loading ? t("creating") : t("create")}
+                {loading
+                  ? isEditMode
+                    ? "Saving..."
+                    : "Creating..."
+                  : isEditMode
+                    ? "Save Changes"
+                    : "Create Client"}
               </Button>
             </Box>
           </Box>
@@ -1249,5 +1359,4 @@ const CreateClient = () => {
     </Box>
   );
 };
-
-export default CreateClient;
+export default ClientForm;

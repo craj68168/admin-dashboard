@@ -1,8 +1,5 @@
-import CreateClient from "@/components/Client/CreateClient";
-import React from "react";
+import ClientForm from "@/components/Client/CreateForm";
 
-const AddClient = () => {
-  return <CreateClient />;
-};
-
-export default AddClient;
+export default function AddClientPage() {
+  return <ClientForm />;
+}
