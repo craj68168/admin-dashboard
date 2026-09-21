@@ -5,12 +5,12 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import Alert from "@mui/material/Alert";
+import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import LinearProgress from "@mui/material/LinearProgress";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -36,7 +36,6 @@ import Breadcrumb from "@/components/Breadcrumb";
 import { useAdminDashboard } from "./hook";
 
 import type {
-  DashboardFilters,
   DashboardPerformanceStatus,
   DashboardPaymentStatus,
 } from "./type";
@@ -46,15 +45,10 @@ import type {
 // =================================================
 
 const BRAND = "#107A64";
-
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
-
 const INK = "#111827";
-
 const INK_BODY = "#1F2937";
-
 const INK_MUTED = "#4B5563";
 
 const softCard = {
@@ -62,15 +56,10 @@ const softCard = {
     xs: 2.5,
     md: 3,
   },
-
   borderRadius: 3,
-
   border: "1px solid",
-
   borderColor: HAIRLINE,
-
   bgcolor: "#ffffff",
-
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
@@ -135,9 +124,12 @@ const fieldSx = {
 
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
-
       borderWidth: 1,
     },
+  },
+
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: BRAND,
   },
 };
 
@@ -148,92 +140,74 @@ const fieldSx = {
 const VISA_OPTIONS = [
   {
     value: "student",
-
     label: "Student",
   },
   {
     value: "dependent",
-
     label: "Dependent",
   },
   {
     value: "designatedActivitiesJobHunting",
-
     label: "Designated Activities - Job Hunting",
   },
   {
     value: "designatedActivities",
-
     label: "Designated Activities",
   },
   {
     value: "engineerHumanitiesInternationalServices",
-
     label: "Engineer / Humanities / International Services",
   },
   {
     value: "specifiedSkilledWorker1",
-
     label: "Specified Skilled Worker 1",
   },
   {
     value: "specifiedSkilledWorker2",
-
     label: "Specified Skilled Worker 2",
   },
   {
     value: "skilledLabor",
-
     label: "Skilled Labor",
   },
   {
     value: "technicalInternTraining",
-
     label: "Technical Intern Training",
   },
   {
     value: "intra-companyTransferee",
-
     label: "Intra-company Transferee",
   },
   {
     value: "nursingCare",
-
     label: "Nursing Care",
   },
   {
     value: "highlySkilledProfessional",
-
     label: "Highly Skilled Professional",
   },
   {
     value: "businessManager",
-
     label: "Business Manager",
   },
   {
     value: "permanentResident",
-
     label: "Permanent Resident",
   },
   {
     value: "spouseChildOfJapaneseNational",
-
     label: "Spouse / Child of Japanese National",
   },
   {
     value: "spouseChildOfPermanentResident",
-
     label: "Spouse / Child of Permanent Resident",
   },
   {
     value: "longTermResident",
-
     label: "Long Term Resident",
   },
   {
     value: "other",
-
     label: "Other",
   },
 ];
@@ -241,32 +215,26 @@ const VISA_OPTIONS = [
 const CATEGORY_OPTIONS = [
   {
     value: "newJob",
-
     label: "New Job",
   },
   {
     value: "jobChange",
-
     label: "Job Change",
   },
   {
     value: "dependentVisaRenewal",
-
     label: "Dependent Visa Renewal",
   },
   {
     value: "visaServiceOnlyRenewal",
-
     label: "Visa Service - Renewal",
   },
   {
     value: "visaServiceOnlyChange",
-
     label: "Visa Service - Change",
   },
   {
     value: "otherVisaService",
-
     label: "Other Visa Service",
   },
 ];
@@ -297,11 +265,8 @@ const formatJapanDate = (value: string) => {
 
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Tokyo",
-
     year: "numeric",
-
     month: "2-digit",
-
     day: "2-digit",
   }).format(date);
 };
@@ -378,11 +343,8 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
       <Box
         sx={{
           display: "flex",
-
           justifyContent: "space-between",
-
           alignItems: "flex-start",
-
           gap: 2,
         }}
       >
@@ -399,9 +361,7 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
             <Typography
               sx={{
                 mt: 0.5,
-
                 fontSize: 12,
-
                 color: INK_MUTED,
               }}
             >
@@ -413,19 +373,12 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
         <Box
           sx={{
             display: "grid",
-
             placeItems: "center",
-
             flexShrink: 0,
-
             width: 42,
-
             height: 42,
-
             borderRadius: 2.5,
-
             bgcolor: BRAND_SOFT,
-
             color: BRAND,
           }}
         >
@@ -451,14 +404,12 @@ function Stat({ label, value, color }: StatProps) {
     <Box
       sx={{
         flex: "1 1 160px",
-
         minWidth: 140,
       }}
     >
       <Typography
         sx={{
           fontSize: 12,
-
           color: INK_MUTED,
         }}
       >
@@ -468,11 +419,8 @@ function Stat({ label, value, color }: StatProps) {
       <Typography
         sx={{
           mt: 0.5,
-
           fontSize: 18,
-
           fontWeight: 600,
-
           color: color || INK,
         }}
       >
@@ -483,49 +431,86 @@ function Stat({ label, value, color }: StatProps) {
 }
 
 // =================================================
-// FILTER SELECT
+// FILTER AUTOCOMPLETE
 // =================================================
 
-type FilterSelectProps = {
+type FilterOption = {
+  value: string;
+  label: string;
+};
+
+type FilterAutocompleteProps = {
   label: string;
 
   value: string;
 
   onChange: (value: string) => void;
 
-  options: {
-    value: string;
-    label: string;
-  }[];
+  options: FilterOption[];
 
   allLabel?: string;
+
+  disabled?: boolean;
 };
 
-function FilterSelect({
+function FilterAutocomplete({
   label,
   value,
   onChange,
   options,
   allLabel = "All",
-}: FilterSelectProps) {
-  return (
-    <TextField
-      select
-      fullWidth
-      size="small"
-      label={label}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      sx={fieldSx}
-    >
-      <MenuItem value="">{allLabel}</MenuItem>
+  disabled = false,
+}: FilterAutocompleteProps) {
+  const selectedOption =
+    options.find((option) => option.value === value) ?? null;
 
-      {options.map((option) => (
-        <MenuItem key={option.value} value={option.value}>
-          {option.label}
-        </MenuItem>
-      ))}
-    </TextField>
+  return (
+    <Autocomplete
+      fullWidth
+      autoHighlight
+      clearOnEscape
+      disabled={disabled}
+      options={options}
+      value={selectedOption}
+      getOptionLabel={(option) => option.label}
+      isOptionEqualToValue={(option, selected) =>
+        option.value === selected.value
+      }
+      onChange={(_event, option) => {
+        onChange(option?.value ?? "");
+      }}
+      noOptionsText="No options found"
+      renderOption={(props, option) => {
+        const { key, ...optionProps } = props;
+
+        return (
+          <Box
+            component="li"
+            key={key}
+            {...optionProps}
+            sx={{
+              fontSize: 14,
+            }}
+          >
+            {option.label}
+          </Box>
+        );
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          size="small"
+          label={label}
+          placeholder={allLabel}
+          sx={fieldSx}
+        />
+      )}
+      sx={{
+        "& .MuiAutocomplete-inputRoot": {
+          bgcolor: "#ffffff",
+        },
+      }}
+    />
   );
 }
 
@@ -583,11 +568,8 @@ export default function AdminDashboard() {
       <Box
         sx={{
           minHeight: "60vh",
-
           display: "grid",
-
           placeItems: "center",
-
           bgcolor: "#F7F8F6",
         }}
       >
@@ -613,6 +595,10 @@ export default function AdminDashboard() {
     Achieved: t("status.achieved"),
   };
 
+  // =================================================
+  // FILTER OPTIONS
+  // =================================================
+
   const stageOptions = filterOptions.stages.map((stage) => ({
     value: stage.key,
 
@@ -622,7 +608,9 @@ export default function AdminDashboard() {
   const staffOptions = filterOptions.staff.map((staff) => ({
     value: staff.staffId,
 
-    label: `${staff.name} (${staff.staffId})${staff.isActive ? "" : " - Inactive"}`,
+    label: `${staff.name} (${staff.staffId})${
+      staff.isActive ? "" : " - Inactive"
+    }`,
   }));
 
   const nationalityOptions = filterOptions.nationalities.map((nationality) => ({
@@ -635,6 +623,18 @@ export default function AdminDashboard() {
     value: level,
 
     label: level,
+  }));
+
+  const paymentStatusOptions = PAYMENT_STATUS_OPTIONS.map((status) => ({
+    value: status,
+
+    label: status,
+  }));
+
+  const paymentMethodOptions = PAYMENT_METHOD_OPTIONS.map((method) => ({
+    value: method,
+
+    label: method,
   }));
 
   return (
@@ -666,7 +666,9 @@ export default function AdminDashboard() {
           mx: "auto",
         }}
       >
-        {/* BREADCRUMB */}
+        {/* =================================================
+        BREADCRUMB
+        ================================================= */}
 
         <Box
           sx={{
@@ -684,7 +686,9 @@ export default function AdminDashboard() {
           />
         </Box>
 
-        {/* HEADER */}
+        {/* =================================================
+        HEADER
+        ================================================= */}
 
         <Box
           sx={{
@@ -769,12 +773,15 @@ export default function AdminDashboard() {
           </Alert>
         )}
 
-        {/* FILTERS */}
+        {/* =================================================
+        FILTERS
+        ================================================= */}
 
         <Paper
           elevation={0}
           sx={{
             ...softCard,
+
             mt: 3,
           }}
         >
@@ -836,6 +843,10 @@ export default function AdminDashboard() {
             </Button>
           </Box>
 
+          {/* =================================================
+          SEARCH
+          ================================================= */}
+
           <Box
             component="form"
             onSubmit={handleSearchSubmit}
@@ -889,6 +900,10 @@ export default function AdminDashboard() {
             </Button>
           </Box>
 
+          {/* =================================================
+          AUTOCOMPLETE FILTERS
+          ================================================= */}
+
           <Box
             sx={{
               mt: 2,
@@ -908,7 +923,7 @@ export default function AdminDashboard() {
               },
             }}
           >
-            <FilterSelect
+            <FilterAutocomplete
               label="Assigned Staff"
               value={filters.staffId}
               onChange={(value) => handleFilterChange("staffId", value)}
@@ -916,7 +931,7 @@ export default function AdminDashboard() {
               allLabel="All Staff"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Current Stage"
               value={filters.currentStage}
               onChange={(value) => handleFilterChange("currentStage", value)}
@@ -924,7 +939,7 @@ export default function AdminDashboard() {
               allLabel="All Stages"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Visa Status"
               value={filters.currentVisaStatus}
               onChange={(value) =>
@@ -934,7 +949,7 @@ export default function AdminDashboard() {
               allLabel="All Visa Types"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Preferred Category"
               value={filters.preferCategory}
               onChange={(value) => handleFilterChange("preferCategory", value)}
@@ -942,7 +957,7 @@ export default function AdminDashboard() {
               allLabel="All Categories"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Nationality"
               value={filters.nationality}
               onChange={(value) => handleFilterChange("nationality", value)}
@@ -950,7 +965,7 @@ export default function AdminDashboard() {
               allLabel="All Nationalities"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Japanese Level"
               value={filters.japaneseLevel}
               onChange={(value) => handleFilterChange("japaneseLevel", value)}
@@ -958,31 +973,23 @@ export default function AdminDashboard() {
               allLabel="All Levels"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Payment Status"
               value={filters.paymentStatus}
               onChange={(value) => handleFilterChange("paymentStatus", value)}
-              options={PAYMENT_STATUS_OPTIONS.map((status) => ({
-                value: status,
-
-                label: status,
-              }))}
+              options={paymentStatusOptions}
               allLabel="All Payment Statuses"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Payment Method"
               value={filters.paymentMethod}
               onChange={(value) => handleFilterChange("paymentMethod", value)}
-              options={PAYMENT_METHOD_OPTIONS.map((method) => ({
-                value: method,
-
-                label: method,
-              }))}
+              options={paymentMethodOptions}
               allLabel="All Payment Methods"
             />
 
-            <FilterSelect
+            <FilterAutocomplete
               label="Payment Stage"
               value={filters.paymentStage}
               onChange={(value) => handleFilterChange("paymentStage", value)}
@@ -1006,7 +1013,9 @@ export default function AdminDashboard() {
           )}
         </Paper>
 
-        {/* SUMMARY */}
+        {/* =================================================
+        SUMMARY
+        ================================================= */}
 
         <Box
           sx={{
@@ -1054,12 +1063,15 @@ export default function AdminDashboard() {
           />
         </Box>
 
-        {/* MONTHLY TARGET */}
+        {/* =================================================
+        MONTHLY TARGET
+        ================================================= */}
 
         <Paper
           elevation={0}
           sx={{
             ...softCard,
+
             mt: 2,
           }}
         >
@@ -1174,12 +1186,15 @@ export default function AdminDashboard() {
           />
         </Paper>
 
-        {/* STAFF RANKING */}
+        {/* =================================================
+        STAFF RANKING
+        ================================================= */}
 
         <Paper
           elevation={0}
           sx={{
             ...softCard,
+
             mt: 2,
 
             p: 0,
@@ -1461,7 +1476,9 @@ export default function AdminDashboard() {
           />
         </Paper>
 
-        {/* BOTTOM */}
+        {/* =================================================
+        BOTTOM
+        ================================================= */}
 
         <Box
           sx={{
@@ -1480,7 +1497,9 @@ export default function AdminDashboard() {
             alignItems: "start",
           }}
         >
-          {/* CLIENT PROGRESS */}
+          {/* =================================================
+          CLIENT PROGRESS
+          ================================================= */}
 
           <Paper elevation={0} sx={softCard}>
             <Typography
@@ -1575,7 +1594,9 @@ export default function AdminDashboard() {
             )}
           </Paper>
 
-          {/* PAYMENTS */}
+          {/* =================================================
+          PAYMENTS
+          ================================================= */}
 
           <Paper
             elevation={0}
