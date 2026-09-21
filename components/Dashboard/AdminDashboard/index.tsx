@@ -1,19 +1,23 @@
 "use client";
 
 import type { ReactNode } from "react";
+
 import { useTranslations } from "next-intl";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
 import LinearProgress from "@mui/material/LinearProgress";
+import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -23,23 +27,34 @@ import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import RestartAltOutlinedIcon from "@mui/icons-material/RestartAltOutlined";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 
 import Breadcrumb from "@/components/Breadcrumb";
 
 import { useAdminDashboard } from "./hook";
 
-import type { DashboardPerformanceStatus } from "./type";
+import type {
+  DashboardFilters,
+  DashboardPerformanceStatus,
+  DashboardPaymentStatus,
+} from "./type";
 
 // =================================================
 // THEME
 // =================================================
 
 const BRAND = "#107A64";
+
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 
 const INK = "#111827";
+
 const INK_BODY = "#1F2937";
+
 const INK_MUTED = "#4B5563";
 
 const softCard = {
@@ -105,16 +120,173 @@ const rowSx = {
   },
 };
 
+const fieldSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 2.5,
+    bgcolor: "#ffffff",
+
+    "& fieldset": {
+      borderColor: "rgba(17, 24, 39, 0.10)",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "rgba(16, 122, 100, 0.35)",
+    },
+
+    "&.Mui-focused fieldset": {
+      borderColor: BRAND,
+
+      borderWidth: 1,
+    },
+  },
+};
+
 // =================================================
-// MONEY
+// STATIC OPTIONS
+// =================================================
+
+const VISA_OPTIONS = [
+  {
+    value: "student",
+
+    label: "Student",
+  },
+  {
+    value: "dependent",
+
+    label: "Dependent",
+  },
+  {
+    value: "designatedActivitiesJobHunting",
+
+    label: "Designated Activities - Job Hunting",
+  },
+  {
+    value: "designatedActivities",
+
+    label: "Designated Activities",
+  },
+  {
+    value: "engineerHumanitiesInternationalServices",
+
+    label: "Engineer / Humanities / International Services",
+  },
+  {
+    value: "specifiedSkilledWorker1",
+
+    label: "Specified Skilled Worker 1",
+  },
+  {
+    value: "specifiedSkilledWorker2",
+
+    label: "Specified Skilled Worker 2",
+  },
+  {
+    value: "skilledLabor",
+
+    label: "Skilled Labor",
+  },
+  {
+    value: "technicalInternTraining",
+
+    label: "Technical Intern Training",
+  },
+  {
+    value: "intra-companyTransferee",
+
+    label: "Intra-company Transferee",
+  },
+  {
+    value: "nursingCare",
+
+    label: "Nursing Care",
+  },
+  {
+    value: "highlySkilledProfessional",
+
+    label: "Highly Skilled Professional",
+  },
+  {
+    value: "businessManager",
+
+    label: "Business Manager",
+  },
+  {
+    value: "permanentResident",
+
+    label: "Permanent Resident",
+  },
+  {
+    value: "spouseChildOfJapaneseNational",
+
+    label: "Spouse / Child of Japanese National",
+  },
+  {
+    value: "spouseChildOfPermanentResident",
+
+    label: "Spouse / Child of Permanent Resident",
+  },
+  {
+    value: "longTermResident",
+
+    label: "Long Term Resident",
+  },
+  {
+    value: "other",
+
+    label: "Other",
+  },
+];
+
+const CATEGORY_OPTIONS = [
+  {
+    value: "newJob",
+
+    label: "New Job",
+  },
+  {
+    value: "jobChange",
+
+    label: "Job Change",
+  },
+  {
+    value: "dependentVisaRenewal",
+
+    label: "Dependent Visa Renewal",
+  },
+  {
+    value: "visaServiceOnlyRenewal",
+
+    label: "Visa Service - Renewal",
+  },
+  {
+    value: "visaServiceOnlyChange",
+
+    label: "Visa Service - Change",
+  },
+  {
+    value: "otherVisaService",
+
+    label: "Other Visa Service",
+  },
+];
+
+const PAYMENT_STATUS_OPTIONS = ["Completed", "Cancelled", "Refunded"];
+
+const PAYMENT_METHOD_OPTIONS = [
+  "Cash",
+  "Bank Transfer",
+  "Online Payment",
+  "Cheque",
+  "Other",
+];
+
+// =================================================
+// FORMATTERS
 // =================================================
 
 const formatAmount = (value: number) =>
   new Intl.NumberFormat("ja-JP").format(Number(value || 0));
-
-// =================================================
-// DATE
-// =================================================
 
 const formatJapanDate = (value: string) => {
   const date = new Date(value);
@@ -127,7 +299,9 @@ const formatJapanDate = (value: string) => {
     timeZone: "Asia/Tokyo",
 
     year: "numeric",
+
     month: "2-digit",
+
     day: "2-digit",
   }).format(date);
 };
@@ -154,8 +328,26 @@ const getStatusColor = (
   }
 };
 
+const getPaymentStatusColor = (
+  status: DashboardPaymentStatus,
+): "default" | "success" | "warning" | "error" => {
+  if (status === "Completed") {
+    return "success";
+  }
+
+  if (status === "Refunded") {
+    return "warning";
+  }
+
+  if (status === "Cancelled") {
+    return "error";
+  }
+
+  return "default";
+};
+
 // =================================================
-// SUMMARY CARD
+// SUMMARY
 // =================================================
 
 type SummaryCardProps = {
@@ -171,7 +363,6 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
       elevation={0}
       sx={{
         ...softCard,
-
         height: "100%",
 
         transition: "transform 400ms ease, box-shadow 400ms ease",
@@ -187,8 +378,11 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
       <Box
         sx={{
           display: "flex",
+
           justifyContent: "space-between",
+
           alignItems: "flex-start",
+
           gap: 2,
         }}
       >
@@ -205,7 +399,9 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
             <Typography
               sx={{
                 mt: 0.5,
+
                 fontSize: 12,
+
                 color: INK_MUTED,
               }}
             >
@@ -217,12 +413,19 @@ function SummaryCard({ label, value, subtitle, icon }: SummaryCardProps) {
         <Box
           sx={{
             display: "grid",
+
             placeItems: "center",
+
             flexShrink: 0,
+
             width: 42,
+
             height: 42,
+
             borderRadius: 2.5,
+
             bgcolor: BRAND_SOFT,
+
             color: BRAND,
           }}
         >
@@ -248,12 +451,14 @@ function Stat({ label, value, color }: StatProps) {
     <Box
       sx={{
         flex: "1 1 160px",
+
         minWidth: 140,
       }}
     >
       <Typography
         sx={{
           fontSize: 12,
+
           color: INK_MUTED,
         }}
       >
@@ -263,14 +468,64 @@ function Stat({ label, value, color }: StatProps) {
       <Typography
         sx={{
           mt: 0.5,
+
           fontSize: 18,
+
           fontWeight: 600,
+
           color: color || INK,
         }}
       >
         {value}
       </Typography>
     </Box>
+  );
+}
+
+// =================================================
+// FILTER SELECT
+// =================================================
+
+type FilterSelectProps = {
+  label: string;
+
+  value: string;
+
+  onChange: (value: string) => void;
+
+  options: {
+    value: string;
+    label: string;
+  }[];
+
+  allLabel?: string;
+};
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+  allLabel = "All",
+}: FilterSelectProps) {
+  return (
+    <TextField
+      select
+      fullWidth
+      size="small"
+      label={label}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      sx={fieldSx}
+    >
+      <MenuItem value="">{allLabel}</MenuItem>
+
+      {options.map((option) => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))}
+    </TextField>
   );
 }
 
@@ -284,13 +539,41 @@ export default function AdminDashboard() {
   const {
     selectedMonth,
     handleMonthChange,
+
+    filters,
+
+    searchInput,
+    setSearchInput,
+
+    handleFilterChange,
+    handleSearchSubmit,
+    handleResetFilters,
+
+    hasActiveFilters,
+
     overview,
+
     rankings,
+    rankingPagination,
+
     stageBreakdown,
-    recentPayments,
+
+    payments,
+    paymentPagination,
+
+    filterOptions,
+
     isLoading,
     isFetching,
+
     loadError,
+
+    handleRankingPageChange,
+    handleRankingLimitChange,
+
+    handlePaymentPageChange,
+    handlePaymentLimitChange,
+
     handleStaffClick,
     handleClientClick,
   } = useAdminDashboard();
@@ -300,8 +583,11 @@ export default function AdminDashboard() {
       <Box
         sx={{
           minHeight: "60vh",
+
           display: "grid",
+
           placeItems: "center",
+
           bgcolor: "#F7F8F6",
         }}
       >
@@ -327,20 +613,48 @@ export default function AdminDashboard() {
     Achieved: t("status.achieved"),
   };
 
+  const stageOptions = filterOptions.stages.map((stage) => ({
+    value: stage.key,
+
+    label: stage.name,
+  }));
+
+  const staffOptions = filterOptions.staff.map((staff) => ({
+    value: staff.staffId,
+
+    label: `${staff.name} (${staff.staffId})${staff.isActive ? "" : " - Inactive"}`,
+  }));
+
+  const nationalityOptions = filterOptions.nationalities.map((nationality) => ({
+    value: nationality,
+
+    label: nationality,
+  }));
+
+  const japaneseLevelOptions = filterOptions.japaneseLevels.map((level) => ({
+    value: level,
+
+    label: level,
+  }));
+
   return (
     <Box
       sx={{
         bgcolor: "#F7F8F6",
+
         minHeight: "100vh",
 
         px: {
           xs: 2,
+
           sm: 3,
+
           md: 4,
         },
 
         py: {
           xs: 3,
+
           md: 4,
         },
       }}
@@ -348,6 +662,7 @@ export default function AdminDashboard() {
       <Box
         sx={{
           maxWidth: 1320,
+
           mx: "auto",
         }}
       >
@@ -362,6 +677,7 @@ export default function AdminDashboard() {
             items={[
               {
                 label: t("dashboard"),
+
                 current: true,
               },
             ]}
@@ -373,9 +689,13 @@ export default function AdminDashboard() {
         <Box
           sx={{
             display: "flex",
+
             flexWrap: "wrap",
+
             alignItems: "flex-end",
+
             justifyContent: "space-between",
+
             gap: 2.5,
           }}
         >
@@ -384,11 +704,14 @@ export default function AdminDashboard() {
               sx={{
                 fontSize: {
                   xs: 24,
+
                   md: 30,
                 },
 
                 fontWeight: 600,
+
                 letterSpacing: -0.4,
+
                 color: INK,
               }}
             >
@@ -398,7 +721,9 @@ export default function AdminDashboard() {
             <Typography
               sx={{
                 mt: 1,
+
                 fontSize: 14,
+
                 color: INK_MUTED,
               }}
             >
@@ -418,27 +743,12 @@ export default function AdminDashboard() {
               },
             }}
             sx={{
+              ...fieldSx,
+
               width: {
                 xs: "100%",
+
                 sm: 220,
-              },
-
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2.5,
-                bgcolor: "#ffffff",
-
-                "& fieldset": {
-                  borderColor: "rgba(17, 24, 39, 0.10)",
-                },
-
-                "&:hover fieldset": {
-                  borderColor: "rgba(16, 122, 100, 0.35)",
-                },
-
-                "&.Mui-focused fieldset": {
-                  borderColor: BRAND,
-                  borderWidth: 1,
-                },
               },
             }}
           />
@@ -449,7 +759,9 @@ export default function AdminDashboard() {
             severity="error"
             sx={{
               mt: 2.5,
+
               borderRadius: 2.5,
+
               border: "1px solid rgba(211,47,47,0.14)",
             }}
           >
@@ -457,11 +769,248 @@ export default function AdminDashboard() {
           </Alert>
         )}
 
+        {/* FILTERS */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            ...softCard,
+            mt: 3,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+
+              alignItems: "center",
+
+              justifyContent: "space-between",
+
+              flexWrap: "wrap",
+
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+
+                alignItems: "center",
+
+                gap: 1,
+              }}
+            >
+              <TuneOutlinedIcon
+                sx={{
+                  color: BRAND,
+
+                  fontSize: 21,
+                }}
+              />
+
+              <Typography
+                sx={{
+                  fontSize: 17,
+
+                  fontWeight: 600,
+
+                  color: INK,
+                }}
+              >
+                Dashboard Filters
+              </Typography>
+            </Box>
+
+            <Button
+              variant="text"
+              startIcon={<RestartAltOutlinedIcon />}
+              disabled={!hasActiveFilters && !searchInput}
+              onClick={handleResetFilters}
+              sx={{
+                color: BRAND,
+
+                textTransform: "none",
+              }}
+            >
+              Reset Filters
+            </Button>
+          </Box>
+
+          <Box
+            component="form"
+            onSubmit={handleSearchSubmit}
+            sx={{
+              mt: 2,
+
+              display: "flex",
+
+              flexDirection: {
+                xs: "column",
+
+                sm: "row",
+              },
+
+              gap: 1.5,
+            }}
+          >
+            <TextField
+              fullWidth
+              size="small"
+              label="Search"
+              placeholder="Client ID, name, phone, email, staff, stage..."
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              sx={fieldSx}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              startIcon={<SearchOutlinedIcon />}
+              sx={{
+                minWidth: 120,
+
+                borderRadius: 2.5,
+
+                bgcolor: BRAND,
+
+                boxShadow: "none",
+
+                textTransform: "none",
+
+                "&:hover": {
+                  bgcolor: BRAND,
+
+                  boxShadow: "none",
+                },
+              }}
+            >
+              Search
+            </Button>
+          </Box>
+
+          <Box
+            sx={{
+              mt: 2,
+
+              display: "grid",
+
+              gap: 1.5,
+
+              gridTemplateColumns: {
+                xs: "1fr",
+
+                sm: "repeat(2, minmax(0, 1fr))",
+
+                md: "repeat(3, minmax(0, 1fr))",
+
+                xl: "repeat(4, minmax(0, 1fr))",
+              },
+            }}
+          >
+            <FilterSelect
+              label="Assigned Staff"
+              value={filters.staffId}
+              onChange={(value) => handleFilterChange("staffId", value)}
+              options={staffOptions}
+              allLabel="All Staff"
+            />
+
+            <FilterSelect
+              label="Current Stage"
+              value={filters.currentStage}
+              onChange={(value) => handleFilterChange("currentStage", value)}
+              options={stageOptions}
+              allLabel="All Stages"
+            />
+
+            <FilterSelect
+              label="Visa Status"
+              value={filters.currentVisaStatus}
+              onChange={(value) =>
+                handleFilterChange("currentVisaStatus", value)
+              }
+              options={VISA_OPTIONS}
+              allLabel="All Visa Types"
+            />
+
+            <FilterSelect
+              label="Preferred Category"
+              value={filters.preferCategory}
+              onChange={(value) => handleFilterChange("preferCategory", value)}
+              options={CATEGORY_OPTIONS}
+              allLabel="All Categories"
+            />
+
+            <FilterSelect
+              label="Nationality"
+              value={filters.nationality}
+              onChange={(value) => handleFilterChange("nationality", value)}
+              options={nationalityOptions}
+              allLabel="All Nationalities"
+            />
+
+            <FilterSelect
+              label="Japanese Level"
+              value={filters.japaneseLevel}
+              onChange={(value) => handleFilterChange("japaneseLevel", value)}
+              options={japaneseLevelOptions}
+              allLabel="All Levels"
+            />
+
+            <FilterSelect
+              label="Payment Status"
+              value={filters.paymentStatus}
+              onChange={(value) => handleFilterChange("paymentStatus", value)}
+              options={PAYMENT_STATUS_OPTIONS.map((status) => ({
+                value: status,
+
+                label: status,
+              }))}
+              allLabel="All Payment Statuses"
+            />
+
+            <FilterSelect
+              label="Payment Method"
+              value={filters.paymentMethod}
+              onChange={(value) => handleFilterChange("paymentMethod", value)}
+              options={PAYMENT_METHOD_OPTIONS.map((method) => ({
+                value: method,
+
+                label: method,
+              }))}
+              allLabel="All Payment Methods"
+            />
+
+            <FilterSelect
+              label="Payment Stage"
+              value={filters.paymentStage}
+              onChange={(value) => handleFilterChange("paymentStage", value)}
+              options={stageOptions}
+              allLabel="All Payment Stages"
+            />
+          </Box>
+
+          {isFetching && (
+            <Typography
+              sx={{
+                mt: 1.5,
+
+                fontSize: 12,
+
+                color: INK_MUTED,
+              }}
+            >
+              Updating dashboard...
+            </Typography>
+          )}
+        </Paper>
+
         {/* SUMMARY */}
 
         <Box
           sx={{
-            mt: 3,
+            mt: 2,
 
             display: "grid",
 
@@ -469,7 +1018,9 @@ export default function AdminDashboard() {
 
             gridTemplateColumns: {
               xs: "1fr",
+
               sm: "repeat(2, 1fr)",
+
               xl: "repeat(4, 1fr)",
             },
           }}
@@ -477,7 +1028,7 @@ export default function AdminDashboard() {
           <SummaryCard
             label={t("totalClients")}
             value={String(overview.totalClients)}
-            subtitle={`${overview.monthlyClientCount} paying clients this month`}
+            subtitle={`${overview.monthlyClientCount} paying clients in selected month`}
             icon={<PeopleAltOutlinedIcon fontSize="small" />}
           />
 
@@ -515,9 +1066,13 @@ export default function AdminDashboard() {
           <Box
             sx={{
               display: "flex",
+
               alignItems: "center",
+
               justifyContent: "space-between",
+
               gap: 2,
+
               flexWrap: "wrap",
             }}
           >
@@ -525,7 +1080,9 @@ export default function AdminDashboard() {
               <Typography
                 sx={{
                   fontSize: 17,
+
                   fontWeight: 600,
+
                   color: INK,
                 }}
               >
@@ -535,7 +1092,9 @@ export default function AdminDashboard() {
               <Typography
                 sx={{
                   mt: 0.25,
+
                   fontSize: 12,
+
                   color: INK_MUTED,
                 }}
               >
@@ -546,11 +1105,17 @@ export default function AdminDashboard() {
             <Box
               sx={{
                 display: "grid",
+
                 placeItems: "center",
+
                 width: 38,
+
                 height: 38,
+
                 borderRadius: 2.5,
+
                 bgcolor: BRAND_SOFT,
+
                 color: BRAND,
               }}
             >
@@ -561,8 +1126,11 @@ export default function AdminDashboard() {
           <Box
             sx={{
               mt: 3,
+
               display: "flex",
+
               flexWrap: "wrap",
+
               gap: 2.5,
             }}
           >
@@ -588,8 +1156,11 @@ export default function AdminDashboard() {
             value={targetProgress}
             sx={{
               mt: 3,
+
               height: 10,
+
               borderRadius: 999,
+
               bgcolor: "rgba(17, 24, 39, 0.06)",
 
               "& .MuiLinearProgress-bar": {
@@ -601,18 +1172,6 @@ export default function AdminDashboard() {
               },
             }}
           />
-
-          {isFetching && (
-            <Typography
-              sx={{
-                mt: 1.5,
-                fontSize: 12,
-                color: INK_MUTED,
-              }}
-            >
-              {t("refreshingDashboard")}
-            </Typography>
-          )}
         </Paper>
 
         {/* STAFF RANKING */}
@@ -622,7 +1181,9 @@ export default function AdminDashboard() {
           sx={{
             ...softCard,
             mt: 2,
+
             p: 0,
+
             overflow: "hidden",
           }}
         >
@@ -630,6 +1191,7 @@ export default function AdminDashboard() {
             sx={{
               px: {
                 xs: 2.5,
+
                 md: 3,
               },
 
@@ -641,7 +1203,9 @@ export default function AdminDashboard() {
             <Typography
               sx={{
                 fontSize: 17,
+
                 fontWeight: 600,
+
                 color: INK,
               }}
             >
@@ -651,7 +1215,9 @@ export default function AdminDashboard() {
             <Typography
               sx={{
                 mt: 0.25,
+
                 fontSize: 12,
+
                 color: INK_MUTED,
               }}
             >
@@ -670,8 +1236,10 @@ export default function AdminDashboard() {
                   <TableCell
                     sx={{
                       ...headCellSx,
+
                       pl: {
                         xs: 2.5,
+
                         md: 3,
                       },
                     }}
@@ -708,8 +1276,10 @@ export default function AdminDashboard() {
                   <TableCell
                     sx={{
                       ...headCellSx,
+
                       pr: {
                         xs: 2.5,
+
                         md: 3,
                       },
                     }}
@@ -726,6 +1296,7 @@ export default function AdminDashboard() {
                     hover={false}
                     sx={{
                       ...rowSx,
+
                       cursor: "pointer",
                     }}
                     onClick={() => handleStaffClick(staff.staffId)}
@@ -733,8 +1304,10 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...bodyCellSx,
+
                         pl: {
                           xs: 2.5,
+
                           md: 3,
                         },
                       }}
@@ -742,7 +1315,9 @@ export default function AdminDashboard() {
                       <Typography
                         sx={{
                           fontSize: 14,
+
                           fontWeight: 700,
+
                           color: INK,
                         }}
                       >
@@ -754,7 +1329,9 @@ export default function AdminDashboard() {
                       <Typography
                         sx={{
                           fontSize: 14,
+
                           fontWeight: 600,
+
                           color: INK,
                         }}
                       >
@@ -764,6 +1341,7 @@ export default function AdminDashboard() {
                       <Typography
                         sx={{
                           fontSize: 12,
+
                           color: INK_MUTED,
                         }}
                       >
@@ -778,7 +1356,9 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...bodyCellSx,
+
                         fontWeight: 600,
+
                         color: BRAND,
                       }}
                       align="right"
@@ -789,6 +1369,7 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...bodyCellSx,
+
                         color: INK_MUTED,
                       }}
                       align="right"
@@ -799,6 +1380,7 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...bodyCellSx,
+
                         fontWeight: 600,
                       }}
                       align="right"
@@ -817,8 +1399,10 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...bodyCellSx,
+
                         pr: {
                           xs: 2.5,
+
                           md: 3,
                         },
                       }}
@@ -830,15 +1414,51 @@ export default function AdminDashboard() {
                         variant="outlined"
                         sx={{
                           borderRadius: 999,
+
                           fontWeight: 500,
                         }}
                       />
                     </TableCell>
                   </TableRow>
                 ))}
+
+                {rankings.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={9}
+                      align="center"
+                      sx={{
+                        ...bodyCellSx,
+
+                        py: 5,
+
+                        color: INK_MUTED,
+
+                        borderBottom: 0,
+                      }}
+                    >
+                      No staff performance data found.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            component="div"
+            count={rankingPagination.total}
+            page={Math.max(rankingPagination.currentPage - 1, 0)}
+            rowsPerPage={rankingPagination.perPage}
+            rowsPerPageOptions={[10, 25, 50]}
+            onPageChange={(_, page) => handleRankingPageChange(page + 1)}
+            onRowsPerPageChange={(event) =>
+              handleRankingLimitChange(Number(event.target.value))
+            }
+            sx={{
+              borderTop: `1px solid ${HAIRLINE}`,
+            }}
+          />
         </Paper>
 
         {/* BOTTOM */}
@@ -853,19 +1473,22 @@ export default function AdminDashboard() {
 
             gridTemplateColumns: {
               xs: "1fr",
-              xl: "1fr 1.6fr",
+
+              xl: "1fr 1.8fr",
             },
 
             alignItems: "start",
           }}
         >
-          {/* STAGES */}
+          {/* CLIENT PROGRESS */}
 
           <Paper elevation={0} sx={softCard}>
             <Typography
               sx={{
                 fontSize: 17,
+
                 fontWeight: 600,
+
                 color: INK,
               }}
             >
@@ -876,7 +1499,9 @@ export default function AdminDashboard() {
               <Typography
                 sx={{
                   mt: 2,
+
                   fontSize: 14,
+
                   color: INK_MUTED,
                 }}
               >
@@ -886,8 +1511,11 @@ export default function AdminDashboard() {
               <Box
                 sx={{
                   mt: 2,
+
                   display: "flex",
+
                   flexDirection: "column",
+
                   gap: 1.25,
                 }}
               >
@@ -896,18 +1524,26 @@ export default function AdminDashboard() {
                     key={item.stage || item.stageName}
                     sx={{
                       display: "flex",
+
                       alignItems: "center",
+
                       justifyContent: "space-between",
+
                       gap: 1.5,
+
                       px: 2,
+
                       py: 1.25,
+
                       borderRadius: 2,
+
                       bgcolor: "rgba(16, 122, 100, 0.05)",
                     }}
                   >
                     <Typography
                       sx={{
                         fontSize: 14,
+
                         color: INK_BODY,
                       }}
                     >
@@ -917,11 +1553,17 @@ export default function AdminDashboard() {
                     <Typography
                       sx={{
                         px: 1.25,
+
                         py: 0.25,
+
                         borderRadius: 999,
+
                         bgcolor: "#ffffff",
+
                         fontSize: 13,
+
                         fontWeight: 600,
+
                         color: BRAND,
                       }}
                     >
@@ -933,13 +1575,15 @@ export default function AdminDashboard() {
             )}
           </Paper>
 
-          {/* RECENT PAYMENTS */}
+          {/* PAYMENTS */}
 
           <Paper
             elevation={0}
             sx={{
               ...softCard,
+
               p: 0,
+
               overflow: "hidden",
             }}
           >
@@ -947,6 +1591,7 @@ export default function AdminDashboard() {
               sx={{
                 px: {
                   xs: 2.5,
+
                   md: 3,
                 },
 
@@ -958,11 +1603,25 @@ export default function AdminDashboard() {
               <Typography
                 sx={{
                   fontSize: 17,
+
                   fontWeight: 600,
+
                   color: INK,
                 }}
               >
-                {t("recentPayments")}
+                Payments
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 0.25,
+
+                  fontSize: 12,
+
+                  color: INK_MUTED,
+                }}
+              >
+                Payments for {selectedMonth}
               </Typography>
             </Box>
 
@@ -970,7 +1629,7 @@ export default function AdminDashboard() {
               <Table
                 size="small"
                 sx={{
-                  minWidth: 700,
+                  minWidth: 980,
                 }}
               >
                 <TableHead>
@@ -978,45 +1637,55 @@ export default function AdminDashboard() {
                     <TableCell
                       sx={{
                         ...headCellSx,
+
                         pl: {
                           xs: 2.5,
+
                           md: 3,
                         },
                       }}
                     >
-                      {t("client")}
+                      Client
                     </TableCell>
 
                     <TableCell sx={headCellSx}>Stage</TableCell>
 
                     <TableCell sx={headCellSx} align="right">
-                      {t("amount")}
+                      Amount
                     </TableCell>
 
-                    <TableCell sx={headCellSx}>{t("staff")}</TableCell>
+                    <TableCell sx={headCellSx}>Method</TableCell>
+
+                    <TableCell sx={headCellSx}>Status</TableCell>
+
+                    <TableCell sx={headCellSx}>Staff</TableCell>
 
                     <TableCell
                       sx={{
                         ...headCellSx,
+
                         pr: {
                           xs: 2.5,
+
                           md: 3,
                         },
                       }}
                     >
-                      {t("date")}
+                      Date
                     </TableCell>
                   </TableRow>
                 </TableHead>
 
                 <TableBody>
-                  {recentPayments.map((payment) => (
+                  {payments.map((payment) => (
                     <TableRow key={payment._id} hover={false} sx={rowSx}>
                       <TableCell
                         sx={{
                           ...bodyCellSx,
+
                           pl: {
                             xs: 2.5,
+
                             md: 3,
                           },
                         }}
@@ -1026,8 +1695,11 @@ export default function AdminDashboard() {
                           onClick={() => handleClientClick(payment.clientId)}
                           sx={{
                             fontSize: 14,
+
                             fontWeight: 600,
+
                             color: BRAND,
+
                             cursor: "pointer",
 
                             "&:hover": {
@@ -1037,6 +1709,20 @@ export default function AdminDashboard() {
                         >
                           {payment.clientId}
                         </Typography>
+
+                        {payment.clientName && (
+                          <Typography
+                            sx={{
+                              mt: 0.25,
+
+                              fontSize: 12,
+
+                              color: INK_MUTED,
+                            }}
+                          >
+                            {payment.clientName}
+                          </Typography>
+                        )}
                       </TableCell>
 
                       <TableCell sx={bodyCellSx}>{payment.stageName}</TableCell>
@@ -1045,29 +1731,63 @@ export default function AdminDashboard() {
                         align="right"
                         sx={{
                           ...bodyCellSx,
+
                           fontWeight: 600,
                         }}
                       >
                         ¥{formatAmount(payment.amountPaid)}
                       </TableCell>
 
-                      <TableCell
-                        sx={{
-                          ...bodyCellSx,
-                          color: INK_MUTED,
-                        }}
-                      >
-                        {payment.creditedStaffName}
+                      <TableCell sx={bodyCellSx}>
+                        {payment.paymentMethod}
+                      </TableCell>
+
+                      <TableCell sx={bodyCellSx}>
+                        <Chip
+                          size="small"
+                          label={payment.paymentStatus}
+                          color={getPaymentStatusColor(payment.paymentStatus)}
+                          variant="outlined"
+                          sx={{
+                            borderRadius: 999,
+
+                            fontWeight: 500,
+                          }}
+                        />
                       </TableCell>
 
                       <TableCell
                         sx={{
                           ...bodyCellSx,
+
+                          color: INK_MUTED,
+                        }}
+                      >
+                        {payment.creditedStaffName}
+
+                        <Typography
+                          sx={{
+                            fontSize: 11,
+
+                            color: INK_MUTED,
+                          }}
+                        >
+                          {payment.creditedStaff}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell
+                        sx={{
+                          ...bodyCellSx,
+
                           pr: {
                             xs: 2.5,
+
                             md: 3,
                           },
+
                           color: INK_MUTED,
+
                           whiteSpace: "nowrap",
                         }}
                       >
@@ -1076,25 +1796,43 @@ export default function AdminDashboard() {
                     </TableRow>
                   ))}
 
-                  {recentPayments.length === 0 && (
+                  {payments.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={5}
+                        colSpan={7}
                         align="center"
                         sx={{
                           ...bodyCellSx,
+
                           py: 5,
+
                           color: INK_MUTED,
+
                           borderBottom: 0,
                         }}
                       >
-                        {t("noPayments")}
+                        No payments found for the selected filters.
                       </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
             </TableContainer>
+
+            <TablePagination
+              component="div"
+              count={paymentPagination.total}
+              page={Math.max(paymentPagination.currentPage - 1, 0)}
+              rowsPerPage={paymentPagination.perPage}
+              rowsPerPageOptions={[10, 25, 50]}
+              onPageChange={(_, page) => handlePaymentPageChange(page + 1)}
+              onRowsPerPageChange={(event) =>
+                handlePaymentLimitChange(Number(event.target.value))
+              }
+              sx={{
+                borderTop: `1px solid ${HAIRLINE}`,
+              }}
+            />
           </Paper>
         </Box>
       </Box>

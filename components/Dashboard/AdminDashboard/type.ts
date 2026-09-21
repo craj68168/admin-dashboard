@@ -4,27 +4,22 @@ export type DashboardPerformanceStatus =
   | "In Progress"
   | "Achieved";
 
+export type DashboardPaymentStatus = "Completed" | "Cancelled" | "Refunded";
+
 export type DashboardOverview = {
   totalClients: number;
-
   totalStaff: number;
-
   activeStaff: number;
 
   totalCollectedAllTime: number;
-
   totalCompletedPayments: number;
-
   totalPayingClients: number;
 
   monthlyCollected: number;
-
   monthlyPaymentCount: number;
-
   monthlyClientCount: number;
 
   totalTarget: number;
-
   targetAchievement: number;
 };
 
@@ -32,23 +27,18 @@ export type StaffRanking = {
   rank: number;
 
   staffId: string;
-
   staffName: string;
-
   email?: string;
 
   targetAmount: number;
-
   totalCollected: number;
 
-  // Staff target remaining.
-  // Not client outstanding.
+  // Target remaining, not client outstanding.
   remainingAmount: number;
 
   achievementPercentage: number;
 
   paymentCount: number;
-
   clientCount: number;
 
   status: DashboardPerformanceStatus;
@@ -56,21 +46,18 @@ export type StaffRanking = {
 
 export type StageBreakdown = {
   stage: string;
-
   stageName: string;
-
   count: number;
 };
 
-export type RecentDashboardPayment = {
+export type DashboardPayment = {
   _id: string;
 
   clientId: string;
+  clientName?: string;
 
   stageKey: string;
-
   stageName: string;
-
   stageAmount: number;
 
   amountPaid: number;
@@ -79,21 +66,71 @@ export type RecentDashboardPayment = {
 
   paymentDate: string;
 
-  paymentStatus: "Completed";
+  paymentStatus: DashboardPaymentStatus;
 
   creditedStaff: string;
-
   creditedStaffName: string;
 
   collectedByName: string;
 
   referenceNumber?: string;
-
   receiptNumber?: string;
-
   bankName?: string;
 
   createdAt: string;
+};
+
+export type DashboardPagination = {
+  currentPage: number;
+  totalPages: number;
+  perPage: number;
+  total: number;
+
+  from: number | null;
+  to: number | null;
+
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+export type PaginatedDashboardResult<T> = {
+  data: T[];
+  pagination: DashboardPagination;
+};
+
+export type DashboardStaffOption = {
+  staffId: string;
+  name: string;
+  isActive: boolean;
+};
+
+export type DashboardStageOption = {
+  key: string;
+  name: string;
+  isActive: boolean;
+};
+
+export type DashboardFilterOptions = {
+  staff: DashboardStaffOption[];
+  stages: DashboardStageOption[];
+  nationalities: string[];
+  japaneseLevels: string[];
+};
+
+export type DashboardFilters = {
+  free_word: string;
+  staffId: string;
+
+  currentStage: string;
+  currentVisaStatus: string;
+  preferCategory: string;
+
+  nationality: string;
+  japaneseLevel: string;
+
+  paymentStatus: string;
+  paymentMethod: string;
+  paymentStage: string;
 };
 
 export type AdminDashboardResponse = {
@@ -101,11 +138,15 @@ export type AdminDashboardResponse = {
 
   selectedMonth: string;
 
+  filters: DashboardFilters;
+
+  filterOptions: DashboardFilterOptions;
+
   overview: DashboardOverview;
 
-  rankings: StaffRanking[];
+  rankings: PaginatedDashboardResult<StaffRanking>;
 
   stageBreakdown: StageBreakdown[];
 
-  recentPayments: RecentDashboardPayment[];
+  payments: PaginatedDashboardResult<DashboardPayment>;
 };
