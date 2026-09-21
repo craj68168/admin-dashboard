@@ -421,6 +421,164 @@
       "cancel": "いいえ"
     }
   },
+  "clientForm": {
+    "noOptionsText": "候補が見つかりません",
+    "registrationStageFallback": "登録済み / 支払済み",
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "clients": "顧客",
+      "create": "顧客を作成",
+      "edit": "顧客を編集"
+    },
+    "header": {
+      "createTitle": "顧客を作成",
+      "editTitle": "顧客を編集",
+      "createDescription": "顧客情報を入力し、担当スタッフを割り当て、登録料の支払いを確認します。",
+      "editDescription": "顧客のプロフィール、書類、採用情報を更新します。"
+    },
+    "sections": {
+      "basic": { "title": "基本情報" },
+      "address": { "title": "住所" },
+      "immigration": { "title": "在留・パスポート情報" },
+      "recruitment": {
+        "title": "採用情報",
+        "createDescription": "希望カテゴリー、担当スタッフ、開始ステージを設定します。",
+        "editDescription": "担当スタッフ、希望カテゴリー、現在のステージを確認します。"
+      },
+      "registrationPayment": {
+        "title": "登録料支払い",
+        "description": "登録料の全額支払いを確認した後に顧客を作成します。一部入金には対応していません。"
+      },
+      "education": { "title": "学歴" },
+      "qualifications": { "title": "日本語能力・資格" },
+      "employment": { "title": "職歴" },
+      "skills": { "title": "スキル・職務要約" },
+      "application": { "title": "日本語申請内容" },
+      "documents": { "title": "書類" }
+    },
+    "fields": {
+      "fullName": "氏名",
+      "furigana": "フリガナ",
+      "phone": "電話番号",
+      "email": "メール",
+      "dateOfBirth": "生年月日",
+      "gender": "性別",
+      "nationality": "国籍",
+      "postalCode": "郵便番号",
+      "prefecture": "都道府県",
+      "address": "住所",
+      "currentVisaStatus": "現在の在留資格",
+      "residenceExpiryDate": "在留期限",
+      "passportNumber": "パスポート番号",
+      "passportExpiryDate": "パスポート有効期限",
+      "preferCategory": "希望カテゴリー",
+      "assignedStaff": "担当スタッフ",
+      "intake": "入学時期",
+      "currentStage": "現在のステージ",
+      "paymentMethod": "支払方法",
+      "paymentDate": "支払日",
+      "bankName": "銀行名",
+      "referenceNumber": "参照番号",
+      "receiptNumber": "領収書番号",
+      "paymentNote": "支払いメモ",
+      "educationType": "学校種別",
+      "schoolName": "学校名",
+      "major": "専攻・コース",
+      "enrollmentDate": "入学日",
+      "graduationDate": "卒業日",
+      "graduationStatus": "卒業状況",
+      "japaneseLanguageLevel": "日本語レベル",
+      "qualificationName": "資格・証明書",
+      "levelOrScore": "レベル・スコア",
+      "issuer": "発行機関",
+      "acquiredDate": "取得日",
+      "expiryDate": "有効期限",
+      "note": "メモ",
+      "companyName": "会社名",
+      "employmentType": "雇用形態",
+      "department": "部署",
+      "jobTitle": "職種・役職",
+      "workLocation": "勤務地",
+      "startDate": "開始日",
+      "endDate": "終了日",
+      "currentlyEmployed": "現在勤務中",
+      "responsibilities": "業務内容・主な職務",
+      "achievements": "実績",
+      "skills": "スキル",
+      "skillsHelper": "スキルはカンマまたは改行で区切って入力してください。",
+      "careerSummary": "職務要約",
+      "motivation": "志望動機",
+      "selfPR": "自己PR",
+      "desiredConditions": "本人希望記入欄"
+    },
+    "placeholders": {
+      "gender": "性別を検索",
+      "nationality": "国籍を検索",
+      "prefecture": "都道府県を検索",
+      "currentVisaStatus": "在留資格を検索",
+      "preferCategory": "希望カテゴリーを検索",
+      "assignedStaff": "スタッフを検索",
+      "paymentMethod": "支払方法を検索",
+      "educationType": "学校種別を検索",
+      "graduationStatus": "卒業状況を検索",
+      "japaneseLanguageLevel": "日本語レベルを検索",
+      "employmentType": "雇用形態を検索"
+    },
+    "assignedStaff": {
+      "autoAssigned": "自動割り当て"
+    },
+    "registrationPayment": {
+      "fullPaymentRequired": "全額支払いが必要です",
+      "registrationFee": "登録料",
+      "stageMasterNote": "金額はステージマスターで管理されています。このフォームからは変更できません。"
+    },
+    "paymentMethods": {
+      "bankTransfer": "銀行振込",
+      "cash": "現金"
+    },
+    "graduationStatus": {
+      "graduated": "卒業",
+      "expectedGraduation": "卒業見込み",
+      "currentlyEnrolled": "在学中",
+      "withdrawn": "中退"
+    },
+    "education": {
+      "itemTitle": "学歴 {number}",
+      "add": "学歴を追加"
+    },
+    "qualifications": {
+      "itemTitle": "資格 {number}",
+      "add": "資格を追加"
+    },
+    "employment": {
+      "itemTitle": "職歴 {number}",
+      "add": "職歴を追加"
+    },
+    "documents": {
+      "photo": {
+        "title": "候補者写真",
+        "select": "写真を選択",
+        "replace": "写真を変更",
+        "existing": "既存の写真は、変更しない限り保持されます。",
+        "empty": "写真が選択されていません。3:4の証明写真を使用してください。",
+        "previewAlt": "候補者写真プレビュー"
+      },
+      "cv": {
+        "title": "応募者の履歴書",
+        "select": "履歴書を選択",
+        "replace": "履歴書を変更",
+        "existing": "既存の履歴書は、変更しない限り保持されます。",
+        "empty": "履歴書が選択されていません。PDFのみ対応しています。"
+      }
+    },
+    "actions": {
+      "cancel": "キャンセル",
+      "processing": "処理中...",
+      "update": "顧客を更新",
+      "confirmPaymentCreate": "¥{amount}の支払いを確認して顧客を作成",
+      "removeItem": "{item}を削除"
+    }
+  },
   "createClient": {
     "breadcrumbs": {
       "dashboard": "ダッシュボード",

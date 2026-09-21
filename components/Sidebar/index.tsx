@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import ButtonBase from "@mui/material/ButtonBase";
+import Drawer from "@mui/material/Drawer";
+import Tooltip from "@mui/material/Tooltip";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
@@ -12,6 +17,7 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { useSidebar } from "./hook";
 import type { SidebarItem, SidebarNavItemProps, SidebarProps } from "./type";
@@ -23,12 +29,23 @@ import type { SidebarItem, SidebarNavItemProps, SidebarProps } from "./type";
 const BRAND = "#107A64";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const HAIRLINE_STRONG = "rgba(17, 24, 39, 0.12)";
 
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
 
+const DANGER = "#DC2626";
+const DANGER_SOFT = "#FEF2F2";
+
 const DRAWER_WIDTH = 256;
 const RAIL_WIDTH = 80;
+
+const focusVisible = {
+  "&.Mui-focusVisible": {
+    outline: `2px solid ${BRAND}`,
+    outlineOffset: 2,
+  },
+};
 
 const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
   Dashboard: DashboardRoundedIcon,
@@ -36,308 +53,300 @@ const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
   Clients: PeopleAltRoundedIcon,
 };
 
+// =================================================
+// SIDEBAR
+//
+// RESPONSIVE BEHAVIOUR
+//  - md and up: a sticky column. `collapsed` = 80px icon rail, otherwise 256px.
+//  - below md:  a temporary MUI Drawer. `collapsed` = closed, otherwise open.
+//    It closes when an item is chosen, when the route changes, on backdrop
+//    tap and on Escape. The Drawer also traps focus and locks page scroll.
+// =================================================
+
 export default function Sidebar({
   selected,
   collapsed,
   onToggle,
 }: SidebarProps) {
-  const t = useTranslations("sidebar");
+  const theme = useTheme();
+  const pathname = usePathname();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const { sidebarItems, goToDashboard, goToItem, logout } = useSidebar();
 
-  // NOTE ON RESPONSIVE BEHAVIOUR
-  // `collapsed` now does double duty by screen size:
-  //  - md and up: true = narrow 80px icon rail, false = full 256px sidebar (unchanged from before)
-  //  - below md:  true = drawer hidden off-screen, false = drawer open as a full-width overlay
-  // This reuses the existing collapsed/onToggle prop contract rather than adding new props,
-  // but it does mean whatever sets the *initial* value of `collapsed` should probably default
-  // to true on first mobile paint (drawer closed) — worth checking in the parent/hook.
+  const mobileOpen = isMobile && !collapsed;
+
+  const closeMobile = () => {
+    if (mobileOpen) onToggle();
+  };
+
+  // Close when the route changes (covers the browser back button and redirects,
+  // not just taps inside the sidebar).
+  const previousPathname = useRef(pathname);
+  const closeMobileRef = useRef(closeMobile);
+
+  useEffect(() => {
+    closeMobileRef.current = closeMobile;
+  });
+
+  useEffect(() => {
+    if (previousPathname.current !== pathname) {
+      previousPathname.current = pathname;
+      closeMobileRef.current();
+    }
+  }, [pathname]);
+
+  // Closing on click as well means tapping the page you are already on still
+  // closes the drawer (the route doesn't change, so the effect above won't run).
+  const handleSelectItem = (item: SidebarItem) => {
+    goToItem(item);
+    closeMobile();
+  };
+
+  const handleGoToDashboard = () => {
+    goToDashboard();
+    closeMobile();
+  };
 
   return (
     <>
-      {/* MOBILE BACKDROP — only when the drawer is open on a small screen */}
+      {/* MOBILE / TABLET: temporary drawer */}
 
-      {!collapsed && (
-        <Box
-          onClick={onToggle}
-          aria-hidden="true"
-          sx={{
-            display: { xs: "block", md: "none" },
-
-            position: "fixed",
-
-            inset: 0,
-
-            bgcolor: "rgba(17, 24, 39, 0.45)",
-
-            zIndex: 1200,
-          }}
-        />
-      )}
-
-      {/* MOBILE-ONLY FLOATING TRIGGER — visible when the drawer is closed on small screens,
-          since the in-sidebar toggle button is off-screen along with everything else */}
-
-      {collapsed && (
-        <ButtonBase
-          onClick={onToggle}
-          aria-label={t("toggleSidebar")}
-          sx={{
-            display: { xs: "flex", md: "none" },
-
-            position: "fixed",
-
-            top: 16,
-
-            left: 16,
-
-            zIndex: 1250,
-
-            width: 40,
-
-            height: 40,
-
-            alignItems: "center",
-
-            justifyContent: "center",
-
-            borderRadius: 2,
-
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onToggle}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiBackdrop-root": { bgcolor: "rgba(17, 24, 39, 0.45)" },
+          "& .MuiDrawer-paper": {
+            width: "min(280px, 86vw)",
+            boxSizing: "border-box",
+            border: "none",
             bgcolor: "#ffffff",
+            color: INK,
+            boxShadow: "12px 0 40px -12px rgba(17,24,39,0.35)",
+          },
+        }}
+      >
+        <SidebarContent
+          rail={false}
+          inDrawer
+          selected={selected}
+          sidebarItems={sidebarItems}
+          onToggle={onToggle}
+          onSelectItem={handleSelectItem}
+          onGoToDashboard={handleGoToDashboard}
+          onLogout={logout}
+        />
+      </Drawer>
 
-            border: "1px solid",
-
-            borderColor: "rgba(17, 24, 39, 0.08)",
-
-            color: INK_MUTED,
-
-            boxShadow:
-              "0 1px 2px rgba(17,24,39,0.04), 0 8px 20px -8px rgba(17,24,39,0.25)",
-
-            "&:hover": {
-              borderColor: "rgba(16, 122, 100, 0.3)",
-
-              color: BRAND,
-            },
-          }}
-        >
-          <MenuRoundedIcon sx={{ fontSize: 20 }} />
-        </ButtonBase>
-      )}
+      {/* DESKTOP: sticky column */}
 
       <Box
         component="aside"
         sx={{
-          // Desktop: normal sticky column, width toggles 80/256 via `collapsed`.
-          // Mobile: fixed full-height overlay, always 256 wide, slid off-screen via transform.
-          width: collapsed
-            ? { xs: DRAWER_WIDTH, md: RAIL_WIDTH }
-            : DRAWER_WIDTH,
-          position: { xs: "fixed", md: "sticky" },
-          top: 0,
-          left: 0,
-          zIndex: { xs: 1300, md: 1 },
-          transform: {
-            xs: collapsed ? "translateX(-100%)" : "translateX(0)",
-            md: "none",
-          },
-          display: "flex",
-          flexShrink: 0,
+          display: { xs: "none", md: "flex" },
           flexDirection: "column",
+          flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
           height: "100vh",
-          overflowY: "auto",
+          "@supports (height: 100dvh)": { height: "100dvh" },
+          overflow: "hidden",
           borderRight: `1px solid ${HAIRLINE}`,
           bgcolor: "#ffffff",
           color: INK,
-          p: 1.5,
-
-          boxShadow: {
-            xs: "0 0 2px rgba(17,24,39,0.05), 12px 0 40px -12px rgba(17,24,39,0.35)",
-            md: "1px 0 2px rgba(17,24,39,0.03), 12px 0 32px -22px rgba(17,24,39,0.30)",
-          },
-
-          transition: "width 300ms ease, transform 300ms ease",
+          boxShadow:
+            "1px 0 2px rgba(17,24,39,0.03), 12px 0 32px -22px rgba(17,24,39,0.30)",
+          transition: "width 300ms ease",
+          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
         }}
       >
-        {/* LOGO + TOGGLE */}
+        <SidebarContent
+          rail={collapsed}
+          inDrawer={false}
+          selected={selected}
+          sidebarItems={sidebarItems}
+          onToggle={onToggle}
+          onSelectItem={handleSelectItem}
+          onGoToDashboard={handleGoToDashboard}
+          onLogout={logout}
+        />
+      </Box>
+    </>
+  );
+}
 
-        <Box
+// =================================================
+// CONTENT (shared by the drawer and the desktop column)
+// =================================================
+
+type SidebarContentProps = {
+  rail: boolean;
+  inDrawer: boolean;
+  selected: SidebarProps["selected"];
+  sidebarItems: readonly SidebarItem[];
+  onToggle: () => void;
+  onSelectItem: (item: SidebarItem) => void;
+  onGoToDashboard: () => void;
+  onLogout: () => void;
+};
+
+function SidebarContent({
+  rail,
+  inDrawer,
+  selected,
+  sidebarItems,
+  onToggle,
+  onSelectItem,
+  onGoToDashboard,
+  onLogout,
+}: SidebarContentProps) {
+  const t = useTranslations("sidebar");
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflowY: "auto",
+        p: 1.5,
+        pb: "max(12px, env(safe-area-inset-bottom))",
+      }}
+    >
+      {/* LOGO + TOGGLE */}
+
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          flexDirection: rail ? "column" : "row",
+          alignItems: "center",
+          justifyContent: rail ? "center" : "space-between",
+          gap: rail ? 1.5 : 0,
+        }}
+      >
+        <ButtonBase
+          onClick={onGoToDashboard}
+          aria-label={t("goToDashboard")}
           sx={{
-            mb: 4,
             display: "flex",
-            flexDirection: { xs: "row", md: collapsed ? "column" : "row" },
             alignItems: "center",
-            justifyContent: {
-              xs: "space-between",
-              md: collapsed ? "center" : "space-between",
-            },
-            gap: { xs: 0, md: collapsed ? 1.5 : 0 },
+            borderRadius: 2.5,
+            p: 0.5,
+            transition: "background-color 200ms ease",
+            "&:hover": { bgcolor: BRAND_SOFT },
+            ...focusVisible,
           }}
         >
-          <ButtonBase
-            onClick={goToDashboard}
-            aria-label={t("goToDashboard")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              overflow: "hidden",
-              borderRadius: 2.5,
-              p: 0.5,
-              transition: "background-color 200ms ease",
+          {/* Setting width AND height (auto) avoids Next's "only one dimension
+              modified" warning when the flex container squeezes the image. */}
+          <Image
+            src="/company_logo.png"
+            alt={t("logoAlt")}
+            width={rail ? 32 : 80}
+            height={rail ? 30 : 70}
+            priority
+            style={{ width: rail ? 32 : 80, height: "auto" }}
+          />
+        </ButtonBase>
 
-              "&:hover": {
-                bgcolor: BRAND_SOFT,
-              },
-            }}
-          >
-            <Image
-              src="/company_logo.png"
-              alt={t("logoAlt")}
-              width={collapsed ? 32 : 80}
-              height={collapsed ? 30 : 70}
-              priority
-              style={{ objectFit: "contain" }}
+        <ButtonBase
+          onClick={onToggle}
+          aria-label={t("toggleSidebar")}
+          aria-expanded={inDrawer ? undefined : !rail}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: { xs: 40, md: 36 },
+            height: { xs: 40, md: 36 },
+            borderRadius: 2,
+            border: `1px solid ${HAIRLINE_STRONG}`,
+            color: INK_MUTED,
+            transition:
+              "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
+            "&:hover": {
+              borderColor: "rgba(16, 122, 100, 0.3)",
+              bgcolor: BRAND_SOFT,
+              color: BRAND,
+            },
+            ...focusVisible,
+          }}
+        >
+          {inDrawer ? (
+            <CloseRoundedIcon sx={{ fontSize: 20 }} />
+          ) : rail ? (
+            <MenuRoundedIcon sx={{ fontSize: 20 }} />
+          ) : (
+            <MenuOpenRoundedIcon sx={{ fontSize: 20 }} />
+          )}
+        </ButtonBase>
+      </Box>
+
+      {/* NAV */}
+
+      <Box component="nav" aria-label={t("workspace")} sx={{ flex: 1 }}>
+        <Box
+          component="ul"
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.75,
+            listStyle: "none",
+            m: 0,
+            p: 0,
+          }}
+        >
+          {sidebarItems.map((item) => (
+            <SidebarNavItem
+              key={item}
+              item={item}
+              label={t(`items.${item}`)}
+              active={selected === item}
+              collapsed={rail}
+              onSelect={() => onSelectItem(item)}
             />
-          </ButtonBase>
-
-          <ButtonBase
-            onClick={onToggle}
-            aria-label={t("toggleSidebar")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 36,
-              height: 36,
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: "rgba(17, 24, 39, 0.08)",
-              color: INK_MUTED,
-              transition: "all 200ms ease",
-              "&:hover": {
-                borderColor: "rgba(16, 122, 100, 0.3)",
-                bgcolor: BRAND_SOFT,
-                color: BRAND,
-              },
-            }}
-          >
-            {collapsed ? (
-              <MenuRoundedIcon sx={{ fontSize: 20 }} />
-            ) : (
-              <MenuOpenRoundedIcon sx={{ fontSize: 20 }} />
-            )}
-          </ButtonBase>
+          ))}
         </Box>
+      </Box>
 
-        {/* NAV */}
+      {/* SIGN OUT */}
 
-        <Box component="nav" sx={{ flex: 1 }}>
-          <Typography
-            sx={{
-              display: {
-                xs: "block",
-                md: collapsed ? "none" : "block",
-              },
-
-              mb: 1.5,
-              px: 1.5,
-              fontSize: 10,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.18em",
-              color: INK_MUTED,
-            }}
-          >
-            {t("workspace")}
-          </Typography>
-
-          <Box
-            component="ul"
-            sx={{
-              display: "flex",
-
-              flexDirection: "column",
-
-              gap: 0.75,
-
-              listStyle: "none",
-
-              m: 0,
-
-              p: 0,
-            }}
-          >
-            {sidebarItems.map((item) => (
-              <SidebarNavItem
-                key={item}
-                item={item}
-                label={t(`items.${item}`)}
-                active={selected === item}
-                collapsed={collapsed}
-                onSelect={() => goToItem(item)}
-              />
-            ))}
-          </Box>
-        </Box>
-
-        {/* SIGN OUT */}
-
-        <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${HAIRLINE}` }}>
+      <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${HAIRLINE}` }}>
+        <Tooltip title={rail ? t("logout") : ""} placement="right" arrow>
           <ButtonBase
-            onClick={logout}
-            title={collapsed ? t("logout") : undefined}
+            onClick={onLogout}
+            aria-label={rail ? t("logout") : undefined}
             sx={{
               display: "flex",
-
               width: "100%",
-
+              minHeight: 44,
               alignItems: "center",
-
-              justifyContent: {
-                xs: "flex-start",
-                md: collapsed ? "center" : "flex-start",
-              },
-
+              justifyContent: rail ? "center" : "flex-start",
               gap: 1.5,
-
               borderRadius: 2.5,
-
               px: 1.5,
-
-              py: 1.25,
-
               fontSize: 14,
-
               fontWeight: 600,
-
               color: INK_MUTED,
-
-              transition: "all 200ms ease",
-
-              "&:hover": {
-                bgcolor: "#FEF2F2",
-
-                color: "#DC2626",
-              },
+              transition: "background-color 200ms ease, color 200ms ease",
+              "&:hover": { bgcolor: DANGER_SOFT, color: DANGER },
+              ...focusVisible,
             }}
           >
-            <LogoutRoundedIcon sx={{ fontSize: 19 }} />
+            <LogoutRoundedIcon sx={{ fontSize: 21 }} />
 
-            <Box
-              component="span"
-              sx={{
-                display: {
-                  xs: "inline",
-                  md: collapsed ? "none" : "inline",
-                },
-              }}
-            >
+            <Box component="span" sx={{ display: rail ? "none" : "inline" }}>
               {t("signOut")}
             </Box>
           </ButtonBase>
-        </Box>
+        </Tooltip>
       </Box>
-    </>
+    </Box>
   );
 }
 
@@ -356,92 +365,63 @@ function SidebarNavItem({
 
   return (
     <Box component="li" sx={{ listStyle: "none" }}>
-      <ButtonBase
-        onClick={onSelect}
-        aria-current={active ? "page" : undefined}
-        title={collapsed ? label : undefined}
-        sx={{
-          position: "relative",
+      <Tooltip title={collapsed ? label : ""} placement="right" arrow>
+        <ButtonBase
+          onClick={onSelect}
+          aria-current={active ? "page" : undefined}
+          aria-label={collapsed ? label : undefined}
+          sx={{
+            position: "relative",
+            display: "flex",
+            width: "100%",
+            minHeight: 44,
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "flex-start",
+            gap: 1.5,
+            borderRadius: 2.5,
+            px: 1.5,
+            textAlign: "left",
+            color: active ? BRAND : INK_MUTED,
+            bgcolor: active ? BRAND_SOFT : "transparent",
+            transition: "background-color 200ms ease, color 200ms ease",
+            "&:hover": {
+              bgcolor: active ? BRAND_SOFT : "rgba(17, 24, 39, 0.04)",
+              color: active ? BRAND : INK,
+            },
+            ...focusVisible,
+          }}
+        >
+          {active && (
+            <Box
+              component="span"
+              aria-hidden
+              sx={{
+                position: "absolute",
+                left: 0,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 4,
+                height: 24,
+                borderRadius: "0 999px 999px 0",
+                bgcolor: BRAND,
+              }}
+            />
+          )}
 
-          display: "flex",
+          <Icon sx={{ fontSize: 22 }} />
 
-          width: "100%",
-
-          alignItems: "center",
-
-          justifyContent: {
-            xs: "flex-start",
-            md: collapsed ? "center" : "flex-start",
-          },
-
-          gap: 1.5,
-
-          borderRadius: 2.5,
-
-          px: 1.5,
-
-          py: 1.5,
-
-          fontSize: 14,
-
-          fontWeight: 500,
-
-          textAlign: "left",
-
-          color: active ? BRAND : INK_MUTED,
-
-          bgcolor: active ? BRAND_SOFT : "transparent",
-
-          transition: "all 200ms ease",
-
-          "&:hover": {
-            bgcolor: active ? BRAND_SOFT : "rgba(17, 24, 39, 0.04)",
-
-            color: active ? BRAND : INK,
-          },
-        }}
-      >
-        {active && (
           <Box
             component="span"
             sx={{
-              position: "absolute",
-
-              left: 0,
-
-              top: "50%",
-
-              transform: "translateY(-50%)",
-
-              width: 4,
-
-              height: 24,
-
-              borderRadius: "0 999px 999px 0",
-
-              bgcolor: BRAND,
+              display: collapsed ? "none" : "inline",
+              fontSize: 14,
+              fontWeight: active ? 600 : 500,
             }}
-          />
-        )}
-
-        <Icon sx={{ fontSize: 20 }} />
-
-        <Box
-          component="span"
-          sx={{
-            display: {
-              xs: "inline",
-              md: collapsed ? "none" : "inline",
-            },
-
-            fontSize: 14,
-
-            fontWeight: 600,
-          }}
-        >
-          {label}
-        </Box>
-      </ButtonBase>
+          >
+            {label}
+          </Box>
+        </ButtonBase>
+      </Tooltip>
     </Box>
   );
 }
