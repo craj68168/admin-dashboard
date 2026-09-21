@@ -1,11 +1,10 @@
 "use client";
 
+import { useId } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
-import Paper from "@mui/material/Paper";
+import Skeleton from "@mui/material/Skeleton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,6 +12,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 
 import type { PerformanceHistoryProps, PerformanceHistoryStatus } from "./type";
 
@@ -23,39 +23,34 @@ import { usePerformanceHistoryHook } from "./hook";
 // =================================================
 
 const BRAND = "#107A64";
+const BRAND_DARK = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
+const INK_FAINT = "#6B7280";
+const SURFACE_TINT = "#FAFAF9";
 
-const softCard = {
-  bgcolor: "#ffffff",
-  border: `1px solid ${HAIRLINE}`,
-  borderRadius: 3,
-  boxShadow:
-    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
-};
+/** Below this width the table becomes a stack of month cards. */
+const TABLE_BREAKPOINT = "lg" as const;
+
+type HistoryItem = ReturnType<typeof usePerformanceHistoryHook>["history"][number];
 
 // =================================================
-// MONEY FORMAT
+// FORMATTERS
 // =================================================
 
 const formatAmount = (amount: number) => {
   return new Intl.NumberFormat("ja-JP").format(Number(amount || 0));
 };
 
-// =================================================
-// MONTH FORMAT
 // 2026-09 -> September 2026
-// =================================================
-
 const formatMonth = (month: string, locale: string) => {
   if (!/^\d{4}-\d{2}$/.test(month)) {
     return month;
   }
 
   const [year, monthNumber] = month.split("-");
-
   const date = new Date(Number(year), Number(monthNumber) - 1, 1);
 
   return new Intl.DateTimeFormat(locale, {
@@ -64,65 +59,161 @@ const formatMonth = (month: string, locale: string) => {
   }).format(date);
 };
 
+const clampPercent = (value: number) =>
+  Math.min(Math.max(Number(value) || 0, 0), 100);
+
 // =================================================
-// STATUS COLOR
+// STATUS TONES
 // =================================================
 
-const getStatusColor = (
-  status: PerformanceHistoryStatus,
-): "default" | "info" | "warning" | "success" => {
-  switch (status) {
-    case "Achieved":
-      return "success";
-
-    case "In Progress":
-      return "warning";
-
-    case "No Target":
-      return "info";
-
-    case "Not Started":
-    default:
-      return "default";
-  }
+const STATUS_TONE: Record<
+  PerformanceHistoryStatus,
+  { fg: string; bg: string; dot: string; bar: string }
+> = {
+  Achieved: { fg: BRAND_DARK, bg: BRAND_SOFT, dot: BRAND, bar: BRAND },
+  "In Progress": {
+    fg: "#92580A",
+    bg: "#FFF6E0",
+    dot: "#D69E2E",
+    bar: "#D69E2E",
+  },
+  "No Target": {
+    fg: INK_MUTED,
+    bg: "rgba(17, 24, 39, 0.06)",
+    dot: "#9CA3AF",
+    bar: "#D1D5DB",
+  },
+  "Not Started": {
+    fg: INK_MUTED,
+    bg: "rgba(17, 24, 39, 0.04)",
+    dot: "#D1D5DB",
+    bar: "#D1D5DB",
+  },
 };
 
+const toneFor = (status: PerformanceHistoryStatus) =>
+  STATUS_TONE[status] ?? STATUS_TONE["Not Started"];
+
 // =================================================
-// STATUS STYLE
+// SMALL PIECES
 // =================================================
 
-const getStatusSx = (status: PerformanceHistoryStatus) => {
-  switch (status) {
-    case "Achieved":
-      return {
-        color: BRAND,
-        bgcolor: BRAND_SOFT,
-        borderColor: "rgba(16, 122, 100, 0.14)",
-      };
+function StatusPill({
+  status,
+  label,
+}: {
+  status: PerformanceHistoryStatus;
+  label: string;
+}) {
+  const tone = toneFor(status);
 
-    case "In Progress":
-      return {
-        color: "#B7791F",
-        bgcolor: "#FFFBEB",
-        borderColor: "rgba(183, 121, 31, 0.14)",
-      };
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 0.75,
+        px: 1.25,
+        py: 0.375,
+        borderRadius: 999,
+        fontSize: 12.5,
+        fontWeight: 600,
+        lineHeight: 1.5,
+        whiteSpace: "nowrap",
+        color: tone.fg,
+        bgcolor: tone.bg,
+      }}
+    >
+      <Box
+        component="span"
+        sx={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          bgcolor: tone.dot,
+        }}
+      />
+      {label}
+    </Box>
+  );
+}
 
-    case "No Target":
-      return {
-        color: INK_MUTED,
-        bgcolor: "#F3F4F6",
-        borderColor: HAIRLINE,
-      };
+function ProgressBar({
+  percent,
+  status,
+  label,
+  width = "100%",
+}: {
+  percent: number;
+  status: PerformanceHistoryStatus;
+  label: string;
+  width?: number | string;
+}) {
+  const value = clampPercent(percent);
 
-    case "Not Started":
-    default:
-      return {
-        color: INK_MUTED,
-        bgcolor: "#F9FAFB",
-        borderColor: HAIRLINE,
-      };
-  }
-};
+  return (
+    <Box
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(value)}
+      sx={{
+        width,
+        height: 6,
+        borderRadius: 999,
+        bgcolor: "rgba(17, 24, 39, 0.07)",
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          width: `${value}%`,
+          height: "100%",
+          borderRadius: 999,
+          bgcolor: toneFor(status).bar,
+          transition: "width 400ms ease",
+          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+        }}
+      />
+    </Box>
+  );
+}
+
+function MetaItem({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  accent?: boolean;
+}) {
+  return (
+    <Box sx={{ minWidth: 0 }}>
+      <Typography
+        component="dt"
+        sx={{ fontSize: 12.5, fontWeight: 500, color: INK_FAINT, mb: 0.25 }}
+      >
+        {label}
+      </Typography>
+      <Typography
+        component="dd"
+        sx={{
+          m: 0,
+          fontSize: 14.5,
+          fontWeight: 600,
+          color: accent ? BRAND : INK,
+          fontVariantNumeric: "tabular-nums",
+          overflowWrap: "anywhere",
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
+}
 
 // =================================================
 // COMPONENT
@@ -133,16 +224,10 @@ export default function PerformanceHistory({
 }: PerformanceHistoryProps) {
   const t = useTranslations("staffPerformanceHistory");
   const locale = useLocale();
+  const headingId = useId();
 
-  const {
-    history,
-
-    isLoading,
-
-    isFetching,
-
-    loadError,
-  } = usePerformanceHistoryHook(staffId);
+  const { history, isLoading, isFetching, loadError } =
+    usePerformanceHistoryHook(staffId);
 
   const performanceStatusLabel: Record<PerformanceHistoryStatus, string> = {
     "No Target": t("status.noTarget"),
@@ -151,631 +236,402 @@ export default function PerformanceHistory({
     Achieved: t("status.achieved"),
   };
 
-  return (
-    <Box
+  const headCellSx = {
+    py: 1.5,
+    px: 2,
+    fontSize: 12.5,
+    fontWeight: 600,
+    color: INK_MUTED,
+    whiteSpace: "nowrap",
+    bgcolor: SURFACE_TINT,
+    borderBottom: `1px solid ${HAIRLINE}`,
+    "&:first-of-type": { pl: 2.5 },
+    "&:last-of-type": { pr: 2.5 },
+  } as const;
+
+  const bodyCellSx = {
+    py: 1.75,
+    px: 2,
+    fontSize: 14,
+    color: INK,
+    fontVariantNumeric: "tabular-nums",
+    whiteSpace: "nowrap",
+    verticalAlign: "middle",
+    "&:first-of-type": { pl: 2.5 },
+    "&:last-of-type": { pr: 2.5 },
+  } as const;
+
+  const renderTable = (rows: HistoryItem[]) => (
+    <TableContainer
       sx={{
-        width: "100%",
-        bgcolor: "#F7F8F6",
-        minHeight: "100%",
-        py: {
-          xs: 2,
-          sm: 3,
-          md: 4,
-        },
+        display: { xs: "none", [TABLE_BREAKPOINT]: "block" },
+        border: `1px solid ${HAIRLINE}`,
+        borderRadius: 2.5,
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
       }}
     >
-      <Box
+      <Table
         sx={{
-          width: "100%",
-          maxWidth: 1320,
-          mx: "auto",
-          px: {
-            xs: 2,
-            sm: 3,
-            md: 4,
-          },
+          minWidth: 860,
+          "& .MuiTableCell-root": { borderColor: HAIRLINE },
         }}
       >
-        {/* HEADER */}
+        <TableHead>
+          <TableRow>
+            <TableCell sx={headCellSx}>{t("columns.month")}</TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.target")}
+            </TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.collected")}
+            </TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.remaining")}
+            </TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.achievement")}
+            </TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.payments")}
+            </TableCell>
+            <TableCell align="right" sx={headCellSx}>
+              {t("columns.clients")}
+            </TableCell>
+            <TableCell sx={headCellSx}>{t("columns.status")}</TableCell>
+          </TableRow>
+        </TableHead>
 
-        <Box
-          sx={{
-            mb: {
-              xs: 2.5,
-              md: 3,
-            },
-          }}
-        >
-          <Typography
-            sx={{
-              color: INK,
-              fontSize: {
-                xs: 22,
-                sm: 24,
-              },
-              lineHeight: 1.3,
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {t("title")}
-          </Typography>
-
-          <Typography
-            variant="body2"
-            sx={{
-              mt: 0.6,
-              color: INK_MUTED,
-              fontSize: {
-                xs: 13.5,
-                sm: 14,
-              },
-              lineHeight: 1.6,
-            }}
-          >
-            {t("description")}
-          </Typography>
-        </Box>
-
-        {/* ERROR */}
-
-        {loadError && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 2.5,
-              borderRadius: 2.5,
-              border: "1px solid rgba(220, 38, 38, 0.12)",
-              bgcolor: "#FEF2F2",
-              color: "#991B1B",
-              boxShadow: "none",
-
-              "& .MuiAlert-icon": {
-                color: "#DC2626",
-              },
-            }}
-          >
-            {loadError}
-          </Alert>
-        )}
-
-        {/* LOADING */}
-
-        {isLoading ? (
-          <Box
-            sx={{
-              ...softCard,
-
-              minHeight: 220,
-
-              display: "flex",
-
-              justifyContent: "center",
-
-              alignItems: "center",
-            }}
-          >
-            <CircularProgress
-              size={30}
-              thickness={4}
+        <TableBody>
+          {rows.map((item) => (
+            <TableRow
+              key={item.month}
+              hover
               sx={{
-                color: BRAND,
-              }}
-            />
-          </Box>
-        ) : history.length === 0 ? (
-          /* EMPTY */
-
-          <Box
-            sx={{
-              bgcolor: "#ffffff",
-
-              border: `1px dashed rgba(16, 122, 100, 0.25)`,
-
-              borderRadius: 3,
-
-              py: {
-                xs: 5,
-                sm: 6,
-              },
-
-              px: 2,
-
-              textAlign: "center",
-
-              boxShadow:
-                "0 1px 2px rgba(17,24,39,0.02), 0 12px 32px -26px rgba(17,24,39,0.22)",
-            }}
-          >
-            <Box
-              sx={{
-                width: 44,
-                height: 44,
-                mx: "auto",
-                mb: 1.5,
-                borderRadius: 2.5,
-                bgcolor: BRAND_SOFT,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: BRAND,
-                }}
-              />
-            </Box>
-
-            <Typography
-              variant="body2"
-              sx={{
-                color: INK_MUTED,
-                fontSize: 14,
-                lineHeight: 1.6,
-              }}
-            >
-              {t("empty")}
-            </Typography>
-          </Box>
-        ) : (
-          /* TABLE */
-
-          <TableContainer
-            component={Paper}
-            elevation={0}
-            sx={{
-              ...softCard,
-
-              width: "100%",
-
-              overflowX: "auto",
-
-              overflowY: "hidden",
-
-              WebkitOverflowScrolling: "touch",
-
-              "&::-webkit-scrollbar": {
-                height: 8,
-              },
-
-              "&::-webkit-scrollbar-track": {
-                bgcolor: "transparent",
-              },
-
-              "&::-webkit-scrollbar-thumb": {
-                bgcolor: "rgba(17, 24, 39, 0.12)",
-                borderRadius: 999,
-              },
-
-              "&::-webkit-scrollbar-thumb:hover": {
-                bgcolor: "rgba(17, 24, 39, 0.20)",
-              },
-            }}
-          >
-            <Table
-              sx={{
-                minWidth: 900,
-
-                "& .MuiTableCell-root": {
-                  borderColor: HAIRLINE,
+                transition: "background-color 200ms ease",
+                "&:last-of-type td": { borderBottom: 0 },
+                "&.MuiTableRow-hover:hover": {
+                  bgcolor: "rgba(16, 122, 100, 0.04)",
                 },
               }}
             >
-              <TableHead>
-                <TableRow
+              <TableCell sx={{ ...bodyCellSx, fontWeight: 600 }}>
+                {formatMonth(item.month, locale)}
+              </TableCell>
+
+              <TableCell align="right" sx={bodyCellSx}>
+                ¥{formatAmount(item.targetAmount)}
+              </TableCell>
+
+              <TableCell
+                align="right"
+                sx={{ ...bodyCellSx, color: BRAND, fontWeight: 600 }}
+              >
+                ¥{formatAmount(item.totalCollected)}
+              </TableCell>
+
+              <TableCell align="right" sx={bodyCellSx}>
+                ¥{formatAmount(item.remainingAmount)}
+              </TableCell>
+
+              <TableCell align="right" sx={bodyCellSx}>
+                <Box
                   sx={{
-                    bgcolor: "#F9FAFB",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    gap: 0.75,
                   }}
                 >
-                  <TableCell
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
+                  <Typography
+                    component="span"
+                    sx={{ fontSize: 14, fontWeight: 500, lineHeight: 1.2 }}
                   >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.month")}
-                    </Typography>
-                  </TableCell>
+                    {Number(item.achievementPercentage ?? 0).toLocaleString()}%
+                  </Typography>
+                  <ProgressBar
+                    percent={item.achievementPercentage}
+                    status={item.status}
+                    label={t("columns.achievement")}
+                    width={96}
+                  />
+                </Box>
+              </TableCell>
 
-                  <TableCell
-                    align="right"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.target")}
-                    </Typography>
-                  </TableCell>
+              <TableCell align="right" sx={bodyCellSx}>
+                {item.paymentCount}
+              </TableCell>
 
-                  <TableCell
-                    align="right"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.collected")}
-                    </Typography>
-                  </TableCell>
+              <TableCell align="right" sx={bodyCellSx}>
+                {item.clientCount}
+              </TableCell>
 
-                  <TableCell
-                    align="right"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.remaining")}
-                    </Typography>
-                  </TableCell>
+              <TableCell sx={bodyCellSx}>
+                <StatusPill
+                  status={item.status}
+                  label={performanceStatusLabel[item.status]}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 
-                  <TableCell
-                    align="right"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.achievement")}
-                    </Typography>
-                  </TableCell>
-
-                  <TableCell
-                    align="center"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.payments")}
-                    </Typography>
-                  </TableCell>
-
-                  <TableCell
-                    align="center"
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.clients")}
-                    </Typography>
-                  </TableCell>
-
-                  <TableCell
-                    sx={{
-                      py: 1.65,
-                      px: 2.25,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: INK_MUTED,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                      }}
-                    >
-                      {t("columns.status")}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {history.map((item) => (
-                  <TableRow
-                    key={item.month}
-                    hover
-                    sx={{
-                      transition:
-                        "background-color 200ms ease, box-shadow 200ms ease",
-
-                      "&:last-of-type td": {
-                        borderBottom: 0,
-                      },
-
-                      "&.MuiTableRow-hover:hover": {
-                        bgcolor: BRAND_SOFT,
-                      },
-                    }}
-                  >
-                    {/* MONTH */}
-
-                    <TableCell
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: INK,
-                          fontSize: 14,
-                          fontWeight: 600,
-                          lineHeight: 1.45,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {formatMonth(item.month, locale)}
-                      </Typography>
-
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mt: 0.25,
-                          color: INK_MUTED,
-                          fontSize: 11.5,
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {item.month}
-                      </Typography>
-                    </TableCell>
-
-                    {/* TARGET */}
-
-                    <TableCell
-                      align="right"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        color: INK,
-                        fontSize: 14,
-                        fontVariantNumeric: "tabular-nums",
-                        verticalAlign: "middle",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      ¥{formatAmount(item.targetAmount)}
-                    </TableCell>
-
-                    {/* COLLECTED */}
-
-                    <TableCell
-                      align="right"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: BRAND,
-                          fontSize: 14,
-                          fontWeight: 600,
-                          fontVariantNumeric: "tabular-nums",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        ¥{formatAmount(item.totalCollected)}
-                      </Typography>
-                    </TableCell>
-
-                    {/* REMAINING */}
-
-                    <TableCell
-                      align="right"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        color: INK,
-                        fontSize: 14,
-                        fontVariantNumeric: "tabular-nums",
-                        verticalAlign: "middle",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      ¥{formatAmount(item.remainingAmount)}
-                    </TableCell>
-
-                    {/* ACHIEVEMENT */}
-
-                    <TableCell
-                      align="right"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        color: INK,
-                        fontSize: 14,
-                        fontWeight: 500,
-                        fontVariantNumeric: "tabular-nums",
-                        verticalAlign: "middle",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {item.achievementPercentage.toLocaleString()}%
-                    </TableCell>
-
-                    {/* PAYMENTS */}
-
-                    <TableCell
-                      align="center"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        color: INK,
-                        fontSize: 14,
-                        fontVariantNumeric: "tabular-nums",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {item.paymentCount}
-                    </TableCell>
-
-                    {/* CLIENTS */}
-
-                    <TableCell
-                      align="center"
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        color: INK,
-                        fontSize: 14,
-                        fontVariantNumeric: "tabular-nums",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {item.clientCount}
-                    </TableCell>
-
-                    {/* STATUS */}
-
-                    <TableCell
-                      sx={{
-                        py: 1.8,
-                        px: 2.25,
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <Chip
-                        size="small"
-                        label={performanceStatusLabel[item.status]}
-                        color={getStatusColor(item.status)}
-                        variant="outlined"
-                        sx={{
-                          ...getStatusSx(item.status),
-
-                          height: 26,
-
-                          borderRadius: 999,
-
-                          fontSize: 11.5,
-
-                          fontWeight: 600,
-
-                          transition:
-                            "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
-                          "& .MuiChip-label": {
-                            px: 1.25,
-                          },
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-
-        {/* REFRESHING */}
-
-        {isFetching && !isLoading && (
+  const renderCards = (rows: HistoryItem[]) => (
+    <Box
+      component="ul"
+      sx={{
+        display: { xs: "flex", [TABLE_BREAKPOINT]: "none" },
+        flexDirection: "column",
+        gap: 1.5,
+        m: 0,
+        p: 0,
+        listStyle: "none",
+      }}
+    >
+      {rows.map((item) => (
+        <Box
+          component="li"
+          key={item.month}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            p: { xs: 2, sm: 2.5 },
+            border: `1px solid ${HAIRLINE}`,
+            borderRadius: 2.5,
+            bgcolor: "#ffffff",
+          }}
+        >
+          {/* MONTH + STATUS */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
               alignItems: "center",
-              gap: 0.75,
-              mt: 1.25,
+              justifyContent: "space-between",
+              gap: 1.5,
             }}
           >
+            <Typography
+              component="h3"
+              sx={{ fontSize: 15.5, fontWeight: 600, color: INK }}
+            >
+              {formatMonth(item.month, locale)}
+            </Typography>
+            <StatusPill
+              status={item.status}
+              label={performanceStatusLabel[item.status]}
+            />
+          </Box>
+
+          {/* ACHIEVEMENT */}
+          <Box>
             <Box
               sx={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                bgcolor: BRAND,
-              }}
-            />
-
-            <Typography
-              variant="caption"
-              sx={{
-                color: INK_MUTED,
-                fontSize: 11.5,
-                fontWeight: 500,
+                display: "flex",
+                alignItems: "baseline",
+                justifyContent: "space-between",
+                mb: 0.75,
               }}
             >
-              {t("refreshing")}
-            </Typography>
+              <Typography
+                sx={{ fontSize: 12.5, fontWeight: 500, color: INK_FAINT }}
+              >
+                {t("columns.achievement")}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  color: INK,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {Number(item.achievementPercentage ?? 0).toLocaleString()}%
+              </Typography>
+            </Box>
+            <ProgressBar
+              percent={item.achievementPercentage}
+              status={item.status}
+              label={t("columns.achievement")}
+            />
           </Box>
-        )}
+
+          {/* NUMBERS */}
+          <Box
+            component="dl"
+            sx={{
+              m: 0,
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(2, minmax(0, 1fr))",
+                sm: "repeat(3, minmax(0, 1fr))",
+              },
+              gap: 2,
+            }}
+          >
+            <MetaItem
+              label={t("columns.target")}
+              value={`¥${formatAmount(item.targetAmount)}`}
+            />
+            <MetaItem
+              label={t("columns.collected")}
+              value={`¥${formatAmount(item.totalCollected)}`}
+              accent
+            />
+            <MetaItem
+              label={t("columns.remaining")}
+              value={`¥${formatAmount(item.remainingAmount)}`}
+            />
+            <MetaItem label={t("columns.payments")} value={item.paymentCount} />
+            <MetaItem label={t("columns.clients")} value={item.clientCount} />
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
+
+  return (
+    <Box
+      component="section"
+      aria-labelledby={headingId}
+      sx={{ width: "100%", minWidth: 0 }}
+    >
+      {/* HEADER */}
+      <Box sx={{ mb: { xs: 2, md: 2.5 } }}>
+        <Typography
+          component="h2"
+          id={headingId}
+          sx={{
+            color: INK,
+            fontSize: { xs: 18, md: 20 },
+            lineHeight: 1.3,
+            fontWeight: 600,
+            letterSpacing: -0.2,
+          }}
+        >
+          {t("title")}
+        </Typography>
+
+        <Typography
+          sx={{
+            mt: 0.5,
+            color: INK_MUTED,
+            fontSize: { xs: 13.5, sm: 14 },
+            lineHeight: 1.6,
+            maxWidth: 640,
+          }}
+        >
+          {t("description")}
+        </Typography>
       </Box>
+
+      {/* ERROR */}
+      {loadError && (
+        <Alert
+          severity="error"
+          sx={{
+            mb: 2.5,
+            borderRadius: 2.5,
+            border: "1px solid rgba(220, 38, 38, 0.12)",
+            bgcolor: "#FEF2F2",
+            color: "#991B1B",
+            boxShadow: "none",
+            "& .MuiAlert-icon": { color: "#DC2626" },
+          }}
+        >
+          {loadError}
+        </Alert>
+      )}
+
+      {/* CONTENT */}
+      {isLoading ? (
+        <Box
+          aria-busy="true"
+          sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}
+        >
+          <Skeleton variant="rounded" height={44} />
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} variant="rounded" height={56} />
+          ))}
+        </Box>
+      ) : history.length === 0 ? (
+        <Box
+          sx={{
+            border: "1px dashed rgba(16, 122, 100, 0.28)",
+            borderRadius: 2.5,
+            bgcolor: SURFACE_TINT,
+            py: { xs: 5, sm: 6 },
+            px: 2,
+            textAlign: "center",
+          }}
+        >
+          <Box
+            aria-hidden
+            sx={{
+              display: "grid",
+              placeItems: "center",
+              width: 44,
+              height: 44,
+              mx: "auto",
+              mb: 1.5,
+              borderRadius: 2.5,
+              bgcolor: BRAND_SOFT,
+              color: BRAND,
+            }}
+          >
+            <BarChartRoundedIcon fontSize="small" />
+          </Box>
+
+          <Typography
+            sx={{
+              color: INK_MUTED,
+              fontSize: 14,
+              lineHeight: 1.6,
+              maxWidth: 380,
+              mx: "auto",
+            }}
+          >
+            {t("empty")}
+          </Typography>
+        </Box>
+      ) : (
+        <>
+          {renderTable(history)}
+          {renderCards(history)}
+        </>
+      )}
+
+      {/* REFRESHING */}
+      {isFetching && !isLoading && (
+        <Box
+          role="status"
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 0.75,
+            mt: 1.25,
+          }}
+        >
+          <Box
+            aria-hidden
+            sx={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              bgcolor: BRAND,
+            }}
+          />
+          <Typography
+            sx={{ color: INK_MUTED, fontSize: 12.5, fontWeight: 500 }}
+          >
+            {t("refreshing")}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

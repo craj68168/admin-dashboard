@@ -99,42 +99,100 @@
       "Clients": "顧客"
     }
   },
-  "staffList": {
-    "breadcrumbs": {
-      "dashboard": "ダッシュボード",
-      "staff": "スタッフ"
-    },
-    "title": "スタッフ",
-    "description": "スタッフアカウント、アクセス権、ステータスを管理します。",
-    "addStaff": "スタッフを追加",
-    "thisStaffMember": "このスタッフ",
-    "columns": {
-      "id": "ID",
-      "fullName": "氏名",
-      "email": "メール",
-      "location": "所在地",
-      "createdAt": "作成日",
-      "action": "操作"
-    },
-    "actions": {
-      "viewClients": "担当顧客を表示",
-      "viewDetails": "スタッフ詳細を表示",
-      "edit": "スタッフを編集",
-      "disable": "スタッフを無効化",
-      "activate": "スタッフを有効化"
-    },
-    "confirmStatus": {
-      "disableTitle": "スタッフを無効化",
-      "activateTitle": "スタッフを有効化",
-      "descriptionPrefix": "次のスタッフを",
-      "disableVerb": "無効化",
-      "activateVerb": "有効化",
-      "disableWarning": "アカウントが無効の間、このスタッフはログインできません。",
-      "disableConfirm": "はい、無効化",
-      "activateConfirm": "はい、有効化",
-      "cancel": "いいえ"
-    }
+  "commonSearchFilter": {
+    "title": "検索条件を入力してください",
+    "filters": "フィルター",
+    "search": "検索",
+    "searching": "検索中...",
+    "clear": "クリア",
+    "clearSearchText": "検索テキストをクリア",
+    "searchPlaceholder": "検索...",
+    "allField": "すべての{field}",
+    "from": "開始",
+    "to": "終了"
   },
+ "staffList": {
+  "breadcrumbs": {
+    "dashboard": "ダッシュボード",
+    "staff": "スタッフ"
+  },
+  "title": "スタッフ",
+  "description": "スタッフアカウント、アクセス権、ステータスを管理します。",
+  "addStaff": "スタッフを追加",
+  "thisStaffMember": "このスタッフ",
+
+  "filters": {
+    "search": {
+      "label": "検索条件を入力してください",
+      "placeholder": "スタッフID、氏名、メール、電話番号"
+    },
+    "staffMember": {
+      "label": "スタッフ",
+      "placeholder": "すべてのスタッフ"
+    },
+    "location": {
+      "label": "所在地",
+      "placeholder": "すべての所在地",
+      "options": {
+        "USA": "アメリカ",
+        "Japan": "日本",
+        "Nepal": "ネパール",
+        "Other": "その他"
+      }
+    },
+    "accountStatus": {
+      "label": "アカウント状態",
+      "placeholder": "すべての状態",
+      "options": {
+        "active": "有効",
+        "inactive": "無効"
+      }
+    },
+    "searchButton": "スタッフを検索",
+    "clearButton": "クリア"
+  },
+
+  "columns": {
+    "id": "ID",
+    "fullName": "氏名",
+    "email": "メール",
+    "location": "所在地",
+    "status": "ステータス",
+    "createdAt": "作成日",
+    "action": "操作"
+  },
+
+  "status": {
+    "active": "有効",
+    "inactive": "無効"
+  },
+
+  "actions": {
+    "viewClients": "担当顧客を表示",
+    "viewDetails": "スタッフ詳細を表示",
+    "edit": "スタッフを編集",
+    "disable": "スタッフを無効化",
+    "activate": "スタッフを有効化"
+  },
+
+  "confirmStatus": {
+    "disableTitle": "スタッフを無効化",
+    "activateTitle": "スタッフを有効化",
+    "descriptionPrefix": "次のスタッフを",
+    "disableVerb": "無効化",
+    "activateVerb": "有効化",
+    "disableWarning": "アカウントが無効の間、このスタッフはログインできません。",
+    "disableConfirm": "はい、無効化",
+    "activateConfirm": "はい、有効化",
+    "cancel": "いいえ"
+  }
+  
+},
+"error": {
+  "title": "スタッフ一覧を読み込めません",
+  "description": "スタッフ一覧の読み込み中にエラーが発生しました。",
+  "retry": "再試行"
+},
   "addStaff": {
     "backToStaff": "スタッフ一覧へ戻る",
     "title": "スタッフを追加",
