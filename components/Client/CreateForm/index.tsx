@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Controller, useFieldArray } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -10,7 +10,6 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
@@ -21,6 +20,8 @@ import Typography from "@mui/material/Typography";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 
@@ -42,12 +43,15 @@ import { useClientFormHook } from "./hook";
 import type { ClientFormProps } from "./type";
 
 // =================================================
-// DESIGN
+// DESIGN TOKENS
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
-const BRAND_SOFT = "rgba(16,122,100,0.07)";
+const BRAND_SOFT = "rgba(16,122,100,0.09)";
+const PAGE_BG = "#F4F6F5";
+const SURFACE = "#FFFFFF";
+const SURFACE_ALT = "#F8FAF9";
 const BORDER = "rgba(17,24,39,0.09)";
 const INK = "#111827";
 const MUTED = "#6B7280";
@@ -57,107 +61,282 @@ const WARNING_DARK = "#92400E";
 const WARNING_SOFT = "#FFFBEB";
 
 const cardSx = {
-  p: {
-    xs: 2,
-    sm: 2.5,
-    md: 3,
-  },
-
+  p: { xs: 1.75, sm: 2.25, md: 2.5 },
   border: `1px solid ${BORDER}`,
   borderRadius: 3,
-  bgcolor: "#ffffff",
-
-  boxShadow:
-    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+  bgcolor: SURFACE,
+  boxShadow: "0 1px 2px rgba(17,24,39,0.04)",
 };
 
 const fieldSx = {
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: BRAND,
-  },
-
+  "& .MuiInputLabel-root.Mui-focused": { color: BRAND },
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
-
-    "& fieldset": {
-      borderColor: BORDER,
-    },
-
-    "&:hover fieldset": {
-      borderColor: "rgba(16,122,100,0.35)",
-    },
-
-    "&.Mui-focused fieldset": {
-      borderColor: BRAND,
-    },
+    bgcolor: SURFACE,
+    "& fieldset": { borderColor: BORDER },
+    "&:hover fieldset": { borderColor: "rgba(16,122,100,0.4)" },
+    "&.Mui-focused fieldset": { borderColor: BRAND },
   },
+  "& .MuiFormHelperText-root": { mx: 0.5, mt: 0.5, fontSize: 11.5 },
+};
+
+// Fields wrap to whatever fits, so no per-breakpoint column rules are needed.
+const gridSx = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
+  gap: 1.5,
 };
 
 const grid2Sx = {
   display: "grid",
-
   gridTemplateColumns: {
-    xs: "1fr",
-    md: "repeat(2, minmax(0,1fr))",
+    xs: "minmax(0, 1fr)",
+    md: "repeat(2, minmax(0, 1fr))",
   },
-
-  gap: 2,
+  gap: 1.5,
 };
 
-const grid3Sx = {
-  display: "grid",
+const outlineButtonSx = {
+  alignSelf: "flex-start",
+  minHeight: 34,
+  px: 1.5,
+  color: BRAND,
+  borderColor: "rgba(16,122,100,0.35)",
+  bgcolor: SURFACE,
+  fontSize: 13,
+  fontWeight: 600,
+  textTransform: "none",
+  "&:hover": { borderColor: BRAND, bgcolor: BRAND_SOFT },
+} as const;
 
-  gridTemplateColumns: {
-    xs: "1fr",
-    md: "repeat(2, minmax(0,1fr))",
-    xl: "repeat(3, minmax(0,1fr))",
-  },
+const dateProps = {
+  type: "date",
+  slotProps: { inputLabel: { shrink: true } },
+} as const;
 
-  gap: 2,
+const getUploadedFileUrl = (filePath?: string | null) => {
+  if (!filePath) {
+    return "";
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
+  const backendUrl = apiUrl.replace(/\/api\/?$/, "");
+  const normalizedPath = filePath.replace(/\\/g, "/");
+
+  return `${backendUrl}/${normalizedPath.replace(/^\/+/, "")}`;
 };
 
 // =================================================
-// SECTION
+// PRIMITIVES
 // =================================================
 
 const FormSection = ({
+  step,
   title,
   description,
   children,
 }: {
+  step: number;
   title: string;
   description?: string;
   children: ReactNode;
 }) => (
-  <Paper elevation={0} sx={cardSx}>
-    <Typography
+  <Paper elevation={0} component="section" sx={cardSx}>
+    <Box
       sx={{
-        color: INK,
-        fontSize: 17,
-        fontWeight: 700,
+        display: "flex",
+        alignItems: description ? "flex-start" : "center",
+        gap: 1.25,
+        mb: 1.75,
       }}
     >
-      {title}
-    </Typography>
-
-    {description && (
-      <Typography
+      <Box
+        aria-hidden
         sx={{
-          mt: 0.5,
-          mb: 2.5,
-          color: MUTED,
-          fontSize: 12.5,
-          lineHeight: 1.5,
+          flexShrink: 0,
+          width: 24,
+          height: 24,
+          mt: description ? 0.1 : 0,
+          display: "grid",
+          placeItems: "center",
+          borderRadius: "50%",
+          bgcolor: BRAND_SOFT,
+          color: BRAND,
+          fontSize: 12,
+          fontWeight: 700,
         }}
       >
-        {description}
-      </Typography>
-    )}
+        {step}
+      </Box>
 
-    {!description && <Box sx={{ mb: 2.5 }} />}
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          component="h2"
+          sx={{
+            color: INK,
+            fontSize: 15.5,
+            fontWeight: 700,
+            lineHeight: 1.4,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {title}
+        </Typography>
+
+        {description && (
+          <Typography
+            sx={{
+              mt: 0.25,
+              color: MUTED,
+              fontSize: 12.5,
+              lineHeight: 1.5,
+            }}
+          >
+            {description}
+          </Typography>
+        )}
+      </Box>
+    </Box>
 
     {children}
   </Paper>
+);
+
+const RepeatCard = ({
+  title,
+  onRemove,
+  children,
+}: {
+  title: string;
+  onRemove: () => void;
+  children: ReactNode;
+}) => (
+  <Box
+    sx={{
+      position: "relative",
+      p: { xs: 1.5, sm: 1.75 },
+      pl: { xs: 2, sm: 2.25 },
+      border: `1px solid ${BORDER}`,
+      borderRadius: 2.5,
+      bgcolor: SURFACE_ALT,
+      overflow: "hidden",
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 3,
+        bgcolor: BRAND,
+        opacity: 0.7,
+      },
+    }}
+  >
+    <Box
+      sx={{
+        mb: 1.25,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <Typography sx={{ color: INK, fontSize: 13.5, fontWeight: 700 }}>
+        {title}
+      </Typography>
+
+      <IconButton
+        type="button"
+        size="small"
+        aria-label={`Remove ${title}`}
+        onClick={onRemove}
+        sx={{
+          color: MUTED,
+          "&:hover": { color: "#B91C1C", bgcolor: "#FEF2F2" },
+        }}
+      >
+        <DeleteOutlineRoundedIcon fontSize="small" />
+      </IconButton>
+    </Box>
+
+    {children}
+  </Box>
+);
+
+const Stack = ({ children }: { children: ReactNode }) => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+    {children}
+  </Box>
+);
+
+const UploadCard = ({
+  title,
+  buttonLabel,
+  accept,
+  statusText,
+  onSelect,
+  preview,
+}: {
+  title: string;
+  buttonLabel: string;
+  accept: string;
+  statusText: string;
+  onSelect: (file: File) => void;
+  preview: ReactNode;
+}) => (
+  <Box
+    sx={{
+      p: 1.5,
+      display: "flex",
+      alignItems: "center",
+      gap: 1.75,
+      border: `1px solid ${BORDER}`,
+      borderRadius: 2.5,
+      bgcolor: SURFACE_ALT,
+    }}
+  >
+    {preview}
+
+    <Box sx={{ minWidth: 0, flex: 1 }}>
+      <Typography sx={{ color: INK, fontSize: 13.5, fontWeight: 700 }}>
+        {title}
+      </Typography>
+
+      <Typography
+        sx={{
+          mt: 0.25,
+          mb: 1,
+          color: MUTED,
+          fontSize: 12,
+          lineHeight: 1.45,
+          wordBreak: "break-word",
+        }}
+      >
+        {statusText}
+      </Typography>
+
+      <Button
+        component="label"
+        variant="outlined"
+        size="small"
+        startIcon={<UploadFileOutlinedIcon />}
+        sx={outlineButtonSx}
+      >
+        {buttonLabel}
+        <input
+          hidden
+          type="file"
+          accept={accept}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+
+            if (file) {
+              onSelect(file);
+            }
+          }}
+        />
+      </Button>
+    </Box>
+  </Box>
 );
 
 // =================================================
@@ -209,34 +388,47 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     fields: educationFields,
     append: appendEducation,
     remove: removeEducation,
-  } = useFieldArray({
-    control,
-    name: "education",
-  });
+  } = useFieldArray({ control, name: "education" });
 
   const {
     fields: qualificationFields,
     append: appendQualification,
     remove: removeQualification,
-  } = useFieldArray({
-    control,
-    name: "qualifications",
-  });
+  } = useFieldArray({ control, name: "qualifications" });
 
   const {
     fields: employmentFields,
     append: appendEmployment,
     remove: removeEmployment,
-  } = useFieldArray({
-    control,
-    name: "employmentHistory",
-  });
+  } = useFieldArray({ control, name: "employmentHistory" });
 
   const selectedClientImage = watch("clientImage");
-
   const selectedCv = watch("cv");
-
   const paymentMethod = watch("paymentMethod");
+
+  // =================================================
+  // PHOTO PREVIEW
+  // =================================================
+
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
+
+  useEffect(() => {
+    if (selectedClientImage instanceof File) {
+      const url = URL.createObjectURL(selectedClientImage);
+      setPhotoPreviewUrl(url);
+
+      return () => URL.revokeObjectURL(url);
+    }
+
+    setPhotoPreviewUrl("");
+  }, [selectedClientImage]);
+
+  const existingPhotoUrl =
+    typeof existingClientImage === "string"
+      ? getUploadedFileUrl(existingClientImage)
+      : "";
+
+  const photoSrc = photoPreviewUrl || existingPhotoUrl;
 
   // =================================================
   // OPTIONS
@@ -244,51 +436,46 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
   const visaOptions = CURRENT_VISA_STATUS_OPTIONS.map((option) => ({
     value: option.value,
-
     label: createT(`options.currentVisaStatus.${option.key}` as never),
   }));
 
   const categoryOptions = PREFER_CATEGORY_OPTIONS.map((option) => ({
     value: option.value,
-
     label: createT(`options.preferCategory.${option.key}` as never),
   }));
 
   const genderOptions = GENDER.map((option) => ({
     value: option.value,
-
     label: createT(`options.gender.${option.key}` as never),
   }));
 
   const nationalityOptions = NATIONALITIES.map((option) => ({
     value: option.value,
-
     label: createT(`options.nationality.${option.key}` as never),
   }));
 
   const prefectureOptions = PREFECTURE_OPTIONS.map((option) => ({
     value: option.value,
-
     label: createT(`options.prefecture.${option.key}` as never),
   }));
 
   const japaneseOptions = JAPANESE_LEVELS.map((option) => ({
     value: option.value,
-
     label: createT(`options.japaneseLanguageLevel.${option.key}` as never),
   }));
 
   const educationTypeOptions = EDUCATION_TYPE_OPTIONS.map((option) => ({
     value: option.value,
-
     label: createT(`options.educationType.${option.key}` as never),
   }));
 
   const employmentTypeOptions = EMPLOYMENT_TYPE_OPTIONS.map((option) => ({
     value: option.value,
-
     label: createT(`options.employmentType.${option.key}` as never),
   }));
+
+  // Step numbers shift by one when the payment section is present
+  const offset = isEditMode ? 0 : 1;
 
   // =================================================
   // LOADING
@@ -312,69 +499,40 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     <Box
       sx={{
         minHeight: "100vh",
-        bgcolor: "#F7F8F6",
-
-        px: {
-          xs: 2,
-          sm: 3,
-          md: 4,
-        },
-
-        py: 4,
+        bgcolor: PAGE_BG,
+        px: { xs: 1.5, sm: 3, md: 4 },
+        pt: { xs: 1.5, md: 2 },
+        pb: 3,
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 1250,
-          mx: "auto",
-        }}
-      >
-        <Box sx={{ mb: 2.5 }}>
+      <Box sx={{ width: "100%", maxWidth: 1440, mx: "auto" }}>
+        <Box sx={{ mb: 1.5 }}>
           <Breadcrumb
             items={[
+              { label: "Dashboard", href: "/admin/dashboard" },
+              { label: "Clients", href: "/admin/client" },
               {
-                label: "Dashboard",
-                href: "/admin/dashboard",
-              },
-
-              {
-                label: "Clients",
-                href: "/admin/client",
-              },
-
-              {
-                label: isEditMode ? "Edit Client" : "Register Client",
-
+                label: isEditMode ? "Edit client" : "Register client",
                 current: true,
               },
             ]}
           />
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
           <Typography
+            component="h1"
             sx={{
               color: INK,
-
-              fontSize: {
-                xs: 24,
-                md: 30,
-              },
-
+              fontSize: { xs: 21, md: 26 },
               fontWeight: 700,
+              letterSpacing: "-0.025em",
             }}
           >
-            {isEditMode ? "Edit Client" : "Register New Client"}
+            {isEditMode ? "Edit client" : "Register new client"}
           </Typography>
 
-          <Typography
-            sx={{
-              mt: 0.6,
-              color: MUTED,
-              fontSize: 13.5,
-            }}
-          >
+          <Typography sx={{ mt: 0.4, color: MUTED, fontSize: 13 }}>
             {isEditMode
               ? "Update client and Japanese CV information."
               : "A new client becomes Registered / Paid only after the full registration payment is confirmed."}
@@ -382,25 +540,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
         </Box>
 
         {submitError && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 2,
-              borderRadius: 2,
-            }}
-          >
+          <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>
             {submitError}
           </Alert>
         )}
 
         {!isEditMode && registrationConfigError && (
-          <Alert
-            severity="error"
-            sx={{
-              mb: 2,
-              borderRadius: 2,
-            }}
-          >
+          <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>
             {registrationConfigError}
           </Alert>
         )}
@@ -408,21 +554,17 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
         <Box
           component="form"
           onSubmit={handleSubmit(onSubmit)}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
+          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
         >
           {/* =================================================
           1 BASIC
           ================================================= */}
 
-          <FormSection title="1. Basic Information">
-            <Box sx={grid3Sx}>
+          <FormSection step={1} title="Basic information">
+            <Box sx={gridSx}>
               <TextField
                 {...register("fullName")}
-                label="Full Name"
+                label="Full name"
                 required
                 size="small"
                 error={Boolean(errors.fullName)}
@@ -458,14 +600,9 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("dateOfBirth")}
-                label="Date of Birth"
-                type="date"
+                {...dateProps}
+                label="Date of birth"
                 size="small"
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
                 sx={fieldSx}
               />
 
@@ -519,11 +656,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           2 ADDRESS
           ================================================= */}
 
-          <FormSection title="2. Address">
-            <Box sx={grid3Sx}>
+          <FormSection step={2} title="Address">
+            <Box sx={gridSx}>
               <TextField
                 {...register("postalCode")}
-                label="Postal Code"
+                label="Postal code"
                 size="small"
                 sx={fieldSx}
               />
@@ -563,8 +700,8 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           3 IMMIGRATION
           ================================================= */}
 
-          <FormSection title="3. Immigration & Passport">
-            <Box sx={grid3Sx}>
+          <FormSection step={3} title="Immigration & passport">
+            <Box sx={gridSx}>
               <Controller
                 name="currentVisaStatus"
                 control={control}
@@ -573,7 +710,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     {...field}
                     select
                     required
-                    label="Current Visa Status"
+                    label="Current visa status"
                     size="small"
                     error={Boolean(errors.currentVisaStatus)}
                     helperText={errors.currentVisaStatus?.message}
@@ -592,34 +729,24 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("residenceExpiryDate")}
-                label="Residence Expiry Date"
-                type="date"
+                {...dateProps}
+                label="Residence expiry date"
                 size="small"
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("passportNumber")}
-                label="Passport Number"
+                label="Passport number"
                 size="small"
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("passportExpiryDate")}
-                label="Passport Expiry Date"
-                type="date"
+                {...dateProps}
+                label="Passport expiry date"
                 size="small"
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
                 sx={fieldSx}
               />
             </Box>
@@ -630,14 +757,15 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           ================================================= */}
 
           <FormSection
-            title="4. Recruitment Information"
+            step={4}
+            title="Recruitment information"
             description={
               isEditMode
                 ? "Stage changes for existing clients are handled only through Progress."
                 : "The initial stage is automatically Registered / Paid."
             }
           >
-            <Box sx={grid3Sx}>
+            <Box sx={gridSx}>
               <Controller
                 name="preferCategory"
                 control={control}
@@ -645,7 +773,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                   <TextField
                     {...field}
                     select
-                    label="Preferred Category"
+                    label="Preferred category"
                     size="small"
                     sx={fieldSx}
                   >
@@ -667,7 +795,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       {...field}
                       select
                       required
-                      label="Assigned Staff"
+                      label="Assigned staff"
                       size="small"
                       disabled={isStaffLoading}
                       error={Boolean(errors.assignedStaff)}
@@ -686,7 +814,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 />
               ) : (
                 <TextField
-                  label="Assigned Staff"
+                  label="Assigned staff"
                   value={user?.staffId || "Automatically assigned"}
                   disabled
                   size="small"
@@ -702,7 +830,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               />
 
               <TextField
-                label="Current Stage"
+                label="Current stage"
                 value={
                   isEditMode
                     ? client?.currentStageDetails?.name ||
@@ -719,55 +847,36 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           </FormSection>
 
           {/* =================================================
-          5 REGISTRATION PAYMENT
-          CREATE ONLY
+          5 REGISTRATION PAYMENT (CREATE ONLY)
           ================================================= */}
 
           {!isEditMode && (
             <FormSection
-              title="5. Registration Payment"
+              step={5}
+              title="Registration payment"
               description="The client is created only after the full registration fee is confirmed. Partial payment is not supported."
             >
               {isStageLoading ? (
-                <Box
-                  sx={{
-                    py: 3,
-                    display: "grid",
-                    placeItems: "center",
-                  }}
-                >
-                  <CircularProgress size={24} sx={{ color: BRAND }} />
+                <Box sx={{ py: 2, display: "grid", placeItems: "center" }}>
+                  <CircularProgress size={22} sx={{ color: BRAND }} />
                 </Box>
               ) : (
                 <>
                   <Box
                     sx={{
-                      mb: 2.5,
-                      p: 2,
-
-                      border: "1px solid rgba(180,83,9,0.18)",
-
+                      mb: 1.5,
+                      px: 1.75,
+                      py: 1.25,
+                      border: "1px solid rgba(180,83,9,0.2)",
                       borderRadius: 2.5,
-
                       bgcolor: WARNING_SOFT,
-
                       display: "flex",
                       justifyContent: "space-between",
-
-                      alignItems: {
-                        xs: "flex-start",
-                        sm: "center",
-                      },
-
-                      flexDirection: {
-                        xs: "column",
-                        sm: "row",
-                      },
-
+                      alignItems: "center",
                       gap: 1.5,
                     }}
                   >
-                    <Box>
+                    <Box sx={{ minWidth: 0 }}>
                       <Typography
                         sx={{
                           color: WARNING,
@@ -775,14 +884,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           fontWeight: 700,
                         }}
                       >
-                        FULL REGISTRATION PAYMENT REQUIRED
+                        Full payment required
                       </Typography>
 
                       <Typography
                         sx={{
-                          mt: 0.35,
+                          mt: 0.2,
                           color: INK,
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: 700,
                         }}
                       >
@@ -790,25 +899,17 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       </Typography>
                     </Box>
 
-                    <Box>
-                      <Typography
-                        sx={{
-                          color: MUTED,
-                          fontSize: 11,
-                          textAlign: {
-                            xs: "left",
-                            sm: "right",
-                          },
-                        }}
-                      >
-                        Registration Fee
+                    <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                      <Typography sx={{ color: MUTED, fontSize: 11.5 }}>
+                        Registration fee
                       </Typography>
 
                       <Typography
                         sx={{
                           color: WARNING,
-                          fontSize: 24,
+                          fontSize: { xs: 20, sm: 22 },
                           fontWeight: 800,
+                          lineHeight: 1.2,
                         }}
                       >
                         ¥{registrationAmount.toLocaleString()}
@@ -818,16 +919,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                   <Alert
                     severity="info"
-                    sx={{
-                      mb: 2.5,
-                      borderRadius: 2,
-                    }}
+                    sx={{ mb: 1.5, py: 0, borderRadius: 2, fontSize: 13 }}
                   >
                     The amount is controlled by the Stage Master. It cannot be
                     changed from this form.
                   </Alert>
 
-                  <Box sx={grid2Sx}>
+                  <Box sx={gridSx}>
                     <Controller
                       name="paymentMethod"
                       control={control}
@@ -836,7 +934,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           {...field}
                           select
                           required
-                          label="Payment Method"
+                          label="Payment method"
                           size="small"
                           error={Boolean(errors.paymentMethod)}
                           helperText={errors.paymentMethod?.message}
@@ -855,17 +953,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                     <TextField
                       {...register("paymentDate")}
+                      {...dateProps}
                       required
-                      label="Payment Date"
-                      type="date"
+                      label="Payment date"
                       size="small"
                       error={Boolean(errors.paymentDate)}
                       helperText={errors.paymentDate?.message}
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
                       sx={fieldSx}
                     />
 
@@ -873,14 +966,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       <>
                         <TextField
                           {...register("bankName")}
-                          label="Bank Name"
+                          label="Bank name"
                           size="small"
                           sx={fieldSx}
                         />
 
                         <TextField
                           {...register("referenceNumber")}
-                          label="Reference Number"
+                          label="Reference number"
                           size="small"
                           sx={fieldSx}
                         />
@@ -889,7 +982,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                     <TextField
                       {...register("receiptNumber")}
-                      label="Receipt Number"
+                      label="Receipt number"
                       size="small"
                       sx={fieldSx}
                     />
@@ -900,11 +993,9 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     fullWidth
                     multiline
                     minRows={2}
-                    label="Payment Note"
-                    sx={{
-                      ...fieldSx,
-                      mt: 2,
-                    }}
+                    size="small"
+                    label="Payment note"
+                    sx={{ ...fieldSx, mt: 1.5 }}
                   />
                 </>
               )}
@@ -915,48 +1006,15 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           EDUCATION
           ================================================= */}
 
-          <FormSection title={`${isEditMode ? "5" : "6"}. Education`}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
+          <FormSection step={5 + offset} title="Education">
+            <Stack>
               {educationFields.map((item, index) => (
-                <Box
+                <RepeatCard
                   key={item.id}
-                  sx={{
-                    p: 2,
-                    border: `1px solid ${BORDER}`,
-                    borderRadius: 2,
-                    bgcolor: "#FAFBFA",
-                  }}
+                  title={`Education ${index + 1}`}
+                  onRemove={() => removeEducation(index)}
                 >
-                  <Box
-                    sx={{
-                      mb: 2,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                      }}
-                    >
-                      Education {index + 1}
-                    </Typography>
-
-                    <IconButton
-                      type="button"
-                      onClick={() => removeEducation(index)}
-                    >
-                      <DeleteOutlineRoundedIcon />
-                    </IconButton>
-                  </Box>
-
-                  <Box sx={grid3Sx}>
+                  <Box sx={gridSx}>
                     <Controller
                       name={`education.${index}.educationType`}
                       control={control}
@@ -964,7 +1022,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         <TextField
                           {...field}
                           select
-                          label="School Type"
+                          label="School type"
                           size="small"
                           sx={fieldSx}
                         >
@@ -981,41 +1039,31 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                     <TextField
                       {...register(`education.${index}.schoolName`)}
-                      label="School Name"
+                      label="School name"
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`education.${index}.major`)}
-                      label="Major / Course"
+                      label="Major / course"
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`education.${index}.enrollmentDate`)}
-                      label="Enrollment Date"
-                      type="date"
+                      {...dateProps}
+                      label="Enrollment date"
                       size="small"
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`education.${index}.graduationDate`)}
-                      label="Graduation Date"
-                      type="date"
+                      {...dateProps}
+                      label="Graduation date"
                       size="small"
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
                       sx={fieldSx}
                     />
 
@@ -1026,7 +1074,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         <TextField
                           {...field}
                           select
-                          label="Graduation Status"
+                          label="Graduation status"
                           size="small"
                           sx={fieldSx}
                         >
@@ -1051,12 +1099,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       )}
                     />
                   </Box>
-                </Box>
+                </RepeatCard>
               ))}
 
               <Button
                 type="button"
                 variant="outlined"
+                size="small"
                 startIcon={<AddRoundedIcon />}
                 onClick={() =>
                   appendEducation({
@@ -1068,16 +1117,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     major: "",
                   })
                 }
-                sx={{
-                  alignSelf: "flex-start",
-                  color: BRAND,
-                  borderColor: BRAND,
-                  textTransform: "none",
-                }}
+                sx={outlineButtonSx}
               >
-                Add Education
+                Add education
               </Button>
-            </Box>
+            </Stack>
           </FormSection>
 
           {/* =================================================
@@ -1085,86 +1129,52 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           ================================================= */}
 
           <FormSection
-            title={`${isEditMode ? "6" : "7"}. Japanese Language & Qualifications`}
+            step={6 + offset}
+            title="Japanese language & qualifications"
           >
-            <Controller
-              name="japaneseLanguageLevel"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  label="Japanese Language Level"
-                  size="small"
-                  sx={{
-                    ...fieldSx,
-                    width: {
-                      xs: "100%",
-                      md: 400,
-                    },
-                    mb: 2.5,
-                  }}
-                >
-                  <MenuItem value="">Select level</MenuItem>
-
-                  {japaneseOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-            />
-
-            <Divider sx={{ mb: 2.5 }} />
-
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
-              {qualificationFields.map((item, index) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    p: 2,
-                    border: `1px solid ${BORDER}`,
-                    borderRadius: 2,
-                    bgcolor: "#FAFBFA",
-                  }}
-                >
-                  <Box
+            <Stack>
+              <Controller
+                name="japaneseLanguageLevel"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    select
+                    label="Japanese language level"
+                    size="small"
                     sx={{
-                      mb: 2,
-                      display: "flex",
-                      justifyContent: "space-between",
+                      ...fieldSx,
+                      width: { xs: "100%", sm: 320 },
                     }}
                   >
-                    <Typography sx={{ fontWeight: 700 }}>
-                      Qualification {index + 1}
-                    </Typography>
+                    <MenuItem value="">Select level</MenuItem>
 
-                    <IconButton
-                      type="button"
-                      onClick={() => removeQualification(index)}
-                    >
-                      <DeleteOutlineRoundedIcon />
-                    </IconButton>
-                  </Box>
+                    {japaneseOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
 
-                  <Box sx={grid3Sx}>
+              {qualificationFields.map((item, index) => (
+                <RepeatCard
+                  key={item.id}
+                  title={`Qualification ${index + 1}`}
+                  onRemove={() => removeQualification(index)}
+                >
+                  <Box sx={gridSx}>
                     <TextField
                       {...register(`qualifications.${index}.name`)}
-                      label="Qualification / Certificate"
+                      label="Qualification / certificate"
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`qualifications.${index}.levelOrScore`)}
-                      label="Level / Score"
+                      label="Level / score"
                       size="small"
                       sx={fieldSx}
                     />
@@ -1178,27 +1188,17 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                     <TextField
                       {...register(`qualifications.${index}.acquiredDate`)}
-                      label="Acquired Date"
-                      type="date"
+                      {...dateProps}
+                      label="Acquired date"
                       size="small"
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`qualifications.${index}.expiryDate`)}
-                      label="Expiry Date"
-                      type="date"
+                      {...dateProps}
+                      label="Expiry date"
                       size="small"
-                      slotProps={{
-                        inputLabel: {
-                          shrink: true,
-                        },
-                      }}
                       sx={fieldSx}
                     />
 
@@ -1209,12 +1209,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       sx={fieldSx}
                     />
                   </Box>
-                </Box>
+                </RepeatCard>
               ))}
 
               <Button
                 type="button"
                 variant="outlined"
+                size="small"
                 startIcon={<AddRoundedIcon />}
                 onClick={() =>
                   appendQualification({
@@ -1226,66 +1227,32 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     note: "",
                   })
                 }
-                sx={{
-                  alignSelf: "flex-start",
-                  color: BRAND,
-                  borderColor: BRAND,
-                  textTransform: "none",
-                }}
+                sx={outlineButtonSx}
               >
-                Add Qualification
+                Add qualification
               </Button>
-            </Box>
+            </Stack>
           </FormSection>
 
           {/* =================================================
           EMPLOYMENT
           ================================================= */}
 
-          <FormSection title={`${isEditMode ? "7" : "8"}. Employment History`}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
+          <FormSection step={7 + offset} title="Employment history">
+            <Stack>
               {employmentFields.map((item, index) => {
                 const isCurrent = watch(`employmentHistory.${index}.isCurrent`);
 
                 return (
-                  <Box
+                  <RepeatCard
                     key={item.id}
-                    sx={{
-                      p: 2,
-                      border: `1px solid ${BORDER}`,
-                      borderRadius: 2,
-                      bgcolor: "#FAFBFA",
-                    }}
+                    title={`Employment ${index + 1}`}
+                    onRemove={() => removeEmployment(index)}
                   >
-                    <Box
-                      sx={{
-                        mb: 2,
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography sx={{ fontWeight: 700 }}>
-                        Employment {index + 1}
-                      </Typography>
-
-                      <IconButton
-                        type="button"
-                        onClick={() => removeEmployment(index)}
-                      >
-                        <DeleteOutlineRoundedIcon />
-                      </IconButton>
-                    </Box>
-
-                    <Box sx={grid3Sx}>
+                    <Box sx={gridSx}>
                       <TextField
                         {...register(`employmentHistory.${index}.companyName`)}
-                        label="Company Name"
+                        label="Company name"
                         size="small"
                         sx={fieldSx}
                       />
@@ -1297,7 +1264,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           <TextField
                             {...field}
                             select
-                            label="Employment Type"
+                            label="Employment type"
                             size="small"
                             sx={fieldSx}
                           >
@@ -1321,42 +1288,32 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                       <TextField
                         {...register(`employmentHistory.${index}.jobTitle`)}
-                        label="Job Title"
+                        label="Job title"
                         size="small"
                         sx={fieldSx}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.workLocation`)}
-                        label="Work Location"
+                        label="Work location"
                         size="small"
                         sx={fieldSx}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.startDate`)}
-                        label="Start Date"
-                        type="date"
+                        {...dateProps}
+                        label="Start date"
                         size="small"
-                        slotProps={{
-                          inputLabel: {
-                            shrink: true,
-                          },
-                        }}
                         sx={fieldSx}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.endDate`)}
-                        label="End Date"
-                        type="date"
+                        {...dateProps}
+                        label="End date"
                         disabled={isCurrent}
                         size="small"
-                        slotProps={{
-                          inputLabel: {
-                            shrink: true,
-                          },
-                        }}
                         sx={fieldSx}
                       />
 
@@ -1365,8 +1322,15 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         control={control}
                         render={({ field }) => (
                           <FormControlLabel
+                            sx={{
+                              m: 0,
+                              "& .MuiFormControlLabel-label": {
+                                fontSize: 13.5,
+                              },
+                            }}
                             control={
                               <Checkbox
+                                size="small"
                                 checked={Boolean(field.value)}
                                 onChange={(event) => {
                                   field.onChange(event.target.checked);
@@ -1380,31 +1344,25 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                                 }}
                                 sx={{
                                   color: BRAND,
-                                  "&.Mui-checked": {
-                                    color: BRAND,
-                                  },
+                                  "&.Mui-checked": { color: BRAND },
                                 }}
                               />
                             }
-                            label="Currently Employed"
+                            label="Currently employed"
                           />
                         )}
                       />
                     </Box>
 
-                    <Box
-                      sx={{
-                        ...grid2Sx,
-                        mt: 2,
-                      }}
-                    >
+                    <Box sx={{ ...grid2Sx, mt: 1.5 }}>
                       <TextField
                         {...register(
                           `employmentHistory.${index}.responsibilities`,
                         )}
-                        label="Responsibilities / Main Duties"
+                        label="Responsibilities / main duties"
                         multiline
-                        minRows={4}
+                        minRows={3}
+                        size="small"
                         sx={fieldSx}
                       />
 
@@ -1412,17 +1370,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         {...register(`employmentHistory.${index}.achievements`)}
                         label="Achievements"
                         multiline
-                        minRows={4}
+                        minRows={3}
+                        size="small"
                         sx={fieldSx}
                       />
                     </Box>
-                  </Box>
+                  </RepeatCard>
                 );
               })}
 
               <Button
                 type="button"
                 variant="outlined"
+                size="small"
                 startIcon={<AddRoundedIcon />}
                 onClick={() =>
                   appendEmployment({
@@ -1438,40 +1398,35 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     achievements: "",
                   })
                 }
-                sx={{
-                  alignSelf: "flex-start",
-                  color: BRAND,
-                  borderColor: BRAND,
-                  textTransform: "none",
-                }}
+                sx={outlineButtonSx}
               >
-                Add Employment
+                Add employment
               </Button>
-            </Box>
+            </Stack>
           </FormSection>
 
           {/* =================================================
           SKILLS
           ================================================= */}
 
-          <FormSection
-            title={`${isEditMode ? "8" : "9"}. Skills & Career Summary`}
-          >
+          <FormSection step={8 + offset} title="Skills & career summary">
             <Box sx={grid2Sx}>
               <TextField
                 {...register("skillsText")}
                 label="Skills"
                 multiline
-                minRows={4}
+                minRows={3}
+                size="small"
                 helperText="Separate skills with commas or new lines."
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("careerSummary")}
-                label="Career Summary / 職務要約"
+                label="Career summary / 職務要約"
                 multiline
-                minRows={4}
+                minRows={3}
+                size="small"
                 sx={fieldSx}
               />
             </Box>
@@ -1481,21 +1436,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           JAPANESE APPLICATION
           ================================================= */}
 
-          <FormSection
-            title={`${isEditMode ? "9" : "10"}. Japanese Application Content`}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
+          <FormSection step={9 + offset} title="Japanese application content">
+            <Stack>
               <TextField
                 {...register("motivation")}
                 label="Motivation / 志望動機"
                 multiline
-                minRows={4}
+                minRows={3}
+                size="small"
                 sx={fieldSx}
               />
 
@@ -1503,222 +1451,200 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 {...register("selfPR")}
                 label="Self PR / 自己PR"
                 multiline
-                minRows={4}
+                minRows={3}
+                size="small"
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("desiredConditions")}
-                label="Desired Conditions / 本人希望記入欄"
+                label="Desired conditions / 本人希望記入欄"
                 multiline
-                minRows={3}
+                minRows={2}
+                size="small"
                 sx={fieldSx}
               />
-            </Box>
+            </Stack>
           </FormSection>
 
           {/* =================================================
           DOCUMENTS
           ================================================= */}
 
-          <FormSection title={`${isEditMode ? "10" : "11"}. Documents`}>
-            <Box sx={grid2Sx}>
-              <Box
-                sx={{
-                  p: 2,
-                  border: `1px solid ${BORDER}`,
-                  borderRadius: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    mb: 1.5,
-                    fontSize: 13,
-                    fontWeight: 700,
-                  }}
-                >
-                  Candidate Photo
-                </Typography>
-
-                <Button
-                  component="label"
-                  variant="outlined"
-                  startIcon={<UploadFileOutlinedIcon />}
-                  sx={{
-                    color: BRAND,
-                    borderColor: BRAND,
-                    textTransform: "none",
-                  }}
-                >
-                  Select Photo
-                  <input
-                    hidden
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-
-                      if (file) {
-                        setValue("clientImage", file, {
-                          shouldDirty: true,
-                        });
-                      }
-                    }}
-                  />
-                </Button>
-
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: MUTED,
-                    fontSize: 12,
-                  }}
-                >
-                  {selectedClientImage instanceof File
+          <FormSection step={10 + offset} title="Documents">
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "minmax(0, 1fr)",
+                  md: "repeat(2, minmax(0, 1fr))",
+                },
+                gap: 1.5,
+              }}
+            >
+              <UploadCard
+                title="Candidate photo"
+                buttonLabel={photoSrc ? "Replace photo" : "Select photo"}
+                accept="image/*"
+                statusText={
+                  selectedClientImage instanceof File
                     ? selectedClientImage.name
                     : existingClientImage
-                      ? "Existing photo will be kept unless replaced."
-                      : "No photo selected."}
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 2,
-                  border: `1px solid ${BORDER}`,
-                  borderRadius: 2,
-                }}
-              >
-                <Typography
-                  sx={{
-                    mb: 1.5,
-                    fontSize: 13,
-                    fontWeight: 700,
-                  }}
-                >
-                  Original Applicant CV
-                </Typography>
-
-                <Button
-                  component="label"
-                  variant="outlined"
-                  startIcon={<UploadFileOutlinedIcon />}
-                  sx={{
-                    color: BRAND,
-                    borderColor: BRAND,
-                    textTransform: "none",
-                  }}
-                >
-                  Select CV
-                  <input
-                    hidden
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-
-                      if (file) {
-                        setValue("cv", file, {
-                          shouldDirty: true,
-                        });
-                      }
+                      ? "Existing photo is kept unless replaced."
+                      : "No photo selected. Use a 3:4 portrait."
+                }
+                onSelect={(file) =>
+                  setValue("clientImage", file, { shouldDirty: true })
+                }
+                preview={
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      width: 72,
+                      aspectRatio: "3 / 4",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      border: `1px solid ${BORDER}`,
+                      bgcolor: BRAND_SOFT,
+                      color: BRAND,
+                      display: "grid",
+                      placeItems: "center",
                     }}
-                  />
-                </Button>
+                  >
+                    {photoSrc ? (
+                      <Box
+                        component="img"
+                        src={photoSrc}
+                        alt="Candidate photo preview"
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          objectPosition: "center top",
+                          display: "block",
+                        }}
+                      />
+                    ) : (
+                      <PersonOutlineRoundedIcon />
+                    )}
+                  </Box>
+                }
+              />
 
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: MUTED,
-                    fontSize: 12,
-                  }}
-                >
-                  {selectedCv instanceof File
+              <UploadCard
+                title="Original applicant CV"
+                buttonLabel={
+                  selectedCv instanceof File || existingCv
+                    ? "Replace CV"
+                    : "Select CV"
+                }
+                accept=".pdf,.doc,.docx"
+                statusText={
+                  selectedCv instanceof File
                     ? selectedCv.name
                     : existingCv
-                      ? "Existing CV will be kept unless replaced."
-                      : "No CV selected."}
-                </Typography>
-              </Box>
+                      ? "Existing CV is kept unless replaced."
+                      : "No CV selected. PDF or Word."
+                }
+                onSelect={(file) => setValue("cv", file, { shouldDirty: true })}
+                preview={
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      width: 72,
+                      height: 96,
+                      borderRadius: 2,
+                      border: `1px solid ${BORDER}`,
+                      bgcolor: BRAND_SOFT,
+                      color: BRAND,
+                      display: "grid",
+                      placeItems: "center",
+                    }}
+                  >
+                    <DescriptionOutlinedIcon />
+                  </Box>
+                }
+              />
             </Box>
           </FormSection>
 
           {/* =================================================
-          ACTION
+          ACTION BAR
           ================================================= */}
 
           <Paper
             elevation={0}
             sx={{
               ...cardSx,
+              p: { xs: 1.25, sm: 1.5 },
               position: "sticky",
-              bottom: 16,
+              bottom: 12,
               zIndex: 5,
+              bgcolor: "rgba(255,255,255,0.92)",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 28px -12px rgba(17,24,39,0.28)",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 1,
+              "& > button": {
+                minHeight: 42,
+                px: 2.25,
+                textTransform: "none",
+                fontWeight: 600,
+              },
             }}
           >
-            <Box
+            <Button
+              type="button"
+              variant="outlined"
+              disabled={isSaving}
+              onClick={handleCancel}
               sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 1.5,
+                flexShrink: 0,
+                borderColor: BORDER,
+                color: MUTED,
+                bgcolor: SURFACE,
+                "&:hover": { borderColor: MUTED, bgcolor: SURFACE },
               }}
             >
-              <Button
-                type="button"
-                variant="outlined"
-                disabled={isSaving}
-                onClick={handleCancel}
-                sx={{
-                  minHeight: 44,
-                  px: 2.5,
-                  borderColor: BORDER,
-                  color: MUTED,
-                  textTransform: "none",
-                }}
-              >
-                Cancel
-              </Button>
+              Cancel
+            </Button>
 
-              <Button
-                type="submit"
-                variant="contained"
-                disableElevation
-                disabled={
-                  isSaving ||
-                  (!isEditMode &&
-                    (isStageLoading || Boolean(registrationConfigError)))
-                }
-                startIcon={
-                  isSaving ? (
-                    <CircularProgress size={15} color="inherit" />
-                  ) : isEditMode ? (
-                    <SaveOutlinedIcon />
-                  ) : (
-                    <PaymentsOutlinedIcon />
-                  )
-                }
-                sx={{
-                  minHeight: 44,
-                  px: 2.5,
-
-                  bgcolor: isEditMode ? BRAND : WARNING,
-
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  textTransform: "none",
-
-                  "&:hover": {
-                    bgcolor: isEditMode ? BRAND_HOVER : WARNING_DARK,
-                  },
-                }}
-              >
-                {isSaving
-                  ? "Processing..."
-                  : isEditMode
-                    ? "Update Client"
-                    : `Confirm ¥${registrationAmount.toLocaleString()} Payment & Create Client`}
-              </Button>
-            </Box>
+            <Button
+              type="submit"
+              variant="contained"
+              disableElevation
+              disabled={
+                isSaving ||
+                (!isEditMode &&
+                  (isStageLoading || Boolean(registrationConfigError)))
+              }
+              startIcon={
+                isSaving ? (
+                  <CircularProgress size={15} color="inherit" />
+                ) : isEditMode ? (
+                  <SaveOutlinedIcon />
+                ) : (
+                  <PaymentsOutlinedIcon />
+                )
+              }
+              sx={{
+                flex: { xs: 1, sm: "0 1 auto" },
+                bgcolor: isEditMode ? BRAND : WARNING,
+                color: "#ffffff",
+                fontWeight: 700,
+                lineHeight: 1.25,
+                "&:hover": {
+                  bgcolor: isEditMode ? BRAND_HOVER : WARNING_DARK,
+                },
+              }}
+            >
+              {isSaving
+                ? "Processing..."
+                : isEditMode
+                  ? "Update client"
+                  : `Confirm ¥${registrationAmount.toLocaleString()} payment & create client`}
+            </Button>
           </Paper>
         </Box>
       </Box>

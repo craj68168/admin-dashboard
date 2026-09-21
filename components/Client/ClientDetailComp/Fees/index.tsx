@@ -1,17 +1,21 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
+
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import AddCardOutlinedIcon from "@mui/icons-material/AddCardOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 
 import { Controller } from "react-hook-form";
 import { useTranslations } from "next-intl";
@@ -23,105 +27,82 @@ import { useClientFeesHook } from "./hook";
 import type { ClientFeesProps, PaymentProgressStatus } from "./type";
 
 // =================================================
-// DESIGN SYSTEM
-// Styling only — no business logic
+// DESIGN TOKENS
+// Styling only, no business logic
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
-const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.09)";
+const SURFACE = "#FFFFFF";
+const SURFACE_ALT = "#F8FAF9";
+const HAIRLINE = "rgba(17, 24, 39, 0.08)";
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
+const MUTED = "#6B7280";
+const AMBER = "#B7791F";
+const DANGER = "#DC2626";
 
-const softCard = {
-  bgcolor: "#ffffff",
-  border: `1px solid ${HAIRLINE}`,
-  borderRadius: 3,
-  boxShadow:
-    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+// How many fees show before "Show all"
+const FEES_PREVIEW_COUNT = 4;
+
+const errorAlertSx = {
+  borderRadius: 2.5,
+  border: "1px solid rgba(220, 38, 38, 0.14)",
+  bgcolor: "#FEF2F2",
+  color: "#991B1B",
+  "& .MuiAlert-icon": { color: DANGER },
 };
 
 const fieldSx = {
   "& .MuiInputLabel-root": {
     color: INK_MUTED,
     fontSize: 14,
-
-    "&.Mui-focused": {
-      color: BRAND,
-    },
-
-    "&.Mui-error": {
-      color: "#DC2626",
-    },
+    "&.Mui-focused": { color: BRAND },
+    "&.Mui-error": { color: DANGER },
   },
 
   "& .MuiOutlinedInput-root": {
-    bgcolor: "#ffffff",
+    bgcolor: SURFACE,
     color: INK,
-    borderRadius: 2.5,
+    borderRadius: 2,
+    transition: "border-color 200ms ease",
 
-    transition:
-      "border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease",
-
-    "& fieldset": {
-      borderColor: HAIRLINE,
-      transition: "border-color 200ms ease",
-    },
-
-    "&:hover fieldset": {
-      borderColor: "rgba(16, 122, 100, 0.35)",
-    },
-
-    "&.Mui-focused fieldset": {
-      borderColor: BRAND,
-      borderWidth: "1px",
-    },
-
-    "&.Mui-error fieldset": {
-      borderColor: "#DC2626",
-    },
+    "& fieldset": { borderColor: HAIRLINE },
+    "&:hover fieldset": { borderColor: "rgba(16, 122, 100, 0.4)" },
+    "&.Mui-focused fieldset": { borderColor: BRAND, borderWidth: "1px" },
+    "&.Mui-error fieldset": { borderColor: DANGER },
   },
 
-  "& .MuiInputBase-input": {
-    fontSize: 14,
-  },
+  "& .MuiInputBase-input": { fontSize: 14 },
 
   "& .MuiFormHelperText-root": {
-    ml: 0.25,
-    mt: 0.75,
+    mx: 0.5,
+    mt: 0.5,
     color: INK_MUTED,
     fontSize: 11.5,
-
-    "&.Mui-error": {
-      color: "#DC2626",
-    },
+    "&.Mui-error": { color: DANGER },
   },
 };
 
 const chipSx = {
-  height: 27,
+  height: 24,
   borderRadius: 999,
   fontSize: 11.5,
   fontWeight: 600,
 
-  transition:
-    "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
-  "& .MuiChip-label": {
-    px: 1.25,
-  },
+  "& .MuiChip-label": { px: 1.1 },
 
   "&.MuiChip-colorSuccess": {
     color: BRAND,
     bgcolor: BRAND_SOFT,
-    borderColor: "rgba(16, 122, 100, 0.14)",
+    borderColor: "rgba(16, 122, 100, 0.16)",
   },
 
   "&.MuiChip-colorWarning": {
-    color: "#B7791F",
+    color: AMBER,
     bgcolor: "#FFFBEB",
-    borderColor: "rgba(183, 121, 31, 0.14)",
+    borderColor: "rgba(183, 121, 31, 0.2)",
   },
 
   "&.MuiChip-colorInfo": {
@@ -132,10 +113,14 @@ const chipSx = {
 
   "&.MuiChip-colorDefault": {
     color: INK_MUTED,
-    bgcolor: "#F9FAFB",
+    bgcolor: SURFACE_ALT,
     borderColor: HAIRLINE,
   },
 };
+
+// =================================================
+// HELPERS
+// =================================================
 
 const formatAmount = (value: number) =>
   new Intl.NumberFormat("ja-JP").format(Number(value || 0));
@@ -176,6 +161,132 @@ const getProgressColor = (
       return "default";
   }
 };
+
+const getPaidPercent = (paid: number, expected: number) => {
+  const total = Number(expected || 0);
+
+  if (total <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, (Number(paid || 0) / total) * 100));
+};
+
+// =================================================
+// SMALL PIECES
+// =================================================
+
+const PanelTitle = ({
+  children,
+  count,
+}: {
+  children: ReactNode;
+  count?: number;
+}) => (
+  <Box sx={{ mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+    <Typography
+      component="h3"
+      sx={{ color: INK, fontSize: 14.5, fontWeight: 700 }}
+    >
+      {children}
+    </Typography>
+
+    {typeof count === "number" && count > 0 && (
+      <Box
+        component="span"
+        sx={{
+          minWidth: 22,
+          height: 22,
+          px: 0.75,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: 999,
+          bgcolor: BRAND_SOFT,
+          color: BRAND,
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        {count}
+      </Box>
+    )}
+  </Box>
+);
+
+const StatTile = ({
+  label,
+  value,
+  color = INK,
+  tint,
+}: {
+  label: string;
+  value: string;
+  color?: string;
+  tint?: string;
+}) => (
+  <Box
+    sx={{
+      px: 2,
+      py: 1.5,
+      border: `1px solid ${HAIRLINE}`,
+      borderRadius: 2.5,
+      bgcolor: tint || SURFACE_ALT,
+      minWidth: 0,
+    }}
+  >
+    <Typography sx={{ color: INK_MUTED, fontSize: 12, fontWeight: 500 }}>
+      {label}
+    </Typography>
+
+    <Typography
+      sx={{
+        mt: 0.25,
+        color,
+        fontSize: { xs: 20, sm: 22 },
+        fontWeight: 700,
+        lineHeight: 1.3,
+        letterSpacing: "-0.01em",
+        fontVariantNumeric: "tabular-nums",
+        wordBreak: "break-word",
+      }}
+    >
+      {value}
+    </Typography>
+  </Box>
+);
+
+const Money = ({
+  label,
+  value,
+  color = INK,
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) => (
+  <Box sx={{ minWidth: 0 }}>
+    <Typography sx={{ color: MUTED, fontSize: 11.5, lineHeight: 1.4 }}>
+      {label}
+    </Typography>
+
+    <Typography
+      sx={{
+        mt: 0.15,
+        color,
+        fontSize: 14,
+        fontWeight: 600,
+        fontVariantNumeric: "tabular-nums",
+      }}
+    >
+      {value}
+    </Typography>
+  </Box>
+);
+
+// =================================================
+// COMPONENT
+// =================================================
 
 const ClientFees = ({ clientId }: ClientFeesProps) => {
   const t = useTranslations("clientFees");
@@ -220,17 +331,33 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
 
   const saving = isSubmitting || isCreatingFee || isUpdatingFee;
 
+  const [showAllFees, setShowAllFees] = useState(false);
+
+  const canCollapseFees = fees.length > FEES_PREVIEW_COUNT;
+
+  const visibleFees =
+    showAllFees || !canCollapseFees ? fees : fees.slice(0, FEES_PREVIEW_COUNT);
+
   return (
     <Box>
-      {/* HEADER */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
-      <Box sx={{ mb: 3 }}>
+      <Box
+        sx={{
+          pb: 1.75,
+          mb: 2,
+          borderBottom: `1px solid ${HAIRLINE}`,
+        }}
+      >
         <Typography
+          component="h2"
           sx={{
             color: INK,
-            fontSize: 17,
+            fontSize: { xs: 16, md: 17 },
+            fontWeight: 700,
             lineHeight: 1.35,
-            fontWeight: 600,
             letterSpacing: "-0.01em",
           }}
         >
@@ -238,149 +365,58 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
         </Typography>
 
         <Typography
-          variant="body2"
           sx={{
             mt: 0.5,
             color: INK_MUTED,
-            fontSize: 13.5,
-            lineHeight: 1.6,
+            fontSize: 13,
+            lineHeight: 1.55,
           }}
         >
           {t("description")}
         </Typography>
       </Box>
 
-      {/* SUMMARY */}
+      {/* =================================================
+          SUMMARY
+      ================================================= */}
 
       <Box
         sx={{
           display: "grid",
-
           gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(3, 1fr)",
+            xs: "minmax(0, 1fr)",
+            sm: "repeat(3, minmax(0, 1fr))",
           },
-
-          gap: 2,
-
-          mb: 3,
+          gap: 1.5,
+          mb: 2,
         }}
       >
-        <Box
-          sx={{
-            ...softCard,
-            p: 2.25,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: INK_MUTED,
-              fontSize: 11.5,
-              fontWeight: 500,
-            }}
-          >
-            {t("summary.totalExpected")}
-          </Typography>
+        <StatTile
+          label={t("summary.totalExpected")}
+          value={`¥${formatAmount(totalExpected)}`}
+        />
 
-          <Typography
-            sx={{
-              mt: 0.6,
-              color: INK,
-              fontSize: 20,
-              lineHeight: 1.3,
-              fontWeight: 600,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            ¥{formatAmount(totalExpected)}
-          </Typography>
-        </Box>
+        <StatTile
+          label={t("summary.totalPaid")}
+          value={`¥${formatAmount(totalPaid)}`}
+          color={BRAND}
+          tint={BRAND_SOFT}
+        />
 
-        <Box
-          sx={{
-            ...softCard,
-            p: 2.25,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: INK_MUTED,
-              fontSize: 11.5,
-              fontWeight: 500,
-            }}
-          >
-            {t("summary.totalPaid")}
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 0.6,
-              color: BRAND,
-              fontSize: 20,
-              lineHeight: 1.3,
-              fontWeight: 600,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            ¥{formatAmount(totalPaid)}
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            ...softCard,
-            p: 2.25,
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: INK_MUTED,
-              fontSize: 11.5,
-              fontWeight: 500,
-            }}
-          >
-            {t("summary.outstanding")}
-          </Typography>
-
-          <Typography
-            sx={{
-              mt: 0.6,
-              color: "#B7791F",
-              fontSize: 20,
-              lineHeight: 1.3,
-              fontWeight: 600,
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            ¥{formatAmount(totalOutstanding)}
-          </Typography>
-        </Box>
+        <StatTile
+          label={t("summary.outstanding")}
+          value={`¥${formatAmount(totalOutstanding)}`}
+          color={AMBER}
+          tint="#FFFBEB"
+        />
       </Box>
 
-      {/* ALERTS */}
+      {/* =================================================
+          ALERTS
+      ================================================= */}
 
       {serverError && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-
-            borderRadius: 2.5,
-
-            border: "1px solid rgba(220, 38, 38, 0.12)",
-
-            bgcolor: "#FEF2F2",
-
-            color: "#991B1B",
-
-            "& .MuiAlert-icon": {
-              color: "#DC2626",
-            },
-          }}
-        >
+        <Alert severity="error" sx={{ ...errorAlertSx, mb: 1.5 }}>
           {serverError}
         </Alert>
       )}
@@ -389,19 +425,12 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
         <Alert
           severity="success"
           sx={{
-            mb: 2,
-
+            mb: 1.5,
             borderRadius: 2.5,
-
-            border: "1px solid rgba(16, 122, 100, 0.12)",
-
+            border: "1px solid rgba(16, 122, 100, 0.16)",
             bgcolor: BRAND_SOFT,
-
             color: BRAND,
-
-            "& .MuiAlert-icon": {
-              color: BRAND,
-            },
+            "& .MuiAlert-icon": { color: BRAND },
           }}
         >
           {successMessage}
@@ -409,24 +438,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
       )}
 
       {loadError && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-
-            borderRadius: 2.5,
-
-            border: "1px solid rgba(220, 38, 38, 0.12)",
-
-            bgcolor: "#FEF2F2",
-
-            color: "#991B1B",
-
-            "& .MuiAlert-icon": {
-              color: "#DC2626",
-            },
-          }}
-        >
+        <Alert severity="error" sx={{ ...errorAlertSx, mb: 1.5 }}>
           {loadError}
         </Alert>
       )}
@@ -434,475 +446,410 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
       <Box
         sx={{
           display: "grid",
-
           gridTemplateColumns: {
-            xs: "1fr",
-            lg: isAdmin ? "1.5fr 1fr" : "1fr",
+            xs: "minmax(0, 1fr)",
+            lg: isAdmin
+              ? "minmax(0, 1.45fr) minmax(0, 1fr)"
+              : "minmax(0, 1fr)",
           },
-
-          gap: {
-            xs: 3,
-            lg: 4,
-          },
+          gap: { xs: 2.5, lg: 3 },
+          alignItems: "start",
         }}
       >
-        {/* FEE LIST */}
+        {/* =================================================
+            FEE LIST
+        ================================================= */}
 
-        <Box>
-          <Typography
-            sx={{
-              mb: 2,
-
-              color: INK,
-
-              fontSize: 15,
-
-              fontWeight: 600,
-            }}
-          >
-            {t("feeRequirements")}
-          </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <PanelTitle count={fees.length}>{t("feeRequirements")}</PanelTitle>
 
           {isFeesLoading && (
             <Box
               sx={{
-                ...softCard,
-
                 py: 5,
-
-                display: "flex",
-
-                justifyContent: "center",
+                display: "grid",
+                placeItems: "center",
+                border: `1px solid ${HAIRLINE}`,
+                borderRadius: 3,
+                bgcolor: SURFACE_ALT,
               }}
             >
-              <CircularProgress
-                size={28}
-                sx={{
-                  color: BRAND,
-                }}
-              />
+              <CircularProgress size={26} sx={{ color: BRAND }} />
             </Box>
           )}
 
           {!isFeesLoading && !loadError && fees.length === 0 && (
             <Box
               sx={{
-                bgcolor: "#ffffff",
-
-                border: "1px dashed rgba(16, 122, 100, 0.25)",
-
+                py: 4,
+                px: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+                border: "1px dashed rgba(16, 122, 100, 0.3)",
                 borderRadius: 3,
-
-                p: {
-                  xs: 4,
-                  sm: 5,
-                },
-
+                bgcolor: SURFACE_ALT,
                 textAlign: "center",
               }}
             >
-              <Typography
-                variant="body2"
+              <Box
                 sx={{
-                  color: INK_MUTED,
-                  fontSize: 14,
+                  width: 40,
+                  height: 40,
+                  display: "grid",
+                  placeItems: "center",
+                  borderRadius: "50%",
+                  bgcolor: BRAND_SOFT,
+                  color: BRAND,
                 }}
               >
+                <ReceiptLongOutlinedIcon fontSize="small" />
+              </Box>
+
+              <Typography sx={{ color: INK_MUTED, fontSize: 13.5 }}>
                 {t("empty")}
               </Typography>
             </Box>
           )}
 
           {!isFeesLoading && !loadError && fees.length > 0 && (
-            <Box
-              sx={{
-                ...softCard,
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.25,
+                  // Collapsed: a few fees. Expanded: scrolls inside a fixed
+                  // height so the section never keeps growing.
+                  maxHeight: showAllFees ? { xs: 520, lg: 620 } : "none",
+                  overflowY: showAllFees ? "auto" : "visible",
+                  pr: showAllFees ? 0.5 : 0,
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(17,24,39,0.18) transparent",
+                }}
+              >
+                {visibleFees.map((fee) => {
+                  const isActive = fee.status === "Active";
+                  const isEditing = editingFeeId === fee._id;
 
-                overflow: "hidden",
-              }}
-            >
-              {fees.map((fee, index) => (
-                <Box key={fee._id}>
-                  <Box
-                    sx={{
-                      p: {
-                        xs: 2,
-                        sm: 2.5,
-                      },
+                  const percent = getPaidPercent(
+                    fee.paidAmount,
+                    fee.expectedAmount,
+                  );
 
-                      transition: "background-color 200ms ease",
-
-                      "&:hover": {
-                        bgcolor: "rgba(16, 122, 100, 0.025)",
-                      },
-                    }}
-                  >
+                  return (
                     <Box
+                      key={fee._id}
                       sx={{
-                        display: "flex",
-
-                        justifyContent: "space-between",
-
-                        alignItems: {
-                          xs: "flex-start",
-                          sm: "center",
-                        },
-
-                        flexDirection: {
-                          xs: "column",
-                          sm: "row",
-                        },
-
-                        gap: 2,
+                        p: { xs: 1.5, sm: 1.75 },
+                        border: `1px solid ${
+                          isEditing ? BRAND : HAIRLINE
+                        }`,
+                        borderRadius: 2.5,
+                        bgcolor: SURFACE,
+                        boxShadow: isEditing
+                          ? `0 0 0 3px ${BRAND_SOFT}`
+                          : "none",
+                        opacity: isActive ? 1 : 0.78,
+                        transition:
+                          "border-color 200ms ease, box-shadow 200ms ease",
                       }}
                     >
-                      <Box>
-                        <Typography
-                          sx={{
-                            color: INK,
-
-                            fontSize: 15,
-
-                            fontWeight: 600,
-
-                            lineHeight: 1.4,
-                          }}
-                        >
-                          {fee.feeName}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mt: 0.5,
-
-                            color: INK_MUTED,
-
-                            fontSize: 12.5,
-                          }}
-                        >
-                          {t("due", { date: formatTokyoDate(fee.dueDate) })}
-                        </Typography>
-                      </Box>
+                      {/* TOP ROW */}
 
                       <Box
                         sx={{
                           display: "flex",
-
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          flexDirection: { xs: "column", sm: "row" },
                           gap: 1,
-
-                          flexWrap: "wrap",
                         }}
                       >
-                        <Chip
-                          size="small"
-                          label={t(`statuses.${fee.status}`)}
-                          color={
-                            fee.status === "Active" ? "success" : "default"
-                          }
-                          variant="outlined"
-                          sx={chipSx}
-                        />
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography
+                            sx={{
+                              color: INK,
+                              fontSize: 14.5,
+                              fontWeight: 700,
+                              lineHeight: 1.4,
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {fee.feeName}
+                          </Typography>
 
-                        <Chip
-                          size="small"
-                          variant="outlined"
-                          label={t(`paymentStatuses.${fee.paymentProgressStatus}`)}
-                          color={getProgressColor(fee.paymentProgressStatus)}
-                          sx={chipSx}
-                        />
-                      </Box>
-                    </Box>
+                          <Typography
+                            sx={{
+                              mt: 0.25,
+                              color: MUTED,
+                              fontSize: 12,
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
+                            {t("due", { date: formatTokyoDate(fee.dueDate) })}
+                          </Typography>
+                        </Box>
 
-                    {/* MONEY */}
-
-                    <Box
-                      sx={{
-                        display: "grid",
-
-                        gridTemplateColumns: {
-                          xs: "1fr",
-                          sm: "repeat(3, 1fr)",
-                        },
-
-                        gap: 2,
-
-                        mt: 2.5,
-
-                        p: 2,
-
-                        borderRadius: 2.5,
-
-                        bgcolor: "#F9FAFB",
-
-                        border: `1px solid ${HAIRLINE}`,
-                      }}
-                    >
-                      <Box>
-                        <Typography
-                          variant="caption"
+                        <Box
                           sx={{
-                            color: INK_MUTED,
-                            fontSize: 11.5,
+                            display: "flex",
+                            gap: 0.75,
+                            flexWrap: "wrap",
+                            flexShrink: 0,
                           }}
                         >
-                          {t("summary.expected")}
-                        </Typography>
+                          <Chip
+                            size="small"
+                            label={t(`statuses.${fee.status}`)}
+                            color={isActive ? "success" : "default"}
+                            variant="outlined"
+                            sx={chipSx}
+                          />
 
-                        <Typography
-                          sx={{
-                            mt: 0.35,
-
-                            color: INK,
-
-                            fontSize: 14,
-
-                            fontWeight: 600,
-
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          ¥{formatAmount(fee.expectedAmount)}
-                        </Typography>
+                          <Chip
+                            size="small"
+                            variant="outlined"
+                            label={t(
+                              `paymentStatuses.${fee.paymentProgressStatus}`,
+                            )}
+                            color={getProgressColor(fee.paymentProgressStatus)}
+                            sx={chipSx}
+                          />
+                        </Box>
                       </Box>
 
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 11.5,
-                          }}
-                        >
-                          {t("summary.paid")}
-                        </Typography>
+                      {/* MONEY + PROGRESS */}
 
-                        <Typography
-                          sx={{
-                            mt: 0.35,
-
-                            color: BRAND,
-
-                            fontSize: 14,
-
-                            fontWeight: 600,
-
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          ¥{formatAmount(fee.paidAmount)}
-                        </Typography>
-                      </Box>
-
-                      <Box>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 11.5,
-                          }}
-                        >
-                          {t("summary.outstanding")}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            mt: 0.35,
-
-                            color: INK,
-
-                            fontSize: 14,
-
-                            fontWeight: 600,
-
-                            fontVariantNumeric: "tabular-nums",
-                          }}
-                        >
-                          ¥{formatAmount(fee.outstandingAmount)}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        mt: 2,
-
-                        color: INK_MUTED,
-
-                        fontSize: 13,
-                      }}
-                    >
                       <Box
-                        component="strong"
-                        sx={{
-                          color: INK,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t("createdBy")}:
-                      </Box>{" "}
-                      {fee.createdByName}
-                    </Typography>
-
-                    {fee.note && (
-                      <Typography
-                        variant="body2"
                         sx={{
                           mt: 1.5,
-
-                          color: INK_MUTED,
-
-                          fontSize: 13.5,
-
-                          lineHeight: 1.6,
-
-                          whiteSpace: "pre-wrap",
+                          px: 1.5,
+                          py: 1.25,
+                          borderRadius: 2,
+                          bgcolor: SURFACE_ALT,
+                          border: `1px solid ${HAIRLINE}`,
                         }}
                       >
-                        {fee.note}
-                      </Typography>
-                    )}
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                            gap: 1.25,
+                          }}
+                        >
+                          <Money
+                            label={t("summary.expected")}
+                            value={`¥${formatAmount(fee.expectedAmount)}`}
+                          />
 
-                    {isAdmin && fee.status === "Active" && (
+                          <Money
+                            label={t("summary.paid")}
+                            value={`¥${formatAmount(fee.paidAmount)}`}
+                            color={BRAND}
+                          />
+
+                          <Money
+                            label={t("summary.outstanding")}
+                            value={`¥${formatAmount(fee.outstandingAmount)}`}
+                            color={
+                              Number(fee.outstandingAmount || 0) > 0
+                                ? AMBER
+                                : INK
+                            }
+                          />
+                        </Box>
+
+                        <Box
+                          role="progressbar"
+                          aria-valuenow={Math.round(percent)}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          sx={{
+                            mt: 1.25,
+                            height: 5,
+                            borderRadius: 999,
+                            bgcolor: "rgba(17,24,39,0.07)",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: `${percent}%`,
+                              height: "100%",
+                              borderRadius: 999,
+                              bgcolor: percent >= 100 ? BRAND : "#34A48C",
+                              transition: "width 300ms ease",
+                            }}
+                          />
+                        </Box>
+                      </Box>
+
+                      {/* NOTE */}
+
+                      {fee.note && (
+                        <Typography
+                          sx={{
+                            mt: 1.25,
+                            color: INK_MUTED,
+                            fontSize: 13,
+                            lineHeight: 1.6,
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {fee.note}
+                        </Typography>
+                      )}
+
+                      {/* FOOTER */}
+
                       <Box
                         sx={{
+                          mt: 1.25,
                           display: "flex",
-
-                          justifyContent: "flex-end",
-
-                          flexWrap: "wrap",
-
+                          alignItems: { xs: "flex-start", sm: "center" },
+                          justifyContent: "space-between",
+                          flexDirection: { xs: "column", sm: "row" },
                           gap: 1,
-
-                          mt: 2.5,
                         }}
                       >
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<EditOutlinedIcon />}
-                          onClick={() => handleEdit(fee)}
-                          sx={{
-                            minHeight: 36,
+                        <Typography sx={{ color: MUTED, fontSize: 12 }}>
+                          {t("createdBy")}{" "}
+                          <Box
+                            component="span"
+                            sx={{ color: INK, fontWeight: 600 }}
+                          >
+                            {fee.createdByName}
+                          </Box>
+                        </Typography>
 
-                            px: 1.75,
+                        {isAdmin && isActive && (
+                          <Box sx={{ display: "flex", gap: 0.75 }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              startIcon={<EditOutlinedIcon />}
+                              onClick={() => handleEdit(fee)}
+                              sx={{
+                                minHeight: 32,
+                                px: 1.5,
+                                borderRadius: 2,
+                                borderColor: HAIRLINE,
+                                color: INK_MUTED,
+                                bgcolor: SURFACE,
+                                fontSize: 12.5,
+                                fontWeight: 600,
+                                textTransform: "none",
+                                "&:hover": {
+                                  bgcolor: BRAND_SOFT,
+                                  color: BRAND,
+                                  borderColor: "rgba(16, 122, 100, 0.3)",
+                                },
+                              }}
+                            >
+                              {t("actions.edit")}
+                            </Button>
 
-                            borderRadius: 2.5,
-
-                            borderColor: HAIRLINE,
-
-                            color: INK_MUTED,
-
-                            bgcolor: "#ffffff",
-
-                            fontSize: 12.5,
-
-                            fontWeight: 600,
-
-                            textTransform: "none",
-
-                            transition:
-                              "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
-                            "&:hover": {
-                              bgcolor: BRAND_SOFT,
-
-                              color: BRAND,
-
-                              borderColor: "rgba(16, 122, 100, 0.30)",
-                            },
-                          }}
-                        >
-                          {t("actions.edit")}
-                        </Button>
-
-                        <Button
-                          size="small"
-                          color="error"
-                          variant="outlined"
-                          startIcon={<CancelOutlinedIcon />}
-                          onClick={() => handleOpenCancelFee(fee)}
-                          sx={{
-                            minHeight: 36,
-
-                            px: 1.75,
-
-                            borderRadius: 2.5,
-
-                            borderColor: "rgba(220, 38, 38, 0.18)",
-
-                            color: "#DC2626",
-
-                            bgcolor: "#ffffff",
-
-                            fontSize: 12.5,
-
-                            fontWeight: 600,
-
-                            textTransform: "none",
-
-                            transition:
-                              "background-color 200ms ease, border-color 200ms ease",
-
-                            "&:hover": {
-                              bgcolor: "#FEF2F2",
-
-                              borderColor: "rgba(220, 38, 38, 0.35)",
-                            },
-                          }}
-                        >
-                          {t("actions.cancel")}
-                        </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              startIcon={<CancelOutlinedIcon />}
+                              onClick={() => handleOpenCancelFee(fee)}
+                              sx={{
+                                minHeight: 32,
+                                px: 1.5,
+                                borderRadius: 2,
+                                borderColor: "rgba(220, 38, 38, 0.2)",
+                                color: DANGER,
+                                bgcolor: SURFACE,
+                                fontSize: 12.5,
+                                fontWeight: 600,
+                                textTransform: "none",
+                                "&:hover": {
+                                  bgcolor: "#FEF2F2",
+                                  borderColor: "rgba(220, 38, 38, 0.4)",
+                                },
+                              }}
+                            >
+                              {t("actions.cancel")}
+                            </Button>
+                          </Box>
+                        )}
                       </Box>
-                    )}
-                  </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
 
-                  {index < fees.length - 1 && (
-                    <Divider
-                      sx={{
-                        borderColor: HAIRLINE,
-                      }}
-                    />
-                  )}
+              {canCollapseFees && (
+                <Box
+                  sx={{ mt: 1.25, display: "flex", justifyContent: "center" }}
+                >
+                  <Button
+                    type="button"
+                    size="small"
+                    onClick={() => setShowAllFees((prev) => !prev)}
+                    endIcon={
+                      showAllFees ? (
+                        <ExpandLessRoundedIcon />
+                      ) : (
+                        <ExpandMoreRoundedIcon />
+                      )
+                    }
+                    sx={{
+                      color: BRAND,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      textTransform: "none",
+                      "&:hover": { bgcolor: BRAND_SOFT },
+                    }}
+                  >
+                    {showAllFees
+                      ? "Show less"
+                      : `Show all ${fees.length} fees`}
+                  </Button>
                 </Box>
-              ))}
-            </Box>
+              )}
+            </>
           )}
         </Box>
 
-        {/* ADMIN FORM */}
+        {/* =================================================
+            ADMIN FORM
+        ================================================= */}
 
         {isAdmin && (
           <Box
             sx={{
-              ...softCard,
-
-              p: {
-                xs: 2,
-                sm: 3,
-              },
-
-              height: "fit-content",
+              p: { xs: 1.75, sm: 2.25 },
+              border: `1px solid ${editingFeeId ? BRAND : HAIRLINE}`,
+              borderRadius: 3,
+              bgcolor: SURFACE_ALT,
+              boxShadow: editingFeeId ? `0 0 0 3px ${BRAND_SOFT}` : "none",
+              transition: "border-color 200ms ease, box-shadow 200ms ease",
+              position: { lg: "sticky" },
+              top: { lg: 16 },
             }}
           >
             <Typography
+              component="h3"
               sx={{
-                mb: 3,
-
+                mb: 1.75,
                 color: INK,
-
-                fontSize: 17,
-
-                fontWeight: 600,
-
-                lineHeight: 1.35,
+                fontSize: 14.5,
+                fontWeight: 700,
               }}
             >
               {editingFeeId ? t("form.editTitle") : t("form.addTitle")}
             </Typography>
 
-            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit(onSubmit)}
+              sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+            >
               <Controller
                 name="feeName"
                 control={control}
@@ -911,58 +858,61 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     {...field}
                     fullWidth
                     required
+                    size="small"
                     label={t("form.feeName")}
                     error={Boolean(errors.feeName)}
                     helperText={errors.feeName?.message}
-                    sx={{
-                      ...fieldSx,
-                      mb: 2.5,
-                    }}
+                    sx={fieldSx}
                   />
                 )}
               />
 
-              <Controller
-                name="expectedAmount"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    required
-                    type="number"
-                    label={t("form.expectedAmount")}
-                    error={Boolean(errors.expectedAmount)}
-                    helperText={errors.expectedAmount?.message}
-                    sx={{
-                      ...fieldSx,
-                      mb: 2.5,
-                    }}
-                  />
-                )}
-              />
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "minmax(0, 1fr)",
+                    sm: "repeat(2, minmax(0, 1fr))",
+                    lg: "minmax(0, 1fr)",
+                    xl: "repeat(2, minmax(0, 1fr))",
+                  },
+                  gap: 1.5,
+                }}
+              >
+                <Controller
+                  name="expectedAmount"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      required
+                      size="small"
+                      type="number"
+                      label={t("form.expectedAmount")}
+                      error={Boolean(errors.expectedAmount)}
+                      helperText={errors.expectedAmount?.message}
+                      sx={fieldSx}
+                    />
+                  )}
+                />
 
-              <Controller
-                name="dueDate"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    type="date"
-                    label={t("form.dueDate")}
-                    slotProps={{
-                      inputLabel: {
-                        shrink: true,
-                      },
-                    }}
-                    sx={{
-                      ...fieldSx,
-                      mb: 2.5,
-                    }}
-                  />
-                )}
-              />
+                <Controller
+                  name="dueDate"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      size="small"
+                      type="date"
+                      label={t("form.dueDate")}
+                      slotProps={{ inputLabel: { shrink: true } }}
+                      sx={fieldSx}
+                    />
+                  )}
+                />
+              </Box>
 
               <Controller
                 name="note"
@@ -972,7 +922,8 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     {...field}
                     fullWidth
                     multiline
-                    minRows={4}
+                    minRows={3}
+                    size="small"
                     label={t("form.note")}
                     error={Boolean(errors.note)}
                     helperText={errors.note?.message}
@@ -984,17 +935,9 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
               <Box
                 sx={{
                   display: "flex",
-
-                  flexDirection: {
-                    xs: "column-reverse",
-                    sm: "row",
-                  },
-
+                  flexDirection: { xs: "column-reverse", sm: "row" },
                   justifyContent: "flex-end",
-
                   gap: 1,
-
-                  mt: 3,
                 }}
               >
                 {editingFeeId && (
@@ -1005,31 +948,17 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     onClick={handleCancelEdit}
                     sx={{
                       minHeight: 40,
-
                       px: 2,
-
-                      borderRadius: 2.5,
-
+                      borderRadius: 2,
                       borderColor: HAIRLINE,
-
                       color: INK_MUTED,
-
-                      bgcolor: "#ffffff",
-
-                      fontSize: 13,
-
+                      bgcolor: SURFACE,
+                      fontSize: 13.5,
                       fontWeight: 600,
-
                       textTransform: "none",
-
-                      transition:
-                        "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
-
                       "&:hover": {
                         bgcolor: BRAND_SOFT,
-
-                        borderColor: "rgba(16, 122, 100, 0.30)",
-
+                        borderColor: "rgba(16, 122, 100, 0.3)",
                         color: BRAND,
                       },
                     }}
@@ -1045,41 +974,25 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                   disabled={saving}
                   startIcon={
                     saving ? (
-                      <CircularProgress size={17} color="inherit" />
+                      <CircularProgress size={16} color="inherit" />
+                    ) : editingFeeId ? (
+                      <EditOutlinedIcon />
                     ) : (
                       <AddCardOutlinedIcon />
                     )
                   }
                   sx={{
                     minHeight: 40,
-
-                    px: 2,
-
+                    px: 2.25,
                     bgcolor: BRAND,
-
                     color: "#ffffff",
-
-                    borderRadius: 2.5,
-
-                    fontSize: 13,
-
+                    borderRadius: 2,
+                    fontSize: 13.5,
                     fontWeight: 600,
-
                     textTransform: "none",
-
-                    boxShadow: "none",
-
-                    transition: "background-color 200ms ease",
-
-                    "&:hover": {
-                      bgcolor: BRAND_HOVER,
-
-                      boxShadow: "none",
-                    },
-
+                    "&:hover": { bgcolor: BRAND_HOVER },
                     "&.Mui-disabled": {
                       bgcolor: "rgba(16, 122, 100, 0.45)",
-
                       color: "#ffffff",
                     },
                   }}
