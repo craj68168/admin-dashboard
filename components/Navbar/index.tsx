@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import Box from "@mui/material/Box";
+import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
+
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
 import { useNavbar } from "./hook";
 import type { NavbarProps } from "./type";
@@ -21,8 +25,14 @@ const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
 
-export default function Navbar({ title }: NavbarProps) {
+type NavbarWithMenuProps = NavbarProps & {
+  /** Opens the sidebar drawer. When provided, a menu button shows below `md`. */
+  onMenuClick?: () => void;
+};
+
+export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
   const { user, initials } = useNavbar();
+  const tSidebar = useTranslations("sidebar");
 
   return (
     <Box
@@ -53,6 +63,42 @@ export default function Navbar({ title }: NavbarProps) {
         WebkitBackdropFilter: "blur(14px)",
       }}
     >
+      {/* =================================================
+          MENU BUTTON (phones + tablets, opens the sidebar drawer)
+      ================================================= */}
+
+      {onMenuClick && (
+        <ButtonBase
+          onClick={onMenuClick}
+          aria-label={tSidebar("toggleSidebar")}
+          sx={{
+            display: { xs: "grid", md: "none" },
+            placeItems: "center",
+            flexShrink: 0,
+            width: 40,
+            height: 40,
+            ml: -0.5,
+            borderRadius: 2.5,
+            border: `1px solid ${HAIRLINE}`,
+            color: INK_MUTED,
+            bgcolor: "#ffffff",
+            transition:
+              "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
+            "&:hover": {
+              bgcolor: BRAND_SOFT,
+              borderColor: "rgba(16, 122, 100, 0.22)",
+              color: BRAND,
+            },
+            "&.Mui-focusVisible": {
+              outline: `2px solid ${BRAND}`,
+              outlineOffset: 2,
+            },
+          }}
+        >
+          <MenuRoundedIcon sx={{ fontSize: 22 }} />
+        </ButtonBase>
+      )}
+
       {/* =================================================
           TITLE
           (a <p>, not a heading: each page already has its own <h1>)

@@ -146,6 +146,7 @@ type FormAutocompleteProps = {
   onChange: (value: string) => void;
   onBlur?: () => void;
   placeholder?: string;
+  noOptionsText?: string;
   required?: boolean;
   disabled?: boolean;
   error?: boolean;
@@ -159,11 +160,14 @@ const FormAutocomplete = ({
   onChange,
   onBlur,
   placeholder,
+  noOptionsText,
   required = false,
   disabled = false,
   error = false,
   helperText,
 }: FormAutocompleteProps) => {
+  const t = useTranslations("clientForm");
+
   const selectedOption =
     options.find((option) => option.value === value) ?? null;
 
@@ -183,7 +187,7 @@ const FormAutocomplete = ({
         onChange(option?.value ?? "");
       }}
       onBlur={onBlur}
-      noOptionsText="No options found"
+      noOptionsText={noOptionsText ?? t("noOptionsText")}
       renderOption={(props, option) => (
         <Box
           component="li"
@@ -202,7 +206,7 @@ const FormAutocomplete = ({
           required={required}
           size="small"
           label={label}
-          placeholder={placeholder || `Search ${label.toLowerCase()}`}
+          placeholder={placeholder}
           error={error}
           helperText={helperText}
           sx={fieldSx}
@@ -324,65 +328,83 @@ const RepeatCard = ({
   onRemove: () => void;
   children: ReactNode;
 }) => (
-  <Box
-    sx={{
-      position: "relative",
-      p: { xs: 1.5, sm: 1.75 },
-      pl: { xs: 2, sm: 2.25 },
-      border: `1px solid ${BORDER}`,
-      borderRadius: 2.5,
-      bgcolor: SURFACE_ALT,
-      overflow: "hidden",
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 3,
-        bgcolor: BRAND,
-        opacity: 0.7,
-      },
-    }}
-  >
+  <RepeatCardContent title={title} onRemove={onRemove}>
+    {children}
+  </RepeatCardContent>
+);
+
+const RepeatCardContent = ({
+  title,
+  onRemove,
+  children,
+}: {
+  title: string;
+  onRemove: () => void;
+  children: ReactNode;
+}) => {
+  const t = useTranslations("clientForm");
+
+  return (
     <Box
       sx={{
-        mb: 1.25,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
+        position: "relative",
+        p: { xs: 1.5, sm: 1.75 },
+        pl: { xs: 2, sm: 2.25 },
+        border: `1px solid ${BORDER}`,
+        borderRadius: 2.5,
+        bgcolor: SURFACE_ALT,
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 3,
+          bgcolor: BRAND,
+          opacity: 0.7,
+        },
       }}
     >
-      <Typography
+      <Box
         sx={{
-          color: INK,
-          fontSize: 13.5,
-          fontWeight: 700,
+          mb: 1.25,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        {title}
-      </Typography>
+        <Typography
+          sx={{
+            color: INK,
+            fontSize: 13.5,
+            fontWeight: 700,
+          }}
+        >
+          {title}
+        </Typography>
 
-      <IconButton
-        type="button"
-        size="small"
-        aria-label={`Remove ${title}`}
-        onClick={onRemove}
-        sx={{
-          color: MUTED,
-          "&:hover": {
-            color: "#B91C1C",
-            bgcolor: "#FEF2F2",
-          },
-        }}
-      >
-        <DeleteOutlineRoundedIcon fontSize="small" />
-      </IconButton>
+        <IconButton
+          type="button"
+          size="small"
+          aria-label={t("actions.removeItem", { item: title })}
+          onClick={onRemove}
+          sx={{
+            color: MUTED,
+            "&:hover": {
+              color: "#B91C1C",
+              bgcolor: "#FEF2F2",
+            },
+          }}
+        >
+          <DeleteOutlineRoundedIcon fontSize="small" />
+        </IconButton>
+      </Box>
+
+      {children}
     </Box>
-
-    {children}
-  </Box>
-);
+  );
+};
 
 // =================================================
 // STACK
@@ -487,6 +509,7 @@ const UploadCard = ({
 // =================================================
 
 const ClientForm = ({ clientId }: ClientFormProps) => {
+  const t = useTranslations("clientForm");
   const createT = useTranslations("createClient");
 
   const {
@@ -641,30 +664,30 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
   const paymentMethodOptions = [
     {
       value: "Bank Transfer",
-      label: "Bank Transfer",
+      label: t("paymentMethods.bankTransfer"),
     },
     {
       value: "Cash",
-      label: "Cash",
+      label: t("paymentMethods.cash"),
     },
   ];
 
   const graduationStatusOptions = [
     {
       value: "graduated",
-      label: "Graduated / 卒業",
+      label: t("graduationStatus.graduated"),
     },
     {
       value: "expectedGraduation",
-      label: "Expected Graduation / 卒業見込",
+      label: t("graduationStatus.expectedGraduation"),
     },
     {
       value: "currentlyEnrolled",
-      label: "Currently Enrolled / 在学中",
+      label: t("graduationStatus.currentlyEnrolled"),
     },
     {
       value: "withdrawn",
-      label: "Withdrawn / 中退",
+      label: t("graduationStatus.withdrawn"),
     },
   ];
 
@@ -721,15 +744,17 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           <Breadcrumb
             items={[
               {
-                label: "Dashboard",
+                label: t("breadcrumbs.dashboard"),
                 href: "/admin/dashboard",
               },
               {
-                label: "Clients",
+                label: t("breadcrumbs.clients"),
                 href: "/admin/client",
               },
               {
-                label: isEditMode ? "Edit client" : "Register client",
+                label: isEditMode
+                  ? t("breadcrumbs.edit")
+                  : t("breadcrumbs.create"),
                 current: true,
               },
             ]}
@@ -748,7 +773,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               letterSpacing: "-0.025em",
             }}
           >
-            {isEditMode ? "Edit client" : "Register new client"}
+            {isEditMode ? t("header.editTitle") : t("header.createTitle")}
           </Typography>
 
           <Typography
@@ -759,8 +784,8 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             }}
           >
             {isEditMode
-              ? "Update client and Japanese CV information."
-              : "A new client becomes Registered / Paid only after the full registration payment is confirmed."}
+              ? t("header.editDescription")
+              : t("header.createDescription")}
           </Typography>
         </Box>
 
@@ -805,11 +830,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           1 BASIC INFORMATION
           ================================================= */}
 
-          <FormSection step={1} title="Basic information">
+          <FormSection step={1} title={t("sections.basic.title")}>
+            {" "}
             <Box sx={gridSx}>
               <TextField
                 {...register("fullName")}
-                label="Full name"
+                label={t("fields.fullName")}
                 required
                 size="small"
                 error={Boolean(errors.fullName)}
@@ -819,14 +845,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("furigana")}
-                label="Furigana / フリガナ"
+                label={t("fields.furigana")}
                 size="small"
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("phone")}
-                label="Phone"
+                label={t("fields.phone")}
                 required
                 size="small"
                 error={Boolean(errors.phone)}
@@ -836,7 +862,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("email")}
-                label="Email"
+                label={t("fields.email")}
                 size="small"
                 error={Boolean(errors.email)}
                 helperText={errors.email?.message}
@@ -846,7 +872,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               <TextField
                 {...register("dateOfBirth")}
                 {...dateProps}
-                label="Date of birth"
+                label={t("fields.dateOfBirth")}
                 size="small"
                 sx={fieldSx}
               />
@@ -858,12 +884,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 control={control}
                 render={({ field }) => (
                   <FormAutocomplete
-                    label="Gender"
+                    label={t("fields.gender")}
                     value={field.value}
                     options={genderOptions}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="Search gender"
+                    placeholder={t("placeholders.gender")}
                   />
                 )}
               />
@@ -875,12 +901,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 control={control}
                 render={({ field }) => (
                   <FormAutocomplete
-                    label="Nationality"
+                    label={t("fields.nationality")}
                     value={field.value}
                     options={nationalityOptions}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="Search nationality"
+                    placeholder={t("placeholders.nationality")}
                   />
                 )}
               />
@@ -891,11 +917,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           2 ADDRESS
           ================================================= */}
 
-          <FormSection step={2} title="Address">
+          <FormSection step={2} title={t("sections.address.title")}>
             <Box sx={gridSx}>
               <TextField
                 {...register("postalCode")}
-                label="Postal code"
+                label={t("fields.postalCode")}
                 size="small"
                 sx={fieldSx}
               />
@@ -907,19 +933,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 control={control}
                 render={({ field }) => (
                   <FormAutocomplete
-                    label="Prefecture"
+                    label={t("fields.prefecture")}
                     value={field.value}
                     options={prefectureOptions}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="Search prefecture"
+placeholder={t("placeholders.prefecture")}
                   />
                 )}
               />
 
               <TextField
                 {...register("address")}
-                label="Address"
+                label={t("fields.address")}
                 size="small"
                 sx={fieldSx}
               />
@@ -930,7 +956,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           3 IMMIGRATION
           ================================================= */}
 
-          <FormSection step={3} title="Immigration & passport">
+          <FormSection step={3} title={t("sections.immigration.title")}>
             <Box sx={gridSx}>
               {/* VISA AUTOCOMPLETE */}
 
@@ -940,12 +966,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 render={({ field }) => (
                   <FormAutocomplete
                     required
-                    label="Current visa status"
+                    label={t("fields.currentVisaStatus")}
                     value={field.value}
                     options={visaOptions}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="Search visa status"
+                    placeholder={t("placeholders.currentVisaStatus")}
                     error={Boolean(errors.currentVisaStatus)}
                     helperText={errors.currentVisaStatus?.message}
                   />
@@ -955,14 +981,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               <TextField
                 {...register("residenceExpiryDate")}
                 {...dateProps}
-                label="Residence expiry date"
+                label={t("fields.residenceExpiryDate")}
                 size="small"
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("passportNumber")}
-                label="Passport number"
+                label={t("fields.passportNumber")}
                 size="small"
                 sx={fieldSx}
               />
@@ -970,7 +996,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               <TextField
                 {...register("passportExpiryDate")}
                 {...dateProps}
-                label="Passport expiry date"
+                label={t("fields.passportExpiryDate")}
                 size="small"
                 sx={fieldSx}
               />
@@ -983,11 +1009,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
           <FormSection
             step={4}
-            title="Recruitment information"
+            title={t("sections.recruitment.title")}
             description={
               isEditMode
-                ? "Stage changes for existing clients are handled only through Progress."
-                : "The initial stage is automatically Registered / Paid."
+                ? t("sections.recruitment.editDescription")
+                : t("sections.recruitment.createDescription")
             }
           >
             <Box sx={gridSx}>
@@ -998,12 +1024,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 control={control}
                 render={({ field }) => (
                   <FormAutocomplete
-                    label="Preferred category"
+                    label={t("fields.preferCategory")}
                     value={field.value}
                     options={categoryOptions}
                     onChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder="Search preferred category"
+                    placeholder={t("placeholders.preferCategory")}
                   />
                 )}
               />
@@ -1017,13 +1043,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                   render={({ field }) => (
                     <FormAutocomplete
                       required
-                      label="Assigned staff"
+                      label={t("fields.assignedStaff")}
                       value={field.value}
                       options={assignedStaffOptions}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       disabled={isStaffLoading}
-                      placeholder="Search staff"
+                      placeholder={t("placeholders.assignedStaff")}
                       error={Boolean(errors.assignedStaff)}
                       helperText={errors.assignedStaff?.message}
                     />
@@ -1031,8 +1057,8 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 />
               ) : (
                 <TextField
-                  label="Assigned staff"
-                  value={user?.staffId || "Automatically assigned"}
+                  label={t("fields.assignedStaff")}
+                  value={user?.staffId || t("assignedStaff.autoAssigned")}
                   disabled
                   size="small"
                   sx={fieldSx}
@@ -1041,20 +1067,20 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("intake")}
-                label="Intake"
+                label={t("fields.intake")}
                 size="small"
                 sx={fieldSx}
               />
 
               <TextField
-                label="Current stage"
+                label={t("fields.currentStage")}
                 value={
                   isEditMode
                     ? client?.currentStageDetails?.name ||
                       client?.clientStatus ||
                       client?.currentStage ||
                       "-"
-                    : registrationStage?.name || "Registered / Paid"
+                    : registrationStage?.name || t("registrationStageFallback")
                 }
                 disabled
                 size="small"
@@ -1070,8 +1096,8 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           {!isEditMode && (
             <FormSection
               step={5}
-              title="Registration payment"
-              description="The client is created only after the full registration fee is confirmed. Partial payment is not supported."
+              title={t("sections.registrationPayment.title")}
+              description={t("sections.registrationPayment.description")}
             >
               {isStageLoading ? (
                 <Box
@@ -1112,7 +1138,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           fontWeight: 700,
                         }}
                       >
-                        Full payment required
+                        {t("registrationPayment.fullPaymentRequired")}
                       </Typography>
 
                       <Typography
@@ -1123,7 +1149,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           fontWeight: 700,
                         }}
                       >
-                        {registrationStage?.name || "Registered / Paid"}
+                        {registrationStage?.name || t("registrationStageFallback")}
                       </Typography>
                     </Box>
 
@@ -1139,7 +1165,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                           fontSize: 11.5,
                         }}
                       >
-                        Registration fee
+                        {t("registrationPayment.registrationFee")}
                       </Typography>
 
                       <Typography
@@ -1164,8 +1190,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       fontSize: 13,
                     }}
                   >
-                    The amount is controlled by the Stage Master. It cannot be
-                    changed from this form.
+                    {t("registrationPayment.stageMasterNote")}
                   </Alert>
 
                   <Box sx={gridSx}>
@@ -1177,12 +1202,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       render={({ field }) => (
                         <FormAutocomplete
                           required
-                          label="Payment method"
+                          label={t("fields.paymentMethod")}
                           value={field.value}
                           options={paymentMethodOptions}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
-                          placeholder="Search payment method"
+                          placeholder={t("placeholders.paymentMethod")}
                           error={Boolean(errors.paymentMethod)}
                           helperText={errors.paymentMethod?.message}
                         />
@@ -1193,7 +1218,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       {...register("paymentDate")}
                       {...dateProps}
                       required
-                      label="Payment date"
+                      label={t("fields.paymentDate")}
                       size="small"
                       error={Boolean(errors.paymentDate)}
                       helperText={errors.paymentDate?.message}
@@ -1204,14 +1229,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       <>
                         <TextField
                           {...register("bankName")}
-                          label="Bank name"
+                          label={t("fields.bankName")}
                           size="small"
                           sx={fieldSx}
                         />
 
                         <TextField
                           {...register("referenceNumber")}
-                          label="Reference number"
+                          label={t("fields.referenceNumber")}
                           size="small"
                           sx={fieldSx}
                         />
@@ -1220,7 +1245,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                     <TextField
                       {...register("receiptNumber")}
-                      label="Receipt number"
+                      label={t("fields.receiptNumber")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1232,7 +1257,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     multiline
                     minRows={2}
                     size="small"
-                    label="Payment note"
+                    label={t("fields.paymentNote")}
                     sx={{
                       ...fieldSx,
                       mt: 1.5,
@@ -1247,12 +1272,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           EDUCATION
           ================================================= */}
 
-          <FormSection step={5 + offset} title="Education">
+          <FormSection step={5 + offset} title={t("sections.education.title")}>
             <Stack>
               {educationFields.map((item, index) => (
                 <RepeatCard
                   key={item.id}
-                  title={`Education ${index + 1}`}
+                  title={t("education.itemTitle", { number: index + 1 })}
                   onRemove={() => removeEducation(index)}
                 >
                   <Box sx={gridSx}>
@@ -1263,26 +1288,26 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       control={control}
                       render={({ field }) => (
                         <FormAutocomplete
-                          label="School type"
+                          label={t("fields.educationType")}
                           value={field.value}
                           options={educationTypeOptions}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
-                          placeholder="Search school type"
+                          placeholder={t("placeholders.educationType")}
                         />
                       )}
                     />
 
                     <TextField
                       {...register(`education.${index}.schoolName`)}
-                      label="School name"
+                      label={t("fields.schoolName")}
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`education.${index}.major`)}
-                      label="Major / course"
+                      label={t("fields.major")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1290,7 +1315,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     <TextField
                       {...register(`education.${index}.enrollmentDate`)}
                       {...dateProps}
-                      label="Enrollment date"
+                      label={t("fields.enrollmentDate")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1298,7 +1323,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     <TextField
                       {...register(`education.${index}.graduationDate`)}
                       {...dateProps}
-                      label="Graduation date"
+                      label={t("fields.graduationDate")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1310,12 +1335,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       control={control}
                       render={({ field }) => (
                         <FormAutocomplete
-                          label="Graduation status"
+                          label={t("fields.graduationStatus")}
                           value={field.value}
                           options={graduationStatusOptions}
                           onChange={field.onChange}
                           onBlur={field.onBlur}
-                          placeholder="Search graduation status"
+                          placeholder={t("placeholders.graduationStatus")}
                         />
                       )}
                     />
@@ -1340,7 +1365,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 }
                 sx={outlineButtonSx}
               >
-                Add education
+                {t("education.add")}
               </Button>
             </Stack>
           </FormSection>
@@ -1351,7 +1376,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
           <FormSection
             step={6 + offset}
-            title="Japanese language & qualifications"
+            title={t("sections.qualifications.title")}
           >
             <Stack>
               {/* JAPANESE LEVEL AUTOCOMPLETE */}
@@ -1369,12 +1394,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                   control={control}
                   render={({ field }) => (
                     <FormAutocomplete
-                      label="Japanese language level"
+                      label={t("fields.japaneseLanguageLevel")}
                       value={field.value}
                       options={japaneseOptions}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
-                      placeholder="Search Japanese level"
+                      placeholder={t("placeholders.japaneseLanguageLevel")}
                     />
                   )}
                 />
@@ -1383,27 +1408,27 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               {qualificationFields.map((item, index) => (
                 <RepeatCard
                   key={item.id}
-                  title={`Qualification ${index + 1}`}
+                  title={t("qualifications.itemTitle", { number: index + 1 })}
                   onRemove={() => removeQualification(index)}
                 >
                   <Box sx={gridSx}>
                     <TextField
                       {...register(`qualifications.${index}.name`)}
-                      label="Qualification / certificate"
+                      label={t("fields.qualificationName")}
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`qualifications.${index}.levelOrScore`)}
-                      label="Level / score"
+                      label={t("fields.levelOrScore")}
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`qualifications.${index}.issuer`)}
-                      label="Issuer"
+                      label={t("fields.issuer")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1411,7 +1436,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     <TextField
                       {...register(`qualifications.${index}.acquiredDate`)}
                       {...dateProps}
-                      label="Acquired date"
+                      label={t("fields.acquiredDate")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1419,14 +1444,14 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     <TextField
                       {...register(`qualifications.${index}.expiryDate`)}
                       {...dateProps}
-                      label="Expiry date"
+                      label={t("fields.expiryDate")}
                       size="small"
                       sx={fieldSx}
                     />
 
                     <TextField
                       {...register(`qualifications.${index}.note`)}
-                      label="Note"
+                      label={t("fields.note")}
                       size="small"
                       sx={fieldSx}
                     />
@@ -1451,7 +1476,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 }
                 sx={outlineButtonSx}
               >
-                Add qualification
+                {t("qualifications.add")}
               </Button>
             </Stack>
           </FormSection>
@@ -1460,7 +1485,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           EMPLOYMENT HISTORY
           ================================================= */}
 
-          <FormSection step={7 + offset} title="Employment history">
+          <FormSection step={7 + offset} title={t("sections.employment.title")}>
             <Stack>
               {employmentFields.map((item, index) => {
                 const isCurrent = watch(`employmentHistory.${index}.isCurrent`);
@@ -1468,13 +1493,13 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 return (
                   <RepeatCard
                     key={item.id}
-                    title={`Employment ${index + 1}`}
+                    title={t("employment.itemTitle", { number: index + 1 })}
                     onRemove={() => removeEmployment(index)}
                   >
                     <Box sx={gridSx}>
                       <TextField
                         {...register(`employmentHistory.${index}.companyName`)}
-                        label="Company name"
+                        label={t("fields.companyName")}
                         size="small"
                         sx={fieldSx}
                       />
@@ -1486,33 +1511,33 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         control={control}
                         render={({ field }) => (
                           <FormAutocomplete
-                            label="Employment type"
+                            label={t("fields.employmentType")}
                             value={field.value}
                             options={employmentTypeOptions}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
-                            placeholder="Search employment type"
+                            placeholder={t("placeholders.employmentType")}
                           />
                         )}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.department`)}
-                        label="Department"
+                        label={t("fields.department")}
                         size="small"
                         sx={fieldSx}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.jobTitle`)}
-                        label="Job title"
+                        label={t("fields.jobTitle")}
                         size="small"
                         sx={fieldSx}
                       />
 
                       <TextField
                         {...register(`employmentHistory.${index}.workLocation`)}
-                        label="Work location"
+                        label={t("fields.workLocation")}
                         size="small"
                         sx={fieldSx}
                       />
@@ -1520,7 +1545,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       <TextField
                         {...register(`employmentHistory.${index}.startDate`)}
                         {...dateProps}
-                        label="Start date"
+                        label={t("fields.startDate")}
                         size="small"
                         sx={fieldSx}
                       />
@@ -1528,7 +1553,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       <TextField
                         {...register(`employmentHistory.${index}.endDate`)}
                         {...dateProps}
-                        label="End date"
+                        label={t("fields.endDate")}
                         disabled={isCurrent}
                         size="small"
                         sx={fieldSx}
@@ -1567,7 +1592,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                                 }}
                               />
                             }
-                            label="Currently employed"
+                            label={t("fields.currentlyEmployed")}
                           />
                         )}
                       />
@@ -1583,7 +1608,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         {...register(
                           `employmentHistory.${index}.responsibilities`,
                         )}
-                        label="Responsibilities / main duties"
+                        label={t("fields.responsibilities")}
                         multiline
                         minRows={3}
                         size="small"
@@ -1592,7 +1617,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                       <TextField
                         {...register(`employmentHistory.${index}.achievements`)}
-                        label="Achievements"
+                        label={t("fields.achievements")}
                         multiline
                         minRows={3}
                         size="small"
@@ -1624,7 +1649,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 }
                 sx={outlineButtonSx}
               >
-                Add employment
+                {t("employment.add")}
               </Button>
             </Stack>
           </FormSection>
@@ -1633,21 +1658,21 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           SKILLS
           ================================================= */}
 
-          <FormSection step={8 + offset} title="Skills & career summary">
+          <FormSection step={8 + offset} title={t("sections.skills.title")}>
             <Box sx={grid2Sx}>
               <TextField
                 {...register("skillsText")}
-                label="Skills"
+                label={t("fields.skills")}
                 multiline
                 minRows={3}
                 size="small"
-                helperText="Separate skills with commas or new lines."
+                helperText={t("fields.skillsHelper")}
                 sx={fieldSx}
               />
 
               <TextField
                 {...register("careerSummary")}
-                label="Career summary / 職務要約"
+                label={t("fields.careerSummary")}
                 multiline
                 minRows={3}
                 size="small"
@@ -1660,11 +1685,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           JAPANESE APPLICATION
           ================================================= */}
 
-          <FormSection step={9 + offset} title="Japanese application content">
+          <FormSection step={9 + offset} title={t("sections.application.title")}>
             <Stack>
               <TextField
                 {...register("motivation")}
-                label="Motivation / 志望動機"
+                label={t("fields.motivation")}
                 multiline
                 minRows={3}
                 size="small"
@@ -1673,7 +1698,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("selfPR")}
-                label="Self PR / 自己PR"
+                label={t("fields.selfPR")}
                 multiline
                 minRows={3}
                 size="small"
@@ -1682,7 +1707,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
               <TextField
                 {...register("desiredConditions")}
-                label="Desired conditions / 本人希望記入欄"
+                label={t("fields.desiredConditions")}
                 multiline
                 minRows={2}
                 size="small"
@@ -1695,7 +1720,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           DOCUMENTS
           ================================================= */}
 
-          <FormSection step={10 + offset} title="Documents">
+          <FormSection step={10 + offset} title={t("sections.documents.title")}>
             <Box
               sx={{
                 display: "grid",
@@ -1707,15 +1732,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               }}
             >
               <UploadCard
-                title="Candidate photo"
-                buttonLabel={photoSrc ? "Replace photo" : "Select photo"}
+                title={t("documents.photo.title")}
+                buttonLabel={
+                  photoSrc
+                    ? t("documents.photo.replace")
+                    : t("documents.photo.select")
+                }
                 accept="image/*"
                 statusText={
                   selectedClientImage instanceof File
                     ? selectedClientImage.name
                     : existingClientImage
-                      ? "Existing photo is kept unless replaced."
-                      : "No photo selected. Use a 3:4 portrait."
+                      ? t("documents.photo.existing")
+                      : t("documents.photo.empty")
                 }
                 onSelect={(file) =>
                   setValue("clientImage", file, {
@@ -1741,7 +1770,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       <Box
                         component="img"
                         src={photoSrc}
-                        alt="Candidate photo preview"
+                        alt={t("documents.photo.previewAlt")}
                         sx={{
                           width: "100%",
                           height: "100%",
@@ -1758,19 +1787,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               />
 
               <UploadCard
-                title="Original applicant CV"
+                title={t("documents.cv.title")}
                 buttonLabel={
                   selectedCv instanceof File || existingCv
-                    ? "Replace CV"
-                    : "Select CV"
+                    ? t("documents.cv.replace")
+                    : t("documents.cv.select")
                 }
-                accept=".pdf,.doc,.docx"
+                accept=".pdf"
                 statusText={
                   selectedCv instanceof File
                     ? selectedCv.name
                     : existingCv
-                      ? "Existing CV is kept unless replaced."
-                      : "No CV selected. PDF or Word."
+                      ? t("documents.cv.existing")
+                      : t("documents.cv.empty")
                 }
                 onSelect={(file) =>
                   setValue("cv", file, {
@@ -1840,7 +1869,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 },
               }}
             >
-              Cancel
+              {t("actions.cancel")}
             </Button>
 
             <Button
@@ -1876,10 +1905,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               }}
             >
               {isSaving
-                ? "Processing..."
+                ? t("actions.processing")
                 : isEditMode
-                  ? "Update client"
-                  : `Confirm ¥${registrationAmount.toLocaleString()} payment & create client`}
+                  ? t("actions.update")
+                  : t("actions.confirmPaymentCreate", {
+                      amount: registrationAmount.toLocaleString(),
+                    })}
             </Button>
           </Paper>
         </Box>

@@ -420,6 +420,164 @@
       "cancel": "No"
     }
   },
+  "clientForm": {
+    "noOptionsText": "No options found",
+    "registrationStageFallback": "Registered / Paid",
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "create": "Create Client",
+      "edit": "Edit Client"
+    },
+    "header": {
+      "createTitle": "Create Client",
+      "editTitle": "Edit Client",
+      "createDescription": "Enter client details, assign staff and confirm the registration payment.",
+      "editDescription": "Update the client's profile, documents and recruitment details."
+    },
+    "sections": {
+      "basic": { "title": "Basic Information" },
+      "address": { "title": "Address" },
+      "immigration": { "title": "Immigration" },
+      "recruitment": {
+        "title": "Recruitment",
+        "createDescription": "Set the preferred category, assigned staff and starting stage.",
+        "editDescription": "Review the assigned staff, preferred category and current stage."
+      },
+      "registrationPayment": {
+        "title": "Registration payment",
+        "description": "The client is created only after the full registration fee is confirmed. Partial payment is not supported."
+      },
+      "education": { "title": "Education" },
+      "qualifications": { "title": "Japanese language & qualifications" },
+      "employment": { "title": "Employment history" },
+      "skills": { "title": "Skills & career summary" },
+      "application": { "title": "Japanese application content" },
+      "documents": { "title": "Documents" }
+    },
+    "fields": {
+      "fullName": "Full name",
+      "furigana": "Furigana",
+      "phone": "Phone",
+      "email": "Email",
+      "dateOfBirth": "Date of birth",
+      "gender": "Gender",
+      "nationality": "Nationality",
+      "postalCode": "Postal code",
+      "prefecture": "Prefecture",
+      "address": "Address",
+      "currentVisaStatus": "Current visa status",
+      "residenceExpiryDate": "Residence expiry date",
+      "passportNumber": "Passport number",
+      "passportExpiryDate": "Passport expiry date",
+      "preferCategory": "Preferred category",
+      "assignedStaff": "Assigned staff",
+      "intake": "Intake",
+      "currentStage": "Current stage",
+      "paymentMethod": "Payment method",
+      "paymentDate": "Payment date",
+      "bankName": "Bank name",
+      "referenceNumber": "Reference number",
+      "receiptNumber": "Receipt number",
+      "paymentNote": "Payment note",
+      "educationType": "School type",
+      "schoolName": "School name",
+      "major": "Major / course",
+      "enrollmentDate": "Enrollment date",
+      "graduationDate": "Graduation date",
+      "graduationStatus": "Graduation status",
+      "japaneseLanguageLevel": "Japanese language level",
+      "qualificationName": "Qualification / certificate",
+      "levelOrScore": "Level / score",
+      "issuer": "Issuer",
+      "acquiredDate": "Acquired date",
+      "expiryDate": "Expiry date",
+      "note": "Note",
+      "companyName": "Company name",
+      "employmentType": "Employment type",
+      "department": "Department",
+      "jobTitle": "Job title",
+      "workLocation": "Work location",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "currentlyEmployed": "Currently employed",
+      "responsibilities": "Responsibilities / main duties",
+      "achievements": "Achievements",
+      "skills": "Skills",
+      "skillsHelper": "Separate skills with commas or new lines.",
+      "careerSummary": "Career summary / work summary",
+      "motivation": "Motivation",
+      "selfPR": "Self PR",
+      "desiredConditions": "Desired conditions"
+    },
+    "placeholders": {
+      "gender": "Search gender",
+      "nationality": "Search nationality",
+      "prefecture": "Search prefecture",
+      "currentVisaStatus": "Search visa status",
+      "preferCategory": "Search preferred category",
+      "assignedStaff": "Search staff",
+      "paymentMethod": "Search payment method",
+      "educationType": "Search school type",
+      "graduationStatus": "Search graduation status",
+      "japaneseLanguageLevel": "Search Japanese level",
+      "employmentType": "Search employment type"
+    },
+    "assignedStaff": {
+      "autoAssigned": "Automatically assigned"
+    },
+    "registrationPayment": {
+      "fullPaymentRequired": "Full payment required",
+      "registrationFee": "Registration fee",
+      "stageMasterNote": "The amount is controlled by the Stage Master. It cannot be changed from this form."
+    },
+    "paymentMethods": {
+      "bankTransfer": "Bank Transfer",
+      "cash": "Cash"
+    },
+    "graduationStatus": {
+      "graduated": "Graduated",
+      "expectedGraduation": "Expected graduation",
+      "currentlyEnrolled": "Currently enrolled",
+      "withdrawn": "Withdrawn"
+    },
+    "education": {
+      "itemTitle": "Education {number}",
+      "add": "Add education"
+    },
+    "qualifications": {
+      "itemTitle": "Qualification {number}",
+      "add": "Add qualification"
+    },
+    "employment": {
+      "itemTitle": "Employment {number}",
+      "add": "Add employment"
+    },
+    "documents": {
+      "photo": {
+        "title": "Candidate photo",
+        "select": "Select photo",
+        "replace": "Replace photo",
+        "existing": "Existing photo is kept unless replaced.",
+        "empty": "No photo selected. Use a 3:4 portrait.",
+        "previewAlt": "Candidate photo preview"
+      },
+      "cv": {
+        "title": "Original applicant CV",
+        "select": "Select CV",
+        "replace": "Replace CV",
+        "existing": "Existing CV is kept unless replaced.",
+        "empty": "No CV selected. PDF only."
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "processing": "Processing...",
+      "update": "Update client",
+      "confirmPaymentCreate": "Confirm ¥{amount} payment & create client",
+      "removeItem": "Remove {item}"
+    }
+  },
   "createClient": {
     "breadcrumbs": {
       "dashboard": "Dashboard",
