@@ -21,11 +21,10 @@ import {
   PREFER_CATEGORY_OPTIONS,
   GENDER,
   NATIONALITIES,
-  STATUS_OF_RESIDENCE_OPTIONS,
   JAPANESE_LEVELS,
+  PREFECTURE_OPTIONS,
   EDUCATION_TYPE_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
-  PREFECTURE_OPTIONS,
 } from "@/components/constant";
 
 import { useClientDetailHook } from "./hook";
@@ -41,12 +40,12 @@ import Payments from "./Payments";
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const HAIRLINE = "rgba(17, 24, 39, 0.07)";
 const INK = "#111827";
-const INK_MUTED = "#4B5563";
+const MUTED = "#6B7280";
 const DANGER = "#DC2626";
 
-const softCard = {
+const cardSx = {
   bgcolor: "#ffffff",
   border: `1px solid ${HAIRLINE}`,
   borderRadius: 3,
@@ -55,8 +54,16 @@ const softCard = {
 };
 
 // =================================================
-// DATE
+// HELPERS
 // =================================================
+
+const displayValue = (value?: string | null) => {
+  if (value === undefined || value === null || String(value).trim() === "") {
+    return "-";
+  }
+
+  return String(value);
+};
 
 const formatDate = (value?: string | null) => {
   if (!value) {
@@ -76,16 +83,19 @@ const formatDate = (value?: string | null) => {
   }).format(date);
 };
 
-// =================================================
-// VALUE
-// =================================================
+const formatCurrency = (value?: number) => {
+  return `¥${Number(value || 0).toLocaleString()}`;
+};
 
-const displayValue = (value?: string | null) => {
-  if (value === undefined || value === null || value === "") {
-    return "-";
-  }
+const graduationStatusLabel = (value?: string) => {
+  const map: Record<string, string> = {
+    graduated: "Graduated / 卒業",
+    expectedGraduation: "Expected Graduation / 卒業見込",
+    currentlyEnrolled: "Currently Enrolled / 在学中",
+    withdrawn: "Withdrawn / 中退",
+  };
 
-  return value;
+  return value ? map[value] || value : "-";
 };
 
 // =================================================
@@ -94,31 +104,47 @@ const displayValue = (value?: string | null) => {
 
 const DetailSection = ({
   title,
+  description,
   children,
 }: {
   title: string;
+  description?: string;
   children: ReactNode;
 }) => (
   <Box>
     <Typography
       sx={{
-        mb: 2.5,
         color: INK,
         fontSize: 17,
+        fontWeight: 700,
         lineHeight: 1.35,
-        fontWeight: 600,
-        letterSpacing: "-0.01em",
       }}
     >
       {title}
     </Typography>
+
+    {description && (
+      <Typography
+        sx={{
+          mt: 0.5,
+          mb: 2.5,
+          color: MUTED,
+          fontSize: 12.5,
+          lineHeight: 1.5,
+        }}
+      >
+        {description}
+      </Typography>
+    )}
+
+    {!description && <Box sx={{ mb: 2.5 }} />}
 
     {children}
   </Box>
 );
 
 // =================================================
-// FIELD
+// DETAIL FIELD
 // =================================================
 
 const DetailField = ({
@@ -128,20 +154,13 @@ const DetailField = ({
   label: string;
   value?: ReactNode;
 }) => (
-  <Box
-    sx={{
-      minWidth: 0,
-    }}
-  >
+  <Box sx={{ minWidth: 0 }}>
     <Typography
-      variant="caption"
       sx={{
-        display: "block",
-        color: INK_MUTED,
+        color: MUTED,
         fontSize: 11.5,
+        fontWeight: 600,
         lineHeight: 1.4,
-        fontWeight: 500,
-        letterSpacing: "0.01em",
       }}
     >
       {label}
@@ -149,17 +168,17 @@ const DetailField = ({
 
     <Typography
       component="div"
-      variant="body1"
       sx={{
         mt: 0.55,
         color: INK,
         fontSize: 14,
-        lineHeight: 1.55,
         fontWeight: 500,
+        lineHeight: 1.6,
         wordBreak: "break-word",
+        whiteSpace: "pre-wrap",
       }}
     >
-      {value || "-"}
+      {value ?? "-"}
     </Typography>
   </Box>
 );
@@ -172,20 +191,13 @@ const DetailGrid = ({ children }: { children: ReactNode }) => (
   <Box
     sx={{
       display: "grid",
-
       gridTemplateColumns: {
         xs: "1fr",
         sm: "repeat(2, minmax(0, 1fr))",
         lg: "repeat(3, minmax(0, 1fr))",
       },
-
-      columnGap: {
+      gap: {
         xs: 2,
-        md: 3,
-      },
-
-      rowGap: {
-        xs: 2.25,
         md: 3,
       },
     }}
@@ -195,10 +207,10 @@ const DetailGrid = ({ children }: { children: ReactNode }) => (
 );
 
 // =================================================
-// HISTORY CARD
+// SUB CARD
 // =================================================
 
-const HistoryCard = ({
+const DetailCard = ({
   title,
   children,
 }: {
@@ -211,11 +223,8 @@ const HistoryCard = ({
         xs: 1.75,
         sm: 2,
       },
-
       border: `1px solid ${HAIRLINE}`,
-
-      borderRadius: 2,
-
+      borderRadius: 2.5,
       bgcolor: "#FAFBFA",
     }}
   >
@@ -223,8 +232,8 @@ const HistoryCard = ({
       sx={{
         mb: 2,
         color: INK,
-        fontSize: 13.5,
-        fontWeight: 600,
+        fontSize: 14,
+        fontWeight: 700,
       }}
     >
       {title}
@@ -235,7 +244,7 @@ const HistoryCard = ({
 );
 
 // =================================================
-// STATUS BADGE
+// STATUS
 // =================================================
 
 const StatusBadge = ({ children }: { children: ReactNode }) => (
@@ -245,12 +254,12 @@ const StatusBadge = ({ children }: { children: ReactNode }) => (
       display: "inline-flex",
       alignItems: "center",
       minHeight: 26,
-      px: 1.2,
+      px: 1.25,
       borderRadius: 999,
       bgcolor: BRAND_SOFT,
       color: BRAND,
       fontSize: 12,
-      fontWeight: 600,
+      fontWeight: 700,
     }}
   >
     {children}
@@ -258,7 +267,7 @@ const StatusBadge = ({ children }: { children: ReactNode }) => (
 );
 
 // =================================================
-// DOCUMENT BADGE
+// DOCUMENT
 // =================================================
 
 const DocumentBadge = ({ uploaded }: { uploaded: boolean }) => (
@@ -267,16 +276,13 @@ const DocumentBadge = ({ uploaded }: { uploaded: boolean }) => (
     sx={{
       display: "inline-flex",
       alignItems: "center",
-      px: 1.2,
       minHeight: 26,
+      px: 1.25,
       borderRadius: 999,
-
       bgcolor: uploaded ? BRAND_SOFT : "#FEF2F2",
-
       color: uploaded ? BRAND : DANGER,
-
       fontSize: 12,
-      fontWeight: 600,
+      fontWeight: 700,
     }}
   >
     {uploaded ? "Uploaded" : "Not uploaded"}
@@ -289,7 +295,6 @@ const DocumentBadge = ({ uploaded }: { uploaded: boolean }) => (
 
 const ClientDetail = () => {
   const t = useTranslations("clientDetail");
-
   const createT = useTranslations("createClient");
 
   const {
@@ -309,7 +314,7 @@ const ClientDetail = () => {
   } = useClientDetailHook();
 
   // =================================================
-  // OPTION HELPERS
+  // OPTION LABELS
   // =================================================
 
   const getCurrentVisaStatusLabel = (value?: string) => {
@@ -384,22 +389,6 @@ const ClientDetail = () => {
     return createT(`options.prefecture.${option.key}` as never);
   };
 
-  const getResidenceLabel = (value?: string) => {
-    if (!value) {
-      return "-";
-    }
-
-    const option = STATUS_OF_RESIDENCE_OPTIONS.find(
-      (item) => item.value === value,
-    );
-
-    if (!option) {
-      return value;
-    }
-
-    return createT(`options.statusOfResidence.${option.key}` as never);
-  };
-
   const getJapaneseLevelLabel = (value?: string) => {
     if (!value) {
       return "-";
@@ -452,31 +441,11 @@ const ClientDetail = () => {
         sx={{
           minHeight: "100vh",
           bgcolor: "#F7F8F6",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          display: "grid",
+          placeItems: "center",
         }}
       >
-        <Box
-          sx={{
-            ...softCard,
-
-            width: 92,
-            height: 92,
-
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <CircularProgress
-            size={30}
-            thickness={4}
-            sx={{
-              color: BRAND,
-            }}
-          />
-        </Box>
+        <CircularProgress size={30} sx={{ color: BRAND }} />
       </Box>
     );
   }
@@ -491,32 +460,21 @@ const ClientDetail = () => {
         sx={{
           minHeight: "100vh",
           bgcolor: "#F7F8F6",
-
           px: {
             xs: 2,
             sm: 3,
             md: 4,
           },
-
           py: 4,
         }}
       >
         <Box
           sx={{
-            width: "100%",
             maxWidth: 900,
             mx: "auto",
           }}
         >
-          <Alert
-            severity="error"
-            sx={{
-              borderRadius: 2.5,
-              border: "1px solid rgba(220, 38, 38, 0.12)",
-              bgcolor: "#FEF2F2",
-              color: "#991B1B",
-            }}
-          >
+          <Alert severity="error" sx={{ borderRadius: 2.5 }}>
             {errorMessage || t("messages.notFound")}
           </Alert>
         </Box>
@@ -528,7 +486,11 @@ const ClientDetail = () => {
 
   const education = profile?.education ?? [];
 
+  const qualifications = profile?.qualifications ?? [];
+
   const employmentHistory = profile?.employmentHistory ?? [];
+
+  const skills = profile?.skills ?? [];
 
   const currentStageName =
     client.currentStageDetails?.name ||
@@ -537,22 +499,21 @@ const ClientDetail = () => {
 
   const currentStageAmount = client.currentStageDetails?.amount ?? 0;
 
+  const assignedStaffName = client.assignedStaffDetails?.name
+    ? `${client.assignedStaffDetails.name} (${client.assignedStaff})`
+    : client.assignedStaff;
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
         bgcolor: "#F7F8F6",
-
         px: {
           xs: 2,
           sm: 3,
           md: 4,
         },
-
-        pb: {
-          xs: 3,
-          md: 4,
-        },
+        pb: 4,
       }}
     >
       <Box
@@ -562,16 +523,11 @@ const ClientDetail = () => {
           mx: "auto",
         }}
       >
-        {/* BREADCRUMB */}
+        {/* =================================================
+        BREADCRUMB
+        ================================================= */}
 
-        <Box
-          sx={{
-            mb: {
-              xs: 2.5,
-              md: 3,
-            },
-          }}
-        >
+        <Box sx={{ mb: 2.5 }}>
           <Breadcrumb
             items={[
               {
@@ -590,71 +546,54 @@ const ClientDetail = () => {
           />
         </Box>
 
-        {/* HEADER */}
+        {/* =================================================
+        HEADER
+        ================================================= */}
 
         <Box
           sx={{
+            mb: 3,
             display: "flex",
-
+            justifyContent: "space-between",
             alignItems: {
               xs: "flex-start",
               md: "center",
             },
-
-            justifyContent: "space-between",
-
             flexDirection: {
               xs: "column",
               md: "row",
             },
-
             gap: 2,
-
-            mb: {
-              xs: 2.5,
-              md: 3,
-            },
           }}
         >
-          <Box
-            sx={{
-              minWidth: 0,
-            }}
-          >
+          <Box>
             <Typography
               sx={{
                 color: INK,
-
                 fontSize: {
-                  xs: 22,
-                  sm: 25,
-                  md: 28,
+                  xs: 23,
+                  md: 29,
                 },
-
-                lineHeight: 1.25,
-                fontWeight: 600,
+                fontWeight: 700,
                 letterSpacing: "-0.025em",
-                wordBreak: "break-word",
               }}
             >
               {client.fullName}
             </Typography>
 
             <Typography
-              variant="body2"
               sx={{
-                mt: 0.6,
-                color: INK_MUTED,
-                fontSize: 13.5,
-                lineHeight: 1.5,
+                mt: 0.5,
+                color: MUTED,
+                fontSize: 13,
               }}
             >
-              {t("clientIdLabel")}{" "}
+              Client ID:{" "}
               <Box
                 component="span"
                 sx={{
                   color: BRAND,
-                  fontWeight: 600,
+                  fontWeight: 700,
                 }}
               >
                 {clientId}
@@ -662,18 +601,11 @@ const ClientDetail = () => {
             </Typography>
           </Box>
 
-          {/* ACTION BUTTONS */}
-
           <Box
             sx={{
               display: "flex",
               gap: 1,
               flexWrap: "wrap",
-
-              width: {
-                xs: "100%",
-                md: "auto",
-              },
             }}
           >
             <Button
@@ -682,23 +614,13 @@ const ClientDetail = () => {
               onClick={handleBack}
               sx={{
                 minHeight: 42,
-                px: 2.25,
-                borderRadius: 2.5,
                 borderColor: HAIRLINE,
-                color: INK_MUTED,
+                color: MUTED,
                 bgcolor: "#ffffff",
-                fontSize: 14,
-                fontWeight: 600,
                 textTransform: "none",
-
-                "&:hover": {
-                  bgcolor: BRAND_SOFT,
-                  borderColor: "rgba(16, 122, 100, 0.30)",
-                  color: BRAND,
-                },
               }}
             >
-              {t("back")}
+              Back
             </Button>
 
             <Button
@@ -714,19 +636,11 @@ const ClientDetail = () => {
               onClick={handleGenerateJapaneseCv}
               sx={{
                 minHeight: 42,
-                px: 2.25,
-                borderRadius: 2.5,
-
                 borderColor: "#B91C1C",
-
                 color: "#B91C1C",
-
                 bgcolor: "#ffffff",
-
-                fontSize: 14,
                 fontWeight: 600,
                 textTransform: "none",
-
                 "&:hover": {
                   borderColor: "#991B1B",
                   bgcolor: "#FEF2F2",
@@ -743,17 +657,9 @@ const ClientDetail = () => {
               onClick={handleEdit}
               sx={{
                 minHeight: 42,
-                px: 2.25,
-                borderRadius: 2.5,
-
                 bgcolor: BRAND,
-
-                color: "#ffffff",
-
-                fontSize: 14,
                 fontWeight: 600,
                 textTransform: "none",
-
                 "&:hover": {
                   bgcolor: BRAND_HOVER,
                 },
@@ -763,8 +669,6 @@ const ClientDetail = () => {
             </Button>
           </Box>
         </Box>
-
-        {/* CV ERROR */}
 
         {cvError && (
           <Alert
@@ -778,12 +682,13 @@ const ClientDetail = () => {
           </Alert>
         )}
 
-        {/* CLIENT DETAILS */}
+        {/* =================================================
+        DETAIL CARD
+        ================================================= */}
 
         <Box
           sx={{
-            ...softCard,
-
+            ...cardSx,
             p: {
               xs: 2,
               sm: 3,
@@ -791,25 +696,23 @@ const ClientDetail = () => {
             },
           }}
         >
-          {/* BASIC */}
+          {/* =================================================
+          INTERNAL RECRUITMENT
+          ================================================= */}
 
-          <DetailSection title="Basic Information">
+          <DetailSection
+            title="Recruitment Information"
+            description="Internal client management information. These fields are not automatically included in the employer CV."
+          >
             <DetailGrid>
               <DetailField label="Client ID" value={client.clientId} />
-
-              <DetailField label="Full Name" value={client.fullName} />
-
-              <DetailField label="Phone" value={client.phone} />
-
-              <DetailField
-                label="Current Visa Status"
-                value={getCurrentVisaStatusLabel(client.currentVisaStatus)}
-              />
 
               <DetailField
                 label="Preferred Category"
                 value={getPreferCategoryLabel(client.preferCategory)}
               />
+
+              <DetailField label="Assigned Staff" value={assignedStaffName} />
 
               <DetailField
                 label="Current Stage"
@@ -817,17 +720,13 @@ const ClientDetail = () => {
               />
 
               <DetailField
-                label="Stage Amount"
-                value={`¥${currentStageAmount.toLocaleString()}`}
+                label="Current Stage Amount"
+                value={formatCurrency(currentStageAmount)}
               />
 
               <DetailField
-                label="Assigned Staff"
-                value={
-                  client.assignedStaffDetails?.name
-                    ? `${client.assignedStaffDetails.name} (${client.assignedStaff})`
-                    : client.assignedStaff
-                }
+                label="Intake"
+                value={displayValue(profile?.intake)}
               />
 
               <DetailField
@@ -836,23 +735,34 @@ const ClientDetail = () => {
               />
 
               <DetailField
-                label="Last Updated"
+                label="Updated At"
                 value={formatDate(client.updatedAt)}
               />
             </DetailGrid>
           </DetailSection>
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-          {/* PERSONAL */}
+          {/* =================================================
+          PERSONAL
+          ================================================= */}
 
-          <DetailSection title="Personal Information">
+          <DetailSection
+            title="Personal Information"
+            description="Candidate information used for Japanese resume generation."
+          >
             <DetailGrid>
+              <DetailField label="Full Name / 氏名" value={client.fullName} />
+
+              <DetailField
+                label="Furigana / フリガナ"
+                value={displayValue(profile?.furigana)}
+              />
+
+              <DetailField label="Phone" value={client.phone} />
+
+              <DetailField label="Email" value={displayValue(profile?.email)} />
+
               <DetailField
                 label="Date of Birth"
                 value={formatDate(profile?.dateOfBirth)}
@@ -863,11 +773,24 @@ const ClientDetail = () => {
                 value={getGenderLabel(profile?.gender)}
               />
 
-              <DetailField label="Email" value={displayValue(profile?.email)} />
-
               <DetailField
                 label="Nationality"
                 value={getNationalityLabel(profile?.nationality)}
+              />
+            </DetailGrid>
+          </DetailSection>
+
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
+
+          {/* =================================================
+          ADDRESS
+          ================================================= */}
+
+          <DetailSection title="Address">
+            <DetailGrid>
+              <DetailField
+                label="Postal Code / 郵便番号"
+                value={displayValue(profile?.postalCode)}
               />
 
               <DetailField
@@ -882,17 +805,27 @@ const ClientDetail = () => {
             </DetailGrid>
           </DetailSection>
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-          {/* PASSPORT */}
+          {/* =================================================
+          IMMIGRATION
+          ================================================= */}
 
-          <DetailSection title="Passport & Residence">
+          <DetailSection
+            title="Immigration & Passport"
+            description="Current Visa Status is the primary residence-status field used for the Japanese CV."
+          >
             <DetailGrid>
+              <DetailField
+                label="Current Visa Status / 在留資格"
+                value={getCurrentVisaStatusLabel(client.currentVisaStatus)}
+              />
+
+              <DetailField
+                label="Residence Expiry Date / 在留期限"
+                value={formatDate(profile?.residenceExpiryDate)}
+              />
+
               <DetailField
                 label="Passport Number"
                 value={displayValue(profile?.passportNumber)}
@@ -902,29 +835,24 @@ const ClientDetail = () => {
                 label="Passport Expiry Date"
                 value={formatDate(profile?.passportExpiryDate)}
               />
-
-              <DetailField
-                label="Status of Residence"
-                value={getResidenceLabel(profile?.statusOfResidence)}
-              />
             </DetailGrid>
           </DetailSection>
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-          {/* EDUCATION */}
+          {/* =================================================
+          EDUCATION
+          ================================================= */}
 
-          <DetailSection title="Education & Japanese Language">
+          <DetailSection
+            title="Education"
+            description="Education history used in the 履歴書."
+          >
             {education.length === 0 ? (
               <Typography
                 sx={{
-                  color: INK_MUTED,
-                  fontSize: 14,
+                  color: MUTED,
+                  fontSize: 13.5,
                 }}
               >
                 No education history added.
@@ -938,7 +866,7 @@ const ClientDetail = () => {
                 }}
               >
                 {education.map((item, index) => (
-                  <HistoryCard
+                  <DetailCard
                     key={item._id || `${item.schoolName}-${index}`}
                     title={`Education ${index + 1}`}
                   >
@@ -949,7 +877,7 @@ const ClientDetail = () => {
                       />
 
                       <DetailField
-                        label="School"
+                        label="School Name"
                         value={displayValue(item.schoolName)}
                       />
 
@@ -967,46 +895,106 @@ const ClientDetail = () => {
                         label="Graduation Date"
                         value={formatDate(item.graduationDate)}
                       />
+
+                      <DetailField
+                        label="Graduation Status"
+                        value={graduationStatusLabel(item.graduationStatus)}
+                      />
                     </DetailGrid>
-                  </HistoryCard>
+                  </DetailCard>
                 ))}
               </Box>
             )}
+          </DetailSection>
 
-            <Box
-              sx={{
-                mt: 2.5,
-              }}
-            >
-              <DetailGrid>
-                <DetailField
-                  label="Japanese Language Level"
-                  value={getJapaneseLevelLabel(profile?.japaneseLanguageLevel)}
-                />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-                <DetailField
-                  label="Intake"
-                  value={displayValue(profile?.intake)}
-                />
-              </DetailGrid>
+          {/* =================================================
+          JAPANESE / QUALIFICATIONS
+          ================================================= */}
+
+          <DetailSection title="Japanese Language & Qualifications">
+            <DetailField
+              label="Japanese Language Level"
+              value={getJapaneseLevelLabel(profile?.japaneseLanguageLevel)}
+            />
+
+            <Box sx={{ mt: 3 }}>
+              {qualifications.length === 0 ? (
+                <Typography
+                  sx={{
+                    color: MUTED,
+                    fontSize: 13.5,
+                  }}
+                >
+                  No qualifications added.
+                </Typography>
+              ) : (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1.5,
+                  }}
+                >
+                  {qualifications.map((item, index) => (
+                    <DetailCard
+                      key={item._id || `${item.name}-${index}`}
+                      title={`Qualification ${index + 1}`}
+                    >
+                      <DetailGrid>
+                        <DetailField
+                          label="Qualification / Certificate"
+                          value={displayValue(item.name)}
+                        />
+
+                        <DetailField
+                          label="Level / Score"
+                          value={displayValue(item.levelOrScore)}
+                        />
+
+                        <DetailField
+                          label="Issuer"
+                          value={displayValue(item.issuer)}
+                        />
+
+                        <DetailField
+                          label="Acquired Date"
+                          value={formatDate(item.acquiredDate)}
+                        />
+
+                        <DetailField
+                          label="Expiry Date"
+                          value={formatDate(item.expiryDate)}
+                        />
+
+                        <DetailField
+                          label="Note"
+                          value={displayValue(item.note)}
+                        />
+                      </DetailGrid>
+                    </DetailCard>
+                  ))}
+                </Box>
+              )}
             </Box>
           </DetailSection>
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-          {/* EMPLOYMENT */}
+          {/* =================================================
+          EMPLOYMENT
+          ================================================= */}
 
-          <DetailSection title="Employment History">
+          <DetailSection
+            title="Employment History"
+            description="Detailed employment history used in the 職務経歴書."
+          >
             {employmentHistory.length === 0 ? (
               <Typography
                 sx={{
-                  color: INK_MUTED,
-                  fontSize: 14,
+                  color: MUTED,
+                  fontSize: 13.5,
                 }}
               >
                 No employment history added.
@@ -1020,7 +1008,7 @@ const ClientDetail = () => {
                 }}
               >
                 {employmentHistory.map((item, index) => (
-                  <HistoryCard
+                  <DetailCard
                     key={item._id || `${item.companyName}-${index}`}
                     title={`Employment ${index + 1}`}
                   >
@@ -1036,76 +1024,222 @@ const ClientDetail = () => {
                       />
 
                       <DetailField
+                        label="Department"
+                        value={displayValue(item.department)}
+                      />
+
+                      <DetailField
+                        label="Job Title"
+                        value={displayValue(item.jobTitle)}
+                      />
+
+                      <DetailField
+                        label="Work Location"
+                        value={displayValue(item.workLocation)}
+                      />
+
+                      <DetailField
                         label="Start Date"
                         value={formatDate(item.startDate)}
                       />
 
                       <DetailField
                         label="End Date"
-                        value={formatDate(item.endDate)}
+                        value={
+                          item.isCurrent
+                            ? "Currently Employed"
+                            : formatDate(item.endDate)
+                        }
                       />
                     </DetailGrid>
-                  </HistoryCard>
+
+                    {(item.responsibilities || item.achievements) && (
+                      <>
+                        <Divider
+                          sx={{
+                            my: 2.5,
+                            borderColor: HAIRLINE,
+                          }}
+                        />
+
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: {
+                              xs: "1fr",
+                              lg: "repeat(2, minmax(0, 1fr))",
+                            },
+                            gap: 3,
+                          }}
+                        >
+                          <DetailField
+                            label="Responsibilities / Main Duties"
+                            value={displayValue(item.responsibilities)}
+                          />
+
+                          <DetailField
+                            label="Achievements"
+                            value={displayValue(item.achievements)}
+                          />
+                        </Box>
+                      </>
+                    )}
+                  </DetailCard>
                 ))}
               </Box>
             )}
           </DetailSection>
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
-          {/* DOCUMENTS */}
+          {/* =================================================
+          SKILLS / CAREER
+          ================================================= */}
+
+          <DetailSection title="Skills & Career Summary">
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  lg: "1fr 1.5fr",
+                },
+                gap: 3,
+              }}
+            >
+              <Box>
+                <Typography
+                  sx={{
+                    mb: 1,
+                    color: MUTED,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  Skills
+                </Typography>
+
+                {skills.length === 0 ? (
+                  <Typography
+                    sx={{
+                      color: INK,
+                      fontSize: 14,
+                    }}
+                  >
+                    -
+                  </Typography>
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    {skills.map((skill, index) => (
+                      <Box
+                        key={`${skill}-${index}`}
+                        sx={{
+                          px: 1.25,
+                          py: 0.65,
+                          borderRadius: 999,
+                          bgcolor: BRAND_SOFT,
+                          color: BRAND,
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {skill}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+
+              <DetailField
+                label="Career Summary / 職務要約"
+                value={displayValue(profile?.careerSummary)}
+              />
+            </Box>
+          </DetailSection>
+
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
+
+          {/* =================================================
+          APPLICATION CONTENT
+          ================================================= */}
+
+          <DetailSection
+            title="Japanese Application Content"
+            description="Content used in the generated Japanese application documents."
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
+              <DetailField
+                label="Motivation / 志望動機"
+                value={displayValue(profile?.motivation)}
+              />
+
+              <DetailField
+                label="Self PR / 自己PR"
+                value={displayValue(profile?.selfPR)}
+              />
+
+              <DetailField
+                label="Desired Conditions / 本人希望記入欄"
+                value={displayValue(profile?.desiredConditions)}
+              />
+            </Box>
+          </DetailSection>
+
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
+
+          {/* =================================================
+          DOCUMENTS
+          ================================================= */}
 
           <DetailSection title="Documents">
             <DetailGrid>
               <DetailField
-                label="Client Image"
+                label="Candidate Photo"
                 value={
                   <DocumentBadge uploaded={Boolean(profile?.clientImage)} />
                 }
               />
 
               <DetailField
-                label="Uploaded CV"
+                label="Original Applicant CV"
                 value={<DocumentBadge uploaded={Boolean(profile?.cv)} />}
               />
             </DetailGrid>
           </DetailSection>
 
-          {/* REMARKS */}
+          {/* =================================================
+          REMARKS
+          ================================================= */}
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
           <Remarks clientId={client.clientId} />
 
-          {/* PROGRESS */}
+          {/* =================================================
+          PROGRESS
+          ================================================= */}
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
           <Progress clientId={client.clientId} />
 
-          {/* PAYMENTS */}
+          {/* =================================================
+          PAYMENTS
+          ================================================= */}
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: HAIRLINE,
-            }}
-          />
+          <Divider sx={{ my: 4, borderColor: HAIRLINE }} />
 
           <Payments clientId={client.clientId} />
         </Box>

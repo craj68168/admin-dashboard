@@ -1,73 +1,70 @@
 "use client";
 
-import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
+import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
-import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
-import UpdateRoundedIcon from "@mui/icons-material/UpdateRounded";
+import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
-import type { ProgressProps } from "./type";
+import { PAYMENT_METHOD_OPTIONS } from "./validation";
 
 import { useProgressHook } from "./hook";
 
-const BRAND = "#107A64";
-const BRAND_HOVER = "#0C5F4F";
-const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const HAIRLINE = "rgba(17, 24, 39, 0.08)";
-const INK = "#111827";
-const INK_MUTED = "#6B7280";
+import type { ProgressProps } from "./type";
 
-const PAYMENT_METHODS = [
-  "Cash",
-  "Bank Transfer",
-  "Online Payment",
-  "Cheque",
-  "Other",
-];
+// =================================================
+// DESIGN
+// =================================================
+
+const BRAND = "#107A64";
+const BRAND_DARK = "#0C5F4F";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.07)";
+
+const INK = "#111827";
+const MUTED = "#6B7280";
+
+const BORDER = "rgba(17, 24, 39, 0.10)";
+
+const SUCCESS = "#15803D";
+const SUCCESS_SOFT = "#F0FDF4";
+
+const WARNING = "#B45309";
+const WARNING_SOFT = "#FFFBEB";
 
 const fieldSx = {
-  "& .MuiInputLabel-root": {
-    fontSize: 13.5,
-
-    "&.Mui-focused": {
-      color: BRAND,
-    },
-  },
-
   "& .MuiOutlinedInput-root": {
-    borderRadius: 2,
-    bgcolor: "#ffffff",
+    borderRadius: 2.5,
 
     "& fieldset": {
-      borderColor: HAIRLINE,
+      borderColor: BORDER,
     },
 
     "&:hover fieldset": {
-      borderColor: "rgba(16, 122, 100, 0.35)",
+      borderColor: "rgba(16,122,100,0.35)",
     },
 
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
-      borderWidth: "1px",
     },
   },
 
-  "& .MuiInputBase-input": {
-    fontSize: 13.5,
-  },
-
-  "& .MuiSelect-select": {
-    fontSize: 13.5,
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: BRAND,
   },
 };
+
+// =================================================
+// DATE
+// =================================================
 
 const formatDateTime = (value?: string | null) => {
   if (!value) {
@@ -80,7 +77,7 @@ const formatDateTime = (value?: string | null) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("en-GB", {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -89,871 +86,879 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const formatAmount = (amount?: number | null) => {
-  return new Intl.NumberFormat("ja-JP").format(Number(amount ?? 0));
+// =================================================
+// CURRENCY
+// =================================================
+
+const formatCurrency = (value?: number | null) => {
+  return `¥${Number(value || 0).toLocaleString()}`;
 };
+
+// =================================================
+// COMPONENT
+// =================================================
 
 const Progress = ({ clientId }: ProgressProps) => {
   const {
+    values,
+    updateValue,
+
+    formErrors,
+    submitError,
+
     history,
 
-    currentStage,
     currentStageName,
     currentStageAmount,
 
     stageOptions,
 
-    selectedStageValue,
     selectedStageDetails,
+    selectedStageAmount,
 
     requiresPayment,
 
-    note,
-    setNote,
+    isLoading,
+    isUpdating,
+    isSubmitDisabled,
 
-    paymentMethod,
-    setPaymentMethod,
+    loadError,
 
-    paymentDate,
-    setPaymentDate,
-
-    referenceNumber,
-    setReferenceNumber,
-
-    receiptNumber,
-    setReceiptNumber,
-
-    bankName,
-    setBankName,
-
-    handleStageChange,
     handleUpdateStage,
-
-    isHistoryLoading,
-    isHistoryFetching,
-
-    isStageLoading,
-    isStageFetching,
-
-    isUpdatingStage,
-
-    historyLoadError,
-    stageLoadError,
-    formError,
-    successMessage,
   } = useProgressHook(clientId);
-
-  const loading = isHistoryLoading || isStageLoading;
-
-  const refreshing = isHistoryFetching || isStageFetching;
-
-  const sameStage =
-    Boolean(currentStage) && selectedStageValue === currentStage;
-
-  const getStageName = (
-    stageKey?: string | null,
-    storedName?: string | null,
-  ) => {
-    if (storedName) {
-      return storedName;
-    }
-
-    if (!stageKey) {
-      return "-";
-    }
-
-    return (
-      stageOptions.find((stage) => stage.key === stageKey)?.name || stageKey
-    );
-  };
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          minHeight: 180,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress
-          size={28}
-          sx={{
-            color: BRAND,
-          }}
-        />
-      </Box>
-    );
-  }
 
   return (
     <Box>
-      {/* HEADER */}
+      {/* =================================================
+      TITLE
+      ================================================= */}
+
       <Box
         sx={{
-          display: "flex",
-          alignItems: {
-            xs: "flex-start",
-            sm: "center",
-          },
-          justifyContent: "space-between",
-          flexDirection: {
-            xs: "column",
-            sm: "row",
-          },
-          gap: 1.5,
           mb: 2.5,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
         }}
       >
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-            }}
-          >
-            <TrendingUpRoundedIcon
-              sx={{
-                fontSize: 21,
-                color: BRAND,
-              }}
-            />
+        <RefreshRoundedIcon
+          sx={{
+            color: BRAND,
+            fontSize: 22,
+          }}
+        />
 
-            <Typography
-              sx={{
-                color: INK,
-                fontSize: 18,
-                fontWeight: 700,
-              }}
-            >
-              Progress
-            </Typography>
-          </Box>
+        <Typography
+          sx={{
+            color: INK,
+            fontSize: 17,
+            fontWeight: 700,
+          }}
+        >
+          Progress
+        </Typography>
+      </Box>
 
-          <Typography
-            sx={{
-              mt: 0.5,
-              color: INK_MUTED,
-              fontSize: 13,
-              lineHeight: 1.5,
-            }}
-          >
-            Payment is required in full before entering a paid stage.
-          </Typography>
-        </Box>
+      {loadError && (
+        <Alert
+          severity="error"
+          sx={{
+            mb: 2,
+            borderRadius: 2,
+          }}
+        >
+          {loadError}
+        </Alert>
+      )}
 
-        {refreshing && !loading && (
+      {submitError && (
+        <Alert
+          severity="error"
+          sx={{
+            mb: 2,
+            borderRadius: 2,
+          }}
+        >
+          {submitError}
+        </Alert>
+      )}
+
+      {isLoading ? (
+        <Box
+          sx={{
+            py: 5,
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
           <CircularProgress
-            size={18}
+            size={26}
             sx={{
               color: BRAND,
             }}
           />
-        )}
-      </Box>
-
-      {historyLoadError && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-          }}
-        >
-          {historyLoadError}
-        </Alert>
-      )}
-
-      {stageLoadError && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-          }}
-        >
-          {stageLoadError}
-        </Alert>
-      )}
-
-      {formError && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-          }}
-        >
-          {formError}
-        </Alert>
-      )}
-
-      {successMessage && (
-        <Alert
-          severity="success"
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-          }}
-        >
-          {successMessage}
-        </Alert>
-      )}
-
-      {/* CURRENT STAGE */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, minmax(0, 1fr))",
-          },
-          gap: 2,
-          mb: 3,
-        }}
-      >
-        <Box
-          sx={{
-            p: 2,
-            border: `1px solid ${HAIRLINE}`,
-            borderRadius: 2,
-            bgcolor: "#FAFBFA",
-          }}
-        >
-          <Typography
-            sx={{
-              color: INK_MUTED,
-              fontSize: 11.5,
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-            }}
-          >
-            Current Stage
-          </Typography>
+        </Box>
+      ) : (
+        <>
+          {/* =================================================
+            CURRENT STAGE
+            ================================================= */}
 
           <Box
             sx={{
-              mt: 1,
+              mb: 2,
+              p: 2,
+              border: `1px solid ${BORDER}`,
+              borderRadius: 2.5,
+              bgcolor: "#FAFBFA",
+
               display: "flex",
-              alignItems: "center",
-              gap: 1,
-              flexWrap: "wrap",
+              alignItems: {
+                xs: "flex-start",
+                sm: "center",
+              },
+              justifyContent: "space-between",
+
+              flexDirection: {
+                xs: "column",
+                sm: "row",
+              },
+
+              gap: 1.5,
             }}
           >
-            <Chip
-              label={currentStageName}
-              size="small"
+            <Box>
+              <Typography
+                sx={{
+                  color: MUTED,
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                }}
+              >
+                Current Stage
+              </Typography>
+
+              <Typography
+                sx={{
+                  mt: 0.4,
+                  color: INK,
+                  fontSize: 15,
+                  fontWeight: 700,
+                }}
+              >
+                {currentStageName}
+              </Typography>
+            </Box>
+
+            <Box
               sx={{
+                px: 1.5,
+                py: 0.75,
+                borderRadius: 999,
                 bgcolor: BRAND_SOFT,
                 color: BRAND,
-                fontWeight: 700,
-              }}
-            />
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            p: 2,
-            border: `1px solid ${HAIRLINE}`,
-            borderRadius: 2,
-            bgcolor: "#FAFBFA",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 0.75,
-            }}
-          >
-            <PaymentsOutlinedIcon
-              sx={{
-                fontSize: 18,
-                color: BRAND,
-              }}
-            />
-
-            <Typography
-              sx={{
-                color: INK_MUTED,
-                fontSize: 11.5,
-                fontWeight: 600,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-              }}
-            >
-              Current Stage Amount
-            </Typography>
-          </Box>
-
-          <Typography
-            sx={{
-              mt: 1,
-              color: INK,
-              fontSize: 22,
-              fontWeight: 700,
-            }}
-          >
-            ¥{formatAmount(currentStageAmount)}
-          </Typography>
-        </Box>
-      </Box>
-
-      {/* CHANGE STAGE */}
-      <Box
-        sx={{
-          p: {
-            xs: 1.75,
-            sm: 2.25,
-          },
-          border: `1px solid ${HAIRLINE}`,
-          borderRadius: 2,
-          bgcolor: "#ffffff",
-          mb: 3,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.75,
-            mb: 2,
-          }}
-        >
-          <UpdateRoundedIcon
-            sx={{
-              fontSize: 19,
-              color: BRAND,
-            }}
-          />
-
-          <Typography
-            sx={{
-              color: INK,
-              fontSize: 15,
-              fontWeight: 700,
-            }}
-          >
-            Change Stage
-          </Typography>
-        </Box>
-
-        <TextField
-          select
-          size="small"
-          fullWidth
-          label="Next Stage"
-          value={selectedStageValue}
-          disabled={
-            isStageLoading || isUpdatingStage || Boolean(stageLoadError)
-          }
-          onChange={(event) => {
-            handleStageChange(event.target.value);
-          }}
-          sx={fieldSx}
-        >
-          {stageOptions.map((stage) => (
-            <MenuItem key={stage._id} value={stage.key}>
-              {stage.name} — ¥{formatAmount(stage.amount)}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        {selectedStageDetails && selectedStageDetails.key !== currentStage && (
-          <Box
-            sx={{
-              mt: 2,
-              p: 1.75,
-              borderRadius: 2,
-              bgcolor: requiresPayment ? "#FFF7ED" : BRAND_SOFT,
-              border: requiresPayment
-                ? "1px solid rgba(234, 88, 12, 0.15)"
-                : "1px solid rgba(16, 122, 100, 0.12)",
-            }}
-          >
-            <Typography
-              sx={{
                 fontSize: 13,
                 fontWeight: 700,
-                color: requiresPayment ? "#C2410C" : BRAND,
               }}
             >
-              {selectedStageDetails.name}
-            </Typography>
-
-            <Typography
-              sx={{
-                mt: 0.5,
-                fontSize: 20,
-                fontWeight: 700,
-                color: INK,
-              }}
-            >
-              ¥{formatAmount(selectedStageDetails.amount)}
-            </Typography>
-
-            <Typography
-              sx={{
-                mt: 0.5,
-                fontSize: 12.5,
-                color: INK_MUTED,
-              }}
-            >
-              {requiresPayment
-                ? "Full payment is required before this stage can be applied."
-                : "No payment is required for this stage."}
-            </Typography>
+              {formatCurrency(currentStageAmount)}
+            </Box>
           </Box>
-        )}
 
-        {/* PAYMENT FORM */}
-        {requiresPayment && (
+          {/* =================================================
+            CHANGE STAGE
+            ================================================= */}
+
           <Box
             sx={{
-              mt: 2,
               p: {
-                xs: 1.5,
-                sm: 2,
+                xs: 2,
+                md: 2.5,
               },
-              border: `1px solid ${HAIRLINE}`,
-              borderRadius: 2,
-              bgcolor: "#FAFBFA",
+              border: `1px solid ${BORDER}`,
+              borderRadius: 2.5,
             }}
           >
             <Typography
               sx={{
                 mb: 2,
-                fontSize: 14,
-                fontWeight: 700,
                 color: INK,
+                fontSize: 16,
+                fontWeight: 700,
               }}
             >
-              Full Payment Details
+              Change Stage
             </Typography>
 
-            <Box
+            {/* NEXT STAGE */}
+
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="Next Stage"
+              value={values.stage}
+              onChange={(event) => updateValue("stage", event.target.value)}
+              error={Boolean(formErrors.stage)}
+              helperText={formErrors.stage}
               sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  md: "repeat(2, minmax(0, 1fr))",
-                },
-                gap: 1.5,
+                ...fieldSx,
+                mb: 2,
               }}
             >
-              <TextField
-                select
-                size="small"
-                fullWidth
-                label="Payment Method"
-                value={paymentMethod}
-                disabled={isUpdatingStage}
-                onChange={(event) => {
-                  setPaymentMethod(event.target.value);
-                }}
-                sx={fieldSx}
-              >
-                {PAYMENT_METHODS.map((method) => (
-                  <MenuItem key={method} value={method}>
-                    {method}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <MenuItem value="">Select next stage</MenuItem>
 
-              <TextField
-                size="small"
-                fullWidth
-                type="date"
-                label="Payment Date"
-                value={paymentDate}
-                disabled={isUpdatingStage}
-                onChange={(event) => {
-                  setPaymentDate(event.target.value);
-                }}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
+              {stageOptions.map((stage) => (
+                <MenuItem key={stage._id} value={stage.key}>
+                  {stage.name}
+                  {" — "}
+                  {formatCurrency(stage.amount)}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            {/* =================================================
+              SELECTED STAGE SUMMARY
+              ================================================= */}
+
+            {selectedStageDetails && (
+              <Box
+                sx={{
+                  mb: 2,
+                  p: 1.75,
+
+                  border: `1px solid ${
+                    requiresPayment
+                      ? "rgba(180,83,9,0.18)"
+                      : "rgba(21,128,61,0.18)"
+                  }`,
+
+                  borderRadius: 2,
+
+                  bgcolor: requiresPayment ? WARNING_SOFT : SUCCESS_SOFT,
+
+                  display: "flex",
+
+                  justifyContent: "space-between",
+
+                  alignItems: {
+                    xs: "flex-start",
+                    sm: "center",
                   },
+
+                  flexDirection: {
+                    xs: "column",
+                    sm: "row",
+                  },
+
+                  gap: 1,
                 }}
-                sx={fieldSx}
-              />
+              >
+                <Box>
+                  <Typography
+                    sx={{
+                      color: requiresPayment ? WARNING : SUCCESS,
 
-              <TextField
-                size="small"
-                fullWidth
-                label="Reference Number"
-                value={referenceNumber}
-                disabled={isUpdatingStage}
-                onChange={(event) => {
-                  setReferenceNumber(event.target.value);
-                }}
-                sx={fieldSx}
-              />
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {requiresPayment
+                      ? "Payment Required"
+                      : "No Payment Required"}
+                  </Typography>
 
-              <TextField
-                size="small"
-                fullWidth
-                label="Receipt Number"
-                value={receiptNumber}
-                disabled={isUpdatingStage}
-                onChange={(event) => {
-                  setReceiptNumber(event.target.value);
-                }}
-                sx={fieldSx}
-              />
+                  <Typography
+                    sx={{
+                      mt: 0.3,
+                      color: INK,
+                      fontSize: 13.5,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {selectedStageDetails.name}
+                  </Typography>
+                </Box>
 
-              {paymentMethod === "Bank Transfer" && (
-                <TextField
-                  size="small"
-                  fullWidth
-                  label="Bank Name"
-                  value={bankName}
-                  disabled={isUpdatingStage}
-                  onChange={(event) => {
-                    setBankName(event.target.value);
-                  }}
-                  sx={fieldSx}
-                />
-              )}
-            </Box>
-          </Box>
-        )}
-
-        <TextField
-          size="small"
-          fullWidth
-          multiline
-          minRows={2}
-          maxRows={5}
-          label="Note"
-          placeholder="Optional note about this stage change"
-          value={note}
-          disabled={isUpdatingStage}
-          onChange={(event) => {
-            setNote(event.target.value);
-          }}
-          sx={{
-            ...fieldSx,
-            mt: 2,
-          }}
-        />
-
-        <Box
-          sx={{
-            mt: 2,
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            type="button"
-            variant="contained"
-            disableElevation
-            disabled={
-              isUpdatingStage ||
-              sameStage ||
-              !selectedStageValue ||
-              Boolean(stageLoadError)
-            }
-            onClick={handleUpdateStage}
-            startIcon={
-              isUpdatingStage ? (
-                <CircularProgress size={15} color="inherit" />
-              ) : (
-                <UpdateRoundedIcon />
-              )
-            }
-            sx={{
-              minHeight: 42,
-              px: 2.25,
-              borderRadius: 2,
-              bgcolor: BRAND,
-              fontSize: 13.5,
-              fontWeight: 700,
-              textTransform: "none",
-
-              "&:hover": {
-                bgcolor: BRAND_HOVER,
-              },
-            }}
-          >
-            {isUpdatingStage
-              ? "Processing..."
-              : requiresPayment
-                ? `Pay ¥${formatAmount(
-                    selectedStageDetails?.amount,
-                  )} & Update Stage`
-                : "Update Stage"}
-          </Button>
-        </Box>
-      </Box>
-
-      {/* HISTORY */}
-      <Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.75,
-            mb: 2,
-          }}
-        >
-          <HistoryRoundedIcon
-            sx={{
-              fontSize: 19,
-              color: BRAND,
-            }}
-          />
-
-          <Typography
-            sx={{
-              color: INK,
-              fontSize: 15,
-              fontWeight: 700,
-            }}
-          >
-            Stage History
-          </Typography>
-        </Box>
-
-        {history.length === 0 ? (
-          <Box
-            sx={{
-              p: 3,
-              border: `1px dashed ${HAIRLINE}`,
-              borderRadius: 2,
-              textAlign: "center",
-              bgcolor: "#FAFBFA",
-            }}
-          >
-            <Typography
-              sx={{
-                color: INK_MUTED,
-                fontSize: 13.5,
-              }}
-            >
-              No stage history found.
-            </Typography>
-          </Box>
-        ) : (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 1.5,
-            }}
-          >
-            {history.map((item, index) => {
-              const fromName = item.fromStage
-                ? getStageName(item.fromStage, item.fromStageName)
-                : "Initial";
-
-              const toName = getStageName(item.toStage, item.toStageName);
-
-              return (
-                <Box
-                  key={item._id}
+                <Typography
                   sx={{
-                    p: 2,
-                    border: `1px solid ${HAIRLINE}`,
-                    borderRadius: 2,
-                    bgcolor: index === 0 ? "rgba(16,122,100,0.035)" : "#ffffff",
+                    color: requiresPayment ? WARNING : SUCCESS,
+
+                    fontSize: 18,
+                    fontWeight: 800,
                   }}
                 >
-                  <Box
+                  {formatCurrency(selectedStageAmount)}
+                </Typography>
+              </Box>
+            )}
+
+            {/* =================================================
+              PAYMENT DETAILS
+              ================================================= */}
+
+            {requiresPayment && (
+              <Box
+                sx={{
+                  mb: 2.5,
+                  p: {
+                    xs: 2,
+                    md: 2.5,
+                  },
+
+                  border: "1px solid rgba(180,83,9,0.18)",
+
+                  borderRadius: 2.5,
+
+                  bgcolor: "#FFFDF8",
+                }}
+              >
+                <Box
+                  sx={{
+                    mb: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <PaymentsOutlinedIcon
                     sx={{
-                      display: "flex",
-                      alignItems: {
-                        xs: "flex-start",
-                        sm: "center",
-                      },
-                      justifyContent: "space-between",
-                      flexDirection: {
-                        xs: "column",
-                        sm: "row",
-                      },
-                      gap: 1,
+                      color: WARNING,
+                      fontSize: 21,
                     }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 0.75,
-                        alignItems: "center",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: INK_MUTED,
-                          fontSize: 13,
-                        }}
-                      >
-                        {fromName}
-                      </Typography>
+                  />
 
-                      <Typography
-                        sx={{
-                          color: INK_MUTED,
-                        }}
-                      >
-                        →
-                      </Typography>
-
-                      <Typography
-                        sx={{
-                          color: BRAND,
-                          fontSize: 13.5,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {toName}
-                      </Typography>
-
-                      {index === 0 && (
-                        <Chip
-                          size="small"
-                          label="Latest"
-                          sx={{
-                            height: 22,
-                            bgcolor: BRAND_SOFT,
-                            color: BRAND,
-                            fontSize: 10.5,
-                            fontWeight: 700,
-                          }}
-                        />
-                      )}
-                    </Box>
-
+                  <Box>
                     <Typography
                       sx={{
-                        color: INK_MUTED,
-                        fontSize: 11.5,
+                        color: INK,
+                        fontSize: 14.5,
+                        fontWeight: 700,
                       }}
                     >
-                      {formatDateTime(item.createdAt)}
+                      Full Payment Required
                     </Typography>
-                  </Box>
 
-                  <Box
-                    sx={{
-                      mt: 1.25,
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 2,
-                    }}
-                  >
                     <Typography
                       sx={{
-                        color: INK_MUTED,
+                        mt: 0.25,
+                        color: MUTED,
                         fontSize: 12,
                       }}
                     >
-                      Stage amount:{" "}
+                      The full stage amount must be received before the stage
+                      can be updated.
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* AMOUNT */}
+
+                <Box
+                  sx={{
+                    mb: 2,
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: "#ffffff",
+                    border: `1px solid ${BORDER}`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: MUTED,
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Amount to Collect
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      mt: 0.3,
+                      color: INK,
+                      fontSize: 22,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {formatCurrency(selectedStageAmount)}
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      mt: 0.35,
+                      color: MUTED,
+                      fontSize: 11.5,
+                    }}
+                  >
+                    Amount is controlled by the Stage Master and cannot be
+                    edited here.
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "grid",
+
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      md: "repeat(2, minmax(0,1fr))",
+                    },
+
+                    gap: 2,
+                  }}
+                >
+                  {/* METHOD */}
+
+                  <TextField
+                    select
+                    required
+                    fullWidth
+                    size="small"
+                    label="Payment Method"
+                    value={values.paymentMethod}
+                    onChange={(event) =>
+                      updateValue(
+                        "paymentMethod",
+                        event.target.value as "" | "Bank Transfer" | "Cash",
+                      )
+                    }
+                    error={Boolean(formErrors.paymentMethod)}
+                    helperText={formErrors.paymentMethod}
+                    sx={fieldSx}
+                  >
+                    <MenuItem value="">Select payment method</MenuItem>
+
+                    {PAYMENT_METHOD_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+
+                  {/* DATE */}
+
+                  <TextField
+                    required
+                    fullWidth
+                    size="small"
+                    type="date"
+                    label="Payment Date"
+                    value={values.paymentDate}
+                    onChange={(event) =>
+                      updateValue("paymentDate", event.target.value)
+                    }
+                    error={Boolean(formErrors.paymentDate)}
+                    helperText={formErrors.paymentDate}
+                    slotProps={{
+                      inputLabel: {
+                        shrink: true,
+                      },
+                    }}
+                    sx={fieldSx}
+                  />
+
+                  {/* BANK */}
+
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Bank Name"
+                    value={values.bankName}
+                    disabled={values.paymentMethod === "Cash"}
+                    onChange={(event) =>
+                      updateValue("bankName", event.target.value)
+                    }
+                    error={Boolean(formErrors.bankName)}
+                    helperText={formErrors.bankName}
+                    sx={fieldSx}
+                  />
+
+                  {/* REFERENCE */}
+
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Reference Number"
+                    value={values.referenceNumber}
+                    onChange={(event) =>
+                      updateValue("referenceNumber", event.target.value)
+                    }
+                    error={Boolean(formErrors.referenceNumber)}
+                    helperText={formErrors.referenceNumber}
+                    sx={fieldSx}
+                  />
+
+                  {/* RECEIPT */}
+
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Receipt Number"
+                    value={values.receiptNumber}
+                    onChange={(event) =>
+                      updateValue("receiptNumber", event.target.value)
+                    }
+                    error={Boolean(formErrors.receiptNumber)}
+                    helperText={formErrors.receiptNumber}
+                    sx={fieldSx}
+                  />
+                </Box>
+              </Box>
+            )}
+
+            {/* NOTE */}
+
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              maxRows={5}
+              label="Note"
+              value={values.note}
+              onChange={(event) => updateValue("note", event.target.value)}
+              error={Boolean(formErrors.note)}
+              helperText={formErrors.note}
+              sx={{
+                ...fieldSx,
+                mb: 2,
+              }}
+            />
+
+            {/* =================================================
+              BUTTON
+              ================================================= */}
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                variant="contained"
+                disableElevation
+                disabled={isSubmitDisabled}
+                onClick={handleUpdateStage}
+                startIcon={
+                  isUpdating ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : requiresPayment ? (
+                    <PaymentsOutlinedIcon />
+                  ) : (
+                    <RefreshRoundedIcon />
+                  )
+                }
+                sx={{
+                  minHeight: 44,
+                  px: 2.5,
+                  borderRadius: 2.5,
+
+                  bgcolor: requiresPayment ? WARNING : BRAND,
+
+                  color: "#ffffff",
+
+                  fontWeight: 700,
+                  textTransform: "none",
+
+                  "&:hover": {
+                    bgcolor: requiresPayment ? "#92400E" : BRAND_DARK,
+                  },
+                }}
+              >
+                {isUpdating
+                  ? "Processing..."
+                  : requiresPayment
+                    ? `Pay ${formatCurrency(selectedStageAmount)} & Update Stage`
+                    : "Update Stage"}
+              </Button>
+            </Box>
+          </Box>
+
+          {/* =================================================
+            HISTORY
+            ================================================= */}
+
+          <Box sx={{ mt: 3 }}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <HistoryRoundedIcon
+                sx={{
+                  color: BRAND,
+                  fontSize: 21,
+                }}
+              />
+
+              <Typography
+                sx={{
+                  color: INK,
+                  fontSize: 16,
+                  fontWeight: 700,
+                }}
+              >
+                Stage History
+              </Typography>
+            </Box>
+
+            {history.length === 0 ? (
+              <Box
+                sx={{
+                  p: 2,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 2,
+                  color: MUTED,
+                  fontSize: 13.5,
+                }}
+              >
+                No stage history found.
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                }}
+              >
+                {history.map((item) => {
+                  const payment = item.paymentRef;
+
+                  const hasPayment = Boolean(
+                    payment && Number(payment.amountPaid || 0) > 0,
+                  );
+
+                  return (
+                    <Box
+                      key={item._id}
+                      sx={{
+                        p: 2,
+                        border: `1px solid ${BORDER}`,
+                        borderRadius: 2.5,
+                        bgcolor: "#ffffff",
+                      }}
+                    >
                       <Box
-                        component="span"
                         sx={{
-                          color: INK,
-                          fontWeight: 700,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: {
+                            xs: "flex-start",
+                            sm: "center",
+                          },
+                          flexDirection: {
+                            xs: "column",
+                            sm: "row",
+                          },
+                          gap: 1,
                         }}
                       >
-                        ¥{formatAmount(item.toStageAmount)}
-                      </Box>
-                    </Typography>
-
-                    {item.paymentRef && (
-                      <>
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 12,
-                          }}
-                        >
-                          Payment:{" "}
-                          <Box
-                            component="span"
+                        <Box>
+                          <Typography
                             sx={{
-                              color: BRAND,
+                              color: INK,
+                              fontSize: 14,
                               fontWeight: 700,
                             }}
                           >
-                            ¥{formatAmount(item.paymentRef.amountPaid)}
-                          </Box>
-                        </Typography>
+                            {item.fromStageName || "Initial"}
+                            {" → "}
+                            {item.toStageName}
+                          </Typography>
 
-                        <Typography
-                          sx={{
-                            color: INK_MUTED,
-                            fontSize: 12,
-                          }}
-                        >
-                          Method:{" "}
-                          <Box
-                            component="span"
+                          <Typography
                             sx={{
-                              color: INK,
-                              fontWeight: 600,
+                              mt: 0.35,
+                              color: MUTED,
+                              fontSize: 11.5,
                             }}
                           >
-                            {item.paymentRef.paymentMethod}
-                          </Box>
-                        </Typography>
-                      </>
-                    )}
+                            {formatDateTime(item.createdAt)}
+                          </Typography>
+                        </Box>
 
-                    {item.changedByName && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.75,
+                            px: 1.25,
+                            py: 0.6,
+                            borderRadius: 999,
+                            bgcolor:
+                              Number(item.toStageAmount || 0) > 0
+                                ? WARNING_SOFT
+                                : BRAND_SOFT,
+                            color:
+                              Number(item.toStageAmount || 0) > 0
+                                ? WARNING
+                                : BRAND,
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {formatCurrency(item.toStageAmount)}
+                        </Box>
+                      </Box>
+
+                      {item.note && (
+                        <Typography
+                          sx={{
+                            mt: 1.25,
+                            color: INK,
+                            fontSize: 13,
+                            whiteSpace: "pre-wrap",
+                          }}
+                        >
+                          {item.note}
+                        </Typography>
+                      )}
+
+                      {hasPayment && (
+                        <>
+                          <Divider
+                            sx={{
+                              my: 1.5,
+                              borderColor: BORDER,
+                            }}
+                          />
+
+                          <Box
+                            sx={{
+                              p: 1.5,
+                              borderRadius: 2,
+                              bgcolor: SUCCESS_SOFT,
+
+                              display: "grid",
+
+                              gridTemplateColumns: {
+                                xs: "1fr",
+                                sm: "repeat(2, minmax(0,1fr))",
+                                lg: "repeat(4, minmax(0,1fr))",
+                              },
+
+                              gap: 1.5,
+                            }}
+                          >
+                            <Box>
+                              <Typography
+                                sx={{
+                                  color: MUTED,
+                                  fontSize: 10.5,
+                                }}
+                              >
+                                Payment
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  mt: 0.2,
+                                  color: SUCCESS,
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {formatCurrency(payment?.amountPaid)}
+                              </Typography>
+                            </Box>
+
+                            <Box>
+                              <Typography
+                                sx={{
+                                  color: MUTED,
+                                  fontSize: 10.5,
+                                }}
+                              >
+                                Method
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  mt: 0.2,
+                                  color: INK,
+                                  fontSize: 13,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {payment?.paymentMethod || "-"}
+                              </Typography>
+                            </Box>
+
+                            <Box>
+                              <Typography
+                                sx={{
+                                  color: MUTED,
+                                  fontSize: 10.5,
+                                }}
+                              >
+                                Status
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  mt: 0.2,
+                                  color: SUCCESS,
+                                  fontSize: 13,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {payment?.paymentStatus || "Completed"}
+                              </Typography>
+                            </Box>
+
+                            <Box>
+                              <Typography
+                                sx={{
+                                  color: MUTED,
+                                  fontSize: 10.5,
+                                }}
+                              >
+                                Collected By
+                              </Typography>
+
+                              <Typography
+                                sx={{
+                                  mt: 0.2,
+                                  color: INK,
+                                  fontSize: 13,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {payment?.creditedStaffName ||
+                                  item.changedByName ||
+                                  "-"}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </>
+                      )}
+
                       <Typography
                         sx={{
-                          color: INK_MUTED,
-                          fontSize: 12,
+                          mt: 1.25,
+                          color: MUTED,
+                          fontSize: 11,
                         }}
                       >
                         Changed by:{" "}
-                        <Box
-                          component="span"
-                          sx={{
-                            color: INK,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {item.changedByName}
-                        </Box>
-                      </Typography>
-                    )}
-                  </Box>
-
-                  {item.note && (
-                    <Box
-                      sx={{
-                        mt: 1.25,
-                        px: 1.25,
-                        py: 1,
-                        borderRadius: 1.5,
-                        bgcolor: "#F9FAFB",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          color: INK_MUTED,
-                          fontSize: 12.5,
-                          lineHeight: 1.55,
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
-                        {item.note}
+                        {item.changedByName ||
+                          item.staffId ||
+                          item.changedByRole ||
+                          "-"}
                       </Typography>
                     </Box>
-                  )}
-                </Box>
-              );
-            })}
+                  );
+                })}
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
+        </>
+      )}
     </Box>
   );
 };

@@ -3,33 +3,39 @@
 import { useMemo, useState } from "react";
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 import { api } from "@/lib/axios";
 
-import { progressStageSchema } from "./validation";
-
 import type {
-  ClientStageHistoryResponse,
-  ClientStageListResponse,
-  ClientStageUpdateResponse,
-  ProgressUpdatePayload,
+  ChangeStagePayload,
+  ChangeStageResponse,
+  ProgressFormValues,
+  ProgressResponse,
+  StageOptionsResponse,
 } from "./type";
 
-const PAYMENT_METHODS = [
-  "Cash",
-  "Bank Transfer",
-  "Online Payment",
-  "Cheque",
-  "Other",
-] as const;
+import { validateProgressForm } from "./validation";
 
-const getLocalDate = () => {
-  const now = new Date();
+// =================================================
+// LOCAL DATE
+// =================================================
 
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60 * 1000);
+const getTodayInputValue = () => {
+  const date = new Date();
 
-  return local.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 };
+
+// =================================================
+// ERROR
+// =================================================
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (axios.isAxiosError(error)) {
@@ -39,41 +45,44 @@ const getErrorMessage = (error: unknown, fallback: string) => {
   return fallback;
 };
 
+// =================================================
+// HOOK
+// =================================================
+
 export const useProgressHook = (clientId: string) => {
   const queryClient = useQueryClient();
 
-  const [selectedStage, setSelectedStage] = useState("");
+  const [values, setValues] = useState<ProgressFormValues>({
+    stage: "",
+    note: "",
+    paymentMethod: "",
+    paymentDate: getTodayInputValue(),
+    referenceNumber: "",
+    receiptNumber: "",
+    bankName: "",
+  });
 
-  const [note, setNote] = useState("");
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof ProgressFormValues, string>>
+  >({});
 
-  const [paymentMethod, setPaymentMethod] = useState("");
-
-  const [paymentDate, setPaymentDate] = useState(getLocalDate());
-
-  const [referenceNumber, setReferenceNumber] = useState("");
-
-  const [receiptNumber, setReceiptNumber] = useState("");
-
-  const [bankName, setBankName] = useState("");
-
-  const [formError, setFormError] = useState("");
-
-  const [successMessage, setSuccessMessage] = useState("");
+  const [submitError, setSubmitError] = useState("");
 
   // =================================================
-  // CLIENT PROGRESS
+  // PROGRESS
   // =================================================
+
   const {
-    data: historyResponse,
-    isLoading: isHistoryLoading,
-    isFetching: isHistoryFetching,
-    isError: isHistoryError,
-    error: historyError,
-  } = useQuery<ClientStageHistoryResponse>({
+    data: progressResponse,
+    isLoading: isProgressLoading,
+    isFetching: isProgressFetching,
+    isError: isProgressError,
+    error: progressError,
+  } = useQuery<ProgressResponse>({
     queryKey: ["clientProgress", clientId],
 
     queryFn: async () => {
-      const response = await api.get<ClientStageHistoryResponse>(
+      const response = await api.get<ProgressResponse>(
         `/client-stages/${encodeURIComponent(clientId)}`,
       );
 
@@ -83,71 +92,103 @@ export const useProgressHook = (clientId: string) => {
     enabled: Boolean(clientId),
   });
 
+  const progressData = progressResponse?.data;
+
+  const history = Array.isArray(progressData?.history)
+    ? progressData.history
+    : [];
+
+  const currentStage = progressData?.currentStage ?? "";
+
+  const currentStageName =
+    progressData?.currentStageName || currentStage || "-";
+
   // =================================================
-  // STAGE MASTER
+  // STAGES
   // =================================================
+
   const {
     data: stageResponse,
     isLoading: isStageLoading,
-    isFetching: isStageFetching,
     isError: isStageError,
     error: stageError,
-  } = useQuery<ClientStageListResponse>({
+  } = useQuery<StageOptionsResponse>({
     queryKey: ["clientStageOptions"],
 
     queryFn: async () => {
-      const response = await api.get<ClientStageListResponse>("/stages");
+      const response = await api.get<StageOptionsResponse>("/stages");
 
       return response.data;
     },
   });
 
-  const historyData = historyResponse?.data;
-
-  const history = Array.isArray(historyData?.history)
-    ? historyData.history
-    : [];
-
-  const currentStage = historyData?.currentStage ?? "";
-
-  const currentStageName = historyData?.currentStageName || currentStage || "-";
-
   const stageOptions = useMemo(() => {
     return [...(stageResponse?.data ?? [])]
       .filter((stage) => stage.isActive)
-      .sort((a, b) => a.displayOrder - b.displayOrder);
+      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
   }, [stageResponse]);
+
+  const selectableStageOptions = stageOptions.filter(
+    (stage) => stage.key !== currentStage,
+  );
 
   const currentStageFromOptions = stageOptions.find(
     (stage) => stage.key === currentStage,
   );
 
   const currentStageAmount =
-    typeof historyData?.currentStageAmount === "number"
-      ? historyData.currentStageAmount
+    typeof progressData?.currentStageAmount === "number"
+      ? progressData.currentStageAmount
       : (currentStageFromOptions?.amount ?? 0);
 
-  const selectedStageValue = selectedStage || currentStage;
+  // =================================================
+  // SELECTED STAGE
+  // =================================================
 
-  const selectedStageDetails =
-    stageOptions.find((stage) => stage.key === selectedStageValue) ?? null;
+  const selectedStageDetails = stageOptions.find(
+    (stage) => stage.key === values.stage,
+  );
 
-  const requiresPayment =
-    selectedStageValue !== currentStage &&
-    Number(selectedStageDetails?.amount ?? 0) > 0;
+  const selectedStageAmount = Number(selectedStageDetails?.amount || 0);
+
+  const requiresPayment = Boolean(
+    selectedStageDetails && selectedStageAmount > 0,
+  );
 
   // =================================================
-  // UPDATE
+  // CHANGE VALUE
   // =================================================
-  const { mutateAsync: updateStage, isPending: isUpdatingStage } = useMutation<
-    ClientStageUpdateResponse,
+
+  const updateValue = <K extends keyof ProgressFormValues>(
+    field: K,
+    value: ProgressFormValues[K],
+  ) => {
+    setValues((previous) => ({
+      ...previous,
+      [field]: value,
+    }));
+
+    setFormErrors((previous) => ({
+      ...previous,
+      [field]: undefined,
+    }));
+
+    setSubmitError("");
+  };
+
+  // =================================================
+  // STAGE CHANGE
+  // =================================================
+
+  const { mutateAsync: changeStage, isPending: isUpdating } = useMutation<
+    ChangeStageResponse,
     unknown,
-    ProgressUpdatePayload
+    ChangeStagePayload
   >({
-    mutationFn: async (values) => {
-      const response = await api.post<ClientStageUpdateResponse>(
+    mutationFn: async (payload) => {
+      const response = await api.post<ChangeStageResponse>(
         `/client-stages/${encodeURIComponent(clientId)}`,
-        values,
+        payload,
       );
 
       return response.data;
@@ -155,208 +196,169 @@ export const useProgressHook = (clientId: string) => {
   });
 
   // =================================================
-  // REFRESH
-  // =================================================
-  const refreshAfterStageChange = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: ["clientProgress", clientId],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["clientPayments", clientId],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["client", clientId],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["clients"],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["adminDashboard"],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["staffDashboard"],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["staffTarget"],
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: ["staffPerformance"],
-      }),
-    ]);
-  };
-
-  // =================================================
-  // RESET PAYMENT
-  // =================================================
-  const resetPaymentFields = () => {
-    setPaymentMethod("");
-    setPaymentDate(getLocalDate());
-    setReferenceNumber("");
-    setReceiptNumber("");
-    setBankName("");
-  };
-
-  // =================================================
-  // STAGE CHANGE
-  // =================================================
-  const handleStageChange = (value: string) => {
-    setSelectedStage(value);
-
-    setFormError("");
-    setSuccessMessage("");
-
-    resetPaymentFields();
-  };
-
-  // =================================================
   // SUBMIT
   // =================================================
+
   const handleUpdateStage = async () => {
-    setFormError("");
-    setSuccessMessage("");
+    setSubmitError("");
 
-    const values = {
-      stage: selectedStageValue,
-      note,
-      paymentMethod,
-      paymentDate,
-      referenceNumber,
-      receiptNumber,
-      bankName,
-    };
+    const validation = validateProgressForm(values, requiresPayment);
 
-    const result = progressStageSchema.safeParse(values);
-
-    if (!result.success) {
-      setFormError(result.error.issues[0]?.message || "Please check the form.");
+    if (!validation.valid) {
+      setFormErrors(validation.errors);
 
       return;
     }
 
-    if (result.data.stage === currentStage) {
-      setFormError("Please select a different stage.");
+    if (values.stage === currentStage) {
+      setFormErrors({
+        stage: "Please select a different stage.",
+      });
 
       return;
     }
 
-    if (requiresPayment) {
-      if (
-        !PAYMENT_METHODS.includes(
-          result.data.paymentMethod as (typeof PAYMENT_METHODS)[number],
-        )
-      ) {
-        setFormError("Please select a payment method.");
+    const payload: ChangeStagePayload = {
+      stage: values.stage,
 
-        return;
-      }
-
-      if (!result.data.paymentDate) {
-        setFormError("Payment date is required.");
-
-        return;
-      }
-    }
-
-    const payload: ProgressUpdatePayload = {
-      stage: result.data.stage,
-
-      note: result.data.note,
+      note: values.note.trim(),
     };
 
+    // =================================================
+    // PAYMENT
+    // =================================================
+
     if (requiresPayment) {
-      payload.paymentMethod = result.data.paymentMethod;
+      payload.paymentMethod = values.paymentMethod || undefined;
 
-      payload.paymentDate = result.data.paymentDate;
+      payload.paymentDate = values.paymentDate;
 
-      payload.referenceNumber = result.data.referenceNumber;
+      if (values.referenceNumber.trim()) {
+        payload.referenceNumber = values.referenceNumber.trim();
+      }
 
-      payload.receiptNumber = result.data.receiptNumber;
+      if (values.receiptNumber.trim()) {
+        payload.receiptNumber = values.receiptNumber.trim();
+      }
 
-      payload.bankName = result.data.bankName;
+      if (values.bankName.trim()) {
+        payload.bankName = values.bankName.trim();
+      }
     }
 
     try {
-      const response = await updateStage(payload);
+      const response = await changeStage(payload);
 
-      setSelectedStage("");
-      setNote("");
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["clientProgress", clientId],
+        }),
 
-      resetPaymentFields();
+        queryClient.invalidateQueries({
+          queryKey: ["clientPayments", clientId],
+        }),
 
-      setSuccessMessage(
-        response.message || "Client stage updated successfully.",
+        queryClient.invalidateQueries({
+          queryKey: ["client", clientId],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["clients"],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["adminDashboard"],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["staffDashboard"],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["staffTarget"],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["staffPerformance"],
+        }),
+      ]);
+
+      setValues({
+        stage: "",
+        note: "",
+        paymentMethod: "",
+        paymentDate: getTodayInputValue(),
+        referenceNumber: "",
+        receiptNumber: "",
+        bankName: "",
+      });
+
+      setFormErrors({});
+
+      toast.success(
+        response.message ||
+          (requiresPayment
+            ? `Payment of ¥${selectedStageAmount.toLocaleString()} completed and stage updated.`
+            : "Stage updated successfully."),
       );
-
-      await refreshAfterStageChange();
     } catch (error) {
-      console.error("Update client stage error:", error);
+      console.error("UPDATE CLIENT STAGE ERROR:", error);
 
-      setFormError(getErrorMessage(error, "Failed to update client stage."));
+      const message = getErrorMessage(error, "Failed to update client stage.");
+
+      setSubmitError(message);
+
+      toast.error(message);
     }
   };
 
-  const historyLoadError = isHistoryError
-    ? getErrorMessage(historyError, "Failed to load client progress.")
-    : "";
+  // =================================================
+  // DISABLED
+  // =================================================
 
-  const stageLoadError = isStageError
-    ? getErrorMessage(stageError, "Failed to load stages.")
-    : "";
+  const isSubmitDisabled =
+    isUpdating ||
+    !values.stage ||
+    values.stage === currentStage ||
+    (requiresPayment && (!values.paymentMethod || !values.paymentDate));
+
+  // =================================================
+  // ERRORS
+  // =================================================
+
+  const loadError = isProgressError
+    ? getErrorMessage(progressError, "Failed to load stage history.")
+    : isStageError
+      ? getErrorMessage(stageError, "Failed to load stages.")
+      : "";
 
   return {
+    values,
+    updateValue,
+
+    formErrors,
+    submitError,
+
     history,
 
     currentStage,
     currentStageName,
     currentStageAmount,
 
-    stageOptions,
+    stageOptions: selectableStageOptions,
 
-    selectedStageValue,
     selectedStageDetails,
+    selectedStageAmount,
 
     requiresPayment,
 
-    note,
-    setNote,
+    isLoading: isProgressLoading || isProgressFetching || isStageLoading,
 
-    paymentMethod,
-    setPaymentMethod,
+    isUpdating,
+    isSubmitDisabled,
 
-    paymentDate,
-    setPaymentDate,
+    loadError,
 
-    referenceNumber,
-    setReferenceNumber,
-
-    receiptNumber,
-    setReceiptNumber,
-
-    bankName,
-    setBankName,
-
-    handleStageChange,
     handleUpdateStage,
-
-    isHistoryLoading,
-    isHistoryFetching,
-
-    isStageLoading,
-    isStageFetching,
-
-    isUpdatingStage,
-
-    historyLoadError,
-    stageLoadError,
-    formError,
-    successMessage,
   };
 };

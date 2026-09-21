@@ -1,97 +1,135 @@
-export type ClientStageOption = {
+export type PaymentMethod = "Bank Transfer" | "Cash";
+
+export type StageOption = {
   _id: string;
   key: string;
   name: string;
   amount: number;
   isActive: boolean;
-  isSystem: boolean;
-  displayOrder: number;
-  createdAt?: string;
-  updatedAt?: string;
+  isSystem?: boolean;
+  displayOrder?: number;
 };
 
-export type ClientStageListResponse = {
+export type StageOptionsResponse = {
   success: boolean;
-  count: number;
-  data: ClientStageOption[];
+  count?: number;
+  data: StageOption[];
 };
 
-export type StagePayment = {
-  _id: string;
-  clientId: string;
-  stageKey: string;
-  stageName: string;
-  stageAmount: number;
-  amountPaid: number;
-  paymentMethod: string;
-  paymentDate: string;
-  paymentStatus: "Completed" | "Cancelled" | "Refunded";
+export type ProgressPayment = {
+  _id?: string;
+  clientId?: string;
+
+  stageKey?: string;
+  stageName?: string;
+  stageAmount?: number;
+
+  amountPaid?: number;
+
+  paymentMethod?: string;
+  paymentDate?: string;
+  paymentStatus?: string;
+
   referenceNumber?: string;
   receiptNumber?: string;
   bankName?: string;
+  note?: string;
+
+  creditedStaff?: string;
+  creditedStaffName?: string;
+
+  createdAt?: string;
 };
 
-export type ClientStageHistoryItem = {
+export type StageHistoryItem = {
   _id: string;
-  clientRef?: string;
+
   clientId: string;
+
   fromStage?: string | null;
   fromStageName?: string | null;
+
   toStage: string;
-  toStageName?: string;
+  toStageName: string;
   toStageAmount?: number;
-  paymentRef?: StagePayment | null;
+
   note?: string;
+
   changedBy?: string;
-  changedByRole?: "superadmin" | "staff";
-  staffId?: string | null;
+  changedByRole?: string;
   changedByName?: string;
+
+  staffId?: string | null;
+
+  paymentRef?: ProgressPayment | null;
+
   createdAt: string;
   updatedAt?: string;
 };
 
-export type ClientStageHistoryData = {
+export type ProgressData = {
   clientId: string;
+
   currentStage: string;
-  currentStageName: string;
-  currentStageAmount: number;
-  history: ClientStageHistoryItem[];
+
+  currentStageName?: string;
+
+  currentStageAmount?: number;
+
+  history: StageHistoryItem[];
 };
 
-export type ClientStageHistoryResponse = {
+export type ProgressResponse = {
   success: boolean;
-  data: ClientStageHistoryData;
+  data: ProgressData;
 };
 
-export type ProgressUpdatePayload = {
+export type ChangeStagePayload = {
   stage: string;
-  note: string;
-  paymentMethod?: string;
+
+  note?: string;
+
+  paymentMethod?: PaymentMethod;
+
   paymentDate?: string;
+
   referenceNumber?: string;
+
   receiptNumber?: string;
+
   bankName?: string;
 };
 
-export type ClientStageUpdateResponse = {
+export type ChangeStageResponse = {
   success: boolean;
+
   message: string;
-  data: {
-    client: {
-      _id: string;
-      clientId: string;
-      currentStage: string;
-      clientStatus: string;
-      assignedStaff: string;
-    };
-    stage: ClientStageOption;
-    history: ClientStageHistoryItem;
-    payment: StagePayment | null;
-    paymentRequired: boolean;
-    amountPaid: number;
+
+  data?: {
+    client?: unknown;
+    stage?: StageOption;
+    history?: StageHistoryItem;
+    payment?: ProgressPayment | null;
+    paymentRequired?: boolean;
+    amountPaid?: number;
   };
 };
 
 export type ProgressProps = {
   clientId: string;
+};
+
+export type ProgressFormValues = {
+  stage: string;
+  note: string;
+
+  paymentMethod: "" | PaymentMethod;
+
+  paymentDate: string;
+
+  referenceNumber: string;
+
+  receiptNumber: string;
+
+  bankName: string;
 };

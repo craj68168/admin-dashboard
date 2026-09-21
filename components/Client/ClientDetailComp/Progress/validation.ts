@@ -1,19 +1,70 @@
 import { z } from "zod";
 
-export const progressStageSchema = z.object({
-  stage: z.string().trim().min(1, "Please select a stage."),
+export const PAYMENT_METHOD_OPTIONS = [
+  {
+    value: "Bank Transfer",
+    label: "Bank Transfer",
+  },
+  {
+    value: "Cash",
+    label: "Cash",
+  },
+] as const;
 
-  note: z.string().trim().max(3000, "Note cannot exceed 3000 characters."),
+export const progressFormSchema = z.object({
+  stage: z.string().trim().min(1, "Please select the next stage."),
 
-  paymentMethod: z.string().trim(),
+  note: z.string().trim().max(2000, "Note must be 2000 characters or less."),
 
-  paymentDate: z.string().trim(),
+  paymentMethod: z.union([
+    z.literal(""),
+    z.literal("Bank Transfer"),
+    z.literal("Cash"),
+  ]),
 
-  referenceNumber: z.string().trim().max(200, "Reference number is too long."),
+  paymentDate: z.string(),
 
-  receiptNumber: z.string().trim().max(200, "Receipt number is too long."),
+  referenceNumber: z.string().trim().max(200),
 
-  bankName: z.string().trim().max(200, "Bank name is too long."),
+  receiptNumber: z.string().trim().max(200),
+
+  bankName: z.string().trim().max(200),
 });
 
-export type ProgressStageValues = z.infer<typeof progressStageSchema>;
+export type ProgressValidationErrors = Partial<
+  Record<keyof z.infer<typeof progressFormSchema>, string>
+>;
+
+export const validateProgressForm = (
+  values: z.infer<typeof progressFormSchema>,
+  requiresPayment: boolean,
+) => {
+  const result = progressFormSchema.safeParse(values);
+
+  const errors: ProgressValidationErrors = {};
+
+  if (!result.success) {
+    for (const issue of result.error.issues) {
+      const field = issue.path[0];
+
+      if (typeof field === "string") {
+        errors[field as keyof ProgressValidationErrors] = issue.message;
+      }
+    }
+  }
+
+  if (requiresPayment) {
+    if (!values.paymentMethod) {
+      errors.paymentMethod = "Payment method is required.";
+    }
+
+    if (!values.paymentDate) {
+      errors.paymentDate = "Payment date is required.";
+    }
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
+};

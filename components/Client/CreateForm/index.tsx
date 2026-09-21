@@ -1,190 +1,151 @@
 "use client";
+
 import type { ReactNode } from "react";
+
+import { Controller, useFieldArray } from "react-hook-form";
 import { useTranslations } from "next-intl";
-import Box from "@mui/material/Box";
+
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
-import TextField, { type TextFieldProps } from "@mui/material/TextField";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import { Controller, useFieldArray } from "react-hook-form";
+
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+
 import Breadcrumb from "@/components/Breadcrumb";
-import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
-import CreateStageModal from "./StageModal";
+
 import {
-  GENDER,
   CURRENT_VISA_STATUS_OPTIONS,
   PREFER_CATEGORY_OPTIONS,
+  GENDER,
   NATIONALITIES,
-  STATUS_OF_RESIDENCE_OPTIONS,
   JAPANESE_LEVELS,
+  PREFECTURE_OPTIONS,
   EDUCATION_TYPE_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
-  PREFECTURE_OPTIONS,
 } from "@/components/constant";
+
 import { useClientFormHook } from "./hook";
+
 import type { ClientFormProps } from "./type";
+
 // =================================================
 // DESIGN
 // =================================================
+
 const BRAND = "#107A64";
 const BRAND_HOVER = "#0C5F4F";
-const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const BRAND_SOFT = "rgba(16,122,100,0.07)";
+const BORDER = "rgba(17,24,39,0.09)";
 const INK = "#111827";
-const INK_MUTED = "#4B5563";
-const DANGER = "#DC2626";
-const FIELD_HEIGHT = 40;
-const softCard = {
-  bgcolor: "#ffffff",
-  border: `1px solid ${HAIRLINE}`,
+const MUTED = "#6B7280";
+
+const WARNING = "#B45309";
+const WARNING_DARK = "#92400E";
+const WARNING_SOFT = "#FFFBEB";
+
+const cardSx = {
+  p: {
+    xs: 2,
+    sm: 2.5,
+    md: 3,
+  },
+
+  border: `1px solid ${BORDER}`,
   borderRadius: 3,
+  bgcolor: "#ffffff",
+
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
+
 const fieldSx = {
-  "& .MuiInputLabel-root": {
-    color: INK_MUTED,
-    fontSize: 13.5,
-    "&.Mui-focused": {
-      color: BRAND,
-    },
-    "&.Mui-error": {
-      color: DANGER,
-    },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: BRAND,
   },
+
   "& .MuiOutlinedInput-root": {
-    color: INK,
-    bgcolor: "#ffffff",
     borderRadius: 2,
-    minHeight: FIELD_HEIGHT,
+
     "& fieldset": {
-      borderColor: HAIRLINE,
+      borderColor: BORDER,
     },
+
     "&:hover fieldset": {
-      borderColor: "rgba(16, 122, 100, 0.35)",
+      borderColor: "rgba(16,122,100,0.35)",
     },
+
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
-      borderWidth: "1px",
-    },
-    "&.Mui-error fieldset": {
-      borderColor: DANGER,
-    },
-    "&.Mui-disabled": {
-      bgcolor: "#F9FAFB",
-    },
-  },
-  "& .MuiInputBase-input": {
-    fontSize: 13.5,
-    "&::placeholder": {
-      color: INK_MUTED,
-      opacity: 0.65,
-    },
-  },
-  "& .MuiSelect-select": {
-    fontSize: 13.5,
-  },
-  "& .MuiFormHelperText-root": {
-    ml: 0.25,
-    mt: 0.4,
-    fontSize: 11,
-    lineHeight: 1.3,
-    color: INK_MUTED,
-    "&.Mui-error": {
-      color: DANGER,
     },
   },
 };
-const addButtonSx = {
-  borderRadius: 2,
-  borderColor: "rgba(16, 122, 100, 0.25)",
-  color: BRAND,
-  textTransform: "none",
-  fontWeight: 600,
-  fontSize: 13,
-  minHeight: 34,
-  px: 1.5,
-  "&:hover": {
-    bgcolor: BRAND_SOFT,
-    borderColor: BRAND,
+
+const grid2Sx = {
+  display: "grid",
+
+  gridTemplateColumns: {
+    xs: "1fr",
+    md: "repeat(2, minmax(0,1fr))",
   },
-} as const;
-const uploadButtonSx = (hasValue: boolean, hasError: boolean) =>
-  ({
-    height: FIELD_HEIGHT,
-    justifyContent: "flex-start",
-    px: 1.5,
-    color: hasValue ? INK : INK_MUTED,
-    bgcolor: "#ffffff",
-    borderColor: hasError ? DANGER : HAIRLINE,
-    borderRadius: 2,
-    fontSize: 13.5,
-    fontWeight: 500,
-    textTransform: "none",
-    overflow: "hidden",
-    "&:hover": {
-      bgcolor: BRAND_SOFT,
-      borderColor: "rgba(16, 122, 100, 0.35)",
-    },
-    "& .MuiButton-startIcon": {
-      color: BRAND,
-    },
-  }) as const;
+
+  gap: 2,
+};
+
+const grid3Sx = {
+  display: "grid",
+
+  gridTemplateColumns: {
+    xs: "1fr",
+    md: "repeat(2, minmax(0,1fr))",
+    xl: "repeat(3, minmax(0,1fr))",
+  },
+
+  gap: 2,
+};
+
 // =================================================
-// INPUT
+// SECTION
 // =================================================
-const Input = (props: TextFieldProps) => (
-  <TextField size="small" fullWidth {...props} sx={fieldSx} />
-);
-// =================================================
-// DATE
-// =================================================
-const DateInput = (props: TextFieldProps) => (
-  <Input
-    type="date"
-    {...props}
-    slotProps={{
-      inputLabel: {
-        shrink: true,
-      },
-    }}
-  />
-);
-// =================================================
-// TITLE
-// =================================================
-const SectionTitle = ({
+
+const FormSection = ({
   title,
   description,
+  children,
 }: {
   title: string;
   description?: string;
+  children: ReactNode;
 }) => (
-  <Box sx={{ mb: 1.75 }}>
+  <Paper elevation={0} sx={cardSx}>
     <Typography
       sx={{
         color: INK,
-        fontSize: 15.5,
-        lineHeight: 1.3,
-        fontWeight: 600,
-        letterSpacing: "-0.01em",
+        fontSize: 17,
+        fontWeight: 700,
       }}
     >
       {title}
     </Typography>
+
     {description && (
       <Typography
-        variant="body2"
         sx={{
-          mt: 0.25,
-          color: INK_MUTED,
+          mt: 0.5,
+          mb: 2.5,
+          color: MUTED,
           fontSize: 12.5,
           lineHeight: 1.5,
         }}
@@ -192,136 +153,58 @@ const SectionTitle = ({
         {description}
       </Typography>
     )}
-  </Box>
-);
-// =================================================
-// GRID
-// =================================================
-const FormGrid = ({ children }: { children: ReactNode }) => (
-  <Box
-    sx={{
-      display: "grid",
-      gridTemplateColumns: {
-        xs: "1fr",
-        sm: "repeat(2, 1fr)",
-        md: "repeat(3, 1fr)",
-      },
-      columnGap: 2,
-      rowGap: 1.75,
-      alignItems: "start",
-    }}
-  >
+
+    {!description && <Box sx={{ mb: 2.5 }} />}
+
     {children}
-  </Box>
+  </Paper>
 );
-// =================================================
-// DIVIDER
-// =================================================
-const SectionDivider = () => (
-  <Divider
-    sx={{
-      my: 2.75,
-      borderColor: HAIRLINE,
-    }}
-  />
-);
-// =================================================
-// ITEM CARD
-// =================================================
-const ItemCard = ({
-  children,
-  onRemove,
-  removeDisabled,
-  label,
-}: {
-  children: ReactNode;
-  onRemove: () => void;
-  removeDisabled: boolean;
-  label: string;
-}) => (
-  <Box
-    sx={{
-      position: "relative",
-      p: {
-        xs: 1.5,
-        sm: 2,
-      },
-      border: `1px solid ${HAIRLINE}`,
-      borderRadius: 2,
-      bgcolor: "#FAFBFA",
-    }}
-  >
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        minHeight: 28,
-        mb: 1.25,
-      }}
-    >
-      <Typography
-        sx={{
-          color: INK,
-          fontSize: 13,
-          fontWeight: 600,
-        }}
-      >
-        {label}
-      </Typography>
-      <IconButton
-        size="small"
-        disabled={removeDisabled}
-        onClick={onRemove}
-        sx={{
-          color: DANGER,
-          borderRadius: 1.5,
-          "&:hover": {
-            bgcolor: "rgba(220, 38, 38, 0.06)",
-          },
-        }}
-      >
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-    </Box>
-    {children}
-  </Box>
-);
+
 // =================================================
 // CLIENT FORM
 // =================================================
+
 const ClientForm = ({ clientId }: ClientFormProps) => {
-  const t = useTranslations("createClient");
+  const createT = useTranslations("createClient");
+
   const {
-    user,
-    role,
     isEditMode,
+    role,
+    user,
+
     control,
-    errors,
+    register,
     handleSubmit,
-    activeStaff,
-    stageOptions,
-    existingFiles,
-    isStaffLoading,
-    isStageLoading,
-    isClientLoading,
-    isSubmitting,
-    isSaving,
-    serverError,
-    clientLoadError,
-    stageLoadError,
+    setValue,
+    watch,
+    errors,
+
     onSubmit,
+
+    client,
+
+    existingClientImage,
+    existingCv,
+
+    registrationStage,
+    registrationAmount,
+    registrationConfigError,
+    isStageLoading,
+
+    staffOptions,
+    isStaffLoading,
+
+    isLoading,
+    isSaving,
+    submitError,
+
     handleCancel,
-    stageModalOpen,
-    isCreatingStage,
-    stageCreateError,
-    openStageModal,
-    closeStageModal,
-    handleCreateStage,
   } = useClientFormHook(clientId);
+
   // =================================================
-  // DYNAMIC EDUCATION
+  // ARRAYS
   // =================================================
+
   const {
     fields: educationFields,
     append: appendEducation,
@@ -330,9 +213,16 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     control,
     name: "education",
   });
-  // =================================================
-  // DYNAMIC EMPLOYMENT
-  // =================================================
+
+  const {
+    fields: qualificationFields,
+    append: appendQualification,
+    remove: removeQualification,
+  } = useFieldArray({
+    control,
+    name: "qualifications",
+  });
+
   const {
     fields: employmentFields,
     append: appendEmployment,
@@ -341,1077 +231,1499 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     control,
     name: "employmentHistory",
   });
-  const loading = isSubmitting || isSaving;
+
+  const selectedClientImage = watch("clientImage");
+
+  const selectedCv = watch("cv");
+
+  const paymentMethod = watch("paymentMethod");
+
   // =================================================
-  // INITIAL EDIT LOAD
+  // OPTIONS
   // =================================================
-  if (isEditMode && isClientLoading) {
+
+  const visaOptions = CURRENT_VISA_STATUS_OPTIONS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.currentVisaStatus.${option.key}` as never),
+  }));
+
+  const categoryOptions = PREFER_CATEGORY_OPTIONS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.preferCategory.${option.key}` as never),
+  }));
+
+  const genderOptions = GENDER.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.gender.${option.key}` as never),
+  }));
+
+  const nationalityOptions = NATIONALITIES.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.nationality.${option.key}` as never),
+  }));
+
+  const prefectureOptions = PREFECTURE_OPTIONS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.prefecture.${option.key}` as never),
+  }));
+
+  const japaneseOptions = JAPANESE_LEVELS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.japaneseLanguageLevel.${option.key}` as never),
+  }));
+
+  const educationTypeOptions = EDUCATION_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.educationType.${option.key}` as never),
+  }));
+
+  const employmentTypeOptions = EMPLOYMENT_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+
+    label: createT(`options.employmentType.${option.key}` as never),
+  }));
+
+  // =================================================
+  // LOADING
+  // =================================================
+
+  if (isLoading) {
     return (
       <Box
         sx={{
           minHeight: "60vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: "#F7F8F6",
+          display: "grid",
+          placeItems: "center",
         }}
       >
-        <CircularProgress
-          size={30}
-          sx={{
-            color: BRAND,
-          }}
-        />
+        <CircularProgress size={28} sx={{ color: BRAND }} />
       </Box>
     );
   }
-  // =================================================
-  // CLIENT LOAD ERROR
-  // =================================================
-  if (isEditMode && clientLoadError) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          bgcolor: "#F7F8F6",
-          p: 3,
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: 1180,
-            mx: "auto",
-          }}
-        >
-          <Alert severity="error">{clientLoadError}</Alert>
-          <Button
-            onClick={handleCancel}
-            sx={{
-              mt: 2,
-              color: BRAND,
-            }}
-          >
-            Back
-          </Button>
-        </Box>
-      </Box>
-    );
-  }
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
         bgcolor: "#F7F8F6",
+
         px: {
-          xs: 1.5,
-          sm: 2.5,
-          md: 3,
-        },
-        pb: {
           xs: 2,
-          md: 3,
+          sm: 3,
+          md: 4,
         },
+
+        py: 4,
       }}
     >
       <Box
         sx={{
           width: "100%",
-          maxWidth: 1180,
+          maxWidth: 1250,
           mx: "auto",
         }}
       >
-        {/* BREADCRUMB */}
-        <Box
-          sx={{
-            mb: {
-              xs: 1.5,
-              md: 2,
-            },
-          }}
-        >
+        <Box sx={{ mb: 2.5 }}>
           <Breadcrumb
             items={[
               {
-                label: t("breadcrumbs.dashboard"),
+                label: "Dashboard",
                 href: "/admin/dashboard",
               },
+
               {
-                label: t("breadcrumbs.clients"),
+                label: "Clients",
                 href: "/admin/client",
               },
-              ...(isEditMode && clientId
-                ? [
-                    {
-                      label: clientId,
-                      href: `/admin/client/${encodeURIComponent(clientId)}`,
-                    },
-                  ]
-                : []),
+
               {
-                label: isEditMode
-                  ? "Edit Client"
-                  : t("breadcrumbs.createClient"),
+                label: isEditMode ? "Edit Client" : "Register Client",
+
                 current: true,
               },
             ]}
           />
         </Box>
-        {/* CARD */}
-        <Box
-          sx={{
-            ...softCard,
-            p: {
-              xs: 1.75,
-              sm: 2.5,
-              md: 3,
-            },
-          }}
-        >
-          {/* HEADER */}
-          <Box
+
+        <Box sx={{ mb: 3 }}>
+          <Typography
             sx={{
-              mb: {
-                xs: 2,
-                md: 2.5,
+              color: INK,
+
+              fontSize: {
+                xs: 24,
+                md: 30,
               },
+
+              fontWeight: 700,
             }}
           >
-            <Typography
-              sx={{
-                color: INK,
-                fontSize: {
-                  xs: 20,
-                  sm: 22,
-                  md: 24,
-                },
-                lineHeight: 1.25,
-                fontWeight: 600,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {isEditMode ? "Edit Client" : t("title")}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                mt: 0.25,
-                color: INK_MUTED,
-                fontSize: 13,
-                lineHeight: 1.5,
-              }}
-            >
-              {isEditMode
-                ? "Update the client's information. Change progress from the client Progress section."
-                : t("description")}
-            </Typography>
-          </Box>
-          {/* ERRORS */}
-          {serverError && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                borderRadius: 2,
-              }}
-            >
-              {serverError}
-            </Alert>
-          )}
-          {stageLoadError && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                borderRadius: 2,
-              }}
-            >
-              {stageLoadError}
-            </Alert>
-          )}
-          <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
-            {/* =================================================
-BASIC
-================================================= */}
-            <SectionTitle
-              title={t("sections.basic.title")}
-              description={t("sections.basic.description")}
-            />
-            <FormGrid>
-              <Controller
-                name="fullName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    required
-                    label={t("fields.fullName.label")}
-                    placeholder={t("fields.fullName.placeholder")}
-                    error={Boolean(errors.fullName)}
-                    helperText={errors.fullName?.message}
-                  />
-                )}
+            {isEditMode ? "Edit Client" : "Register New Client"}
+          </Typography>
+
+          <Typography
+            sx={{
+              mt: 0.6,
+              color: MUTED,
+              fontSize: 13.5,
+            }}
+          >
+            {isEditMode
+              ? "Update client and Japanese CV information."
+              : "A new client becomes Registered / Paid only after the full registration payment is confirmed."}
+          </Typography>
+        </Box>
+
+        {submitError && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              borderRadius: 2,
+            }}
+          >
+            {submitError}
+          </Alert>
+        )}
+
+        {!isEditMode && registrationConfigError && (
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              borderRadius: 2,
+            }}
+          >
+            {registrationConfigError}
+          </Alert>
+        )}
+
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* =================================================
+          1 BASIC
+          ================================================= */}
+
+          <FormSection title="1. Basic Information">
+            <Box sx={grid3Sx}>
+              <TextField
+                {...register("fullName")}
+                label="Full Name"
+                required
+                size="small"
+                error={Boolean(errors.fullName)}
+                helperText={errors.fullName?.message}
+                sx={fieldSx}
               />
-              <Controller
-                name="phone"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    required
-                    label={t("fields.phone.label")}
-                    placeholder={t("fields.phone.placeholder")}
-                    error={Boolean(errors.phone)}
-                    helperText={errors.phone?.message}
-                  />
-                )}
+
+              <TextField
+                {...register("furigana")}
+                label="Furigana / フリガナ"
+                size="small"
+                sx={fieldSx}
               />
-              <Controller
-                name="currentVisaStatus"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    select
-                    required
-                    label={t("fields.currentVisaStatus.label")}
-                    error={Boolean(errors.currentVisaStatus)}
-                    helperText={errors.currentVisaStatus?.message}
-                  >
-                    <MenuItem value="">
-                      {t("fields.currentVisaStatus.placeholder")}
-                    </MenuItem>
-                    {CURRENT_VISA_STATUS_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.currentVisaStatus.${option.key}` as never)}
-                      </MenuItem>
-                    ))}
-                  </Input>
-                )}
+
+              <TextField
+                {...register("phone")}
+                label="Phone"
+                required
+                size="small"
+                error={Boolean(errors.phone)}
+                helperText={errors.phone?.message}
+                sx={fieldSx}
               />
-              {/* ASSIGNED STAFF - ADMIN */}
-              {role === "superadmin" && (
-                <Controller
-                  name="assignedStaff"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      select
-                      required
-                      label={t("fields.assignedStaff.label")}
-                      disabled={isStaffLoading}
-                      error={Boolean(errors.assignedStaff)}
-                      helperText={errors.assignedStaff?.message}
-                    >
-                      <MenuItem value="">
-                        {isStaffLoading
-                          ? "Loading staff..."
-                          : t("fields.assignedStaff.placeholder")}
-                      </MenuItem>
-                      {activeStaff.map((staff) => (
-                        <MenuItem key={staff.staffId} value={staff.staffId}>
-                          {staff.name} ({staff.staffId})
-                        </MenuItem>
-                      ))}
-                    </Input>
-                  )}
-                />
-              )}
-              {/* ASSIGNED STAFF - STAFF */}
-              {role === "staff" && (
-                <Controller
-                  name="assignedStaff"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      disabled
-                      label={t("fields.assignedStaff.label")}
-                      value={
-                        isEditMode
-                          ? field.value
-                          : user
-                            ? `${user.name} (${user.staffId})`
-                            : ""
-                      }
-                      helperText={t("fields.assignedStaff.autoHelper")}
-                    />
-                  )}
-                />
-              )}
-              <Controller
-                name="preferCategory"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    select
-                    label={t("fields.preferCategory.label")}
-                    error={Boolean(errors.preferCategory)}
-                    helperText={errors.preferCategory?.message}
-                  >
-                    <MenuItem value="">
-                      {t("fields.preferCategory.placeholder")}
-                    </MenuItem>
-                    {PREFER_CATEGORY_OPTIONS.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {t(`options.preferCategory.${option.key}` as never)}
-                      </MenuItem>
-                    ))}
-                  </Input>
-                )}
+
+              <TextField
+                {...register("email")}
+                label="Email"
+                size="small"
+                error={Boolean(errors.email)}
+                helperText={errors.email?.message}
+                sx={fieldSx}
               />
-              <Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 1,
-                    mb: 0.5,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: INK_MUTED,
-                    }}
-                  >
-                    Current Stage
-                  </Typography>
-                  <Button
-                    type="button"
-                    size="small"
-                    startIcon={<AddCircleOutlineRoundedIcon />}
-                    onClick={openStageModal}
-                    sx={{
-                      minWidth: "auto",
-                      p: 0,
-                      color: BRAND,
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      textTransform: "none",
-                      "&:hover": {
-                        bgcolor: "transparent",
-                        color: BRAND_HOVER,
-                      },
-                    }}
-                  >
-                    Add Stage
-                  </Button>
-                </Box>
-                <Controller
-                  name="currentStage"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      select
-                      required={!isEditMode}
-                      disabled={
-                        isEditMode || isStageLoading || Boolean(stageLoadError)
-                      }
-                      error={Boolean(errors.currentStage)}
-                      helperText={
-                        isEditMode
-                          ? "Change the client's stage from Progress."
-                          : errors.currentStage?.message
-                      }
-                    >
-                      <MenuItem value="">
-                        {isStageLoading
-                          ? "Loading stages..."
-                          : "Select current stage"}
-                      </MenuItem>
-                      {stageOptions.map((stage) => (
-                        <MenuItem key={stage._id} value={stage.key}>
-                          {stage.name} — ¥{stage.amount.toLocaleString()}
-                        </MenuItem>
-                      ))}
-                    </Input>
-                  )}
-                />
-              </Box>
-            </FormGrid>
-            <SectionDivider />
-            {/* =================================================
-PERSONAL
-================================================= */}
-            <SectionTitle
-              title={t("sections.personal.title")}
-              description={t("sections.personal.description")}
-            />
-            <FormGrid>
-              <Controller
-                name="dateOfBirth"
-                control={control}
-                render={({ field }) => (
-                  <DateInput {...field} label={t("fields.dateOfBirth.label")} />
-                )}
+
+              <TextField
+                {...register("dateOfBirth")}
+                label="Date of Birth"
+                type="date"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+                sx={fieldSx}
               />
+
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
-                  <Input
+                  <TextField
                     {...field}
                     select
-                    label={t("fields.gender.label")}
-                    error={Boolean(errors.gender)}
-                    helperText={errors.gender?.message}
+                    label="Gender"
+                    size="small"
+                    sx={fieldSx}
                   >
-                    <MenuItem value="">
-                      {t("fields.gender.placeholder")}
-                    </MenuItem>
-                    {GENDER.map((option) => (
+                    <MenuItem value="">Select gender</MenuItem>
+
+                    {genderOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.gender.${option.key}` as never)}
+                        {option.label}
                       </MenuItem>
                     ))}
-                  </Input>
+                  </TextField>
                 )}
               />
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="email"
-                    label={t("fields.email.label")}
-                    placeholder={t("fields.email.placeholder")}
-                    error={Boolean(errors.email)}
-                    helperText={errors.email?.message}
-                  />
-                )}
-              />
+
               <Controller
                 name="nationality"
                 control={control}
                 render={({ field }) => (
-                  <Input
+                  <TextField
                     {...field}
                     select
-                    label={t("fields.nationality.label")}
-                    error={Boolean(errors.nationality)}
-                    helperText={errors.nationality?.message}
+                    label="Nationality"
+                    size="small"
+                    sx={fieldSx}
                   >
-                    <MenuItem value="">
-                      {t("fields.nationality.placeholder")}
-                    </MenuItem>
-                    {NATIONALITIES.map((option) => (
+                    <MenuItem value="">Select nationality</MenuItem>
+
+                    {nationalityOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.nationality.${option.key}` as never)}
+                        {option.label}
                       </MenuItem>
                     ))}
-                  </Input>
+                  </TextField>
                 )}
               />
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          2 ADDRESS
+          ================================================= */}
+
+          <FormSection title="2. Address">
+            <Box sx={grid3Sx}>
+              <TextField
+                {...register("postalCode")}
+                label="Postal Code"
+                size="small"
+                sx={fieldSx}
+              />
+
               <Controller
                 name="prefecture"
                 control={control}
                 render={({ field }) => (
-                  <Input
+                  <TextField
                     {...field}
                     select
-                    label={t("fields.prefecture.label")}
-                    error={Boolean(errors.prefecture)}
-                    helperText={errors.prefecture?.message}
+                    label="Prefecture"
+                    size="small"
+                    sx={fieldSx}
                   >
-                    <MenuItem value="">
-                      {t("fields.prefecture.placeholder")}
-                    </MenuItem>
-                    {PREFECTURE_OPTIONS.map((option) => (
+                    <MenuItem value="">Select prefecture</MenuItem>
+
+                    {prefectureOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.prefecture.${option.key}` as never)}
+                        {option.label}
                       </MenuItem>
                     ))}
-                  </Input>
+                  </TextField>
                 )}
               />
-              <Controller
-                name="address"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    label={t("fields.address.label")}
-                    placeholder={t("fields.address.placeholder")}
-                  />
-                )}
+
+              <TextField
+                {...register("address")}
+                label="Address"
+                size="small"
+                sx={fieldSx}
               />
-            </FormGrid>
-            <SectionDivider />
-            {/* =================================================
-PASSPORT
-================================================= */}
-            <SectionTitle
-              title={t("sections.passport.title")}
-              description={t("sections.passport.description")}
-            />
-            <FormGrid>
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          3 IMMIGRATION
+          ================================================= */}
+
+          <FormSection title="3. Immigration & Passport">
+            <Box sx={grid3Sx}>
               <Controller
-                name="passportNumber"
+                name="currentVisaStatus"
                 control={control}
                 render={({ field }) => (
-                  <Input
-                    {...field}
-                    label={t("fields.passportNumber.label")}
-                    placeholder={t("fields.passportNumber.placeholder")}
-                  />
-                )}
-              />
-              <Controller
-                name="passportExpiryDate"
-                control={control}
-                render={({ field }) => (
-                  <DateInput
-                    {...field}
-                    label={t("fields.passportExpiryDate.label")}
-                  />
-                )}
-              />
-              <Controller
-                name="statusOfResidence"
-                control={control}
-                render={({ field }) => (
-                  <Input
+                  <TextField
                     {...field}
                     select
-                    label={t("fields.statusOfResidence.label")}
-                    error={Boolean(errors.statusOfResidence)}
-                    helperText={errors.statusOfResidence?.message}
+                    required
+                    label="Current Visa Status"
+                    size="small"
+                    error={Boolean(errors.currentVisaStatus)}
+                    helperText={errors.currentVisaStatus?.message}
+                    sx={fieldSx}
                   >
-                    <MenuItem value="">
-                      {t("fields.statusOfResidence.placeholder")}
-                    </MenuItem>
-                    {STATUS_OF_RESIDENCE_OPTIONS.map((option) => (
+                    <MenuItem value="">Select visa status</MenuItem>
+
+                    {visaOptions.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
-                        {t(`options.statusOfResidence.${option.key}` as never)}
+                        {option.label}
                       </MenuItem>
                     ))}
-                  </Input>
+                  </TextField>
                 )}
               />
-            </FormGrid>
-            <SectionDivider />
-            {/* =================================================
-EDUCATION
-================================================= */}
-            <SectionTitle
-              title={t("sections.education.title")}
-              description={t("sections.education.description")}
-            />
+
+              <TextField
+                {...register("residenceExpiryDate")}
+                label="Residence Expiry Date"
+                type="date"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+                sx={fieldSx}
+              />
+
+              <TextField
+                {...register("passportNumber")}
+                label="Passport Number"
+                size="small"
+                sx={fieldSx}
+              />
+
+              <TextField
+                {...register("passportExpiryDate")}
+                label="Passport Expiry Date"
+                type="date"
+                size="small"
+                slotProps={{
+                  inputLabel: {
+                    shrink: true,
+                  },
+                }}
+                sx={fieldSx}
+              />
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          4 RECRUITMENT
+          ================================================= */}
+
+          <FormSection
+            title="4. Recruitment Information"
+            description={
+              isEditMode
+                ? "Stage changes for existing clients are handled only through Progress."
+                : "The initial stage is automatically Registered / Paid."
+            }
+          >
+            <Box sx={grid3Sx}>
+              <Controller
+                name="preferCategory"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    select
+                    label="Preferred Category"
+                    size="small"
+                    sx={fieldSx}
+                  >
+                    {categoryOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+              />
+
+              {role === "superadmin" ? (
+                <Controller
+                  name="assignedStaff"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      select
+                      required
+                      label="Assigned Staff"
+                      size="small"
+                      disabled={isStaffLoading}
+                      error={Boolean(errors.assignedStaff)}
+                      helperText={errors.assignedStaff?.message}
+                      sx={fieldSx}
+                    >
+                      <MenuItem value="">Select staff</MenuItem>
+
+                      {staffOptions.map((staff) => (
+                        <MenuItem key={staff.staffId} value={staff.staffId}>
+                          {staff.name} ({staff.staffId})
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+              ) : (
+                <TextField
+                  label="Assigned Staff"
+                  value={user?.staffId || "Automatically assigned"}
+                  disabled
+                  size="small"
+                  sx={fieldSx}
+                />
+              )}
+
+              <TextField
+                {...register("intake")}
+                label="Intake"
+                size="small"
+                sx={fieldSx}
+              />
+
+              <TextField
+                label="Current Stage"
+                value={
+                  isEditMode
+                    ? client?.currentStageDetails?.name ||
+                      client?.clientStatus ||
+                      client?.currentStage ||
+                      "-"
+                    : registrationStage?.name || "Registered / Paid"
+                }
+                disabled
+                size="small"
+                sx={fieldSx}
+              />
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          5 REGISTRATION PAYMENT
+          CREATE ONLY
+          ================================================= */}
+
+          {!isEditMode && (
+            <FormSection
+              title="5. Registration Payment"
+              description="The client is created only after the full registration fee is confirmed. Partial payment is not supported."
+            >
+              {isStageLoading ? (
+                <Box
+                  sx={{
+                    py: 3,
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  <CircularProgress size={24} sx={{ color: BRAND }} />
+                </Box>
+              ) : (
+                <>
+                  <Box
+                    sx={{
+                      mb: 2.5,
+                      p: 2,
+
+                      border: "1px solid rgba(180,83,9,0.18)",
+
+                      borderRadius: 2.5,
+
+                      bgcolor: WARNING_SOFT,
+
+                      display: "flex",
+                      justifyContent: "space-between",
+
+                      alignItems: {
+                        xs: "flex-start",
+                        sm: "center",
+                      },
+
+                      flexDirection: {
+                        xs: "column",
+                        sm: "row",
+                      },
+
+                      gap: 1.5,
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        sx={{
+                          color: WARNING,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}
+                      >
+                        FULL REGISTRATION PAYMENT REQUIRED
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          mt: 0.35,
+                          color: INK,
+                          fontSize: 15,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {registrationStage?.name || "Registered / Paid"}
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography
+                        sx={{
+                          color: MUTED,
+                          fontSize: 11,
+                          textAlign: {
+                            xs: "left",
+                            sm: "right",
+                          },
+                        }}
+                      >
+                        Registration Fee
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          color: WARNING,
+                          fontSize: 24,
+                          fontWeight: 800,
+                        }}
+                      >
+                        ¥{registrationAmount.toLocaleString()}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Alert
+                    severity="info"
+                    sx={{
+                      mb: 2.5,
+                      borderRadius: 2,
+                    }}
+                  >
+                    The amount is controlled by the Stage Master. It cannot be
+                    changed from this form.
+                  </Alert>
+
+                  <Box sx={grid2Sx}>
+                    <Controller
+                      name="paymentMethod"
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          required
+                          label="Payment Method"
+                          size="small"
+                          error={Boolean(errors.paymentMethod)}
+                          helperText={errors.paymentMethod?.message}
+                          sx={fieldSx}
+                        >
+                          <MenuItem value="">Select payment method</MenuItem>
+
+                          <MenuItem value="Bank Transfer">
+                            Bank Transfer
+                          </MenuItem>
+
+                          <MenuItem value="Cash">Cash</MenuItem>
+                        </TextField>
+                      )}
+                    />
+
+                    <TextField
+                      {...register("paymentDate")}
+                      required
+                      label="Payment Date"
+                      type="date"
+                      size="small"
+                      error={Boolean(errors.paymentDate)}
+                      helperText={errors.paymentDate?.message}
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      sx={fieldSx}
+                    />
+
+                    {paymentMethod === "Bank Transfer" && (
+                      <>
+                        <TextField
+                          {...register("bankName")}
+                          label="Bank Name"
+                          size="small"
+                          sx={fieldSx}
+                        />
+
+                        <TextField
+                          {...register("referenceNumber")}
+                          label="Reference Number"
+                          size="small"
+                          sx={fieldSx}
+                        />
+                      </>
+                    )}
+
+                    <TextField
+                      {...register("receiptNumber")}
+                      label="Receipt Number"
+                      size="small"
+                      sx={fieldSx}
+                    />
+                  </Box>
+
+                  <TextField
+                    {...register("paymentNote")}
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    label="Payment Note"
+                    sx={{
+                      ...fieldSx,
+                      mt: 2,
+                    }}
+                  />
+                </>
+              )}
+            </FormSection>
+          )}
+
+          {/* =================================================
+          EDUCATION
+          ================================================= */}
+
+          <FormSection title={`${isEditMode ? "5" : "6"}. Education`}>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 1.5,
+                gap: 2,
               }}
             >
-              {educationFields.map((education, index) => (
-                <ItemCard
-                  key={education.id}
-                  label={`Education ${index + 1}`}
-                  removeDisabled={educationFields.length === 1}
-                  onRemove={() => removeEducation(index)}
+              {educationFields.map((item, index) => (
+                <Box
+                  key={item.id}
+                  sx={{
+                    p: 2,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 2,
+                    bgcolor: "#FAFBFA",
+                  }}
                 >
-                  <FormGrid>
+                  <Box
+                    sx={{
+                      mb: 2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                      }}
+                    >
+                      Education {index + 1}
+                    </Typography>
+
+                    <IconButton
+                      type="button"
+                      onClick={() => removeEducation(index)}
+                    >
+                      <DeleteOutlineRoundedIcon />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={grid3Sx}>
                     <Controller
                       name={`education.${index}.educationType`}
                       control={control}
                       render={({ field }) => (
-                        <Input
+                        <TextField
                           {...field}
                           select
-                          label={t("fields.educationType.label")}
-                          error={Boolean(
-                            errors.education?.[index]?.educationType,
-                          )}
-                          helperText={
-                            errors.education?.[index]?.educationType?.message
-                          }
+                          label="School Type"
+                          size="small"
+                          sx={fieldSx}
                         >
-                          <MenuItem value="">
-                            {t("fields.educationType.placeholder")}
-                          </MenuItem>
-                          {EDUCATION_TYPE_OPTIONS.map((option) => (
+                          <MenuItem value="">Select type</MenuItem>
+
+                          {educationTypeOptions.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
-                              {t(
-                                `options.educationType.${option.key}` as never,
-                              )}
+                              {option.label}
                             </MenuItem>
                           ))}
-                        </Input>
+                        </TextField>
                       )}
                     />
+
+                    <TextField
+                      {...register(`education.${index}.schoolName`)}
+                      label="School Name"
+                      size="small"
+                      sx={fieldSx}
+                    />
+
+                    <TextField
+                      {...register(`education.${index}.major`)}
+                      label="Major / Course"
+                      size="small"
+                      sx={fieldSx}
+                    />
+
+                    <TextField
+                      {...register(`education.${index}.enrollmentDate`)}
+                      label="Enrollment Date"
+                      type="date"
+                      size="small"
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      sx={fieldSx}
+                    />
+
+                    <TextField
+                      {...register(`education.${index}.graduationDate`)}
+                      label="Graduation Date"
+                      type="date"
+                      size="small"
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      sx={fieldSx}
+                    />
+
                     <Controller
-                      name={`education.${index}.schoolName`}
+                      name={`education.${index}.graduationStatus`}
                       control={control}
                       render={({ field }) => (
-                        <Input
+                        <TextField
                           {...field}
-                          label={t("fields.schoolName.label")}
-                          placeholder={t("fields.schoolName.placeholder")}
-                          error={Boolean(errors.education?.[index]?.schoolName)}
-                          helperText={
-                            errors.education?.[index]?.schoolName?.message
-                          }
-                        />
+                          select
+                          label="Graduation Status"
+                          size="small"
+                          sx={fieldSx}
+                        >
+                          <MenuItem value="">Select status</MenuItem>
+
+                          <MenuItem value="graduated">
+                            Graduated / 卒業
+                          </MenuItem>
+
+                          <MenuItem value="expectedGraduation">
+                            Expected Graduation / 卒業見込
+                          </MenuItem>
+
+                          <MenuItem value="currentlyEnrolled">
+                            Currently Enrolled / 在学中
+                          </MenuItem>
+
+                          <MenuItem value="withdrawn">
+                            Withdrawn / 中退
+                          </MenuItem>
+                        </TextField>
                       )}
                     />
-                    <Controller
-                      name={`education.${index}.major`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label={t("fields.major.label")}
-                          placeholder={t("fields.major.placeholder")}
-                          error={Boolean(errors.education?.[index]?.major)}
-                          helperText={errors.education?.[index]?.major?.message}
-                        />
-                      )}
-                    />
-                    <Controller
-                      name={`education.${index}.enrollmentDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <DateInput
-                          {...field}
-                          label={t("fields.enrollmentDate.label")}
-                          error={Boolean(
-                            errors.education?.[index]?.enrollmentDate,
-                          )}
-                          helperText={
-                            errors.education?.[index]?.enrollmentDate?.message
-                          }
-                        />
-                      )}
-                    />
-                    <Controller
-                      name={`education.${index}.graduationDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <DateInput
-                          {...field}
-                          label={t("fields.graduationDate.label")}
-                          error={Boolean(
-                            errors.education?.[index]?.graduationDate,
-                          )}
-                          helperText={
-                            errors.education?.[index]?.graduationDate?.message
-                          }
-                        />
-                      )}
-                    />
-                  </FormGrid>
-                </ItemCard>
+                  </Box>
+                </Box>
               ))}
-              <Box>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() =>
-                    appendEducation({
-                      schoolName: "",
-                      enrollmentDate: "",
-                      graduationDate: "",
-                      educationType: "",
-                      major: "",
-                    })
-                  }
-                  sx={addButtonSx}
+
+              <Button
+                type="button"
+                variant="outlined"
+                startIcon={<AddRoundedIcon />}
+                onClick={() =>
+                  appendEducation({
+                    schoolName: "",
+                    educationType: "",
+                    enrollmentDate: "",
+                    graduationDate: "",
+                    graduationStatus: "",
+                    major: "",
+                  })
+                }
+                sx={{
+                  alignSelf: "flex-start",
+                  color: BRAND,
+                  borderColor: BRAND,
+                  textTransform: "none",
+                }}
+              >
+                Add Education
+              </Button>
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          JAPANESE / QUALIFICATIONS
+          ================================================= */}
+
+          <FormSection
+            title={`${isEditMode ? "6" : "7"}. Japanese Language & Qualifications`}
+          >
+            <Controller
+              name="japaneseLanguageLevel"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  select
+                  label="Japanese Language Level"
+                  size="small"
+                  sx={{
+                    ...fieldSx,
+                    width: {
+                      xs: "100%",
+                      md: 400,
+                    },
+                    mb: 2.5,
+                  }}
                 >
-                  Add Education
-                </Button>
-              </Box>
-            </Box>
-            {/* JAPANESE + INTAKE */}
-            <Box sx={{ mt: 2 }}>
-              <FormGrid>
-                <Controller
-                  name="japaneseLanguageLevel"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      select
-                      label={t("fields.japaneseLanguageLevel.label")}
-                      error={Boolean(errors.japaneseLanguageLevel)}
-                      helperText={errors.japaneseLanguageLevel?.message}
-                    >
-                      <MenuItem value="">
-                        {t("fields.japaneseLanguageLevel.placeholder")}
-                      </MenuItem>
-                      {JAPANESE_LEVELS.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {t(
-                            `options.japaneseLanguageLevel.${option.key}` as never,
-                          )}
-                        </MenuItem>
-                      ))}
-                    </Input>
-                  )}
-                />
-                <Controller
-                  name="intake"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Intake"
-                      placeholder="e.g. April 2015"
-                    />
-                  )}
-                />
-              </FormGrid>
-            </Box>
-            <SectionDivider />
-            {/* =================================================
-EMPLOYMENT
-================================================= */}
-            <SectionTitle
-              title={t("sections.employment.title")}
-              description={t("sections.employment.description")}
+                  <MenuItem value="">Select level</MenuItem>
+
+                  {japaneseOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
             />
+
+            <Divider sx={{ mb: 2.5 }} />
+
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 1.5,
+                gap: 2,
               }}
             >
-              {employmentFields.map((employment, index) => (
-                <ItemCard
-                  key={employment.id}
-                  label={`Employment ${index + 1}`}
-                  removeDisabled={employmentFields.length === 1}
-                  onRemove={() => removeEmployment(index)}
+              {qualificationFields.map((item, index) => (
+                <Box
+                  key={item.id}
+                  sx={{
+                    p: 2,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 2,
+                    bgcolor: "#FAFBFA",
+                  }}
                 >
-                  <FormGrid>
-                    <Controller
-                      name={`employmentHistory.${index}.companyName`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label={t("fields.companyName.label")}
-                          placeholder={t("fields.companyName.placeholder")}
-                        />
-                      )}
+                  <Box
+                    sx={{
+                      mb: 2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 700 }}>
+                      Qualification {index + 1}
+                    </Typography>
+
+                    <IconButton
+                      type="button"
+                      onClick={() => removeQualification(index)}
+                    >
+                      <DeleteOutlineRoundedIcon />
+                    </IconButton>
+                  </Box>
+
+                  <Box sx={grid3Sx}>
+                    <TextField
+                      {...register(`qualifications.${index}.name`)}
+                      label="Qualification / Certificate"
+                      size="small"
+                      sx={fieldSx}
                     />
-                    <Controller
-                      name={`employmentHistory.${index}.employmentType`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          select
-                          label={t("fields.employmentType.label")}
-                          error={Boolean(
-                            errors.employmentHistory?.[index]?.employmentType,
-                          )}
-                          helperText={
-                            errors.employmentHistory?.[index]?.employmentType
-                              ?.message
-                          }
-                        >
-                          <MenuItem value="">
-                            {t("fields.employmentType.placeholder")}
-                          </MenuItem>
-                          {EMPLOYMENT_TYPE_OPTIONS.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              {t(
-                                `options.employmentType.${option.key}` as never,
-                              )}
-                            </MenuItem>
-                          ))}
-                        </Input>
-                      )}
+
+                    <TextField
+                      {...register(`qualifications.${index}.levelOrScore`)}
+                      label="Level / Score"
+                      size="small"
+                      sx={fieldSx}
                     />
-                    <Controller
-                      name={`employmentHistory.${index}.startDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <DateInput
-                          {...field}
-                          label={t("fields.startDate.label")}
-                        />
-                      )}
+
+                    <TextField
+                      {...register(`qualifications.${index}.issuer`)}
+                      label="Issuer"
+                      size="small"
+                      sx={fieldSx}
                     />
-                    <Controller
-                      name={`employmentHistory.${index}.endDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <DateInput
-                          {...field}
-                          label={t("fields.endDate.label")}
-                        />
-                      )}
+
+                    <TextField
+                      {...register(`qualifications.${index}.acquiredDate`)}
+                      label="Acquired Date"
+                      type="date"
+                      size="small"
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      sx={fieldSx}
                     />
-                  </FormGrid>
-                </ItemCard>
+
+                    <TextField
+                      {...register(`qualifications.${index}.expiryDate`)}
+                      label="Expiry Date"
+                      type="date"
+                      size="small"
+                      slotProps={{
+                        inputLabel: {
+                          shrink: true,
+                        },
+                      }}
+                      sx={fieldSx}
+                    />
+
+                    <TextField
+                      {...register(`qualifications.${index}.note`)}
+                      label="Note"
+                      size="small"
+                      sx={fieldSx}
+                    />
+                  </Box>
+                </Box>
               ))}
-              <Box>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() =>
-                    appendEmployment({
-                      companyName: "",
-                      startDate: "",
-                      endDate: "",
-                      employmentType: "",
-                    })
-                  }
-                  sx={addButtonSx}
-                >
-                  Add Employment
-                </Button>
-              </Box>
+
+              <Button
+                type="button"
+                variant="outlined"
+                startIcon={<AddRoundedIcon />}
+                onClick={() =>
+                  appendQualification({
+                    name: "",
+                    levelOrScore: "",
+                    acquiredDate: "",
+                    expiryDate: "",
+                    issuer: "",
+                    note: "",
+                  })
+                }
+                sx={{
+                  alignSelf: "flex-start",
+                  color: BRAND,
+                  borderColor: BRAND,
+                  textTransform: "none",
+                }}
+              >
+                Add Qualification
+              </Button>
             </Box>
-            <SectionDivider />
-            {/* =================================================
-DOCUMENTS
-================================================= */}
-            <SectionTitle
-              title={t("sections.documents.title")}
-              description={t("sections.documents.description")}
-            />
-            <FormGrid>
-              <Controller
-                name="clientImage"
-                control={control}
-                render={({ field: { onChange, value, ...field } }) => (
-                  <Box>
-                    <Button
-                      component="label"
-                      variant="outlined"
-                      fullWidth
-                      startIcon={<CloudUploadOutlinedIcon />}
-                      sx={uploadButtonSx(
-                        Boolean(value),
-                        Boolean(errors.clientImage),
-                      )}
-                    >
-                      <Box
-                        component="span"
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {value
-                          ? value.name
-                          : isEditMode && existingFiles.clientImage
-                            ? "Replace Client Image"
-                            : t("fields.clientImage.upload")}
-                      </Box>
-                      <input
-                        {...field}
-                        hidden
-                        type="file"
-                        accept="image/*"
-                        value={undefined}
-                        onChange={(event) => {
-                          onChange(event.target.files?.[0] ?? null);
-                        }}
-                      />
-                    </Button>
-                    {isEditMode && existingFiles.clientImage && !value && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mt: 0.5,
-                          color: INK_MUTED,
-                        }}
-                      >
-                        Existing image will be kept unless a new image is
-                        uploaded.
-                      </Typography>
-                    )}
-                    {errors.clientImage?.message && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mt: 0.4,
-                          color: DANGER,
-                        }}
-                      >
-                        {String(errors.clientImage.message)}
-                      </Typography>
-                    )}
-                  </Box>
-                )}
-              />
-              <Controller
-                name="cv"
-                control={control}
-                render={({ field: { onChange, value, ...field } }) => (
-                  <Box>
-                    <Button
-                      component="label"
-                      variant="outlined"
-                      fullWidth
-                      startIcon={<CloudUploadOutlinedIcon />}
-                      sx={uploadButtonSx(Boolean(value), Boolean(errors.cv))}
-                    >
-                      <Box
-                        component="span"
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {value
-                          ? value.name
-                          : isEditMode && existingFiles.cv
-                            ? "Replace CV"
-                            : t("fields.cv.upload")}
-                      </Box>
-                      <input
-                        {...field}
-                        hidden
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        value={undefined}
-                        onChange={(event) => {
-                          onChange(event.target.files?.[0] ?? null);
-                        }}
-                      />
-                    </Button>
-                    {isEditMode && existingFiles.cv && !value && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mt: 0.5,
-                          color: INK_MUTED,
-                        }}
-                      >
-                        Existing CV will be kept unless a new CV is uploaded.
-                      </Typography>
-                    )}
-                    {errors.cv?.message && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: "block",
-                          mt: 0.4,
-                          color: DANGER,
-                        }}
-                      >
-                        {String(errors.cv.message)}
-                      </Typography>
-                    )}
-                  </Box>
-                )}
-              />
-            </FormGrid>
-            {/* =================================================
-ACTIONS
-================================================= */}
+          </FormSection>
+
+          {/* =================================================
+          EMPLOYMENT
+          ================================================= */}
+
+          <FormSection title={`${isEditMode ? "7" : "8"}. Employment History`}>
             <Box
               sx={{
                 display: "flex",
-                flexDirection: {
-                  xs: "column-reverse",
-                  sm: "row",
-                },
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {employmentFields.map((item, index) => {
+                const isCurrent = watch(`employmentHistory.${index}.isCurrent`);
+
+                return (
+                  <Box
+                    key={item.id}
+                    sx={{
+                      p: 2,
+                      border: `1px solid ${BORDER}`,
+                      borderRadius: 2,
+                      bgcolor: "#FAFBFA",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        mb: 2,
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: 700 }}>
+                        Employment {index + 1}
+                      </Typography>
+
+                      <IconButton
+                        type="button"
+                        onClick={() => removeEmployment(index)}
+                      >
+                        <DeleteOutlineRoundedIcon />
+                      </IconButton>
+                    </Box>
+
+                    <Box sx={grid3Sx}>
+                      <TextField
+                        {...register(`employmentHistory.${index}.companyName`)}
+                        label="Company Name"
+                        size="small"
+                        sx={fieldSx}
+                      />
+
+                      <Controller
+                        name={`employmentHistory.${index}.employmentType`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            select
+                            label="Employment Type"
+                            size="small"
+                            sx={fieldSx}
+                          >
+                            <MenuItem value="">Select type</MenuItem>
+
+                            {employmentTypeOptions.map((option) => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        )}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.department`)}
+                        label="Department"
+                        size="small"
+                        sx={fieldSx}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.jobTitle`)}
+                        label="Job Title"
+                        size="small"
+                        sx={fieldSx}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.workLocation`)}
+                        label="Work Location"
+                        size="small"
+                        sx={fieldSx}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.startDate`)}
+                        label="Start Date"
+                        type="date"
+                        size="small"
+                        slotProps={{
+                          inputLabel: {
+                            shrink: true,
+                          },
+                        }}
+                        sx={fieldSx}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.endDate`)}
+                        label="End Date"
+                        type="date"
+                        disabled={isCurrent}
+                        size="small"
+                        slotProps={{
+                          inputLabel: {
+                            shrink: true,
+                          },
+                        }}
+                        sx={fieldSx}
+                      />
+
+                      <Controller
+                        name={`employmentHistory.${index}.isCurrent`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={Boolean(field.value)}
+                                onChange={(event) => {
+                                  field.onChange(event.target.checked);
+
+                                  if (event.target.checked) {
+                                    setValue(
+                                      `employmentHistory.${index}.endDate`,
+                                      "",
+                                    );
+                                  }
+                                }}
+                                sx={{
+                                  color: BRAND,
+                                  "&.Mui-checked": {
+                                    color: BRAND,
+                                  },
+                                }}
+                              />
+                            }
+                            label="Currently Employed"
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    <Box
+                      sx={{
+                        ...grid2Sx,
+                        mt: 2,
+                      }}
+                    >
+                      <TextField
+                        {...register(
+                          `employmentHistory.${index}.responsibilities`,
+                        )}
+                        label="Responsibilities / Main Duties"
+                        multiline
+                        minRows={4}
+                        sx={fieldSx}
+                      />
+
+                      <TextField
+                        {...register(`employmentHistory.${index}.achievements`)}
+                        label="Achievements"
+                        multiline
+                        minRows={4}
+                        sx={fieldSx}
+                      />
+                    </Box>
+                  </Box>
+                );
+              })}
+
+              <Button
+                type="button"
+                variant="outlined"
+                startIcon={<AddRoundedIcon />}
+                onClick={() =>
+                  appendEmployment({
+                    companyName: "",
+                    employmentType: "",
+                    department: "",
+                    jobTitle: "",
+                    workLocation: "",
+                    startDate: "",
+                    endDate: "",
+                    isCurrent: false,
+                    responsibilities: "",
+                    achievements: "",
+                  })
+                }
+                sx={{
+                  alignSelf: "flex-start",
+                  color: BRAND,
+                  borderColor: BRAND,
+                  textTransform: "none",
+                }}
+              >
+                Add Employment
+              </Button>
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          SKILLS
+          ================================================= */}
+
+          <FormSection
+            title={`${isEditMode ? "8" : "9"}. Skills & Career Summary`}
+          >
+            <Box sx={grid2Sx}>
+              <TextField
+                {...register("skillsText")}
+                label="Skills"
+                multiline
+                minRows={4}
+                helperText="Separate skills with commas or new lines."
+                sx={fieldSx}
+              />
+
+              <TextField
+                {...register("careerSummary")}
+                label="Career Summary / 職務要約"
+                multiline
+                minRows={4}
+                sx={fieldSx}
+              />
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          JAPANESE APPLICATION
+          ================================================= */}
+
+          <FormSection
+            title={`${isEditMode ? "9" : "10"}. Japanese Application Content`}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <TextField
+                {...register("motivation")}
+                label="Motivation / 志望動機"
+                multiline
+                minRows={4}
+                sx={fieldSx}
+              />
+
+              <TextField
+                {...register("selfPR")}
+                label="Self PR / 自己PR"
+                multiline
+                minRows={4}
+                sx={fieldSx}
+              />
+
+              <TextField
+                {...register("desiredConditions")}
+                label="Desired Conditions / 本人希望記入欄"
+                multiline
+                minRows={3}
+                sx={fieldSx}
+              />
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          DOCUMENTS
+          ================================================= */}
+
+          <FormSection title={`${isEditMode ? "10" : "11"}. Documents`}>
+            <Box sx={grid2Sx}>
+              <Box
+                sx={{
+                  p: 2,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    mb: 1.5,
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  Candidate Photo
+                </Typography>
+
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<UploadFileOutlinedIcon />}
+                  sx={{
+                    color: BRAND,
+                    borderColor: BRAND,
+                    textTransform: "none",
+                  }}
+                >
+                  Select Photo
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+
+                      if (file) {
+                        setValue("clientImage", file, {
+                          shouldDirty: true,
+                        });
+                      }
+                    }}
+                  />
+                </Button>
+
+                <Typography
+                  sx={{
+                    mt: 1,
+                    color: MUTED,
+                    fontSize: 12,
+                  }}
+                >
+                  {selectedClientImage instanceof File
+                    ? selectedClientImage.name
+                    : existingClientImage
+                      ? "Existing photo will be kept unless replaced."
+                      : "No photo selected."}
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 2,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    mb: 1.5,
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  Original Applicant CV
+                </Typography>
+
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<UploadFileOutlinedIcon />}
+                  sx={{
+                    color: BRAND,
+                    borderColor: BRAND,
+                    textTransform: "none",
+                  }}
+                >
+                  Select CV
+                  <input
+                    hidden
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+
+                      if (file) {
+                        setValue("cv", file, {
+                          shouldDirty: true,
+                        });
+                      }
+                    }}
+                  />
+                </Button>
+
+                <Typography
+                  sx={{
+                    mt: 1,
+                    color: MUTED,
+                    fontSize: 12,
+                  }}
+                >
+                  {selectedCv instanceof File
+                    ? selectedCv.name
+                    : existingCv
+                      ? "Existing CV will be kept unless replaced."
+                      : "No CV selected."}
+                </Typography>
+              </Box>
+            </Box>
+          </FormSection>
+
+          {/* =================================================
+          ACTION
+          ================================================= */}
+
+          <Paper
+            elevation={0}
+            sx={{
+              ...cardSx,
+              position: "sticky",
+              bottom: 16,
+              zIndex: 5,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
                 justifyContent: "flex-end",
-                gap: 1,
-                mt: {
-                  xs: 3,
-                  md: 3.5,
-                },
-                pt: 2,
-                borderTop: `1px solid ${HAIRLINE}`,
+                gap: 1.5,
               }}
             >
               <Button
                 type="button"
                 variant="outlined"
-                disabled={loading}
+                disabled={isSaving}
                 onClick={handleCancel}
                 sx={{
-                  minHeight: 38,
-                  px: 2.25,
-                  borderRadius: 2,
-                  borderColor: HAIRLINE,
-                  color: INK_MUTED,
-                  bgcolor: "#ffffff",
-                  fontSize: 13.5,
-                  fontWeight: 600,
+                  minHeight: 44,
+                  px: 2.5,
+                  borderColor: BORDER,
+                  color: MUTED,
                   textTransform: "none",
-                  "&:hover": {
-                    bgcolor: BRAND_SOFT,
-                    borderColor: "rgba(16, 122, 100, 0.30)",
-                    color: BRAND,
-                  },
                 }}
               >
                 Cancel
               </Button>
+
               <Button
                 type="submit"
                 variant="contained"
                 disableElevation
-                disabled={loading || isStageLoading || Boolean(stageLoadError)}
+                disabled={
+                  isSaving ||
+                  (!isEditMode &&
+                    (isStageLoading || Boolean(registrationConfigError)))
+                }
                 startIcon={
-                  loading ? (
-                    <CircularProgress size={16} color="inherit" />
+                  isSaving ? (
+                    <CircularProgress size={15} color="inherit" />
+                  ) : isEditMode ? (
+                    <SaveOutlinedIcon />
                   ) : (
-                    <AddIcon />
+                    <PaymentsOutlinedIcon />
                   )
                 }
                 sx={{
-                  minHeight: 38,
-                  px: 2.25,
-                  bgcolor: BRAND,
+                  minHeight: 44,
+                  px: 2.5,
+
+                  bgcolor: isEditMode ? BRAND : WARNING,
+
                   color: "#ffffff",
-                  borderRadius: 2,
-                  fontSize: 13.5,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textTransform: "none",
-                  boxShadow: "none",
+
                   "&:hover": {
-                    bgcolor: BRAND_HOVER,
-                    boxShadow: "none",
-                  },
-                  "&.Mui-disabled": {
-                    bgcolor: "rgba(16, 122, 100, 0.45)",
-                    color: "#ffffff",
+                    bgcolor: isEditMode ? BRAND_HOVER : WARNING_DARK,
                   },
                 }}
               >
-                {loading
-                  ? isEditMode
-                    ? "Saving..."
-                    : "Creating..."
+                {isSaving
+                  ? "Processing..."
                   : isEditMode
-                    ? "Save Changes"
-                    : "Create Client"}
+                    ? "Update Client"
+                    : `Confirm ¥${registrationAmount.toLocaleString()} Payment & Create Client`}
               </Button>
             </Box>
-          </Box>
+          </Paper>
         </Box>
       </Box>
-      <CreateStageModal
-        open={stageModalOpen}
-        isLoading={isCreatingStage}
-        errorMessage={stageCreateError}
-        onClose={closeStageModal}
-        onSubmit={handleCreateStage}
-      />
     </Box>
   );
 };
+
 export default ClientForm;
