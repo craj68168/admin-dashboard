@@ -6,16 +6,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { api } from "@/lib/axios";
+import { useAuthStore } from "@/store/auth-store";
 
 import type {
+  AddStageFormValues,
   ChangeStagePayload,
   ChangeStageResponse,
+  CreateStagePayload,
+  CreateStageResponse,
   ProgressFormValues,
   ProgressResponse,
   StageOptionsResponse,
 } from "./type";
 
-import { validateProgressForm } from "./validation";
+import { validateAddStageForm, validateProgressForm } from "./validation";
 
 // =================================================
 // LOCAL DATE
@@ -32,6 +36,36 @@ const getTodayInputValue = () => {
 
   return `${year}-${month}-${day}`;
 };
+
+// =================================================
+// DEFAULT PROGRESS VALUES
+// =================================================
+
+const createDefaultProgressValues = (): ProgressFormValues => ({
+  stage: "",
+
+  note: "",
+
+  paymentMethod: "",
+
+  paymentDate: getTodayInputValue(),
+
+  referenceNumber: "",
+
+  receiptNumber: "",
+
+  bankName: "",
+});
+
+// =================================================
+// DEFAULT STAGE VALUES
+// =================================================
+
+const createDefaultAddStageValues = (): AddStageFormValues => ({
+  name: "",
+
+  amount: "0",
+});
 
 // =================================================
 // ERROR
@@ -52,21 +86,39 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 export const useProgressHook = (clientId: string) => {
   const queryClient = useQueryClient();
 
-  const [values, setValues] = useState<ProgressFormValues>({
-    stage: "",
-    note: "",
-    paymentMethod: "",
-    paymentDate: getTodayInputValue(),
-    referenceNumber: "",
-    receiptNumber: "",
-    bankName: "",
-  });
+  const user = useAuthStore((state) => state.user);
+
+  const canManageStages = user?.role === "superadmin";
+
+  // =================================================
+  // PROGRESS FORM
+  // =================================================
+
+  const [values, setValues] = useState<ProgressFormValues>(
+    createDefaultProgressValues(),
+  );
 
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof ProgressFormValues, string>>
   >({});
 
   const [submitError, setSubmitError] = useState("");
+
+  // =================================================
+  // ADD STAGE MODAL
+  // =================================================
+
+  const [isAddStageOpen, setIsAddStageOpen] = useState(false);
+
+  const [addStageValues, setAddStageValues] = useState<AddStageFormValues>(
+    createDefaultAddStageValues(),
+  );
+
+  const [addStageErrors, setAddStageErrors] = useState<
+    Partial<Record<keyof AddStageFormValues, string>>
+  >({});
+
+  const [addStageSubmitError, setAddStageSubmitError] = useState("");
 
   // =================================================
   // PROGRESS
@@ -104,7 +156,7 @@ export const useProgressHook = (clientId: string) => {
     progressData?.currentStageName || currentStage || "-";
 
   // =================================================
-  // STAGES
+  // STAGE MASTER
   // =================================================
 
   const {
@@ -156,7 +208,7 @@ export const useProgressHook = (clientId: string) => {
   );
 
   // =================================================
-  // CHANGE VALUE
+  // UPDATE PROGRESS VALUE
   // =================================================
 
   const updateValue = <K extends keyof ProgressFormValues>(
@@ -165,11 +217,13 @@ export const useProgressHook = (clientId: string) => {
   ) => {
     setValues((previous) => ({
       ...previous,
+
       [field]: value,
     }));
 
     setFormErrors((previous) => ({
       ...previous,
+
       [field]: undefined,
     }));
 
@@ -177,7 +231,193 @@ export const useProgressHook = (clientId: string) => {
   };
 
   // =================================================
-  // STAGE CHANGE
+  // UPDATE ADD STAGE VALUE
+  // =================================================
+
+  const updateAddStageValue = <K extends keyof AddStageFormValues>(
+    field: K,
+    value: AddStageFormValues[K],
+  ) => {
+    setAddStageValues((previous) => ({
+      ...previous,
+
+      [field]: value,
+    }));
+
+    setAddStageErrors((previous) => ({
+      ...previous,
+
+      [field]: undefined,
+    }));
+
+    setAddStageSubmitError("");
+  };
+
+  // =================================================
+  // OPEN ADD STAGE
+  // =================================================
+
+  const openAddStageModal = () => {
+    if (!canManageStages) {
+      return;
+    }
+
+    setAddStageValues(createDefaultAddStageValues());
+
+    setAddStageErrors({});
+
+    setAddStageSubmitError("");
+
+    setIsAddStageOpen(true);
+  };
+
+  // =================================================
+  // CLOSE ADD STAGE
+  // =================================================
+
+  const closeAddStageModal = () => {
+    if (isCreatingStage) {
+      return;
+    }
+
+    setIsAddStageOpen(false);
+
+    setAddStageValues(createDefaultAddStageValues());
+
+    setAddStageErrors({});
+
+    setAddStageSubmitError("");
+  };
+
+  // =================================================
+  // CREATE STAGE
+  // =================================================
+
+  const { mutateAsync: createStage, isPending: isCreatingStage } = useMutation<
+    CreateStageResponse,
+    unknown,
+    CreateStagePayload
+  >({
+    mutationFn: async (payload) => {
+      const response = await api.post<CreateStageResponse>("/stages", payload);
+
+      return response.data;
+    },
+  });
+
+  // =================================================
+  // HANDLE CREATE STAGE
+  // =================================================
+
+  const handleCreateStage = async () => {
+    if (!canManageStages) {
+      return;
+    }
+
+    setAddStageSubmitError("");
+
+    const validation = validateAddStageForm(addStageValues);
+
+    if (!validation.valid) {
+      setAddStageErrors(validation.errors);
+
+      return;
+    }
+
+    const payload: CreateStagePayload = {
+      name: addStageValues.name.trim(),
+
+      amount: Number(addStageValues.amount),
+    };
+
+    try {
+      const response = await createStage(payload);
+
+      const newStage = response.data;
+
+      // =================================================
+      // ADD TO QUERY CACHE IMMEDIATELY
+      // =================================================
+
+      queryClient.setQueryData<StageOptionsResponse>(
+        ["clientStageOptions"],
+        (previous) => {
+          const previousStages = previous?.data ?? [];
+
+          const alreadyExists = previousStages.some(
+            (stage) => stage._id === newStage._id || stage.key === newStage.key,
+          );
+
+          if (alreadyExists) {
+            return previous;
+          }
+
+          return {
+            success: true,
+
+            count: previousStages.length + 1,
+
+            data: [...previousStages, newStage],
+          };
+        },
+      );
+
+      // =================================================
+      // AUTOMATICALLY SELECT NEW STAGE
+      // =================================================
+
+      setValues((previous) => ({
+        ...previous,
+
+        stage: newStage.key,
+
+        paymentMethod: "",
+
+        paymentDate: getTodayInputValue(),
+
+        referenceNumber: "",
+
+        receiptNumber: "",
+
+        bankName: "",
+      }));
+
+      setFormErrors((previous) => ({
+        ...previous,
+
+        stage: undefined,
+      }));
+
+      // =================================================
+      // REFRESH STAGE MASTER
+      // =================================================
+
+      await queryClient.invalidateQueries({
+        queryKey: ["clientStageOptions"],
+      });
+
+      setIsAddStageOpen(false);
+
+      setAddStageValues(createDefaultAddStageValues());
+
+      setAddStageErrors({});
+
+      setAddStageSubmitError("");
+
+      toast.success(response.message || "Client stage created successfully.");
+    } catch (error) {
+      console.error("CREATE CLIENT STAGE ERROR:", error);
+
+      const message = getErrorMessage(error, "Failed to create client stage.");
+
+      setAddStageSubmitError(message);
+
+      toast.error(message);
+    }
+  };
+
+  // =================================================
+  // CHANGE CLIENT STAGE
   // =================================================
 
   const { mutateAsync: changeStage, isPending: isUpdating } = useMutation<
@@ -196,7 +436,7 @@ export const useProgressHook = (clientId: string) => {
   });
 
   // =================================================
-  // SUBMIT
+  // UPDATE CLIENT STAGE
   // =================================================
 
   const handleUpdateStage = async () => {
@@ -283,15 +523,7 @@ export const useProgressHook = (clientId: string) => {
         }),
       ]);
 
-      setValues({
-        stage: "",
-        note: "",
-        paymentMethod: "",
-        paymentDate: getTodayInputValue(),
-        referenceNumber: "",
-        receiptNumber: "",
-        bankName: "",
-      });
+      setValues(createDefaultProgressValues());
 
       setFormErrors({});
 
@@ -323,7 +555,7 @@ export const useProgressHook = (clientId: string) => {
     (requiresPayment && (!values.paymentMethod || !values.paymentDate));
 
   // =================================================
-  // ERRORS
+  // LOAD ERRORS
   // =================================================
 
   const loadError = isProgressError
@@ -331,6 +563,10 @@ export const useProgressHook = (clientId: string) => {
     : isStageError
       ? getErrorMessage(stageError, "Failed to load stages.")
       : "";
+
+  // =================================================
+  // RETURN
+  // =================================================
 
   return {
     values,
@@ -360,5 +596,27 @@ export const useProgressHook = (clientId: string) => {
     loadError,
 
     handleUpdateStage,
+
+    // Stage Master
+
+    canManageStages,
+
+    isAddStageOpen,
+
+    addStageValues,
+
+    addStageErrors,
+
+    addStageSubmitError,
+
+    isCreatingStage,
+
+    updateAddStageValue,
+
+    openAddStageModal,
+
+    closeAddStageModal,
+
+    handleCreateStage,
   };
 };
