@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-
+import { useEffect, useMemo, type ReactNode } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import { useTranslations } from "next-intl";
 
@@ -410,18 +409,21 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
   // PHOTO PREVIEW
   // =================================================
 
-  const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
-
-  useEffect(() => {
+  const photoPreviewUrl = useMemo(() => {
     if (selectedClientImage instanceof File) {
-      const url = URL.createObjectURL(selectedClientImage);
-      setPhotoPreviewUrl(url);
-
-      return () => URL.revokeObjectURL(url);
+      return URL.createObjectURL(selectedClientImage);
     }
 
-    setPhotoPreviewUrl("");
+    return "";
   }, [selectedClientImage]);
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl) {
+        URL.revokeObjectURL(photoPreviewUrl);
+      }
+    };
+  }, [photoPreviewUrl]);
 
   const existingPhotoUrl =
     typeof existingClientImage === "string"

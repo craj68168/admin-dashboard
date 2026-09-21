@@ -458,7 +458,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                       >
                         The full stage amount must be received before the stage
                         can be updated. The amount comes from the Stage Master
-                        and can't be edited here.
+                        and can&apos;t be edited here.
                       </Typography>
                     </Box>
                   </Box>
