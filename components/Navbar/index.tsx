@@ -5,8 +5,6 @@ import Link from "next/link";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-
 import { useNavbar } from "./hook";
 import type { NavbarProps } from "./type";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
@@ -18,123 +16,64 @@ import LanguageSwitcher from "@/components/common/LanguageSwitcher";
 
 const BRAND = "#107A64";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const BRAND_DARK = "#0C5F4F";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
-
-const softCard = {
-  bgcolor: "#ffffff",
-  border: `1px solid ${HAIRLINE}`,
-  borderRadius: 3,
-  boxShadow:
-    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
-};
 
 export default function Navbar({ title }: NavbarProps) {
   const { user, initials } = useNavbar();
 
   return (
     <Box
+      component="header"
       sx={{
-        ...softCard,
-
         position: "sticky",
         top: 0,
         zIndex: 10,
 
-        mb: 2,
-
-        px: {
-          xs: 2,
-          sm: 2.5,
-          md: 3,
-        },
-
-        py: 1.5,
-
+        // One compact row at every width. The old phone layout stacked the
+        // title above the controls and used ~130px of a small screen.
         display: "flex",
-
-        flexDirection: {
-          xs: "column",
-          sm: "row",
-        },
-
-        alignItems: {
-          xs: "stretch",
-          sm: "center",
-        },
-
+        alignItems: "center",
         justifyContent: "space-between",
+        gap: { xs: 1.5, sm: 3 },
 
-        gap: {
-          xs: 2,
-          sm: 3,
-        },
+        minHeight: { xs: 56, sm: 64 },
+        mb: { xs: 1.5, md: 2 },
+        px: { xs: 2, sm: 2.5, md: 3 },
+        py: { xs: 0.75, sm: 1 },
 
         bgcolor: "rgba(255, 255, 255, 0.94)",
-
+        border: `1px solid ${HAIRLINE}`,
+        borderRadius: 3,
+        boxShadow:
+          "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
         backdropFilter: "blur(14px)",
-
         WebkitBackdropFilter: "blur(14px)",
-
-        transition:
-          "background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease",
       }}
     >
       {/* =================================================
           TITLE
+          (a <p>, not a heading: each page already has its own <h1>)
       ================================================= */}
 
-      <Box
+      <Typography
+        component="p"
+        noWrap
         sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
+          flex: 1,
           minWidth: 0,
+          m: 0,
+          color: INK,
+          fontSize: { xs: 17, sm: 19, md: 21 },
+          lineHeight: 1.3,
+          fontWeight: 600,
+          letterSpacing: "-0.02em",
         }}
       >
-        <Box
-          sx={{
-            width: 4,
-            height: 32,
-
-            flexShrink: 0,
-
-            borderRadius: 999,
-
-            bgcolor: BRAND,
-          }}
-        />
-
-        <Typography
-          component="h2"
-          sx={{
-            minWidth: 0,
-
-            color: INK,
-
-            fontSize: {
-              xs: 20,
-              sm: 21,
-              md: 22,
-            },
-
-            lineHeight: 1.3,
-
-            fontWeight: 600,
-
-            letterSpacing: "-0.02em",
-
-            overflow: "hidden",
-
-            textOverflow: "ellipsis",
-
-            whiteSpace: "nowrap",
-          }}
-        >
-          {title}
-        </Typography>
-      </Box>
+        {title}
+      </Typography>
 
       {/* =================================================
           RIGHT SIDE
@@ -143,22 +82,9 @@ export default function Navbar({ title }: NavbarProps) {
       <Box
         sx={{
           display: "flex",
-
           alignItems: "center",
-
-          alignSelf: {
-            xs: "stretch",
-            sm: "auto",
-          },
-
-          justifyContent: {
-            xs: "space-between",
-            sm: "flex-end",
-          },
-
-          gap: 1.5,
-
-          minWidth: 0,
+          flexShrink: 0,
+          gap: { xs: 1, sm: 1.5 },
         }}
       >
         <LanguageSwitcher />
@@ -167,308 +93,119 @@ export default function Navbar({ title }: NavbarProps) {
           <Box
             component={Link}
             href="/admin/profile"
-            aria-label="Open profile"
+            aria-label={`Open profile (${user.name})`}
             sx={{
               display: "flex",
-
               alignItems: "center",
-
+              gap: 1.25,
               minWidth: 0,
 
-              maxWidth: {
-                xs: 290,
-                sm: 330,
-              },
-
-              px: 1.25,
-
-              py: 0.85,
+              // Phones: just the avatar (44px tap target). sm and up: avatar + name.
+              p: { xs: 0.5, sm: "5px 14px 5px 5px" },
 
               color: "inherit",
-
               textDecoration: "none",
-
               bgcolor: "#ffffff",
-
               border: `1px solid ${HAIRLINE}`,
-
-              borderRadius: 3,
-
-              boxShadow:
-                "0 1px 2px rgba(17,24,39,0.03)",
-
+              borderRadius: 999,
               transition:
-                "background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease",
+                "background-color 200ms ease, border-color 200ms ease",
 
               "&:hover": {
-                bgcolor: "rgba(16, 122, 100, 0.035)",
-
-                borderColor: "rgba(16, 122, 100, 0.14)",
-
-                boxShadow:
-                  "0 6px 20px -14px rgba(17,24,39,0.35)",
-
-                transform: "translateY(-1px)",
-              },
-
-              "&:active": {
-                transform: "translateY(0)",
+                bgcolor: "rgba(16, 122, 100, 0.05)",
+                borderColor: "rgba(16, 122, 100, 0.22)",
               },
 
               "&:focus-visible": {
-                outline: `1px solid ${BRAND}`,
-
+                outline: `2px solid ${BRAND}`,
                 outlineOffset: 2,
-              },
-
-              "&:hover .navbar-avatar": {
-                transform: "scale(1.04)",
-
-                boxShadow:
-                  "0 6px 16px -7px rgba(16,122,100,0.75)",
-              },
-
-              "&:hover .navbar-expand-container": {
-                bgcolor: BRAND_SOFT,
-
-                borderColor: "rgba(16, 122, 100, 0.15)",
-              },
-
-              "&:hover .navbar-expand-icon": {
-                color: BRAND,
-
-                transform: "rotate(180deg)",
               },
             }}
           >
-            {/* =================================================
-                PROFILE CONTENT
-            ================================================= */}
-
+            {/* AVATAR */}
             <Box
+              aria-hidden
               sx={{
-                display: "flex",
-
-                alignItems: "center",
-
-                gap: 1.25,
-
-                width: "100%",
-
-                minWidth: 0,
+                width: { xs: 36, sm: 38 },
+                height: { xs: 36, sm: 38 },
+                flexShrink: 0,
+                display: "grid",
+                placeItems: "center",
+                borderRadius: "50%",
+                bgcolor: BRAND,
+                color: "#ffffff",
+                fontSize: 13,
+                fontWeight: 700,
+                letterSpacing: "0.03em",
               }}
             >
-              {/* AVATAR */}
+              {initials}
+            </Box>
 
-              <Box
-                className="navbar-avatar"
+            {/* USER INFO */}
+            <Box
+              sx={{
+                display: { xs: "none", sm: "block" },
+                minWidth: 0,
+                maxWidth: { sm: 150, md: 240 },
+              }}
+            >
+              <Typography
+                noWrap
                 sx={{
-                  position: "relative",
-
-                  width: 42,
-
-                  height: 42,
-
-                  flexShrink: 0,
-
-                  display: "flex",
-
-                  alignItems: "center",
-
-                  justifyContent: "center",
-
-                  borderRadius: "50%",
-
-                  bgcolor: BRAND,
-
-                  color: "#ffffff",
-
-                  fontSize: 13,
-
-                  fontWeight: 700,
-
-                  letterSpacing: "0.03em",
-
-                  boxShadow:
-                    "0 4px 12px -6px rgba(16,122,100,0.65)",
-
-                  transition:
-                    "transform 200ms ease, box-shadow 200ms ease",
-
-                  "&::after": {
-                    content: '""',
-
-                    position: "absolute",
-
-                    right: 0,
-
-                    bottom: 1,
-
-                    width: 10,
-
-                    height: 10,
-
-                    borderRadius: "50%",
-
-                    bgcolor: "#22C55E",
-
-                    border: "2px solid #ffffff",
-
-                    boxSizing: "border-box",
-                  },
+                  color: INK,
+                  fontSize: 14,
+                  lineHeight: 1.3,
+                  fontWeight: 600,
                 }}
               >
-                {initials}
-              </Box>
-
-              {/* USER INFO */}
+                {user.name}
+              </Typography>
 
               <Box
                 sx={{
-                  flex: 1,
-
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  mt: 0.25,
                   minWidth: 0,
                 }}
               >
-                {/* NAME */}
-
-                <Typography
+                <Box
+                  component="span"
                   sx={{
-                    maxWidth: {
-                      xs: 120,
-                      sm: 160,
-                    },
-
-                    color: INK,
-
-                    fontSize: 13.5,
-
-                    lineHeight: 1.35,
-
+                    flexShrink: 0,
+                    px: 0.9,
+                    py: 0.125,
+                    borderRadius: 999,
+                    bgcolor: BRAND_SOFT,
+                    color: BRAND_DARK,
+                    fontSize: 12,
+                    lineHeight: 1.5,
                     fontWeight: 600,
-
-                    overflow: "hidden",
-
-                    textOverflow: "ellipsis",
-
+                    textTransform: "capitalize",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {user.name}
-                </Typography>
+                  {user.role}
+                </Box>
 
-                {/* ROLE + LOCATION */}
-
-                <Box
-                  sx={{
-                    display: "flex",
-
-                    alignItems: "center",
-
-                    gap: 0.75,
-
-                    mt: 0.4,
-
-                    minWidth: 0,
-                  }}
-                >
-                  <Box
-                    component="span"
+                {user.location && (
+                  <Typography
+                    noWrap
                     sx={{
-                      display: "inline-flex",
-
-                      alignItems: "center",
-
-                      px: 0.9,
-
-                      py: 0.25,
-
-                      borderRadius: 999,
-
-                      bgcolor: BRAND_SOFT,
-
-                      color: BRAND,
-
-                      fontSize: 10.5,
-
-                      lineHeight: 1.3,
-
-                      fontWeight: 600,
-
-                      textTransform: "capitalize",
-
-                      whiteSpace: "nowrap",
+                      display: { xs: "none", md: "block" },
+                      minWidth: 0,
+                      maxWidth: 110,
+                      color: INK_MUTED,
+                      fontSize: 12,
+                      lineHeight: 1.5,
+                      fontWeight: 500,
                     }}
                   >
-                    {user.role}
-                  </Box>
-
-                  {user.location && (
-                    <Typography
-                      sx={{
-                        minWidth: 0,
-
-                        maxWidth: 90,
-
-                        color: INK_MUTED,
-
-                        fontSize: 11,
-
-                        lineHeight: 1.3,
-
-                        fontWeight: 500,
-
-                        overflow: "hidden",
-
-                        textOverflow: "ellipsis",
-
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {user.location}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-
-              {/* EXPAND ICON */}
-
-              <Box
-                className="navbar-expand-container"
-                sx={{
-                  width: 30,
-
-                  height: 30,
-
-                  flexShrink: 0,
-
-                  display: "flex",
-
-                  alignItems: "center",
-
-                  justifyContent: "center",
-
-                  borderRadius: "50%",
-
-                  bgcolor: "#F9FAFB",
-
-                  border: `1px solid ${HAIRLINE}`,
-
-                  transition:
-                    "background-color 200ms ease, border-color 200ms ease",
-                }}
-              >
-                <ExpandMoreRoundedIcon
-                  className="navbar-expand-icon"
-                  sx={{
-                    color: INK_MUTED,
-
-                    fontSize: 19,
-
-                    transition:
-                      "color 200ms ease, transform 250ms ease",
-                  }}
-                />
+                    {user.location}
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
