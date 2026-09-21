@@ -98,9 +98,11 @@ export default function CreateStageModal({
                 size="small"
                 type="number"
                 label="Amount (¥)"
-                inputProps={{
-                  min: 0,
-                  step: 1,
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                    step: 1,
+                  },
                 }}
                 error={Boolean(errors.amount)}
                 helperText={

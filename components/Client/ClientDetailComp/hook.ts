@@ -106,7 +106,10 @@ export const useClientDetailHook = () => {
         },
       );
 
-      const contentType = response.headers["content-type"] || "application/pdf";
+      const rawContentType = response.headers["content-type"];
+
+      const contentType =
+        typeof rawContentType === "string" ? rawContentType : "application/pdf";
 
       const blob = new Blob([response.data], {
         type: contentType,
@@ -114,7 +117,10 @@ export const useClientDetailHook = () => {
 
       const objectUrl = window.URL.createObjectURL(blob);
 
-      const disposition = response.headers["content-disposition"];
+      const rawDisposition = response.headers["content-disposition"];
+
+      const disposition =
+        typeof rawDisposition === "string" ? rawDisposition : undefined;
 
       const serverFileName = getDownloadFileName(disposition);
 
