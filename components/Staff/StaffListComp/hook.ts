@@ -94,6 +94,7 @@ export const useStaffHook = () => {
     isLoading: staffListQuery.isLoading || staffListQuery.isFetching,
     isError: staffListQuery.isError,
     error: staffListQuery.error,
+    refetch: staffListQuery.refetch,
     onPageChange,
     handleStaffSearch,
     handleStaffFilterReset,

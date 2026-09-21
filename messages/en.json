@@ -99,42 +99,99 @@
       "Clients": "Clients"
     }
   },
-  "staffList": {
-    "breadcrumbs": {
-      "dashboard": "Dashboard",
-      "staff": "Staff"
-    },
-    "title": "Staff",
-    "description": "Manage staff accounts, access and status.",
-    "addStaff": "Add Staff",
-    "thisStaffMember": "this staff member",
-    "columns": {
-      "id": "ID",
-      "fullName": "Full name",
-      "email": "Email",
-      "location": "Location",
-      "createdAt": "Created At",
-      "action": "Action"
-    },
-    "actions": {
-      "viewClients": "View staff clients",
-      "viewDetails": "View staff details",
-      "edit": "Edit staff",
-      "disable": "Disable staff",
-      "activate": "Activate staff"
-    },
-    "confirmStatus": {
-      "disableTitle": "Disable Staff",
-      "activateTitle": "Activate Staff",
-      "descriptionPrefix": "Are you sure you want to",
-      "disableVerb": "disable",
-      "activateVerb": "activate",
-      "disableWarning": "This staff member will not be able to log in while the account is disabled.",
-      "disableConfirm": "Yes, Disable",
-      "activateConfirm": "Yes, Activate",
-      "cancel": "No"
-    }
+  "commonSearchFilter": {
+    "title": "What are you looking for?",
+    "filters": "Filters",
+    "search": "Search",
+    "searching": "Searching...",
+    "clear": "Clear",
+    "clearSearchText": "Clear search text",
+    "searchPlaceholder": "Search...",
+    "allField": "All {field}",
+    "from": "from",
+    "to": "to"
   },
+"staffList": {
+  "breadcrumbs": {
+    "dashboard": "Dashboard",
+    "staff": "Staff"
+  },
+  "title": "Staff",
+  "description": "Manage staff accounts, access and status.",
+  "addStaff": "Add Staff",
+  "thisStaffMember": "this staff member",
+
+  "filters": {
+    "search": {
+      "label": "What are you looking for?",
+      "placeholder": "Staff ID, name, email, or phone"
+    },
+    "staffMember": {
+      "label": "Staff member",
+      "placeholder": "All staff members"
+    },
+    "location": {
+      "label": "Location",
+      "placeholder": "All locations",
+      "options": {
+        "USA": "USA",
+        "Japan": "Japan",
+        "Nepal": "Nepal",
+        "Other": "Other"
+      }
+    },
+    "accountStatus": {
+      "label": "Account status",
+      "placeholder": "All statuses",
+      "options": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "searchButton": "Search staff",
+    "clearButton": "Clear"
+  },
+
+  "columns": {
+    "id": "ID",
+    "fullName": "Full name",
+    "email": "Email",
+    "location": "Location",
+    "status": "Status",
+    "createdAt": "Created At",
+    "action": "Action"
+  },
+
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+
+  "actions": {
+    "viewClients": "View staff clients",
+    "viewDetails": "View staff details",
+    "edit": "Edit staff",
+    "disable": "Disable staff",
+    "activate": "Activate staff"
+  },
+
+  "confirmStatus": {
+    "disableTitle": "Disable Staff",
+    "activateTitle": "Activate Staff",
+    "descriptionPrefix": "Are you sure you want to",
+    "disableVerb": "disable",
+    "activateVerb": "activate",
+    "disableWarning": "This staff member will not be able to log in while the account is disabled.",
+    "disableConfirm": "Yes, Disable",
+    "activateConfirm": "Yes, Activate",
+    "cancel": "No"
+  }
+},
+"error": {
+  "title": "Unable to load staff",
+  "description": "Something went wrong while loading the staff list.",
+  "retry": "Try Again"
+},
   "addStaff": {
     "backToStaff": "Back to Staff",
     "title": "Add Staff Member",
