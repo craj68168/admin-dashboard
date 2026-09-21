@@ -5,13 +5,13 @@ import { Controller, useFieldArray } from "react-hook-form";
 import { useTranslations } from "next-intl";
 
 import Alert from "@mui/material/Alert";
+import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import IconButton from "@mui/material/IconButton";
-import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -38,7 +38,6 @@ import {
 } from "@/components/constant";
 
 import { useClientFormHook } from "./hook";
-
 import type { ClientFormProps } from "./type";
 
 // =================================================
@@ -68,18 +67,29 @@ const cardSx = {
 };
 
 const fieldSx = {
-  "& .MuiInputLabel-root.Mui-focused": { color: BRAND },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: BRAND,
+  },
   "& .MuiOutlinedInput-root": {
     borderRadius: 2,
     bgcolor: SURFACE,
-    "& fieldset": { borderColor: BORDER },
-    "&:hover fieldset": { borderColor: "rgba(16,122,100,0.4)" },
-    "&.Mui-focused fieldset": { borderColor: BRAND },
+    "& fieldset": {
+      borderColor: BORDER,
+    },
+    "&:hover fieldset": {
+      borderColor: "rgba(16,122,100,0.4)",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: BRAND,
+    },
   },
-  "& .MuiFormHelperText-root": { mx: 0.5, mt: 0.5, fontSize: 11.5 },
+  "& .MuiFormHelperText-root": {
+    mx: 0.5,
+    mt: 0.5,
+    fontSize: 11.5,
+  },
 };
 
-// Fields wrap to whatever fits, so no per-breakpoint column rules are needed.
 const gridSx = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
@@ -105,13 +115,111 @@ const outlineButtonSx = {
   fontSize: 13,
   fontWeight: 600,
   textTransform: "none",
-  "&:hover": { borderColor: BRAND, bgcolor: BRAND_SOFT },
+  "&:hover": {
+    borderColor: BRAND,
+    bgcolor: BRAND_SOFT,
+  },
 } as const;
 
 const dateProps = {
   type: "date",
-  slotProps: { inputLabel: { shrink: true } },
+  slotProps: {
+    inputLabel: {
+      shrink: true,
+    },
+  },
 } as const;
+
+// =================================================
+// AUTOCOMPLETE
+// =================================================
+
+type FormOption = {
+  value: string;
+  label: string;
+};
+
+type FormAutocompleteProps = {
+  label: string;
+  value?: string | null;
+  options: FormOption[];
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: boolean;
+  helperText?: ReactNode;
+};
+
+const FormAutocomplete = ({
+  label,
+  value = "",
+  options,
+  onChange,
+  onBlur,
+  placeholder,
+  required = false,
+  disabled = false,
+  error = false,
+  helperText,
+}: FormAutocompleteProps) => {
+  const selectedOption =
+    options.find((option) => option.value === value) ?? null;
+
+  return (
+    <Autocomplete
+      fullWidth
+      autoHighlight
+      clearOnEscape
+      disabled={disabled}
+      options={options}
+      value={selectedOption}
+      getOptionLabel={(option) => option.label}
+      isOptionEqualToValue={(option, selected) =>
+        option.value === selected.value
+      }
+      onChange={(_event, option) => {
+        onChange(option?.value ?? "");
+      }}
+      onBlur={onBlur}
+      noOptionsText="No options found"
+      renderOption={(props, option) => (
+        <Box
+          component="li"
+          {...props}
+          key={option.value}
+          sx={{
+            fontSize: 14,
+          }}
+        >
+          {option.label}
+        </Box>
+      )}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          required={required}
+          size="small"
+          label={label}
+          placeholder={placeholder || `Search ${label.toLowerCase()}`}
+          error={error}
+          helperText={helperText}
+          sx={fieldSx}
+        />
+      )}
+      sx={{
+        "& .MuiAutocomplete-inputRoot": {
+          bgcolor: SURFACE,
+        },
+      }}
+    />
+  );
+};
+
+// =================================================
+// FILE URL
+// =================================================
 
 const getUploadedFileUrl = (filePath?: string | null) => {
   if (!filePath) {
@@ -119,14 +227,16 @@ const getUploadedFileUrl = (filePath?: string | null) => {
   }
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
+
   const backendUrl = apiUrl.replace(/\/api\/?$/, "");
+
   const normalizedPath = filePath.replace(/\\/g, "/");
 
   return `${backendUrl}/${normalizedPath.replace(/^\/+/, "")}`;
 };
 
 // =================================================
-// PRIMITIVES
+// FORM SECTION
 // =================================================
 
 const FormSection = ({
@@ -201,6 +311,10 @@ const FormSection = ({
   </Paper>
 );
 
+// =================================================
+// REPEAT CARD
+// =================================================
+
 const RepeatCard = ({
   title,
   onRemove,
@@ -239,7 +353,13 @@ const RepeatCard = ({
         justifyContent: "space-between",
       }}
     >
-      <Typography sx={{ color: INK, fontSize: 13.5, fontWeight: 700 }}>
+      <Typography
+        sx={{
+          color: INK,
+          fontSize: 13.5,
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Typography>
 
@@ -250,7 +370,10 @@ const RepeatCard = ({
         onClick={onRemove}
         sx={{
           color: MUTED,
-          "&:hover": { color: "#B91C1C", bgcolor: "#FEF2F2" },
+          "&:hover": {
+            color: "#B91C1C",
+            bgcolor: "#FEF2F2",
+          },
         }}
       >
         <DeleteOutlineRoundedIcon fontSize="small" />
@@ -261,11 +384,25 @@ const RepeatCard = ({
   </Box>
 );
 
+// =================================================
+// STACK
+// =================================================
+
 const Stack = ({ children }: { children: ReactNode }) => (
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 1.5,
+    }}
+  >
     {children}
   </Box>
 );
+
+// =================================================
+// UPLOAD CARD
+// =================================================
 
 const UploadCard = ({
   title,
@@ -296,7 +433,13 @@ const UploadCard = ({
     {preview}
 
     <Box sx={{ minWidth: 0, flex: 1 }}>
-      <Typography sx={{ color: INK, fontSize: 13.5, fontWeight: 700 }}>
+      <Typography
+        sx={{
+          color: INK,
+          fontSize: 13.5,
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Typography>
 
@@ -321,6 +464,7 @@ const UploadCard = ({
         sx={outlineButtonSx}
       >
         {buttonLabel}
+
         <input
           hidden
           type="file"
@@ -387,19 +531,32 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     fields: educationFields,
     append: appendEducation,
     remove: removeEducation,
-  } = useFieldArray({ control, name: "education" });
+  } = useFieldArray({
+    control,
+    name: "education",
+  });
 
   const {
     fields: qualificationFields,
     append: appendQualification,
     remove: removeQualification,
-  } = useFieldArray({ control, name: "qualifications" });
+  } = useFieldArray({
+    control,
+    name: "qualifications",
+  });
 
   const {
     fields: employmentFields,
     append: appendEmployment,
     remove: removeEmployment,
-  } = useFieldArray({ control, name: "employmentHistory" });
+  } = useFieldArray({
+    control,
+    name: "employmentHistory",
+  });
+
+  // =================================================
+  // WATCH
+  // =================================================
 
   const selectedClientImage = watch("clientImage");
   const selectedCv = watch("cv");
@@ -476,7 +633,42 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
     label: createT(`options.employmentType.${option.key}` as never),
   }));
 
-  // Step numbers shift by one when the payment section is present
+  const assignedStaffOptions = staffOptions.map((staff) => ({
+    value: staff.staffId,
+    label: `${staff.name} (${staff.staffId})`,
+  }));
+
+  const paymentMethodOptions = [
+    {
+      value: "Bank Transfer",
+      label: "Bank Transfer",
+    },
+    {
+      value: "Cash",
+      label: "Cash",
+    },
+  ];
+
+  const graduationStatusOptions = [
+    {
+      value: "graduated",
+      label: "Graduated / 卒業",
+    },
+    {
+      value: "expectedGraduation",
+      label: "Expected Graduation / 卒業見込",
+    },
+    {
+      value: "currentlyEnrolled",
+      label: "Currently Enrolled / 在学中",
+    },
+    {
+      value: "withdrawn",
+      label: "Withdrawn / 中退",
+    },
+  ];
+
+  // Create has one extra registration payment section.
   const offset = isEditMode ? 0 : 1;
 
   // =================================================
@@ -492,10 +684,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           placeItems: "center",
         }}
       >
-        <CircularProgress size={28} sx={{ color: BRAND }} />
+        <CircularProgress
+          size={28}
+          sx={{
+            color: BRAND,
+          }}
+        />
       </Box>
     );
   }
+
+  // =================================================
+  // PAGE
+  // =================================================
 
   return (
     <Box
@@ -507,12 +708,26 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
         pb: 3,
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 1440, mx: "auto" }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 1440,
+          mx: "auto",
+        }}
+      >
+        {/* BREADCRUMB */}
+
         <Box sx={{ mb: 1.5 }}>
           <Breadcrumb
             items={[
-              { label: "Dashboard", href: "/admin/dashboard" },
-              { label: "Clients", href: "/admin/client" },
+              {
+                label: "Dashboard",
+                href: "/admin/dashboard",
+              },
+              {
+                label: "Clients",
+                href: "/admin/client",
+              },
               {
                 label: isEditMode ? "Edit client" : "Register client",
                 current: true,
@@ -520,6 +735,8 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             ]}
           />
         </Box>
+
+        {/* HEADER */}
 
         <Box sx={{ mb: 2 }}>
           <Typography
@@ -534,32 +751,58 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             {isEditMode ? "Edit client" : "Register new client"}
           </Typography>
 
-          <Typography sx={{ mt: 0.4, color: MUTED, fontSize: 13 }}>
+          <Typography
+            sx={{
+              mt: 0.4,
+              color: MUTED,
+              fontSize: 13,
+            }}
+          >
             {isEditMode
               ? "Update client and Japanese CV information."
               : "A new client becomes Registered / Paid only after the full registration payment is confirmed."}
           </Typography>
         </Box>
 
+        {/* ERRORS */}
+
         {submitError && (
-          <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 1.5,
+              borderRadius: 2,
+            }}
+          >
             {submitError}
           </Alert>
         )}
 
         {!isEditMode && registrationConfigError && (
-          <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 1.5,
+              borderRadius: 2,
+            }}
+          >
             {registrationConfigError}
           </Alert>
         )}
 
+        {/* FORM */}
+
         <Box
           component="form"
           onSubmit={handleSubmit(onSubmit)}
-          sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1.5,
+          }}
         >
           {/* =================================================
-          1 BASIC
+          1 BASIC INFORMATION
           ================================================= */}
 
           <FormSection step={1} title="Basic information">
@@ -608,47 +851,37 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 sx={fieldSx}
               />
 
+              {/* GENDER AUTOCOMPLETE */}
+
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
+                  <FormAutocomplete
                     label="Gender"
-                    size="small"
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">Select gender</MenuItem>
-
-                    {genderOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    value={field.value}
+                    options={genderOptions}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Search gender"
+                  />
                 )}
               />
+
+              {/* NATIONALITY AUTOCOMPLETE */}
 
               <Controller
                 name="nationality"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
+                  <FormAutocomplete
                     label="Nationality"
-                    size="small"
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">Select nationality</MenuItem>
-
-                    {nationalityOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    value={field.value}
+                    options={nationalityOptions}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Search nationality"
+                  />
                 )}
               />
             </Box>
@@ -667,25 +900,20 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 sx={fieldSx}
               />
 
+              {/* PREFECTURE AUTOCOMPLETE */}
+
               <Controller
                 name="prefecture"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
+                  <FormAutocomplete
                     label="Prefecture"
-                    size="small"
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">Select prefecture</MenuItem>
-
-                    {prefectureOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    value={field.value}
+                    options={prefectureOptions}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Search prefecture"
+                  />
                 )}
               />
 
@@ -704,28 +932,23 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
           <FormSection step={3} title="Immigration & passport">
             <Box sx={gridSx}>
+              {/* VISA AUTOCOMPLETE */}
+
               <Controller
                 name="currentVisaStatus"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
+                  <FormAutocomplete
                     required
                     label="Current visa status"
-                    size="small"
+                    value={field.value}
+                    options={visaOptions}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Search visa status"
                     error={Boolean(errors.currentVisaStatus)}
                     helperText={errors.currentVisaStatus?.message}
-                    sx={fieldSx}
-                  >
-                    <MenuItem value="">Select visa status</MenuItem>
-
-                    {visaOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                  />
                 )}
               />
 
@@ -768,50 +991,42 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             }
           >
             <Box sx={gridSx}>
+              {/* CATEGORY AUTOCOMPLETE */}
+
               <Controller
                 name="preferCategory"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
+                  <FormAutocomplete
                     label="Preferred category"
-                    size="small"
-                    sx={fieldSx}
-                  >
-                    {categoryOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    value={field.value}
+                    options={categoryOptions}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder="Search preferred category"
+                  />
                 )}
               />
+
+              {/* STAFF AUTOCOMPLETE */}
 
               {role === "superadmin" ? (
                 <Controller
                   name="assignedStaff"
                   control={control}
                   render={({ field }) => (
-                    <TextField
-                      {...field}
-                      select
+                    <FormAutocomplete
                       required
                       label="Assigned staff"
-                      size="small"
+                      value={field.value}
+                      options={assignedStaffOptions}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
                       disabled={isStaffLoading}
+                      placeholder="Search staff"
                       error={Boolean(errors.assignedStaff)}
                       helperText={errors.assignedStaff?.message}
-                      sx={fieldSx}
-                    >
-                      <MenuItem value="">Select staff</MenuItem>
-
-                      {staffOptions.map((staff) => (
-                        <MenuItem key={staff.staffId} value={staff.staffId}>
-                          {staff.name} ({staff.staffId})
-                        </MenuItem>
-                      ))}
-                    </TextField>
+                    />
                   )}
                 />
               ) : (
@@ -849,7 +1064,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           </FormSection>
 
           {/* =================================================
-          5 REGISTRATION PAYMENT (CREATE ONLY)
+          5 REGISTRATION PAYMENT
           ================================================= */}
 
           {!isEditMode && (
@@ -859,8 +1074,19 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
               description="The client is created only after the full registration fee is confirmed. Partial payment is not supported."
             >
               {isStageLoading ? (
-                <Box sx={{ py: 2, display: "grid", placeItems: "center" }}>
-                  <CircularProgress size={22} sx={{ color: BRAND }} />
+                <Box
+                  sx={{
+                    py: 2,
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  <CircularProgress
+                    size={22}
+                    sx={{
+                      color: BRAND,
+                    }}
+                  />
                 </Box>
               ) : (
                 <>
@@ -901,8 +1127,18 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-                      <Typography sx={{ color: MUTED, fontSize: 11.5 }}>
+                    <Box
+                      sx={{
+                        textAlign: "right",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: MUTED,
+                          fontSize: 11.5,
+                        }}
+                      >
                         Registration fee
                       </Typography>
 
@@ -921,35 +1157,35 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
                   <Alert
                     severity="info"
-                    sx={{ mb: 1.5, py: 0, borderRadius: 2, fontSize: 13 }}
+                    sx={{
+                      mb: 1.5,
+                      py: 0,
+                      borderRadius: 2,
+                      fontSize: 13,
+                    }}
                   >
                     The amount is controlled by the Stage Master. It cannot be
                     changed from this form.
                   </Alert>
 
                   <Box sx={gridSx}>
+                    {/* PAYMENT METHOD AUTOCOMPLETE */}
+
                     <Controller
                       name="paymentMethod"
                       control={control}
                       render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
+                        <FormAutocomplete
                           required
                           label="Payment method"
-                          size="small"
+                          value={field.value}
+                          options={paymentMethodOptions}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          placeholder="Search payment method"
                           error={Boolean(errors.paymentMethod)}
                           helperText={errors.paymentMethod?.message}
-                          sx={fieldSx}
-                        >
-                          <MenuItem value="">Select payment method</MenuItem>
-
-                          <MenuItem value="Bank Transfer">
-                            Bank Transfer
-                          </MenuItem>
-
-                          <MenuItem value="Cash">Cash</MenuItem>
-                        </TextField>
+                        />
                       )}
                     />
 
@@ -997,7 +1233,10 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                     minRows={2}
                     size="small"
                     label="Payment note"
-                    sx={{ ...fieldSx, mt: 1.5 }}
+                    sx={{
+                      ...fieldSx,
+                      mt: 1.5,
+                    }}
                   />
                 </>
               )}
@@ -1017,25 +1256,20 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                   onRemove={() => removeEducation(index)}
                 >
                   <Box sx={gridSx}>
+                    {/* EDUCATION TYPE AUTOCOMPLETE */}
+
                     <Controller
                       name={`education.${index}.educationType`}
                       control={control}
                       render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
+                        <FormAutocomplete
                           label="School type"
-                          size="small"
-                          sx={fieldSx}
-                        >
-                          <MenuItem value="">Select type</MenuItem>
-
-                          {educationTypeOptions.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </TextField>
+                          value={field.value}
+                          options={educationTypeOptions}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          placeholder="Search school type"
+                        />
                       )}
                     />
 
@@ -1069,35 +1303,20 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       sx={fieldSx}
                     />
 
+                    {/* GRADUATION STATUS AUTOCOMPLETE */}
+
                     <Controller
                       name={`education.${index}.graduationStatus`}
                       control={control}
                       render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
+                        <FormAutocomplete
                           label="Graduation status"
-                          size="small"
-                          sx={fieldSx}
-                        >
-                          <MenuItem value="">Select status</MenuItem>
-
-                          <MenuItem value="graduated">
-                            Graduated / 卒業
-                          </MenuItem>
-
-                          <MenuItem value="expectedGraduation">
-                            Expected Graduation / 卒業見込
-                          </MenuItem>
-
-                          <MenuItem value="currentlyEnrolled">
-                            Currently Enrolled / 在学中
-                          </MenuItem>
-
-                          <MenuItem value="withdrawn">
-                            Withdrawn / 中退
-                          </MenuItem>
-                        </TextField>
+                          value={field.value}
+                          options={graduationStatusOptions}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          placeholder="Search graduation status"
+                        />
                       )}
                     />
                   </Box>
@@ -1127,7 +1346,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           </FormSection>
 
           {/* =================================================
-          JAPANESE / QUALIFICATIONS
+          JAPANESE & QUALIFICATIONS
           ================================================= */}
 
           <FormSection
@@ -1135,30 +1354,31 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             title="Japanese language & qualifications"
           >
             <Stack>
-              <Controller
-                name="japaneseLanguageLevel"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    label="Japanese language level"
-                    size="small"
-                    sx={{
-                      ...fieldSx,
-                      width: { xs: "100%", sm: 320 },
-                    }}
-                  >
-                    <MenuItem value="">Select level</MenuItem>
+              {/* JAPANESE LEVEL AUTOCOMPLETE */}
 
-                    {japaneseOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
+              <Box
+                sx={{
+                  width: {
+                    xs: "100%",
+                    sm: 320,
+                  },
+                }}
+              >
+                <Controller
+                  name="japaneseLanguageLevel"
+                  control={control}
+                  render={({ field }) => (
+                    <FormAutocomplete
+                      label="Japanese language level"
+                      value={field.value}
+                      options={japaneseOptions}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      placeholder="Search Japanese level"
+                    />
+                  )}
+                />
+              </Box>
 
               {qualificationFields.map((item, index) => (
                 <RepeatCard
@@ -1237,7 +1457,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
           </FormSection>
 
           {/* =================================================
-          EMPLOYMENT
+          EMPLOYMENT HISTORY
           ================================================= */}
 
           <FormSection step={7 + offset} title="Employment history">
@@ -1259,25 +1479,20 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                         sx={fieldSx}
                       />
 
+                      {/* EMPLOYMENT TYPE AUTOCOMPLETE */}
+
                       <Controller
                         name={`employmentHistory.${index}.employmentType`}
                         control={control}
                         render={({ field }) => (
-                          <TextField
-                            {...field}
-                            select
+                          <FormAutocomplete
                             label="Employment type"
-                            size="small"
-                            sx={fieldSx}
-                          >
-                            <MenuItem value="">Select type</MenuItem>
-
-                            {employmentTypeOptions.map((option) => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </TextField>
+                            value={field.value}
+                            options={employmentTypeOptions}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder="Search employment type"
+                          />
                         )}
                       />
 
@@ -1346,7 +1561,9 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                                 }}
                                 sx={{
                                   color: BRAND,
-                                  "&.Mui-checked": { color: BRAND },
+                                  "&.Mui-checked": {
+                                    color: BRAND,
+                                  },
                                 }}
                               />
                             }
@@ -1356,7 +1573,12 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       />
                     </Box>
 
-                    <Box sx={{ ...grid2Sx, mt: 1.5 }}>
+                    <Box
+                      sx={{
+                        ...grid2Sx,
+                        mt: 1.5,
+                      }}
+                    >
                       <TextField
                         {...register(
                           `employmentHistory.${index}.responsibilities`,
@@ -1496,7 +1718,9 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       : "No photo selected. Use a 3:4 portrait."
                 }
                 onSelect={(file) =>
-                  setValue("clientImage", file, { shouldDirty: true })
+                  setValue("clientImage", file, {
+                    shouldDirty: true,
+                  })
                 }
                 preview={
                   <Box
@@ -1548,7 +1772,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                       ? "Existing CV is kept unless replaced."
                       : "No CV selected. PDF or Word."
                 }
-                onSelect={(file) => setValue("cv", file, { shouldDirty: true })}
+                onSelect={(file) =>
+                  setValue("cv", file, {
+                    shouldDirty: true,
+                  })
+                }
                 preview={
                   <Box
                     sx={{
@@ -1606,7 +1834,10 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 borderColor: BORDER,
                 color: MUTED,
                 bgcolor: SURFACE,
-                "&:hover": { borderColor: MUTED, bgcolor: SURFACE },
+                "&:hover": {
+                  borderColor: MUTED,
+                  bgcolor: SURFACE,
+                },
               }}
             >
               Cancel
@@ -1631,7 +1862,10 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
                 )
               }
               sx={{
-                flex: { xs: 1, sm: "0 1 auto" },
+                flex: {
+                  xs: 1,
+                  sm: "0 1 auto",
+                },
                 bgcolor: isEditMode ? BRAND : WARNING,
                 color: "#ffffff",
                 fontWeight: 700,
