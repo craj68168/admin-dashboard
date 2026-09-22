@@ -1,4 +1,196 @@
 {
+  "createStageModal": {
+    "title": "Add Current Stage",
+    "fields": {
+      "name": {
+        "label": "Stage Name",
+        "placeholder": "e.g. Document Collection"
+      },
+      "amount": {
+        "label": "Amount (¥)",
+        "helper": "Use 0 when this stage has no charge."
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Stage",
+      "creating": "Creating..."
+    }
+  },
+  "stageList": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "stages": "Stages"
+    },
+    "title": "Stages",
+    "description": "Manage client processing stages and the amount assigned to each stage.",
+    "filters": {
+      "search": {
+        "label": "What are you looking for?",
+        "placeholder": "Stage ID, stage name, stage key..."
+      },
+      "searchButton": "Search stages",
+      "clearButton": "Clear"
+    },
+    "columns": {
+      "stageId": "Stage ID",
+      "name": "Name",
+      "amount": "Amount",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "addStage": "Add Stage",
+      "view": "View stage",
+      "edit": "Edit stage",
+      "delete": "Delete stage"
+    },
+    "aria": {
+      "view": "View {name}",
+      "edit": "Edit {name}",
+      "delete": "Delete {name}"
+    },
+    "pagination": {
+      "itemLabel": "stages"
+    },
+    "error": {
+      "title": "Unable to load stages",
+      "description": "Something went wrong while loading the stage list.",
+      "retry": "Try Again"
+    },
+    "deleteDialog": {
+      "title": "Delete Stage",
+      "descriptionPrefix": "Are you sure you want to delete",
+      "warning": "This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "viewStage": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "stages": "Stages"
+    },
+    "description": "Stage details and configuration",
+    "sections": {
+      "stageInformation": "Stage Information",
+      "auditInformation": "Audit Information"
+    },
+    "fields": {
+      "stageId": "Stage ID",
+      "stageName": "Stage Name",
+      "stageKey": "Stage Key",
+      "amount": "Amount",
+      "displayOrder": "Display Order",
+      "status": "Status",
+      "stageType": "Stage Type",
+      "createdBy": "Created By",
+      "createdAt": "Created At",
+      "updatedBy": "Updated By",
+      "updatedAt": "Updated At"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "stageType": {
+      "system": "System",
+      "custom": "Custom"
+    },
+    "actions": {
+      "back": "Back",
+      "backToStages": "Back to Stages",
+      "editStage": "Edit Stage",
+      "tryAgain": "Try Again"
+    },
+    "messages": {
+      "loadFailed": "Unable to load stage",
+      "notFound": "Stage not found",
+      "notFoundDescription": "No stage was found for {stageId}."
+    }
+  },
+  "editStage": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "stages": "Stages",
+      "editStage": "Edit Stage"
+    },
+    "title": "Edit Stage",
+    "description": "Update the stage name, amount and display order.",
+    "fields": {
+      "stageId": {
+        "label": "Stage ID"
+      },
+      "key": {
+        "label": "Stage Key",
+        "helper": "The stage key cannot be changed."
+      },
+      "name": {
+        "label": "Stage Name"
+      },
+      "status": {
+        "label": "Status",
+        "options": {
+          "active": "Active",
+          "inactive": "Inactive"
+        }
+      },
+      "amount": {
+        "label": "Amount",
+        "helper": "Amount in Japanese yen."
+      },
+      "displayOrder": {
+        "label": "Display Order"
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "retry": "Retry"
+    },
+    "messages": {
+      "loadFailed": "Failed to load stage.",
+      "notFound": "Stage not found."
+    }
+  },
+  "addStage": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "stages": "Stages",
+      "addStage": "Add Stage"
+    },
+    "title": "Add Stage",
+    "description": "Create a new client processing stage and assign its amount.",
+    "fields": {
+      "name": {
+        "label": "Stage Name",
+        "placeholder": "e.g. Registered / Paid",
+        "helper": "The stage key and Stage ID will be generated automatically."
+      },
+      "status": {
+        "label": "Status",
+        "options": {
+          "active": "Active",
+          "inactive": "Inactive"
+        }
+      },
+      "amount": {
+        "label": "Amount",
+        "placeholder": "0",
+        "helper": "Enter the stage amount in Japanese yen."
+      }
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create Stage",
+      "creating": "Creating..."
+    }
+  },
   "staffDashboard": {
     "dashboard": "Dashboard",
     "welcome": "Welcome, {name}",
@@ -96,7 +288,8 @@
     "items": {
       "Dashboard": "Dashboard",
       "Staff": "Staff",
-      "Clients": "Clients"
+      "Clients": "Clients",
+      "Stages": "Stages"
     }
   },
   "commonSearchFilter": {
@@ -111,87 +304,82 @@
     "from": "from",
     "to": "to"
   },
-"staffList": {
-  "breadcrumbs": {
-    "dashboard": "Dashboard",
-    "staff": "Staff"
-  },
-  "title": "Staff",
-  "description": "Manage staff accounts, access and status.",
-  "addStaff": "Add Staff",
-  "thisStaffMember": "this staff member",
-
-  "filters": {
-    "search": {
-      "label": "What are you looking for?",
-      "placeholder": "Staff ID, name, email, or phone"
+  "staffList": {
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "staff": "Staff"
     },
-    "staffMember": {
-      "label": "Staff member",
-      "placeholder": "All staff members"
+    "title": "Staff",
+    "description": "Manage staff accounts, access and status.",
+    "addStaff": "Add Staff",
+    "thisStaffMember": "this staff member",
+    "filters": {
+      "search": {
+        "label": "What are you looking for?",
+        "placeholder": "Staff ID, name, email, or phone"
+      },
+      "staffMember": {
+        "label": "Staff member",
+        "placeholder": "All staff members"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "All locations",
+        "options": {
+          "USA": "USA",
+          "Japan": "Japan",
+          "Nepal": "Nepal",
+          "Other": "Other"
+        }
+      },
+      "accountStatus": {
+        "label": "Account status",
+        "placeholder": "All statuses",
+        "options": {
+          "active": "Active",
+          "inactive": "Inactive"
+        }
+      },
+      "searchButton": "Search staff",
+      "clearButton": "Clear"
     },
-    "location": {
-      "label": "Location",
-      "placeholder": "All locations",
-      "options": {
-        "USA": "USA",
-        "Japan": "Japan",
-        "Nepal": "Nepal",
-        "Other": "Other"
-      }
+    "columns": {
+      "id": "ID",
+      "fullName": "Full name",
+      "email": "Email",
+      "location": "Location",
+      "status": "Status",
+      "createdAt": "Created At",
+      "action": "Action"
     },
-    "accountStatus": {
-      "label": "Account status",
-      "placeholder": "All statuses",
-      "options": {
-        "active": "Active",
-        "inactive": "Inactive"
-      }
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
     },
-    "searchButton": "Search staff",
-    "clearButton": "Clear"
+    "actions": {
+      "viewClients": "View staff clients",
+      "viewDetails": "View staff details",
+      "edit": "Edit staff",
+      "disable": "Disable staff",
+      "activate": "Activate staff"
+    },
+    "confirmStatus": {
+      "disableTitle": "Disable Staff",
+      "activateTitle": "Activate Staff",
+      "descriptionPrefix": "Are you sure you want to",
+      "disableVerb": "disable",
+      "activateVerb": "activate",
+      "disableWarning": "This staff member will not be able to log in while the account is disabled.",
+      "disableConfirm": "Yes, Disable",
+      "activateConfirm": "Yes, Activate",
+      "cancel": "No"
+    }
   },
-
-  "columns": {
-    "id": "ID",
-    "fullName": "Full name",
-    "email": "Email",
-    "location": "Location",
-    "status": "Status",
-    "createdAt": "Created At",
-    "action": "Action"
+  "error": {
+    "title": "Unable to load staff",
+    "description": "Something went wrong while loading the staff list.",
+    "retry": "Try Again"
   },
-
-  "status": {
-    "active": "Active",
-    "inactive": "Inactive"
-  },
-
-  "actions": {
-    "viewClients": "View staff clients",
-    "viewDetails": "View staff details",
-    "edit": "Edit staff",
-    "disable": "Disable staff",
-    "activate": "Activate staff"
-  },
-
-  "confirmStatus": {
-    "disableTitle": "Disable Staff",
-    "activateTitle": "Activate Staff",
-    "descriptionPrefix": "Are you sure you want to",
-    "disableVerb": "disable",
-    "activateVerb": "activate",
-    "disableWarning": "This staff member will not be able to log in while the account is disabled.",
-    "disableConfirm": "Yes, Disable",
-    "activateConfirm": "Yes, Activate",
-    "cancel": "No"
-  }
-},
-"error": {
-  "title": "Unable to load staff",
-  "description": "Something went wrong while loading the staff list.",
-  "retry": "Try Again"
-},
   "addStaff": {
     "backToStaff": "Back to Staff",
     "title": "Add Staff Member",
@@ -436,9 +624,15 @@
       "editDescription": "Update the client's profile, documents and recruitment details."
     },
     "sections": {
-      "basic": { "title": "Basic Information" },
-      "address": { "title": "Address" },
-      "immigration": { "title": "Immigration" },
+      "basic": {
+        "title": "Basic Information"
+      },
+      "address": {
+        "title": "Address"
+      },
+      "immigration": {
+        "title": "Immigration"
+      },
       "recruitment": {
         "title": "Recruitment",
         "createDescription": "Set the preferred category, assigned staff and starting stage.",
@@ -448,12 +642,24 @@
         "title": "Registration payment",
         "description": "The client is created only after the full registration fee is confirmed. Partial payment is not supported."
       },
-      "education": { "title": "Education" },
-      "qualifications": { "title": "Japanese language & qualifications" },
-      "employment": { "title": "Employment history" },
-      "skills": { "title": "Skills & career summary" },
-      "application": { "title": "Japanese application content" },
-      "documents": { "title": "Documents" }
+      "education": {
+        "title": "Education"
+      },
+      "qualifications": {
+        "title": "Japanese language & qualifications"
+      },
+      "employment": {
+        "title": "Employment history"
+      },
+      "skills": {
+        "title": "Skills & career summary"
+      },
+      "application": {
+        "title": "Japanese application content"
+      },
+      "documents": {
+        "title": "Documents"
+      }
     },
     "fields": {
       "fullName": "Full name",
@@ -589,7 +795,6 @@
     "create": "Create Client",
     "creating": "Creating...",
     "cancel": "Cancel",
-
     "sections": {
       "basic": {
         "title": "Basic Information",
@@ -616,7 +821,6 @@
         "description": "Upload the client image and CV if available."
       }
     },
-
     "fields": {
       "fullName": {
         "label": "Full Name",
@@ -626,151 +830,117 @@
         "label": "Phone",
         "placeholder": "Enter phone number"
       },
-
       "currentVisaStatus": {
         "label": "Current Visa Status",
         "placeholder": "Select current visa status"
       },
-
       "assignedStaff": {
         "label": "Assigned Staff",
         "placeholder": "Select staff",
         "autoHelper": "This client will automatically be assigned to you."
       },
-
       "preferCategory": {
         "label": "Preferred Category",
         "placeholder": "Select preferred category"
       },
-
       "currentStage": {
         "label": "Current Stage",
         "placeholder": "Select current stage"
       },
-
       "dateOfBirth": {
         "label": "Date of Birth"
       },
-
       "gender": {
         "label": "Gender",
         "placeholder": "Select gender"
       },
-
       "email": {
         "label": "Email",
         "placeholder": "Enter email"
       },
-
       "nationality": {
         "label": "Nationality",
         "placeholder": "Select nationality"
       },
-
       "address": {
         "label": "Address",
         "placeholder": "Enter current address"
       },
-
       "prefecture": {
         "label": "Prefecture",
         "placeholder": "Select prefecture"
       },
-
       "passportNumber": {
         "label": "Passport Number",
         "placeholder": "Enter passport number"
       },
-
       "passportExpiryDate": {
         "label": "Passport Expiry Date"
       },
-
       "statusOfResidence": {
         "label": "Status of Residence",
         "placeholder": "Select status of residence"
       },
-
       "schoolName": {
         "label": "School",
         "placeholder": "Enter school name"
       },
-
       "enrollmentDate": {
         "label": "Enrollment Date"
       },
-
       "graduationDate": {
         "label": "Graduation Date"
-      },
-
-      "educationType": {
-        "label": "Education Type",
-        "placeholder": "Select education type"
-      },
-
-      "major": {
-        "label": "Major / Course",
-        "placeholder": "Enter major or course"
       },
       "educationType": {
         "label": "School Type",
         "placeholder": "Select school type"
       },
-
+      "major": {
+        "label": "Major / Course",
+        "placeholder": "Enter major or course"
+      },
       "japaneseLanguageLevel": {
         "label": "Japanese Language Level",
         "placeholder": "Select Japanese language level"
       },
-
       "intake": {
         "label": "Intake",
         "placeholder": "Example: April 2027"
       },
-
       "companyName": {
         "label": "Company Name",
         "placeholder": "Enter company name"
       },
-
       "startDate": {
         "label": "Start Date"
       },
-
       "endDate": {
         "label": "End Date"
       },
-
       "employmentType": {
         "label": "Employment Type",
         "placeholder": "Select employment type"
       },
-
       "clientImage": {
         "upload": "Upload Client Image"
       },
-
       "cv": {
         "upload": "Upload CV"
       }
     },
-
     "education": {
       "add": "Add Education",
       "itemLabel": "Education {number}"
     },
-
     "employment": {
       "add": "Add Employment"
     },
-
     "options": {
       "gender": {
         "male": "Male",
         "female": "Female",
         "other": "Other"
       },
-
       "currentVisaStatus": {
         "student": "Student",
         "dependent": "Dependent",
@@ -791,7 +961,6 @@
         "longTermResident": "Long-Term Resident",
         "other": "Other"
       },
-
       "preferCategory": {
         "newJob": "Shushoku / New Job",
         "jobChange": "Tenshoku / Job Change",
@@ -800,7 +969,6 @@
         "visaServiceOnlyChange": "Visa Service Only / Change",
         "otherVisaService": "Other Visa Service"
       },
-
       "currentStage": {
         "registeredPaid": "Registered / Paid",
         "vacancySearching": "Vacancy Searching",
@@ -820,7 +988,6 @@
         "visaRenewal5Years": "Visa Renewal - 5 Years",
         "returnToNepal": "Return to Nepal"
       },
-
       "nationality": {
         "nepali": "Nepali",
         "indian": "Indian",
@@ -834,7 +1001,6 @@
         "chinese": "Chinese",
         "other": "Other"
       },
-
       "statusOfResidence": {
         "student": "Student",
         "dependent": "Dependent",
@@ -860,7 +1026,6 @@
         "trainee": "Trainee",
         "other": "Other"
       },
-
       "japaneseLanguageLevel": {
         "n1": "N1",
         "n2": "N2",
@@ -879,7 +1044,6 @@
         "internationalSchool": "International School",
         "other": "Other"
       },
-
       "employmentType": {
         "partTime": "Part-time",
         "fullTime": "Full-time / Regular Employee",
@@ -887,7 +1051,6 @@
         "temporaryDispatchEmployee": "Temporary / Dispatch Employee",
         "other": "Other"
       },
-
       "prefecture": {
         "hokkaido": "Hokkaido",
         "aomori": "Aomori",
@@ -938,14 +1101,12 @@
         "okinawa": "Okinawa"
       }
     },
-
     "validation": {
       "fullNameRequired": "Full name is required",
       "phoneRequired": "Phone number is required",
       "currentVisaStatusRequired": "Current visa status is required",
       "currentStageRequired": "Current stage is required"
     },
-
     "messages": {
       "createFailed": "Failed to create client."
     }
@@ -956,7 +1117,6 @@
       "clients": "Clients",
       "editClient": "Edit Client"
     },
-
     "title": "Edit Client",
     "clientIdLabel": "Client ID:",
     "inactive": "Inactive",
@@ -964,191 +1124,150 @@
     "saveChanges": "Save Changes",
     "saving": "Saving...",
     "cancel": "Cancel",
-
     "sections": {
       "basic": {
         "title": "Basic Information",
         "description": "Update client information, assignment and current progress."
       },
-
       "personal": {
         "title": "Personal Information",
         "description": "Update personal, contact and current address information."
       },
-
       "passport": {
         "title": "Passport & Residence",
         "description": "Update passport and status of residence information."
       },
-
       "education": {
         "title": "Education & Japanese Language",
         "description": "Update education history and Japanese language proficiency."
       },
-
       "employment": {
         "title": "Employment History",
         "description": "Update the client's employment history."
       },
-
       "documents": {
         "title": "Documents",
         "description": "Selecting a new file will replace the currently uploaded file."
       }
     },
-
     "fields": {
       "fullName": {
         "label": "Full Name"
       },
-
       "phone": {
         "label": "Phone"
       },
-
       "currentVisaStatus": {
         "label": "Current Visa Status",
         "placeholder": "Select current visa status"
       },
-
       "assignedStaff": {
         "label": "Assigned Staff",
         "placeholder": "Select staff",
         "readOnlyHelper": "Staff assignment cannot be changed from this account."
       },
-
       "preferCategory": {
         "label": "Preferred Category",
         "placeholder": "Select preferred category"
       },
-
       "currentStage": {
         "label": "Current Stage",
         "placeholder": "Select current stage"
       },
-
       "dateOfBirth": {
         "label": "Date of Birth"
       },
-
       "gender": {
         "label": "Gender",
         "placeholder": "Select gender"
       },
-
       "email": {
         "label": "Email"
       },
-
       "nationality": {
         "label": "Nationality",
         "placeholder": "Select nationality"
       },
-
       "address": {
         "label": "Current Address",
         "placeholder": "Enter current address"
       },
-
       "prefecture": {
         "label": "Prefecture",
         "placeholder": "Select prefecture"
       },
-
       "passportNumber": {
         "label": "Passport Number"
       },
-
       "passportExpiryDate": {
         "label": "Passport Expiry Date"
       },
-
       "statusOfResidence": {
         "label": "Status of Residence",
         "placeholder": "Select status of residence"
       },
-
       "schoolName": {
         "label": "School / College Name",
         "placeholder": "Enter school or college name"
       },
-
       "enrollmentDate": {
         "label": "Enrollment Date"
       },
-
       "graduationDate": {
         "label": "Graduation Date"
       },
-
       "major": {
         "label": "Major / Course",
         "placeholder": "Enter major or course"
       },
-
       "japaneseLanguageLevel": {
         "label": "Japanese Language Level",
         "placeholder": "Select Japanese language level"
       },
-
       "intake": {
         "label": "Intake",
         "placeholder": "Example: April 2027"
       },
-
       "companyName": {
         "label": "Company Name",
         "placeholder": "Enter company name"
       },
-
       "startDate": {
         "label": "Start Date"
       },
-
       "endDate": {
         "label": "End Date"
       },
-
       "employmentType": {
         "label": "Employment Type",
         "placeholder": "Select employment type"
       },
-
       "clientImage": {
         "replace": "Replace Client Image"
       },
-
       "cv": {
         "replace": "Replace CV"
       }
     },
-
     "employment": {
       "add": "Add Employment"
     },
-
     "education": {
       "add": "Add Education",
       "itemLabel": "Education {number}"
     },
-
     "validation": {
       "emailInvalid": "Enter a valid email address",
       "invalidFile": "Invalid file",
-
       "fullNameRequired": "Full name is required",
       "fullNameMin": "Full name must be at least 2 characters",
-
       "phoneRequired": "Phone number is required",
       "phoneMin": "Phone number must be at least 7 characters",
       "phoneMax": "Phone number cannot exceed 20 characters",
-
       "currentVisaStatusRequired": "Current visa status is required",
       "currentStageRequired": "Current stage is required",
-
       "assignedStaffRequired": "Assigned staff is required"
     },
-
     "messages": {
       "notFound": "Client not found.",
       "clientIdMissing": "Client ID is missing.",
@@ -1165,13 +1284,19 @@
     "back": "Back",
     "sections": {
       "basic": "Basic Information",
-      "personal": "Personal Information",
+      "personal": "Personal information",
       "passport": "Passport & Residence",
-      "education": "Education & Japanese Language",
-      "employment": "Employment",
+      "education": "Education",
+      "employment": "Employment history",
       "sponsor": "Sponsor",
       "visa": "Visa Information",
-      "documents": "Documents"
+      "documents": "Documents",
+      "recruitment": "Recruitment information",
+      "address": "Address",
+      "immigration": "Immigration & passport",
+      "japaneseQualifications": "Japanese language & qualifications",
+      "skillsCareer": "Skills & career summary",
+      "applicationContent": "Japanese application content"
     },
     "fields": {
       "clientId": "Client ID",
@@ -1205,11 +1330,44 @@
       "sponsorStatusOfResidence": "Sponsor Status of Residence",
       "visaStatus": "Visa Status",
       "clientImage": "Client Image",
-      "cv": "CV"
+      "cv": "CV",
+      "preferredCategory": "Preferred category",
+      "currentStage": "Current stage",
+      "currentStageAmount": "Current stage amount",
+      "updatedAt": "Updated at",
+      "furigana": "Furigana",
+      "postalCode": "Postal code",
+      "prefecture": "Prefecture",
+      "currentVisaStatus": "Current visa status",
+      "residenceExpiryDate": "Residence expiry date",
+      "schoolType": "School type",
+      "majorCourse": "Major / course",
+      "enrollmentDate": "Enrollment date",
+      "graduationDate": "Graduation date",
+      "graduationStatus": "Graduation status",
+      "qualificationCertificate": "Qualification / certificate",
+      "levelScore": "Level / score",
+      "issuer": "Issuer",
+      "acquiredDate": "Acquired date",
+      "expiryDate": "Expiry date",
+      "note": "Note",
+      "employmentType": "Employment type",
+      "department": "Department",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "responsibilities": "Responsibilities / main duties",
+      "achievements": "Achievements",
+      "skills": "Skills",
+      "careerSummary": "Career summary",
+      "motivation": "Motivation",
+      "selfPr": "Self PR",
+      "desiredConditions": "Desired conditions"
     },
     "documents": {
       "uploaded": "Uploaded",
-      "notUploaded": "Not uploaded"
+      "notUploaded": "Not uploaded",
+      "photo": "Photo",
+      "originalCv": "Original CV"
     },
     "visaTypes": {
       "Student": "Student",
@@ -1238,9 +1396,46 @@
     "messages": {
       "notFound": "Client not found.",
       "loadFailed": "Failed to load client."
+    },
+    "header": {
+      "title": "Client profile"
+    },
+    "actions": {
+      "back": "Back",
+      "generating": "Generating...",
+      "japaneseCv": "Japanese CV",
+      "editClient": "Edit client"
+    },
+    "descriptions": {
+      "recruitment": "Internal client management information. These fields are not automatically included in the employer CV.",
+      "personal": "Candidate information used for Japanese resume generation.",
+      "immigration": "Current visa status is the primary residence-status field used for the Japanese CV.",
+      "education": "Education history used in the Japanese resume.",
+      "employment": "Detailed employment history used in the Japanese work history document.",
+      "applicationContent": "Content used in the generated Japanese application documents."
+    },
+    "photo": {
+      "unavailable": "Photo unavailable",
+      "notUploaded": "No photo uploaded",
+      "viewPhoto": "View candidate photo",
+      "alt": "Candidate photo",
+      "view": "View",
+      "close": "Close photo"
+    },
+    "empty": {
+      "education": "No education history added.",
+      "qualifications": "No qualifications added.",
+      "employment": "No employment history added."
+    },
+    "itemTitles": {
+      "education": "Education {number}",
+      "qualification": "Qualification {number}",
+      "employment": "Employment {number}"
+    },
+    "employment": {
+      "currentlyEmployed": "Currently employed"
     }
   },
-
   "clientFees": {
     "title": "Client Fees",
     "description": "Required fees, payments and outstanding balances.",
@@ -1362,7 +1557,7 @@
   },
   "clientPayments": {
     "title": "Payments",
-    "description": "Payment collection history and installments.",
+    "description": "Payments are recorded automatically when a paid stage is completed.",
     "totalPayments": "Total Payments",
     "history": "Payment History",
     "empty": "No payments recorded yet.",
@@ -1376,13 +1571,19 @@
       "stageAtPayment": "Stage at Payment",
       "reference": "Reference",
       "receipt": "Receipt",
-      "bank": "Bank"
+      "bank": "Bank",
+      "stage": "Stage",
+      "amount": "Amount",
+      "status": "Status",
+      "staff": "Staff"
     },
     "summary": {
       "expected": "Expected",
       "alreadyPaid": "Already Paid",
       "outstanding": "Outstanding",
-      "status": "Status"
+      "status": "Status",
+      "totalCollected": "Total collected",
+      "completedPayments": "Completed payments"
     },
     "form": {
       "title": "Add Payment",
@@ -1400,7 +1601,9 @@
     },
     "actions": {
       "saving": "Saving...",
-      "savePayment": "Save Payment"
+      "savePayment": "Save Payment",
+      "showLess": "Show less",
+      "showAll": "Show all {count} payments"
     },
     "statuses": {
       "Completed": "Completed",
@@ -1466,11 +1669,19 @@
       "changeStage": "Change Stage",
       "selectStage": "Select stage",
       "note": "Note",
-      "notePlaceholder": "Optional progress note..."
+      "notePlaceholder": "Optional progress note...",
+      "nextStage": "Next stage",
+      "searchStage": "Search and select stage",
+      "noStages": "No stages found"
     },
     "actions": {
       "updating": "Updating...",
-      "updateStage": "Update Stage"
+      "updateStage": "Update Stage",
+      "addStage": "Add stage",
+      "processing": "Processing...",
+      "payAndUpdate": "Pay {amount} & update stage",
+      "showLess": "Show less",
+      "showAllChanges": "Show all {count} changes"
     },
     "stages": {
       "Registration Pending": "Registration Pending",
@@ -1493,6 +1704,25 @@
       "selectDifferentStage": "Please select a different stage.",
       "updateFailed": "Failed to update client stage.",
       "loadFailed": "Failed to load client progress."
+    },
+    "payment": {
+      "required": "Payment required",
+      "notRequired": "No payment required",
+      "fullRequired": "Full payment required",
+      "fullRequiredDescription": "The full stage amount must be received before the stage can be updated. The amount comes from the Stage Master and cannot be edited here.",
+      "method": "Payment method",
+      "selectMethod": "Select payment method",
+      "date": "Payment date",
+      "bankName": "Bank name",
+      "referenceNumber": "Reference number",
+      "receiptNumber": "Receipt number"
+    },
+    "historyLabels": {
+      "initial": "Initial",
+      "payment": "Payment",
+      "status": "Status",
+      "collectedBy": "Collected by",
+      "changedBy": "Changed by"
     }
   },
   "clientRemarks": {

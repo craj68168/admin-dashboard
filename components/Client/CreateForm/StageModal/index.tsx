@@ -1,7 +1,10 @@
 "use client";
+
 import { useEffect } from "react";
+
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -10,9 +13,18 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+
+import { useTranslations } from "next-intl";
+
 import { createStageSchema } from "./validation";
-import type { CreateStageFormValues, CreateStageModalProps } from "./type";
+
+import type {
+  CreateStageFormValues,
+  CreateStageModalProps,
+} from "./type";
+
 const BRAND = "#107A64";
+
 export default function CreateStageModal({
   open,
   isLoading,
@@ -20,18 +32,23 @@ export default function CreateStageModal({
   onClose,
   onSubmit,
 }: CreateStageModalProps) {
+  const t = useTranslations("createStageModal");
+
   const {
     control,
     handleSubmit,
     reset,
+
     formState: { errors },
   } = useForm<CreateStageFormValues>({
     resolver: zodResolver(createStageSchema),
+
     defaultValues: {
       name: "",
       amount: "0",
     },
   });
+
   useEffect(() => {
     if (!open) {
       reset({
@@ -40,23 +57,36 @@ export default function CreateStageModal({
       });
     }
   }, [open, reset]);
-  const submit = async (values: CreateStageFormValues) => {
+
+  const submit = async (
+    values: CreateStageFormValues,
+  ) => {
     await onSubmit(values);
   };
+
   return (
     <Dialog
       open={open}
-      onClose={isLoading ? undefined : onClose}
+      onClose={
+        isLoading
+          ? undefined
+          : onClose
+      }
       fullWidth
       maxWidth="sm"
     >
+      {/* TITLE */}
+
       <DialogTitle
         sx={{
           fontWeight: 700,
         }}
       >
-        Add Current Stage
+        {t("title")}
       </DialogTitle>
+
+      {/* CONTENT */}
+
       <DialogContent>
         {errorMessage && (
           <Alert
@@ -68,7 +98,13 @@ export default function CreateStageModal({
             {errorMessage}
           </Alert>
         )}
-        <form id="create-client-stage-form" onSubmit={handleSubmit(submit)}>
+
+        <form
+          id="create-client-stage-form"
+          onSubmit={handleSubmit(submit)}
+        >
+          {/* STAGE NAME */}
+
           <Controller
             name="name"
             control={control}
@@ -77,10 +113,16 @@ export default function CreateStageModal({
                 {...field}
                 fullWidth
                 size="small"
-                label="Stage Name"
-                placeholder="e.g. Document Collection"
-                error={Boolean(errors.name)}
-                helperText={errors.name?.message}
+                label={t("fields.name.label")}
+                placeholder={t(
+                  "fields.name.placeholder",
+                )}
+                error={Boolean(
+                  errors.name,
+                )}
+                helperText={
+                  errors.name?.message
+                }
                 sx={{
                   mt: 1,
                   mb: 2,
@@ -88,6 +130,9 @@ export default function CreateStageModal({
               />
             )}
           />
+
+          {/* AMOUNT */}
+
           <Controller
             name="amount"
             control={control}
@@ -97,32 +142,45 @@ export default function CreateStageModal({
                 fullWidth
                 size="small"
                 type="number"
-                label="Amount (¥)"
+                label={t(
+                  "fields.amount.label",
+                )}
                 slotProps={{
                   htmlInput: {
                     min: 0,
                     step: 1,
                   },
                 }}
-                error={Boolean(errors.amount)}
+                error={Boolean(
+                  errors.amount,
+                )}
                 helperText={
                   errors.amount?.message ||
-                  "Use 0 when this stage has no charge."
+                  t(
+                    "fields.amount.helper",
+                  )
                 }
               />
             )}
           />
         </form>
       </DialogContent>
+
+      {/* ACTIONS */}
+
       <DialogActions
         sx={{
           px: 3,
           pb: 2.5,
         }}
       >
-        <Button onClick={onClose} disabled={isLoading}>
-          Cancel
+        <Button
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          {t("actions.cancel")}
         </Button>
+
         <Button
           type="submit"
           form="create-client-stage-form"
@@ -131,7 +189,10 @@ export default function CreateStageModal({
           disabled={isLoading}
           startIcon={
             isLoading ? (
-              <CircularProgress size={15} color="inherit" />
+              <CircularProgress
+                size={15}
+                color="inherit"
+              />
             ) : undefined
           }
           sx={{
@@ -140,7 +201,9 @@ export default function CreateStageModal({
             fontWeight: 700,
           }}
         >
-          {isLoading ? "Creating..." : "Create Stage"}
+          {isLoading
+            ? t("actions.creating")
+            : t("actions.create")}
         </Button>
       </DialogActions>
     </Dialog>

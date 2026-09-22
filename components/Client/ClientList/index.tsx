@@ -37,7 +37,7 @@ const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
-const INK_MUTED = "#4B5563";
+const INK_MUTED = "#374151";
 const DANGER = "#DC2626";
 const softCard = {
   bgcolor: "#ffffff",
@@ -369,7 +369,7 @@ const ClientListPage = () => {
     borderRadius: 2,
     textTransform: "none",
     fontSize: 13,
-    fontWeight: 700,
+    fontWeight: 600,
   } as const;
   // =================================================
   // UI
@@ -581,7 +581,7 @@ const ClientListPage = () => {
                   xs: 2,
                   sm: 2.5,
                 },
-                py: 1.75,
+                py: 1.25,
                 borderBottom: `1px solid ${HAIRLINE}`,
                 bgcolor: "#FAFAFA",
               }}
@@ -609,6 +609,7 @@ const ClientListPage = () => {
               disableRowSelectionOnClick
               hideFooter
               autoHeight
+              columnHeaderHeight={44}
               slots={{
                 noRowsOverlay: NoDataOverlay,
               }}
@@ -622,7 +623,7 @@ const ClientListPage = () => {
                   borderBottom: `1px solid ${HAIRLINE}`,
                 },
                 "& .MuiDataGrid-columnHeader": {
-                  bgcolor: "#F9FAFB",
+                  bgcolor: "#6ec5c2",
                   "&:focus, &:focus-within": {
                     outline: "none",
                   },
@@ -631,7 +632,7 @@ const ClientListPage = () => {
                   color: INK_MUTED,
                   fontSize: 11,
                   lineHeight: 1.2,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                 },
@@ -711,7 +712,7 @@ const ClientListPage = () => {
                   xs: 2,
                   sm: 2.5,
                 },
-                py: 1.75,
+                py: 1.25,
                 borderTop: `1px solid ${HAIRLINE}`,
                 bgcolor: "#FAFAFA",
               }}

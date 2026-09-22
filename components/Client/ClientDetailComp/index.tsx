@@ -133,17 +133,6 @@ const getInitials = (name?: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-const graduationStatusLabel = (value?: string) => {
-  const map: Record<string, string> = {
-    graduated: "Graduated / 卒業",
-    expectedGraduation: "Expected Graduation / 卒業見込",
-    currentlyEnrolled: "Currently Enrolled / 在学中",
-    withdrawn: "Withdrawn / 中退",
-  };
-
-  return value ? map[value] || value : "-";
-};
-
 // =================================================
 // LAYOUT PRIMITIVES
 // =================================================
@@ -332,7 +321,15 @@ const StatusBadge = ({ children }: { children: ReactNode }) => (
   </Box>
 );
 
-const DocumentBadge = ({ uploaded }: { uploaded: boolean }) => (
+const DocumentBadge = ({
+  uploaded,
+  uploadedLabel,
+  notUploadedLabel,
+}: {
+  uploaded: boolean;
+  uploadedLabel: string;
+  notUploadedLabel: string;
+}) => (
   <Box
     component="span"
     sx={{
@@ -357,7 +354,7 @@ const DocumentBadge = ({ uploaded }: { uploaded: boolean }) => (
         bgcolor: "currentColor",
       }}
     />
-    {uploaded ? "Uploaded" : "Not uploaded"}
+    {uploaded ? uploadedLabel : notUploadedLabel}
   </Box>
 );
 
@@ -371,12 +368,22 @@ const CandidatePhoto = ({
   failed,
   onFail,
   onOpen,
+  photoUnavailableLabel,
+  noPhotoUploadedLabel,
+  viewPhotoLabel,
+  photoAltLabel,
+  viewLabel,
 }: {
   src: string;
   name?: string;
   failed: boolean;
   onFail: () => void;
   onOpen: () => void;
+  photoUnavailableLabel: string;
+  noPhotoUploadedLabel: string;
+  viewPhotoLabel: string;
+  photoAltLabel: string;
+  viewLabel: string;
 }) => {
   const [loaded, setLoaded] = useState(false);
   const hasPhoto = Boolean(src) && !failed;
@@ -431,7 +438,7 @@ const CandidatePhoto = ({
             color: MUTED,
           }}
         >
-          {src ? "Photo unavailable" : "No photo uploaded"}
+          {src ? photoUnavailableLabel : noPhotoUploadedLabel}
         </Typography>
       </Box>
     );
@@ -442,7 +449,7 @@ const CandidatePhoto = ({
       component="button"
       type="button"
       onClick={onOpen}
-      aria-label="View candidate photo"
+      aria-label={viewPhotoLabel}
       sx={{
         ...frameSx,
         p: 0,
@@ -465,7 +472,7 @@ const CandidatePhoto = ({
       <Box
         component="img"
         src={src}
-        alt={name || "Candidate photo"}
+        alt={name || photoAltLabel}
         onLoad={() => setLoaded(true)}
         onError={onFail}
         sx={{
@@ -521,7 +528,7 @@ const CandidatePhoto = ({
           }}
         >
           <ZoomInRoundedIcon sx={{ fontSize: 16 }} />
-          View
+          {viewLabel}
         </Box>
       </Box>
     </Box>
@@ -716,6 +723,21 @@ const ClientDetail = () => {
     return createT(`options.employmentType.${option.key}` as never);
   };
 
+  const getGraduationStatusLabel = (value?: string) => {
+    if (!value) {
+      return "-";
+    }
+
+    const labels: Record<string, string> = {
+      graduated: createT("graduationStatus.graduated"),
+      expectedGraduation: createT("graduationStatus.expectedGraduation"),
+      currentlyEnrolled: createT("graduationStatus.currentlyEnrolled"),
+      withdrawn: createT("graduationStatus.withdrawn"),
+    };
+
+    return labels[value] || value;
+  };
+
   // =================================================
   // LOADING
   // =================================================
@@ -832,7 +854,7 @@ const ClientDetail = () => {
               letterSpacing: "-0.025em",
             }}
           >
-            Client profile
+            {t("header.title")}
           </Typography>
 
           <Box
@@ -866,7 +888,7 @@ const ClientDetail = () => {
                 "&:hover": { borderColor: MUTED, bgcolor: SURFACE },
               }}
             >
-              Back
+              {t("actions.back")}
             </Button>
 
             <Button
@@ -890,7 +912,9 @@ const ClientDetail = () => {
                 },
               }}
             >
-              {isGeneratingCv ? "Generating..." : "Japanese CV"}
+              {isGeneratingCv
+                ? t("actions.generating")
+                : t("actions.japaneseCv")}
             </Button>
 
             <Button
@@ -903,7 +927,7 @@ const ClientDetail = () => {
                 "&:hover": { bgcolor: BRAND_HOVER },
               }}
             >
-              Edit client
+              {t("actions.editClient")}
             </Button>
           </Box>
         </Box>
@@ -963,6 +987,11 @@ const ClientDetail = () => {
                 failed={photoFailed}
                 onFail={() => setFailedPhotoUrl(candidatePhotoUrl)}
                 onOpen={() => setPhotoOpen(true)}
+                photoUnavailableLabel={t("photo.unavailable")}
+                noPhotoUploadedLabel={t("photo.notUploaded")}
+                viewPhotoLabel={t("photo.viewPhoto")}
+                photoAltLabel={t("photo.alt")}
+                viewLabel={t("photo.view")}
               />
             </Box>
 
@@ -1000,7 +1029,7 @@ const ClientDetail = () => {
               )}
 
               <Typography sx={{ mt: 1, color: MUTED, fontSize: 12.5 }}>
-                Client ID{" "}
+                {t("fields.clientId")}{" "}
                 <Box
                   component="span"
                   sx={{ color: BRAND, fontWeight: 700 }}
@@ -1051,9 +1080,13 @@ const ClientDetail = () => {
                 }}
               >
                 <Typography sx={{ color: MUTED, fontSize: 12.5 }}>
-                  Photo
+                  {t("documents.photo")}
                 </Typography>
-                <DocumentBadge uploaded={hasPhoto} />
+                <DocumentBadge
+                  uploaded={hasPhoto}
+                  uploadedLabel={t("documents.uploaded")}
+                  notUploadedLabel={t("documents.notUploaded")}
+                />
               </Box>
 
               <Box
@@ -1065,9 +1098,13 @@ const ClientDetail = () => {
                 }}
               >
                 <Typography sx={{ color: MUTED, fontSize: 12.5 }}>
-                  Original CV
+                  {t("documents.originalCv")}
                 </Typography>
-                <DocumentBadge uploaded={Boolean(profile?.cv)} />
+                <DocumentBadge
+                  uploaded={Boolean(profile?.cv)}
+                  uploadedLabel={t("documents.uploaded")}
+                  notUploadedLabel={t("documents.notUploaded")}
+                />
               </Box>
             </Box>
           </Box>
@@ -1086,38 +1123,44 @@ const ClientDetail = () => {
           >
             {/* RECRUITMENT */}
             <Section
-              title="Recruitment information"
-              description="Internal client management information. These fields are not automatically included in the employer CV."
+              title={t("sections.recruitment")}
+              description={t("descriptions.recruitment")}
             >
               <FieldGrid>
-                <Field label="Client ID" value={client.clientId} />
+                <Field label={t("fields.clientId")} value={client.clientId} />
 
                 <Field
-                  label="Preferred category"
+                  label={t("fields.preferredCategory")}
                   value={getPreferCategoryLabel(client.preferCategory)}
                 />
 
-                <Field label="Assigned staff" value={assignedStaffName} />
+                <Field
+                  label={t("fields.assignedStaff")}
+                  value={assignedStaffName}
+                />
 
                 <Field
-                  label="Current stage"
+                  label={t("fields.currentStage")}
                   value={<StatusBadge>{currentStageName}</StatusBadge>}
                 />
 
                 <Field
-                  label="Current stage amount"
+                  label={t("fields.currentStageAmount")}
                   value={formatCurrency(currentStageAmount)}
                 />
 
-                <Field label="Intake" value={displayValue(profile?.intake)} />
+                <Field
+                  label={t("fields.intake")}
+                  value={displayValue(profile?.intake)}
+                />
 
                 <Field
-                  label="Created at"
+                  label={t("fields.createdAt")}
                   value={formatDate(client.createdAt)}
                 />
 
                 <Field
-                  label="Updated at"
+                  label={t("fields.updatedAt")}
                   value={formatDate(client.updatedAt)}
                 />
               </FieldGrid>
@@ -1125,53 +1168,56 @@ const ClientDetail = () => {
 
             {/* PERSONAL */}
             <Section
-              title="Personal information"
-              description="Candidate information used for Japanese resume generation."
+              title={t("sections.personal")}
+              description={t("descriptions.personal")}
             >
               <FieldGrid>
-                <Field label="Full name / 氏名" value={client.fullName} />
+                <Field label={t("fields.fullName")} value={client.fullName} />
 
                 <Field
-                  label="Furigana / フリガナ"
+                  label={t("fields.furigana")}
                   value={displayValue(profile?.furigana)}
                 />
 
-                <Field label="Phone" value={client.phone} />
-
-                <Field label="Email" value={displayValue(profile?.email)} />
+                <Field label={t("fields.phone")} value={client.phone} />
 
                 <Field
-                  label="Date of birth"
+                  label={t("fields.email")}
+                  value={displayValue(profile?.email)}
+                />
+
+                <Field
+                  label={t("fields.dateOfBirth")}
                   value={formatDate(profile?.dateOfBirth)}
                 />
 
                 <Field
-                  label="Gender"
+                  label={t("fields.gender")}
                   value={getGenderLabel(profile?.gender)}
                 />
 
                 <Field
-                  label="Nationality"
+                  label={t("fields.nationality")}
                   value={getNationalityLabel(profile?.nationality)}
                 />
               </FieldGrid>
             </Section>
 
             {/* ADDRESS */}
-            <Section title="Address">
+            <Section title={t("sections.address")}>
               <FieldGrid>
                 <Field
-                  label="Postal code / 郵便番号"
+                  label={t("fields.postalCode")}
                   value={displayValue(profile?.postalCode)}
                 />
 
                 <Field
-                  label="Prefecture"
+                  label={t("fields.prefecture")}
                   value={getPrefectureLabel(profile?.prefecture)}
                 />
 
                 <Field
-                  label="Address"
+                  label={t("fields.address")}
                   value={displayValue(profile?.address)}
                 />
               </FieldGrid>
@@ -1179,27 +1225,27 @@ const ClientDetail = () => {
 
             {/* IMMIGRATION */}
             <Section
-              title="Immigration & passport"
-              description="Current visa status is the primary residence-status field used for the Japanese CV."
+              title={t("sections.immigration")}
+              description={t("descriptions.immigration")}
             >
               <FieldGrid>
                 <Field
-                  label="Current visa status / 在留資格"
+                  label={t("fields.currentVisaStatus")}
                   value={getCurrentVisaStatusLabel(client.currentVisaStatus)}
                 />
 
                 <Field
-                  label="Residence expiry date / 在留期限"
+                  label={t("fields.residenceExpiryDate")}
                   value={formatDate(profile?.residenceExpiryDate)}
                 />
 
                 <Field
-                  label="Passport number"
+                  label={t("fields.passportNumber")}
                   value={displayValue(profile?.passportNumber)}
                 />
 
                 <Field
-                  label="Passport expiry date"
+                  label={t("fields.passportExpiryDate")}
                   value={formatDate(profile?.passportExpiryDate)}
                 />
               </FieldGrid>
@@ -1207,11 +1253,11 @@ const ClientDetail = () => {
 
             {/* EDUCATION */}
             <Section
-              title="Education"
-              description="Education history used in the 履歴書."
+              title={t("sections.education")}
+              description={t("descriptions.education")}
             >
               {education.length === 0 ? (
-                <EmptyNote>No education history added.</EmptyNote>
+                <EmptyNote>{t("empty.education")}</EmptyNote>
               ) : (
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
@@ -1222,38 +1268,38 @@ const ClientDetail = () => {
                       title={
                         item.schoolName
                           ? item.schoolName
-                          : `Education ${index + 1}`
+                          : t("itemTitles.education", { number: index + 1 })
                       }
                     >
                       <FieldGrid min={180}>
                         <Field
-                          label="School type"
+                          label={t("fields.schoolType")}
                           value={getEducationTypeLabel(item.educationType)}
                         />
 
                         <Field
-                          label="School name"
+                          label={t("fields.schoolName")}
                           value={displayValue(item.schoolName)}
                         />
 
                         <Field
-                          label="Major / course"
+                          label={t("fields.majorCourse")}
                           value={displayValue(item.major)}
                         />
 
                         <Field
-                          label="Enrollment date"
+                          label={t("fields.enrollmentDate")}
                           value={formatDate(item.enrollmentDate)}
                         />
 
                         <Field
-                          label="Graduation date"
+                          label={t("fields.graduationDate")}
                           value={formatDate(item.graduationDate)}
                         />
 
                         <Field
-                          label="Graduation status"
-                          value={graduationStatusLabel(item.graduationStatus)}
+                          label={t("fields.graduationStatus")}
+                          value={getGraduationStatusLabel(item.graduationStatus)}
                         />
                       </FieldGrid>
                     </ItemCard>
@@ -1263,9 +1309,9 @@ const ClientDetail = () => {
             </Section>
 
             {/* JAPANESE / QUALIFICATIONS */}
-            <Section title="Japanese language & qualifications">
+            <Section title={t("sections.japaneseQualifications")}>
               <Field
-                label="Japanese language level"
+                label={t("fields.japaneseLanguageLevel")}
                 value={
                   profile?.japaneseLanguageLevel ? (
                     <StatusBadge>
@@ -1279,7 +1325,7 @@ const ClientDetail = () => {
 
               <Box sx={{ mt: 3 }}>
                 {qualifications.length === 0 ? (
-                  <EmptyNote>No qualifications added.</EmptyNote>
+                  <EmptyNote>{t("empty.qualifications")}</EmptyNote>
                 ) : (
                   <Box
                     sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
@@ -1287,36 +1333,39 @@ const ClientDetail = () => {
                     {qualifications.map((item, index) => (
                       <ItemCard
                         key={item._id || `${item.name}-${index}`}
-                        title={item.name || `Qualification ${index + 1}`}
+                        title={
+                          item.name ||
+                          t("itemTitles.qualification", { number: index + 1 })
+                        }
                       >
                         <FieldGrid min={180}>
                           <Field
-                            label="Qualification / certificate"
+                            label={t("fields.qualificationCertificate")}
                             value={displayValue(item.name)}
                           />
 
                           <Field
-                            label="Level / score"
+                            label={t("fields.levelScore")}
                             value={displayValue(item.levelOrScore)}
                           />
 
                           <Field
-                            label="Issuer"
+                            label={t("fields.issuer")}
                             value={displayValue(item.issuer)}
                           />
 
                           <Field
-                            label="Acquired date"
+                            label={t("fields.acquiredDate")}
                             value={formatDate(item.acquiredDate)}
                           />
 
                           <Field
-                            label="Expiry date"
+                            label={t("fields.expiryDate")}
                             value={formatDate(item.expiryDate)}
                           />
 
                           <Field
-                            label="Note"
+                            label={t("fields.note")}
                             value={displayValue(item.note)}
                           />
                         </FieldGrid>
@@ -1329,11 +1378,11 @@ const ClientDetail = () => {
 
             {/* EMPLOYMENT */}
             <Section
-              title="Employment history"
-              description="Detailed employment history used in the 職務経歴書."
+              title={t("sections.employment")}
+              description={t("descriptions.employment")}
             >
               {employmentHistory.length === 0 ? (
-                <EmptyNote>No employment history added.</EmptyNote>
+                <EmptyNote>{t("empty.employment")}</EmptyNote>
               ) : (
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
@@ -1344,45 +1393,45 @@ const ClientDetail = () => {
                       title={
                         item.companyName
                           ? item.companyName
-                          : `Employment ${index + 1}`
+                          : t("itemTitles.employment", { number: index + 1 })
                       }
                     >
                       <FieldGrid min={180}>
                         <Field
-                          label="Company name"
+                          label={t("fields.companyName")}
                           value={displayValue(item.companyName)}
                         />
 
                         <Field
-                          label="Employment type"
+                          label={t("fields.employmentType")}
                           value={getEmploymentTypeLabel(item.employmentType)}
                         />
 
                         <Field
-                          label="Department"
+                          label={t("fields.department")}
                           value={displayValue(item.department)}
                         />
 
                         <Field
-                          label="Job title"
+                          label={t("fields.jobTitle")}
                           value={displayValue(item.jobTitle)}
                         />
 
                         <Field
-                          label="Work location"
+                          label={t("fields.workLocation")}
                           value={displayValue(item.workLocation)}
                         />
 
                         <Field
-                          label="Start date"
+                          label={t("fields.startDate")}
                           value={formatDate(item.startDate)}
                         />
 
                         <Field
-                          label="End date"
+                          label={t("fields.endDate")}
                           value={
                             item.isCurrent
-                              ? "Currently employed"
+                              ? t("employment.currentlyEmployed")
                               : formatDate(item.endDate)
                           }
                         />
@@ -1405,12 +1454,12 @@ const ClientDetail = () => {
                             }}
                           >
                             <Field
-                              label="Responsibilities / main duties"
+                              label={t("fields.responsibilities")}
                               value={displayValue(item.responsibilities)}
                             />
 
                             <Field
-                              label="Achievements"
+                              label={t("fields.achievements")}
                               value={displayValue(item.achievements)}
                             />
                           </Box>
@@ -1423,7 +1472,7 @@ const ClientDetail = () => {
             </Section>
 
             {/* SKILLS / CAREER */}
-            <Section title="Skills & career summary">
+            <Section title={t("sections.skillsCareer")}>
               <Box
                 sx={{
                   display: "grid",
@@ -1443,7 +1492,7 @@ const ClientDetail = () => {
                       fontWeight: 500,
                     }}
                   >
-                    Skills
+                    {t("fields.skills")}
                   </Typography>
 
                   {skills.length === 0 ? (
@@ -1473,7 +1522,7 @@ const ClientDetail = () => {
                 </Box>
 
                 <Field
-                  label="Career summary / 職務要約"
+                  label={t("fields.careerSummary")}
                   value={displayValue(profile?.careerSummary)}
                 />
               </Box>
@@ -1481,24 +1530,24 @@ const ClientDetail = () => {
 
             {/* APPLICATION CONTENT */}
             <Section
-              title="Japanese application content"
-              description="Content used in the generated Japanese application documents."
+              title={t("sections.applicationContent")}
+              description={t("descriptions.applicationContent")}
             >
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: 3 }}
               >
                 <Field
-                  label="Motivation / 志望動機"
+                  label={t("fields.motivation")}
                   value={displayValue(profile?.motivation)}
                 />
 
                 <Field
-                  label="Self PR / 自己PR"
+                  label={t("fields.selfPr")}
                   value={displayValue(profile?.selfPR)}
                 />
 
                 <Field
-                  label="Desired conditions / 本人希望記入欄"
+                  label={t("fields.desiredConditions")}
                   value={displayValue(profile?.desiredConditions)}
                 />
               </Box>
@@ -1554,7 +1603,7 @@ const ClientDetail = () => {
       >
         <IconButton
           onClick={() => setPhotoOpen(false)}
-          aria-label="Close photo"
+          aria-label={t("photo.close")}
           sx={{
             position: "absolute",
             top: -8,
@@ -1572,7 +1621,7 @@ const ClientDetail = () => {
         <Box
           component="img"
           src={candidatePhotoUrl}
-          alt={client.fullName || "Candidate photo"}
+          alt={client.fullName || t("photo.alt")}
           sx={{
             display: "block",
             maxWidth: "100%",
