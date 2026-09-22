@@ -425,6 +425,14 @@ const filteredStages = useMemo(() => {
     router.push("/admin/stages/add");
   };
 
+  const handleViewStage = (
+  stageId: string,
+) => {
+  router.push(
+    `/admin/stages/${stageId}`,
+  );
+};
+
   const handleEditStage = (
     stageId: string,
   ) => {
@@ -495,6 +503,7 @@ const filteredStages = useMemo(() => {
     // navigation
     handleAddStage,
     handleEditStage,
+    handleViewStage,
 
     // delete
     stageToDelete,

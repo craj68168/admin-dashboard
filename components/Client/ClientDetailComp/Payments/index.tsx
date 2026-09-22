@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -73,7 +74,13 @@ const getStatusStyle = (status: string) => {
 // SMALL PIECES
 // =================================================
 
-const StatusBadge = ({ status }: { status: string }) => (
+const StatusBadge = ({
+  status,
+  label,
+}: {
+  status: string;
+  label: string;
+}) => (
   <Box
     component="span"
     sx={{
@@ -89,7 +96,7 @@ const StatusBadge = ({ status }: { status: string }) => (
       ...getStatusStyle(status),
     }}
   >
-    {status}
+    {label}
   </Box>
 );
 
@@ -157,6 +164,8 @@ const Fact = ({ label, value }: { label: string; value: string }) => (
 // =================================================
 
 const Payments = ({ clientId }: PaymentsProps) => {
+  const t = useTranslations("clientPayments");
+
   const { payments, summary, isLoading, isFetching, isError, errorMessage } =
     usePaymentsHook(clientId);
 
@@ -184,6 +193,22 @@ const Payments = ({ clientId }: PaymentsProps) => {
     showAll || !canCollapse
       ? payments
       : payments.slice(0, PAYMENTS_PREVIEW_COUNT);
+
+  const getPaymentStatusLabel = (status?: string | null) => {
+    if (!status) {
+      return "-";
+    }
+
+    return t(`statuses.${status}` as never);
+  };
+
+  const getPaymentMethodLabel = (method?: string | null) => {
+    if (!method) {
+      return "-";
+    }
+
+    return t(`methods.${method}` as never);
+  };
 
   return (
     <Box>
@@ -214,7 +239,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                 letterSpacing: "-0.01em",
               }}
             >
-              Payments
+              {t("title")}
             </Typography>
 
             {payments.length > 0 && (
@@ -247,7 +272,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
               lineHeight: 1.55,
             }}
           >
-            Payments are recorded automatically when a paid stage is completed.
+            {t("description")}
           </Typography>
         </Box>
 
@@ -276,11 +301,14 @@ const Payments = ({ clientId }: PaymentsProps) => {
       >
         <StatTile
           accent
-          label="Total collected"
+          label={t("summary.totalCollected")}
           value={`¥${formatAmount(summary.totalCollected)}`}
         />
 
-        <StatTile label="Completed payments" value={summary.completedCount} />
+        <StatTile
+          label={t("summary.completedPayments")}
+          value={summary.completedCount}
+        />
       </Box>
 
       {/* =================================================
@@ -317,7 +345,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
           </Box>
 
           <Typography sx={{ color: INK_MUTED, fontSize: 13.5 }}>
-            No payments recorded yet.
+            {t("empty")}
           </Typography>
         </Box>
       ) : (
@@ -376,15 +404,15 @@ const Payments = ({ clientId }: PaymentsProps) => {
             >
               <Box component="thead">
                 <Box component="tr">
-                  <Box component="th">Date</Box>
-                  <Box component="th">Stage</Box>
+                  <Box component="th">{t("fields.date")}</Box>
+                  <Box component="th">{t("fields.stage")}</Box>
                   <Box component="th" sx={{ textAlign: "right !important" }}>
-                    Amount
+                    {t("fields.amount")}
                   </Box>
-                  <Box component="th">Method</Box>
-                  <Box component="th">Status</Box>
-                  <Box component="th">Reference</Box>
-                  <Box component="th">Staff</Box>
+                  <Box component="th">{t("fields.method")}</Box>
+                  <Box component="th">{t("fields.status")}</Box>
+                  <Box component="th">{t("fields.reference")}</Box>
+                  <Box component="th">{t("fields.staff")}</Box>
                 </Box>
               </Box>
 
@@ -418,10 +446,15 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       ¥{formatAmount(payment.amountPaid)}
                     </Box>
 
-                    <Box component="td">{payment.paymentMethod || "-"}</Box>
+                    <Box component="td">
+                      {getPaymentMethodLabel(payment.paymentMethod)}
+                    </Box>
 
                     <Box component="td">
-                      <StatusBadge status={payment.paymentStatus} />
+                      <StatusBadge
+                        status={payment.paymentStatus}
+                        label={getPaymentStatusLabel(payment.paymentStatus)}
+                      />
                     </Box>
 
                     <Box component="td" sx={{ wordBreak: "break-word" }}>
@@ -441,7 +474,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         <Typography
                           sx={{ mt: 0.15, fontSize: 11.5, color: INK_MUTED }}
                         >
-                          Recorded by {payment.collectedByName}
+                          {t("fields.recordedBy")} {payment.collectedByName}
                         </Typography>
                       )}
                     </Box>
@@ -532,29 +565,35 @@ const Payments = ({ clientId }: PaymentsProps) => {
                     gap: 1.25,
                   }}
                 >
-                  <Fact label="Method" value={payment.paymentMethod || "-"} />
+                  <Fact
+                    label={t("fields.method")}
+                    value={getPaymentMethodLabel(payment.paymentMethod)}
+                  />
 
                   <Box>
                     <Typography
                       sx={{ color: INK_MUTED, fontSize: 11, lineHeight: 1.4 }}
                     >
-                      Status
+                      {t("fields.status")}
                     </Typography>
 
                     <Box sx={{ mt: 0.3 }}>
-                      <StatusBadge status={payment.paymentStatus} />
+                      <StatusBadge
+                        status={payment.paymentStatus}
+                        label={getPaymentStatusLabel(payment.paymentStatus)}
+                      />
                     </Box>
                   </Box>
 
                   <Fact
-                    label="Reference"
+                    label={t("fields.reference")}
                     value={
                       payment.referenceNumber || payment.receiptNumber || "-"
                     }
                   />
 
                   <Fact
-                    label="Staff"
+                    label={t("fields.staff")}
                     value={
                       payment.creditedStaffName || payment.creditedStaff || "-"
                     }
@@ -563,7 +602,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
 
                 {payment.collectedByName && (
                   <Typography sx={{ mt: 1.25, color: INK_MUTED, fontSize: 11.5 }}>
-                    Recorded by {payment.collectedByName}
+                    {t("fields.recordedBy")} {payment.collectedByName}
                   </Typography>
                 )}
               </Box>
@@ -596,8 +635,8 @@ const Payments = ({ clientId }: PaymentsProps) => {
                 }}
               >
                 {showAll
-                  ? "Show less"
-                  : `Show all ${payments.length} payments`}
+                  ? t("actions.showLess")
+                  : t("actions.showAll", { count: payments.length })}
               </Button>
             </Box>
           )}

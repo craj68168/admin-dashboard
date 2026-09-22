@@ -37,7 +37,7 @@ const BRAND_HOVER = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
-const INK_MUTED = "#4B5563";
+const INK_MUTED = "#374151";
 const DANGER = "#DC2626";
 const softCard = {
   bgcolor: "#ffffff",
@@ -632,7 +632,7 @@ const ClientListPage = () => {
                   color: INK_MUTED,
                   fontSize: 11,
                   lineHeight: 1.2,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                 },

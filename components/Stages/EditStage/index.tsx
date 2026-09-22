@@ -4,9 +4,12 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
+
+import { Controller } from "react-hook-form";
 
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -15,21 +18,19 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 import { useEditStageHook } from "./hook";
 
+import { useTranslations } from "next-intl";
+
 // =================================================
 // THEME
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_DARK = "#0C5F4F";
-const BRAND_SOFT =
-  "rgba(16, 122, 100, 0.08)";
-const BRAND_RING =
-  "rgba(16, 122, 100, 0.55)";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const BRAND_RING = "rgba(16, 122, 100, 0.55)";
 
-const HAIRLINE =
-  "rgba(17, 24, 39, 0.06)";
-const HAIRLINE_STRONG =
-  "rgba(17, 24, 39, 0.14)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const HAIRLINE_STRONG = "rgba(17, 24, 39, 0.14)";
 
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
@@ -62,13 +63,11 @@ const fieldSx = {
     borderRadius: 2.5,
 
     "& fieldset": {
-      borderColor:
-        HAIRLINE_STRONG,
+      borderColor: HAIRLINE_STRONG,
     },
 
     "&:hover fieldset": {
-      borderColor:
-        "rgba(17,24,39,0.35)",
+      borderColor: "rgba(17,24,39,0.35)",
     },
 
     "&.Mui-focused fieldset": {
@@ -76,8 +75,7 @@ const fieldSx = {
     },
 
     "&.Mui-focused": {
-      boxShadow:
-        "0 0 0 3px rgba(16,122,100,0.10)",
+      boxShadow: "0 0 0 3px rgba(16,122,100,0.10)",
     },
   },
 };
@@ -87,6 +85,8 @@ const fieldSx = {
 // =================================================
 
 export default function EditStagePage() {
+  const t = useTranslations("editStage");
+
   const {
     stage,
     form,
@@ -104,11 +104,9 @@ export default function EditStagePage() {
 
   const {
     register,
+    control,
 
-    formState: {
-      errors,
-      isDirty,
-    },
+    formState: { errors, isDirty },
   } = form;
 
   // =================================================
@@ -152,18 +150,12 @@ export default function EditStagePage() {
         <Alert
           severity="error"
           action={
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() =>
-                void refetch()
-              }
-            >
-              Retry
+            <Button color="inherit" size="small" onClick={() => void refetch()}>
+              {t("actions.retry")}
             </Button>
           }
         >
-          Failed to load stage.
+          {t("messages.loadFailed")}
         </Alert>
       </Box>
     );
@@ -183,9 +175,7 @@ export default function EditStagePage() {
           },
         }}
       >
-        <Alert severity="warning">
-          Stage not found.
-        </Alert>
+        <Alert severity="warning">{t("messages.notFound")}</Alert>
       </Box>
     );
   }
@@ -234,17 +224,15 @@ export default function EditStagePage() {
           <Breadcrumb
             items={[
               {
-                label: "Dashboard",
-                href:
-                  "/admin/dashboard",
+                label: t("breadcrumbs.dashboard"),
+                href: "/admin/dashboard",
               },
               {
-                label: "Stages",
-                href:
-                  "/admin/stages",
+                label: t("breadcrumbs.stages"),
+                href: "/admin/stages",
               },
               {
-                label: "Edit Stage",
+                label: t("breadcrumbs.editStage"),
                 href: `/admin/stages/${stage.stageId}/edit`,
                 current: true,
               },
@@ -279,7 +267,7 @@ export default function EditStagePage() {
               color: INK,
             }}
           >
-            Edit Stage
+            {t("title")}
           </Typography>
 
           <Typography
@@ -291,8 +279,7 @@ export default function EditStagePage() {
               color: INK_MUTED,
             }}
           >
-            Update the stage name,
-            amount and display order.
+            {t("description")}
           </Typography>
         </Box>
 
@@ -306,11 +293,7 @@ export default function EditStagePage() {
             overflow: "hidden",
           }}
         >
-          <Box
-            component="form"
-            onSubmit={onSubmit}
-            noValidate
-          >
+          <Box component="form" onSubmit={onSubmit} noValidate>
             <Box
               sx={{
                 p: {
@@ -320,8 +303,7 @@ export default function EditStagePage() {
 
                 display: "flex",
 
-                flexDirection:
-                  "column",
+                flexDirection: "column",
 
                 gap: 3,
               }}
@@ -340,14 +322,12 @@ export default function EditStagePage() {
                     color: INK,
                   }}
                 >
-                  Stage ID
+                  {t("fields.stageId.label")}
                 </Typography>
 
                 <TextField
                   fullWidth
-                  value={
-                    stage.stageId
-                  }
+                  value={stage.stageId}
                   disabled
                   sx={fieldSx}
                 />
@@ -367,15 +347,10 @@ export default function EditStagePage() {
                     color: INK,
                   }}
                 >
-                  Stage Key
+                  {t("fields.key.label")}
                 </Typography>
 
-                <TextField
-                  fullWidth
-                  value={stage.key}
-                  disabled
-                  sx={fieldSx}
-                />
+                <TextField fullWidth value={stage.key} disabled sx={fieldSx} />
 
                 <Typography
                   sx={{
@@ -386,8 +361,7 @@ export default function EditStagePage() {
                     color: INK_MUTED,
                   }}
                 >
-                  The stage key cannot be
-                  changed.
+                  {t("fields.key.helper")}
                 </Typography>
               </Box>
 
@@ -409,30 +383,64 @@ export default function EditStagePage() {
                     color: INK,
                   }}
                 >
-                  Stage Name
+                  {t("fields.name.label")}
                 </Typography>
 
                 <TextField
                   id="stage-name"
-
                   fullWidth
-
-                  disabled={
-                    isSubmitting
-                  }
-
-                  error={Boolean(
-                    errors.name,
-                  )}
-
-                  helperText={
-                    errors.name
-                      ?.message
-                  }
-
+                  disabled={isSubmitting}
+                  error={Boolean(errors.name)}
+                  helperText={errors.name?.message}
                   {...register("name")}
-
                   sx={fieldSx}
+                />
+              </Box>
+
+              {/* STATUS */}
+
+              <Box>
+                <Typography
+                  component="label"
+                  htmlFor="stage-status"
+                  sx={{
+                    display: "block",
+
+                    mb: 0.75,
+
+                    fontSize: 13,
+
+                    fontWeight: 600,
+
+                    color: INK,
+                  }}
+                >
+                  {t("fields.status.label")}
+                </Typography>
+
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      id="stage-status"
+                      select
+                      fullWidth
+                      disabled={isSubmitting}
+                      error={Boolean(errors.status)}
+                      helperText={errors.status?.message}
+                      sx={fieldSx}
+                    >
+                      <MenuItem value="active">
+                        {t("fields.status.options.active")}
+                      </MenuItem>
+
+                      <MenuItem value="inactive">
+                        {t("fields.status.options.inactive")}
+                      </MenuItem>
+                    </TextField>
+                  )}
                 />
               </Box>
 
@@ -454,40 +462,23 @@ export default function EditStagePage() {
                     color: INK,
                   }}
                 >
-                  Amount
+                  {t("fields.amount.label")}
                 </Typography>
 
                 <TextField
                   id="stage-amount"
-
                   fullWidth
-
                   type="number"
-
-                  disabled={
-                    isSubmitting
-                  }
-
-                  error={Boolean(
-                    errors.amount,
-                  )}
-
-                  helperText={
-                    errors.amount
-                      ?.message
-                  }
-
+                  disabled={isSubmitting}
+                  error={Boolean(errors.amount)}
+                  helperText={errors.amount?.message}
                   slotProps={{
                     htmlInput: {
                       min: 0,
                       step: 1,
                     },
                   }}
-
-                  {...register(
-                    "amount",
-                  )}
-
+                  {...register("amount")}
                   sx={fieldSx}
                 />
 
@@ -500,7 +491,7 @@ export default function EditStagePage() {
                     color: INK_MUTED,
                   }}
                 >
-                  Amount in Japanese yen.
+                  {t("fields.amount.helper")}
                 </Typography>
               </Box>
 
@@ -522,41 +513,23 @@ export default function EditStagePage() {
                     color: INK,
                   }}
                 >
-                  Display Order
+                  {t("fields.displayOrder.label")}
                 </Typography>
 
                 <TextField
                   id="display-order"
-
                   fullWidth
-
                   type="number"
-
-                  disabled={
-                    isSubmitting
-                  }
-
-                  error={Boolean(
-                    errors.displayOrder,
-                  )}
-
-                  helperText={
-                    errors
-                      .displayOrder
-                      ?.message
-                  }
-
+                  disabled={isSubmitting}
+                  error={Boolean(errors.displayOrder)}
+                  helperText={errors.displayOrder?.message}
                   slotProps={{
                     htmlInput: {
                       min: 1,
                       step: 1,
                     },
                   }}
-
-                  {...register(
-                    "displayOrder",
-                  )}
-
+                  {...register("displayOrder")}
                   sx={fieldSx}
                 />
               </Box>
@@ -580,34 +553,21 @@ export default function EditStagePage() {
                   sm: "row",
                 },
 
-                justifyContent:
-                  "flex-end",
+                justifyContent: "flex-end",
 
                 gap: 1.25,
 
                 borderTop: `1px solid ${HAIRLINE}`,
 
-                bgcolor:
-                  SURFACE_TINT,
+                bgcolor: SURFACE_TINT,
               }}
             >
               <Button
                 type="button"
-
                 variant="outlined"
-
-                startIcon={
-                  <ArrowBackRoundedIcon />
-                }
-
-                onClick={
-                  handleCancel
-                }
-
-                disabled={
-                  isSubmitting
-                }
-
+                startIcon={<ArrowBackRoundedIcon />}
+                onClick={handleCancel}
+                disabled={isSubmitting}
                 sx={{
                   width: {
                     xs: "100%",
@@ -624,49 +584,34 @@ export default function EditStagePage() {
 
                   color: INK_MUTED,
 
-                  borderColor:
-                    HAIRLINE_STRONG,
+                  borderColor: HAIRLINE_STRONG,
 
                   "&:hover": {
-                    borderColor:
-                      BRAND,
+                    borderColor: BRAND,
 
-                    bgcolor:
-                      BRAND_SOFT,
+                    bgcolor: BRAND_SOFT,
 
-                    color:
-                      BRAND_DARK,
+                    color: BRAND_DARK,
                   },
 
                   ...focusRing,
                 }}
               >
-                Cancel
+                {t("actions.cancel")}
               </Button>
 
               <Button
                 type="submit"
-
                 variant="contained"
-
                 disableElevation
-
-                disabled={
-                  isSubmitting ||
-                  !isDirty
-                }
-
+                disabled={isSubmitting || !isDirty}
                 startIcon={
                   isSubmitting ? (
-                    <CircularProgress
-                      size={17}
-                      color="inherit"
-                    />
+                    <CircularProgress size={17} color="inherit" />
                   ) : (
                     <SaveOutlinedIcon />
                   )
                 }
-
                 sx={{
                   width: {
                     xs: "100%",
@@ -688,27 +633,23 @@ export default function EditStagePage() {
                   boxShadow: "none",
 
                   "&:hover": {
-                    bgcolor:
-                      BRAND_DARK,
+                    bgcolor: BRAND_DARK,
 
-                    boxShadow:
-                      "none",
+                    boxShadow: "none",
                   },
 
                   "&.Mui-disabled": {
-                    bgcolor:
-                      "rgba(16,122,100,0.35)",
+                    bgcolor: "rgba(16,122,100,0.35)",
 
-                    color:
-                      "#ffffff",
+                    color: "#ffffff",
                   },
 
                   ...focusRing,
                 }}
               >
                 {isSubmitting
-                  ? "Saving..."
-                  : "Save Changes"}
+                  ? t("actions.saving")
+                  : t("actions.saveChanges")}
               </Button>
             </Box>
           </Box>

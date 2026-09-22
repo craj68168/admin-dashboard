@@ -4,8 +4,11 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+
+import { Controller } from "react-hook-form";
 
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
@@ -14,21 +17,19 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 import { useAddStageHook } from "./hook";
 
+import { useTranslations } from "next-intl";
+
 // =================================================
 // THEME
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_DARK = "#0C5F4F";
-const BRAND_SOFT =
-  "rgba(16, 122, 100, 0.08)";
-const BRAND_RING =
-  "rgba(16, 122, 100, 0.55)";
+const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const BRAND_RING = "rgba(16, 122, 100, 0.55)";
 
-const HAIRLINE =
-  "rgba(17, 24, 39, 0.06)";
-const HAIRLINE_STRONG =
-  "rgba(17, 24, 39, 0.14)";
+const HAIRLINE = "rgba(17, 24, 39, 0.06)";
+const HAIRLINE_STRONG = "rgba(17, 24, 39, 0.14)";
 
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
@@ -60,13 +61,11 @@ const fieldSx = {
     borderRadius: 2.5,
 
     "& fieldset": {
-      borderColor:
-        HAIRLINE_STRONG,
+      borderColor: HAIRLINE_STRONG,
     },
 
     "&:hover fieldset": {
-      borderColor:
-        "rgba(17,24,39,0.35)",
+      borderColor: "rgba(17,24,39,0.35)",
     },
 
     "&.Mui-focused fieldset": {
@@ -74,8 +73,7 @@ const fieldSx = {
     },
 
     "&.Mui-focused": {
-      boxShadow:
-        "0 0 0 3px rgba(16,122,100,0.10)",
+      boxShadow: "0 0 0 3px rgba(16,122,100,0.10)",
     },
   },
 };
@@ -85,19 +83,14 @@ const fieldSx = {
 // =================================================
 
 export default function AddStagePage() {
-  const {
-    form,
-    onSubmit,
-    handleCancel,
-    isSubmitting,
-  } = useAddStageHook();
+  const t = useTranslations("addStage");
+
+  const { form, onSubmit, handleCancel, isSubmitting } = useAddStageHook();
 
   const {
     register,
-    formState: {
-      errors,
-      isDirty,
-    },
+    control,
+    formState: { errors, isDirty },
   } = form;
 
   return (
@@ -138,19 +131,16 @@ export default function AddStagePage() {
           <Breadcrumb
             items={[
               {
-                label: "Dashboard",
-                href:
-                  "/admin/dashboard",
+                label: t("breadcrumbs.dashboard"),
+                href: "/admin/dashboard",
               },
               {
-                label: "Stages",
-                href:
-                  "/admin/stages",
+                label: t("breadcrumbs.stages"),
+                href: "/admin/stages",
               },
               {
-                label: "Add Stage",
-                href:
-                  "/admin/stages/add",
+                label: t("breadcrumbs.addStage"),
+                href: "/admin/stages/add",
                 current: true,
               },
             ]}
@@ -184,7 +174,7 @@ export default function AddStagePage() {
               color: INK,
             }}
           >
-            Add Stage
+            {t("title")}
           </Typography>
 
           <Typography
@@ -194,9 +184,7 @@ export default function AddStagePage() {
               color: INK_MUTED,
             }}
           >
-            Create a new client
-            processing stage and assign
-            its amount.
+            {t("description")}
           </Typography>
         </Box>
 
@@ -211,11 +199,7 @@ export default function AddStagePage() {
             overflow: "hidden",
           }}
         >
-          <Box
-            component="form"
-            onSubmit={onSubmit}
-            noValidate
-          >
+          <Box component="form" onSubmit={onSubmit} noValidate>
             {/* FORM CONTENT */}
 
             <Box
@@ -246,20 +230,16 @@ export default function AddStagePage() {
                     color: INK,
                   }}
                 >
-                  Stage Name
+                  {t("fields.name.label")}
                 </Typography>
 
                 <TextField
                   id="stage-name"
                   fullWidth
-                  placeholder="e.g. Registered / Paid"
+                  placeholder={t("fields.name.placeholder")}
                   disabled={isSubmitting}
-                  error={Boolean(
-                    errors.name,
-                  )}
-                  helperText={
-                    errors.name?.message
-                  }
+                  error={Boolean(errors.name)}
+                  helperText={errors.name?.message}
                   {...register("name")}
                   sx={fieldSx}
                 />
@@ -271,10 +251,53 @@ export default function AddStagePage() {
                     color: INK_MUTED,
                   }}
                 >
-                  The stage key and Stage ID
-                  will be generated
-                  automatically.
+                  {t("fields.name.helper")}
                 </Typography>
+              </Box>
+
+              {/* STATUS */}
+
+              <Box>
+                <Typography
+                  component="label"
+                  htmlFor="stage-status"
+                  sx={{
+                    display: "block",
+                    mb: 0.75,
+
+                    fontSize: 13,
+                    fontWeight: 600,
+
+                    color: INK,
+                  }}
+                >
+                  {t("fields.status.label")}
+                </Typography>
+
+                <Controller
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      id="stage-status"
+                      select
+                      fullWidth
+                      disabled={isSubmitting}
+                      error={Boolean(errors.status)}
+                      helperText={errors.status?.message}
+                      sx={fieldSx}
+                    >
+                      <MenuItem value="active">
+                        {t("fields.status.options.active")}
+                      </MenuItem>
+
+                      <MenuItem value="inactive">
+                        {t("fields.status.options.inactive")}
+                      </MenuItem>
+                    </TextField>
+                  )}
+                />
               </Box>
 
               {/* AMOUNT */}
@@ -293,34 +316,24 @@ export default function AddStagePage() {
                     color: INK,
                   }}
                 >
-                  Amount
+                  {t("fields.amount.label")}
                 </Typography>
 
                 <TextField
                   id="stage-amount"
                   fullWidth
                   type="number"
-                  placeholder="0"
-
+                  placeholder={t("fields.amount.placeholder")}
                   disabled={isSubmitting}
-
-                  error={Boolean(
-                    errors.amount,
-                  )}
-
-                  helperText={
-                    errors.amount?.message
-                  }
-
+                  error={Boolean(errors.amount)}
+                  helperText={errors.amount?.message}
                   slotProps={{
                     htmlInput: {
                       min: 0,
                       step: 1,
                     },
                   }}
-
                   {...register("amount")}
-
                   sx={fieldSx}
                 />
 
@@ -331,8 +344,7 @@ export default function AddStagePage() {
                     color: INK_MUTED,
                   }}
                 >
-                  Enter the stage amount in
-                  Japanese yen.
+                  {t("fields.amount.helper")}
                 </Typography>
               </Box>
             </Box>
@@ -357,15 +369,13 @@ export default function AddStagePage() {
                   sm: "row",
                 },
 
-                justifyContent:
-                  "flex-end",
+                justifyContent: "flex-end",
 
                 gap: 1.25,
 
                 borderTop: `1px solid ${HAIRLINE}`,
 
-                bgcolor:
-                  SURFACE_TINT,
+                bgcolor: SURFACE_TINT,
               }}
             >
               {/* CANCEL */}
@@ -373,15 +383,9 @@ export default function AddStagePage() {
               <Button
                 type="button"
                 variant="outlined"
-
-                startIcon={
-                  <ArrowBackRoundedIcon />
-                }
-
+                startIcon={<ArrowBackRoundedIcon />}
                 onClick={handleCancel}
-
                 disabled={isSubmitting}
-
                 sx={{
                   width: {
                     xs: "100%",
@@ -397,8 +401,7 @@ export default function AddStagePage() {
 
                   color: INK_MUTED,
 
-                  borderColor:
-                    HAIRLINE_STRONG,
+                  borderColor: HAIRLINE_STRONG,
 
                   "&:hover": {
                     borderColor: BRAND,
@@ -409,7 +412,7 @@ export default function AddStagePage() {
                   ...focusRing,
                 }}
               >
-                Cancel
+                {t("actions.cancel")}
               </Button>
 
               {/* CREATE */}
@@ -418,23 +421,14 @@ export default function AddStagePage() {
                 type="submit"
                 variant="contained"
                 disableElevation
-
-                disabled={
-                  isSubmitting ||
-                  !isDirty
-                }
-
+                disabled={isSubmitting || !isDirty}
                 startIcon={
                   isSubmitting ? (
-                    <CircularProgress
-                      size={17}
-                      color="inherit"
-                    />
+                    <CircularProgress size={17} color="inherit" />
                   ) : (
                     <AddRoundedIcon />
                   )
                 }
-
                 sx={{
                   width: {
                     xs: "100%",
@@ -455,14 +449,12 @@ export default function AddStagePage() {
                   boxShadow: "none",
 
                   "&:hover": {
-                    bgcolor:
-                      BRAND_DARK,
+                    bgcolor: BRAND_DARK,
                     boxShadow: "none",
                   },
 
                   "&.Mui-disabled": {
-                    bgcolor:
-                      "rgba(16,122,100,0.35)",
+                    bgcolor: "rgba(16,122,100,0.35)",
                     color: "#ffffff",
                   },
 
@@ -470,8 +462,8 @@ export default function AddStagePage() {
                 }}
               >
                 {isSubmitting
-                  ? "Creating..."
-                  : "Create Stage"}
+                  ? t("actions.creating")
+                  : t("actions.create")}
               </Button>
             </Box>
           </Box>

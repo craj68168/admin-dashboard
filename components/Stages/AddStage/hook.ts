@@ -24,6 +24,7 @@ import type {
   AddStageFormValues,
   AddStagePayload,
   AddStageResponse,
+  UpdateStageStatusPayload,
 } from "./type";
 
 // =================================================
@@ -40,6 +41,18 @@ const createStage = async (
     );
 
   return response.data;
+};
+
+const updateStageStatus = async ({
+  stageId,
+  isActive,
+}: UpdateStageStatusPayload): Promise<void> => {
+  await api.patch(
+    `/stages/${stageId}/status`,
+    {
+      isActive,
+    },
+  );
 };
 
 // =================================================
@@ -63,6 +76,7 @@ export function useAddStageHook() {
     defaultValues: {
       name: "",
       amount: "",
+      status: "active",
     },
 
     mode: "onSubmit",
@@ -73,20 +87,48 @@ export function useAddStageHook() {
   // =================================================
 
   const createMutation = useMutation({
-    mutationFn: createStage,
-
-    onSuccess: async (response) => {
-      await queryClient.invalidateQueries({
-        queryKey: ["stages"],
+    mutationFn: async (
+      values: AddStageFormValues,
+    ) => {
+      const response = await createStage({
+        name: values.name.trim(),
+        amount: Number(values.amount),
       });
 
-      toast.success(
-        response.message ||
-          "Stage created successfully",
-      );
+      const createdStageId =
+        response.data?.stageId;
 
-      router.push("/admin/stages");
+      if (
+        values.status === "inactive" &&
+        createdStageId
+      ) {
+        await updateStageStatus({
+          stageId: createdStageId,
+          isActive: false,
+        });
+      }
+
+      return response;
     },
+
+onSuccess: async (response) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: ["stages"],
+    }),
+
+    queryClient.invalidateQueries({
+      queryKey: ["clientStageOptions"],
+    }),
+  ]);
+
+  toast.success(
+    response.message ||
+      "Stage created successfully",
+  );
+
+  router.push("/admin/stages");
+},
 
     onError: (error: unknown) => {
       console.error(
@@ -119,12 +161,7 @@ export function useAddStageHook() {
   const onSubmit = (
     values: AddStageFormValues,
   ) => {
-    const payload: AddStagePayload = {
-      name: values.name.trim(),
-      amount: Number(values.amount),
-    };
-
-    createMutation.mutate(payload);
+    createMutation.mutate(values);
   };
 
   // =================================================

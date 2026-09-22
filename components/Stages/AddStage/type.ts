@@ -1,11 +1,17 @@
 export type AddStageFormValues = {
   name: string;
   amount: string;
+  status: "active" | "inactive";
 };
 
 export type AddStagePayload = {
   name: string;
   amount: number;
+};
+
+export type UpdateStageStatusPayload = {
+  stageId: string;
+  isActive: boolean;
 };
 
 export type CreatedStage = {

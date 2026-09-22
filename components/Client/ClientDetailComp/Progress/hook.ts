@@ -392,9 +392,15 @@ export const useProgressHook = (clientId: string) => {
       // REFRESH STAGE MASTER
       // =================================================
 
-      await queryClient.invalidateQueries({
-        queryKey: ["clientStageOptions"],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["clientStageOptions"],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["stages"],
+        }),
+      ]);
 
       setIsAddStageOpen(false);
 

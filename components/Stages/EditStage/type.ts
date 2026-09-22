@@ -2,12 +2,18 @@ export type EditStageFormValues = {
   name: string;
   amount: string;
   displayOrder: string;
+  status: "active" | "inactive";
 };
 
 export type EditStagePayload = {
   name: string;
   amount: number;
   displayOrder: number;
+};
+
+export type UpdateStageStatusPayload = {
+  stageId: string;
+  isActive: boolean;
 };
 
 export type StageRecord = {

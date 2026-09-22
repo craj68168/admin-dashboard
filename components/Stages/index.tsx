@@ -10,6 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 
@@ -26,10 +27,10 @@ import type { FilterField } from "@/components/common/SearchFilter/types";
 import Pagination from "@/components/common/Pagination";
 import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
 
+import { useTranslations } from "next-intl";
+
 // =================================================
 // THEME
-// Same tokens as SearchFilter / ClientListPage so every
-// admin screen reads as one consistent system.
 // =================================================
 
 const BRAND = "#107A64";
@@ -43,15 +44,14 @@ const HAIRLINE_STRONG = "rgba(17, 24, 39, 0.14)";
 
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
+const HEADER_INK = "#374151";
 
 const DANGER = "#DC2626";
 const DANGER_SOFT = "#FEF2F2";
 
 const SURFACE_TINT = "#FAFAF9";
 
-// Buttons stay a touch smaller than the fields/rows — lighter, less heavy.
 const BUTTON_HEIGHT = 32;
-// Row-action icon buttons — same footprint used in the client list table.
 const ROW_ICON_SIZE = 34;
 
 // =================================================
@@ -74,32 +74,74 @@ const focusRing = {
   },
 };
 
-// Shared base for every pill-shaped button so height/radius/typography
-// never drift apart from SearchFilter's search/reset buttons.
 const pillButtonSx = {
   minHeight: BUTTON_HEIGHT,
   borderRadius: 2.5,
   textTransform: "none",
   fontSize: 13,
   fontWeight: 600,
-  "& .MuiButton-startIcon": { marginRight: 0.5 },
-  "& .MuiButton-startIcon > *:nth-of-type(1)": { fontSize: "16px !important" },
+
+  "& .MuiButton-startIcon": {
+    marginRight: 0.5,
+  },
+
+  "& .MuiButton-startIcon > *:nth-of-type(1)": {
+    fontSize: "16px !important",
+  },
+
   transition:
     "background-color 150ms ease, box-shadow 150ms ease, transform 100ms ease",
-  "&:active": { transform: "scale(0.98)" },
+
+  "&:active": {
+    transform: "scale(0.98)",
+  },
+
   ...focusRing,
 };
 
-// Row-action icon buttons (edit / delete) — same size and hover treatment
-// as the view/edit/delete icons in the client list table.
 const rowIconButtonSx = {
   width: ROW_ICON_SIZE,
   height: ROW_ICON_SIZE,
   borderRadius: 2,
   color: INK_MUTED,
-  "& .MuiSvgIcon-root": { fontSize: 19 },
+
+  "& .MuiSvgIcon-root": {
+    fontSize: 19,
+  },
+
   ...focusRing,
 };
+
+const statusPillSx = (isActive: boolean) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 0.625,
+  height: 24,
+  px: 1.1,
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: 700,
+  lineHeight: 1,
+  letterSpacing: "0.01em",
+
+  border: "1px solid",
+
+  borderColor: isActive
+    ? "rgba(16, 122, 100, 0.22)"
+    : "rgba(220, 38, 38, 0.20)",
+
+  color: isActive ? BRAND_DARK : DANGER,
+
+  bgcolor: isActive ? BRAND_SOFT : DANGER_SOFT,
+});
+
+const statusDotSx = (isActive: boolean) => ({
+  width: 6,
+  height: 6,
+  borderRadius: "50%",
+  bgcolor: isActive ? BRAND : DANGER,
+  flexShrink: 0,
+});
 
 // =================================================
 // HELPERS
@@ -120,16 +162,16 @@ const formatAmount = (amount: number) => {
 // =================================================
 
 export default function StagePage() {
+  const t = useTranslations("stageList");
+
   const {
     stages,
     stageData,
 
-    // search / filters
     stageFilters,
     handleStageSearch,
     handleStageFilterReset,
 
-    // pagination
     pagination,
     onPageChange,
 
@@ -138,6 +180,7 @@ export default function StagePage() {
     refetch,
 
     handleAddStage,
+    handleViewStage,
     handleEditStage,
 
     stageToDelete,
@@ -151,8 +194,7 @@ export default function StagePage() {
   // FILTER FIELDS
   // =================================================
 
-  const stageFilterFields: FilterField<StageFilterValues>[] = [
-  ];
+  const stageFilterFields: FilterField<StageFilterValues>[] = [];
 
   // =================================================
   // COLUMNS
@@ -168,7 +210,7 @@ export default function StagePage() {
       ...baseColumn,
 
       field: "stageId",
-      headerName: "Stage ID",
+      headerName: t("columns.stageId"),
 
       flex: 0.8,
       minWidth: 150,
@@ -191,7 +233,7 @@ export default function StagePage() {
       ...baseColumn,
 
       field: "name",
-      headerName: "Name",
+      headerName: t("columns.name"),
 
       flex: 1.5,
       minWidth: 220,
@@ -214,7 +256,7 @@ export default function StagePage() {
       ...baseColumn,
 
       field: "amount",
-      headerName: "Amount",
+      headerName: t("columns.amount"),
 
       flex: 0.8,
       minWidth: 150,
@@ -241,8 +283,34 @@ export default function StagePage() {
     {
       ...baseColumn,
 
+      field: "isActive",
+      headerName: t("columns.status"),
+
+      flex: 0.7,
+      minWidth: 130,
+
+      sortable: false,
+
+      renderCell: (params) => {
+        const isActive = Boolean(params.value);
+
+        return (
+          <Box component="span" sx={statusPillSx(isActive)}>
+            <Box component="span" sx={statusDotSx(isActive)} />
+
+            {isActive
+              ? t("status.active")
+              : t("status.inactive")}
+          </Box>
+        );
+      },
+    },
+
+    {
+      ...baseColumn,
+
       field: "actions",
-      headerName: "Actions",
+      headerName: t("columns.actions"),
 
       width: 150,
 
@@ -266,14 +334,39 @@ export default function StagePage() {
               gap: 0.25,
             }}
           >
-            {/* EDIT */}
-
-            <Tooltip title="Edit stage">
+            <Tooltip title={t("actions.view")}>
               <IconButton
-                aria-label={`Edit ${stage.name}`}
-                onClick={() => handleEditStage(stage.stageId)}
+                aria-label={t("aria.view", {
+                  name: stage.name,
+                })}
+                onClick={() =>
+                  handleViewStage(stage.stageId)
+                }
                 sx={{
                   ...rowIconButtonSx,
+
+                  color: BRAND,
+
+                  "&:hover": {
+                    bgcolor: BRAND_SOFT,
+                  },
+                }}
+              >
+                <RemoveRedEyeIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={t("actions.edit")}>
+              <IconButton
+                aria-label={t("aria.edit", {
+                  name: stage.name,
+                })}
+                onClick={() =>
+                  handleEditStage(stage.stageId)
+                }
+                sx={{
+                  ...rowIconButtonSx,
+
                   "&:hover": {
                     bgcolor: BRAND_SOFT,
                     color: BRAND,
@@ -284,15 +377,19 @@ export default function StagePage() {
               </IconButton>
             </Tooltip>
 
-            {/* DELETE */}
-
-            <Tooltip title="Delete stage">
+            <Tooltip title={t("actions.delete")}>
               <IconButton
-                aria-label={`Delete ${stage.name}`}
-                onClick={() => handleOpenDeleteDialog(stage)}
+                aria-label={t("aria.delete", {
+                  name: stage.name,
+                })}
+                onClick={() =>
+                  handleOpenDeleteDialog(stage)
+                }
                 sx={{
                   ...rowIconButtonSx,
+
                   color: DANGER,
+
                   "&:hover": {
                     bgcolor: DANGER_SOFT,
                   },
@@ -311,7 +408,10 @@ export default function StagePage() {
   // ERROR
   // =================================================
 
-  const showError = isError && !isLoading && stages.length === 0;
+  const showError =
+    isError &&
+    !isLoading &&
+    stages.length === 0;
 
   // =================================================
   // RENDER
@@ -321,7 +421,6 @@ export default function StagePage() {
     <Box
       sx={{
         display: "flex",
-
         height: "100vh",
 
         "@supports (height: 100dvh)": {
@@ -329,7 +428,6 @@ export default function StagePage() {
         },
 
         overflow: "hidden",
-
         bgcolor: "#F7F8F6",
       }}
     >
@@ -337,10 +435,8 @@ export default function StagePage() {
         component="main"
         sx={{
           height: "100%",
-
           flex: 1,
           minWidth: 0,
-
           overflowY: "auto",
 
           px: {
@@ -361,9 +457,7 @@ export default function StagePage() {
             mx: "auto",
           }}
         >
-          {/* ========================================
-              BREADCRUMB
-          ======================================== */}
+          {/* BREADCRUMB */}
 
           <Box
             sx={{
@@ -376,11 +470,11 @@ export default function StagePage() {
             <Breadcrumb
               items={[
                 {
-                  label: "Dashboard",
+                  label: t("breadcrumbs.dashboard"),
                   href: "/admin/dashboard",
                 },
                 {
-                  label: "Stages",
+                  label: t("breadcrumbs.stages"),
                   href: "/admin/stages",
                   current: true,
                 },
@@ -388,9 +482,7 @@ export default function StagePage() {
             />
           </Box>
 
-          {/* ========================================
-              HEADER
-          ======================================== */}
+          {/* HEADER */}
 
           <Box
             sx={{
@@ -428,29 +520,23 @@ export default function StagePage() {
                   fontWeight: 600,
                   letterSpacing: -0.4,
                   lineHeight: 1.2,
-
                   color: INK,
                 }}
               >
-                Stages
+                {t("title")}
               </Typography>
 
               <Typography
                 sx={{
                   mt: 1,
-
                   fontSize: 14,
                   color: INK_MUTED,
-
                   maxWidth: 620,
                 }}
               >
-                Manage client processing stages and the amount assigned to each
-                stage.
+                {t("description")}
               </Typography>
             </Box>
-
-            {/* ADD STAGE */}
 
             <Button
               variant="contained"
@@ -470,22 +556,33 @@ export default function StagePage() {
                 px: 2,
 
                 color: "#ffffff",
-                background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})`,
-                boxShadow: `0 6px 16px -6px ${BRAND_GLOW}`,
+
+                background: `linear-gradient(
+                  135deg,
+                  ${BRAND},
+                  ${BRAND_DARK}
+                )`,
+
+                boxShadow:
+                  `0 6px 16px -6px ${BRAND_GLOW}`,
 
                 "&:hover": {
-                  background: `linear-gradient(135deg, ${BRAND_DARK}, ${BRAND_DARK})`,
-                  boxShadow: "0 8px 20px -6px rgba(16, 122, 100, 0.45)",
+                  background: `linear-gradient(
+                    135deg,
+                    ${BRAND_DARK},
+                    ${BRAND_DARK}
+                  )`,
+
+                  boxShadow:
+                    "0 8px 20px -6px rgba(16, 122, 100, 0.45)",
                 },
               }}
             >
-              Add Stage
+              {t("actions.addStage")}
             </Button>
           </Box>
 
-          {/* ========================================
-    FILTERS
-======================================== */}
+          {/* FILTERS */}
 
           <Box
             sx={{
@@ -499,22 +596,26 @@ export default function StagePage() {
               key={JSON.stringify(stageFilters)}
               searchField={{
                 name: "keyword",
-                label: "What are you looking for?",
-                placeholder: "Stage ID, stage name, stage key...",
+                label: t("filters.search.label"),
+                placeholder: t(
+                  "filters.search.placeholder",
+                ),
               }}
               fields={stageFilterFields}
               initialValues={stageFilters}
               onSearch={handleStageSearch}
               onReset={handleStageFilterReset}
-              searchButtonText="Search stages"
-              resetButtonText="Clear"
+              searchButtonText={t(
+                "filters.searchButton",
+              )}
+              resetButtonText={t(
+                "filters.clearButton",
+              )}
               isLoading={isLoading}
             />
           </Box>
 
-          {/* ========================================
-              TABLE CARD
-          ======================================== */}
+          {/* TABLE CARD */}
 
           <Paper
             elevation={0}
@@ -523,8 +624,6 @@ export default function StagePage() {
               overflow: "hidden",
             }}
           >
-            {/* TABLE HEADER */}
-
             {/* TOP PAGINATION */}
 
             <Box
@@ -552,7 +651,8 @@ export default function StagePage() {
 
                 py: 1.75,
 
-                borderBottom: `1px solid ${HAIRLINE}`,
+                borderBottom:
+                  `1px solid ${HAIRLINE}`,
 
                 bgcolor: SURFACE_TINT,
               }}
@@ -561,7 +661,7 @@ export default function StagePage() {
                 count={pagination.total}
                 from={pagination.from}
                 to={pagination.to}
-                itemLabel="stages"
+                itemLabel={t("pagination.itemLabel")}
               />
 
               <Pagination
@@ -600,7 +700,7 @@ export default function StagePage() {
                     color: INK,
                   }}
                 >
-                  Unable to load stages
+                  {t("error.title")}
                 </Typography>
 
                 <Typography
@@ -611,7 +711,7 @@ export default function StagePage() {
                     color: INK_MUTED,
                   }}
                 >
-                  Something went wrong while loading the stage list.
+                  {t("error.description")}
                 </Typography>
 
                 <Button
@@ -624,7 +724,8 @@ export default function StagePage() {
                     px: 2,
 
                     color: INK,
-                    borderColor: HAIRLINE_STRONG,
+                    borderColor:
+                      HAIRLINE_STRONG,
 
                     "&:hover": {
                       borderColor: BRAND,
@@ -633,20 +734,23 @@ export default function StagePage() {
                     },
                   }}
                 >
-                  Try Again
+                  {t("error.retry")}
                 </Button>
               </Box>
             ) : (
               <DataGrid<StageRecord>
                 rows={stageData}
                 columns={columns}
-                getRowId={(row) => row.stageId}
+                getRowId={(row) =>
+                  row.stageId
+                }
                 loading={isLoading}
                 disableColumnMenu
                 disableRowSelectionOnClick
                 hideFooter
                 slots={{
-                  noRowsOverlay: NoDataOverlay,
+                  noRowsOverlay:
+                    NoDataOverlay,
                 }}
                 autoHeight
                 rowHeight={58}
@@ -654,16 +758,17 @@ export default function StagePage() {
                 sx={{
                   border: "none",
 
-                  "--DataGrid-containerBackground": SURFACE_TINT,
+                  "--DataGrid-containerBackground":
+                    SURFACE_TINT,
 
-                  "--DataGrid-rowBorderColor": HAIRLINE,
-
-                  // HEADER
+                  "--DataGrid-rowBorderColor":
+                    HAIRLINE,
 
                   "& .MuiDataGrid-columnHeaders": {
                     bgcolor: SURFACE_TINT,
 
-                    borderBottom: `1px solid ${HAIRLINE}`,
+                    borderBottom:
+                      `1px solid ${HAIRLINE}`,
                   },
 
                   "& .MuiDataGrid-columnHeader": {
@@ -675,67 +780,65 @@ export default function StagePage() {
                   },
 
                   "& .MuiDataGrid-columnHeaderTitle": {
-                    fontSize: 11,
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
                     textTransform: "uppercase",
-                    color: INK_MUTED,
+                    color: HEADER_INK,
                   },
 
                   "& .MuiDataGrid-columnSeparator": {
                     display: "none",
                   },
 
-                  // CELLS
-
                   "& .MuiDataGrid-cell": {
                     display: "flex",
-
                     alignItems: "center",
 
-                    borderBottomColor: HAIRLINE,
+                    borderBottomColor:
+                      HAIRLINE,
 
                     "&:focus, &:focus-within": {
                       outline: "none",
                     },
                   },
 
-                  // FIRST COLUMN
+                  "& .MuiDataGrid-cell[data-field='stageId']":
+                    {
+                      pl: 2.5,
+                    },
 
-                  "& .MuiDataGrid-cell[data-field='stageId']": {
-                    pl: 2.5,
-                  },
+                  "& .MuiDataGrid-columnHeader[data-field='stageId']":
+                    {
+                      pl: 2.5,
+                    },
 
-                  "& .MuiDataGrid-columnHeader[data-field='stageId']": {
-                    pl: 2.5,
-                  },
+                  "& .MuiDataGrid-cell[data-field='actions']":
+                    {
+                      pr: 2,
+                    },
 
-                  // ACTION COLUMN
-
-                  "& .MuiDataGrid-cell[data-field='actions']": {
-                    pr: 2,
-                  },
-
-                  "& .MuiDataGrid-columnHeader[data-field='actions']": {
-                    pr: 2,
-                  },
-
-                  // ROW
+                  "& .MuiDataGrid-columnHeader[data-field='actions']":
+                    {
+                      pr: 2,
+                    },
 
                   "& .MuiDataGrid-row": {
-                    transition: "background-color 200ms ease",
+                    transition:
+                      "background-color 200ms ease",
 
                     "&:hover": {
-                      bgcolor: BRAND_SOFT,
+                      bgcolor:
+                        BRAND_SOFT,
                     },
                   },
 
-                  // FOOTER
-
                   "& .MuiDataGrid-footerContainer": {
-                    borderTop: `1px solid ${HAIRLINE}`,
+                    borderTop:
+                      `1px solid ${HAIRLINE}`,
 
-                    bgcolor: SURFACE_TINT,
+                    bgcolor:
+                      SURFACE_TINT,
                   },
                 }}
               />
@@ -768,7 +871,8 @@ export default function StagePage() {
 
                 py: 1.75,
 
-                borderTop: `1px solid ${HAIRLINE}`,
+                borderTop:
+                  `1px solid ${HAIRLINE}`,
 
                 bgcolor: SURFACE_TINT,
               }}
@@ -777,7 +881,7 @@ export default function StagePage() {
                 count={pagination.total}
                 from={pagination.from}
                 to={pagination.to}
-                itemLabel="stages"
+                itemLabel={t("pagination.itemLabel")}
               />
 
               <Pagination
@@ -792,32 +896,39 @@ export default function StagePage() {
         </Box>
       </Box>
 
-      {/* ============================================
-          DELETE CONFIRMATION
-      ============================================ */}
+      {/* DELETE CONFIRMATION */}
 
       <ConfirmActionDialog
         open={Boolean(stageToDelete)}
-        title="Delete Stage"
+        title={t("deleteDialog.title")}
         description={
           <>
-            Are you sure you want to delete{" "}
-            <strong>{stageToDelete?.name}</strong>?
+            {t("deleteDialog.descriptionPrefix")}{" "}
+            <strong>
+              {stageToDelete?.name}
+            </strong>
+            ?
             <div
               style={{
                 marginTop: 12,
               }}
             >
-              This action cannot be undone.
+              {t("deleteDialog.warning")}
             </div>
           </>
         }
-        confirmText="Delete"
-        cancelText="Cancel"
+        confirmText={t(
+          "deleteDialog.confirm",
+        )}
+        cancelText={t(
+          "deleteDialog.cancel",
+        )}
         confirmColor="error"
         isLoading={isDeleting}
         onConfirm={handleConfirmDelete}
-        onClose={handleCloseDeleteDialog}
+        onClose={
+          handleCloseDeleteDialog
+        }
       />
     </Box>
   );

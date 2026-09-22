@@ -26,4 +26,11 @@ export const addStageSchema = z.object({
           "Amount must be a whole number greater than or equal to 0.",
       },
     ),
+
+  status: z.enum(
+    ["active", "inactive"],
+    {
+      message: "Status is required.",
+    },
+  ),
 });

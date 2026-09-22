@@ -62,6 +62,10 @@ const DANGER_SOFT = "#FEF2F2";
 
 const SURFACE_TINT = "#FAFAF9";
 
+// Table header (DataGrid column headers)
+const HEADER_BG = "#6ec5c2";
+const HEADER_INK = "#374151";
+
 /**
  * Below this width the table becomes a stacked list.
  * "lg" keeps the DataGrid from scrolling sideways next to the sidebar.
@@ -920,25 +924,25 @@ export default function StaffPage() {
                 columnHeaderHeight={46}
                 sx={{
                   border: "none",
-                  "--DataGrid-containerBackground": SURFACE_TINT,
+                  "--DataGrid-containerBackground": HEADER_BG,
                   "--DataGrid-rowBorderColor": HAIRLINE,
 
                   "& .MuiDataGrid-columnHeaders": {
-                    bgcolor: SURFACE_TINT,
+                    bgcolor: HEADER_BG,
                     borderBottom: `1px solid ${HAIRLINE}`,
                   },
                   "& .MuiDataGrid-columnHeader": {
-                    bgcolor: SURFACE_TINT,
+                    bgcolor: HEADER_BG,
                     "&:focus, &:focus-within": { outline: "none" },
                   },
                   "& .MuiDataGrid-columnHeader--sorted": {
-                    bgcolor: SURFACE_TINT,
+                    bgcolor: HEADER_BG,
                   },
                   "& .MuiDataGrid-columnHeaderTitle": {
-                    fontSize: 12.5,
-                    fontWeight: 600,
+                    fontSize: 13,
+                    fontWeight: 700,
                     letterSpacing: 0.1,
-                    color: INK_MUTED,
+                    color: HEADER_INK,
                   },
                   "& .MuiDataGrid-columnSeparator": { display: "none" },
 

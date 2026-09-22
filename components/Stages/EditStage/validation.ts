@@ -46,4 +46,11 @@ export const editStageSchema = z.object({
           "Display order must be a positive whole number.",
       },
     ),
+
+  status: z.enum(
+    ["active", "inactive"],
+    {
+      message: "Status is required.",
+    },
+  ),
 });

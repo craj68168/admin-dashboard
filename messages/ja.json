@@ -1,4 +1,196 @@
 {
+  "createStageModal": {
+    "title": "現在のステージを追加",
+    "fields": {
+      "name": {
+        "label": "ステージ名",
+        "placeholder": "例：書類収集"
+      },
+      "amount": {
+        "label": "金額（¥）",
+        "helper": "料金が発生しないステージの場合は0を入力してください。"
+      }
+    },
+    "actions": {
+      "cancel": "キャンセル",
+      "create": "ステージを作成",
+      "creating": "作成中..."
+    }
+  },
+  "stageList": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "stages": "ステージ"
+    },
+    "title": "ステージ",
+    "description": "顧客処理ステージと各ステージに設定された金額を管理します。",
+    "filters": {
+      "search": {
+        "label": "検索条件を入力してください",
+        "placeholder": "ステージID、ステージ名、ステージキー..."
+      },
+      "searchButton": "ステージを検索",
+      "clearButton": "クリア"
+    },
+    "columns": {
+      "stageId": "ステージID",
+      "name": "ステージ名",
+      "amount": "金額",
+      "status": "ステータス",
+      "actions": "操作"
+    },
+    "status": {
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "actions": {
+      "addStage": "ステージを追加",
+      "view": "ステージを表示",
+      "edit": "ステージを編集",
+      "delete": "ステージを削除"
+    },
+    "aria": {
+      "view": "{name}を表示",
+      "edit": "{name}を編集",
+      "delete": "{name}を削除"
+    },
+    "pagination": {
+      "itemLabel": "ステージ"
+    },
+    "error": {
+      "title": "ステージを読み込めません",
+      "description": "ステージ一覧の読み込み中にエラーが発生しました。",
+      "retry": "再試行"
+    },
+    "deleteDialog": {
+      "title": "ステージを削除",
+      "descriptionPrefix": "次のステージを削除してもよろしいですか",
+      "warning": "この操作は元に戻せません。",
+      "confirm": "削除",
+      "cancel": "キャンセル"
+    }
+  },
+  "viewStage": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "stages": "ステージ"
+    },
+    "description": "ステージの詳細と設定を確認できます。",
+    "sections": {
+      "stageInformation": "ステージ情報",
+      "auditInformation": "監査情報"
+    },
+    "fields": {
+      "stageId": "ステージID",
+      "stageName": "ステージ名",
+      "stageKey": "ステージキー",
+      "amount": "金額",
+      "displayOrder": "表示順",
+      "status": "ステータス",
+      "stageType": "ステージ種別",
+      "createdBy": "作成者",
+      "createdAt": "作成日時",
+      "updatedBy": "更新者",
+      "updatedAt": "更新日時"
+    },
+    "status": {
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "stageType": {
+      "system": "システム",
+      "custom": "カスタム"
+    },
+    "actions": {
+      "back": "戻る",
+      "backToStages": "ステージ一覧へ戻る",
+      "editStage": "ステージを編集",
+      "tryAgain": "再試行"
+    },
+    "messages": {
+      "loadFailed": "ステージを読み込めませんでした",
+      "notFound": "ステージが見つかりません",
+      "notFoundDescription": "ステージID「{stageId}」に該当するステージが見つかりませんでした。"
+    }
+  },
+  "editStage": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "stages": "ステージ",
+      "editStage": "ステージを編集"
+    },
+    "title": "ステージを編集",
+    "description": "ステージ名、金額、表示順を更新します。",
+    "fields": {
+      "stageId": {
+        "label": "ステージID"
+      },
+      "key": {
+        "label": "ステージキー",
+        "helper": "ステージキーは変更できません。"
+      },
+      "name": {
+        "label": "ステージ名"
+      },
+      "status": {
+        "label": "ステータス",
+        "options": {
+          "active": "有効",
+          "inactive": "無効"
+        }
+      },
+      "amount": {
+        "label": "金額",
+        "helper": "金額を日本円で入力してください。"
+      },
+      "displayOrder": {
+        "label": "表示順"
+      }
+    },
+    "actions": {
+      "cancel": "キャンセル",
+      "saveChanges": "変更を保存",
+      "saving": "保存中...",
+      "retry": "再試行"
+    },
+    "messages": {
+      "loadFailed": "ステージを読み込めませんでした。",
+      "notFound": "ステージが見つかりませんでした。"
+    }
+  },
+  "addStage": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "stages": "ステージ",
+      "addStage": "ステージを追加"
+    },
+    "title": "ステージを追加",
+    "description": "新しい顧客処理ステージを作成し、金額を設定します。",
+    "fields": {
+      "name": {
+        "label": "ステージ名",
+        "placeholder": "例：登録済み / 支払済み",
+        "helper": "ステージキーとステージIDは自動的に生成されます。"
+      },
+      "status": {
+        "label": "ステータス",
+        "options": {
+          "active": "有効",
+          "inactive": "無効"
+        }
+      },
+      "amount": {
+        "label": "金額",
+        "placeholder": "0",
+        "helper": "ステージの金額を日本円で入力してください。"
+      }
+    },
+    "actions": {
+      "cancel": "キャンセル",
+      "create": "ステージを作成",
+      "creating": "作成中..."
+    }
+  },
   "staffDashboard": {
     "dashboard": "ダッシュボード",
     "welcome": "ようこそ、{name}さん",
@@ -98,7 +290,6 @@
       "Staff": "スタッフ",
       "Clients": "顧客",
       "Stages": "ステージ"
-
     }
   },
   "commonSearchFilter": {
@@ -113,88 +304,82 @@
     "from": "開始",
     "to": "終了"
   },
- "staffList": {
-  "breadcrumbs": {
-    "dashboard": "ダッシュボード",
-    "staff": "スタッフ"
-  },
-  "title": "スタッフ",
-  "description": "スタッフアカウント、アクセス権、ステータスを管理します。",
-  "addStaff": "スタッフを追加",
-  "thisStaffMember": "このスタッフ",
-
-  "filters": {
-    "search": {
-      "label": "検索条件を入力してください",
-      "placeholder": "スタッフID、氏名、メール、電話番号"
+  "staffList": {
+    "breadcrumbs": {
+      "dashboard": "ダッシュボード",
+      "staff": "スタッフ"
     },
-    "staffMember": {
-      "label": "スタッフ",
-      "placeholder": "すべてのスタッフ"
+    "title": "スタッフ",
+    "description": "スタッフアカウント、アクセス権、ステータスを管理します。",
+    "addStaff": "スタッフを追加",
+    "thisStaffMember": "このスタッフ",
+    "filters": {
+      "search": {
+        "label": "検索条件を入力してください",
+        "placeholder": "スタッフID、氏名、メール、電話番号"
+      },
+      "staffMember": {
+        "label": "スタッフ",
+        "placeholder": "すべてのスタッフ"
+      },
+      "location": {
+        "label": "所在地",
+        "placeholder": "すべての所在地",
+        "options": {
+          "USA": "アメリカ",
+          "Japan": "日本",
+          "Nepal": "ネパール",
+          "Other": "その他"
+        }
+      },
+      "accountStatus": {
+        "label": "アカウント状態",
+        "placeholder": "すべての状態",
+        "options": {
+          "active": "有効",
+          "inactive": "無効"
+        }
+      },
+      "searchButton": "スタッフを検索",
+      "clearButton": "クリア"
     },
-    "location": {
-      "label": "所在地",
-      "placeholder": "すべての所在地",
-      "options": {
-        "USA": "アメリカ",
-        "Japan": "日本",
-        "Nepal": "ネパール",
-        "Other": "その他"
-      }
+    "columns": {
+      "id": "ID",
+      "fullName": "氏名",
+      "email": "メール",
+      "location": "所在地",
+      "status": "ステータス",
+      "createdAt": "作成日",
+      "action": "操作"
     },
-    "accountStatus": {
-      "label": "アカウント状態",
-      "placeholder": "すべての状態",
-      "options": {
-        "active": "有効",
-        "inactive": "無効"
-      }
+    "status": {
+      "active": "有効",
+      "inactive": "無効"
     },
-    "searchButton": "スタッフを検索",
-    "clearButton": "クリア"
+    "actions": {
+      "viewClients": "担当顧客を表示",
+      "viewDetails": "スタッフ詳細を表示",
+      "edit": "スタッフを編集",
+      "disable": "スタッフを無効化",
+      "activate": "スタッフを有効化"
+    },
+    "confirmStatus": {
+      "disableTitle": "スタッフを無効化",
+      "activateTitle": "スタッフを有効化",
+      "descriptionPrefix": "次のスタッフを",
+      "disableVerb": "無効化",
+      "activateVerb": "有効化",
+      "disableWarning": "アカウントが無効の間、このスタッフはログインできません。",
+      "disableConfirm": "はい、無効化",
+      "activateConfirm": "はい、有効化",
+      "cancel": "いいえ"
+    }
   },
-
-  "columns": {
-    "id": "ID",
-    "fullName": "氏名",
-    "email": "メール",
-    "location": "所在地",
-    "status": "ステータス",
-    "createdAt": "作成日",
-    "action": "操作"
+  "error": {
+    "title": "スタッフ一覧を読み込めません",
+    "description": "スタッフ一覧の読み込み中にエラーが発生しました。",
+    "retry": "再試行"
   },
-
-  "status": {
-    "active": "有効",
-    "inactive": "無効"
-  },
-
-  "actions": {
-    "viewClients": "担当顧客を表示",
-    "viewDetails": "スタッフ詳細を表示",
-    "edit": "スタッフを編集",
-    "disable": "スタッフを無効化",
-    "activate": "スタッフを有効化"
-  },
-
-  "confirmStatus": {
-    "disableTitle": "スタッフを無効化",
-    "activateTitle": "スタッフを有効化",
-    "descriptionPrefix": "次のスタッフを",
-    "disableVerb": "無効化",
-    "activateVerb": "有効化",
-    "disableWarning": "アカウントが無効の間、このスタッフはログインできません。",
-    "disableConfirm": "はい、無効化",
-    "activateConfirm": "はい、有効化",
-    "cancel": "いいえ"
-  }
-  
-},
-"error": {
-  "title": "スタッフ一覧を読み込めません",
-  "description": "スタッフ一覧の読み込み中にエラーが発生しました。",
-  "retry": "再試行"
-},
   "addStaff": {
     "backToStaff": "スタッフ一覧へ戻る",
     "title": "スタッフを追加",
@@ -439,9 +624,15 @@
       "editDescription": "顧客のプロフィール、書類、採用情報を更新します。"
     },
     "sections": {
-      "basic": { "title": "基本情報" },
-      "address": { "title": "住所" },
-      "immigration": { "title": "在留・パスポート情報" },
+      "basic": {
+        "title": "基本情報"
+      },
+      "address": {
+        "title": "住所"
+      },
+      "immigration": {
+        "title": "在留・パスポート情報"
+      },
       "recruitment": {
         "title": "採用情報",
         "createDescription": "希望カテゴリー、担当スタッフ、開始ステージを設定します。",
@@ -451,12 +642,24 @@
         "title": "登録料支払い",
         "description": "登録料の全額支払いを確認した後に顧客を作成します。一部入金には対応していません。"
       },
-      "education": { "title": "学歴" },
-      "qualifications": { "title": "日本語能力・資格" },
-      "employment": { "title": "職歴" },
-      "skills": { "title": "スキル・職務要約" },
-      "application": { "title": "日本語申請内容" },
-      "documents": { "title": "書類" }
+      "education": {
+        "title": "学歴"
+      },
+      "qualifications": {
+        "title": "日本語能力・資格"
+      },
+      "employment": {
+        "title": "職歴"
+      },
+      "skills": {
+        "title": "スキル・職務要約"
+      },
+      "application": {
+        "title": "日本語申請内容"
+      },
+      "documents": {
+        "title": "書類"
+      }
     },
     "fields": {
       "fullName": "氏名",
@@ -592,7 +795,6 @@
     "create": "顧客を作成",
     "creating": "作成中...",
     "cancel": "キャンセル",
-
     "sections": {
       "basic": {
         "title": "基本情報",
@@ -619,7 +821,6 @@
         "description": "顧客画像と履歴書があればアップロードします。"
       }
     },
-
     "fields": {
       "fullName": {
         "label": "氏名",
@@ -629,84 +830,67 @@
         "label": "電話番号",
         "placeholder": "電話番号を入力"
       },
-
       "currentVisaStatus": {
         "label": "現在の在留資格",
         "placeholder": "現在の在留資格を選択"
       },
-
       "assignedStaff": {
         "label": "担当スタッフ",
         "placeholder": "スタッフを選択",
         "autoHelper": "この顧客は自動的にあなたへ割り当てられます。"
       },
-
       "preferCategory": {
         "label": "希望カテゴリー",
         "placeholder": "希望カテゴリーを選択"
       },
-
       "currentStage": {
         "label": "現在のステージ",
         "placeholder": "現在のステージを選択"
       },
-
       "dateOfBirth": {
         "label": "生年月日"
       },
-
       "gender": {
         "label": "性別",
         "placeholder": "性別を選択"
       },
-
       "email": {
         "label": "メール",
         "placeholder": "メールアドレスを入力"
       },
-
       "nationality": {
         "label": "国籍",
         "placeholder": "国籍を選択"
       },
-
       "address": {
         "label": "現在の住所",
         "placeholder": "現在の住所を入力"
       },
-
       "prefecture": {
         "label": "都道府県",
         "placeholder": "都道府県を選択"
       },
-
       "passportNumber": {
         "label": "パスポート番号",
         "placeholder": "パスポート番号を入力"
       },
-
       "passportExpiryDate": {
         "label": "パスポート有効期限"
       },
-
       "statusOfResidence": {
         "label": "在留資格",
         "placeholder": "在留資格を選択"
       },
-
       "schoolName": {
         "label": "学校・大学名",
         "placeholder": "学校・大学名を入力"
       },
-
       "enrollmentDate": {
         "label": "入学日"
       },
-
       "graduationDate": {
         "label": "卒業日"
       },
-
       "major": {
         "label": "専攻・コース",
         "placeholder": "専攻またはコースを入力"
@@ -715,39 +899,31 @@
         "label": "学校種別",
         "placeholder": "学校種別を選択"
       },
-
       "japaneseLanguageLevel": {
         "label": "日本語能力",
         "placeholder": "日本語レベルを選択"
       },
-
       "intake": {
         "label": "入学時期",
         "placeholder": "例: 2027年4月"
       },
-
       "companyName": {
         "label": "会社名",
         "placeholder": "会社名を入力"
       },
-
       "startDate": {
         "label": "勤務開始日"
       },
-
       "endDate": {
         "label": "勤務終了日"
       },
-
       "employmentType": {
         "label": "雇用形態",
         "placeholder": "雇用形態を選択"
       },
-
       "clientImage": {
         "upload": "顧客画像をアップロード"
       },
-
       "cv": {
         "upload": "履歴書をアップロード"
       }
@@ -756,18 +932,15 @@
       "add": "学歴を追加",
       "itemLabel": "学歴 {number}"
     },
-
     "employment": {
       "add": "職歴を追加"
     },
-
     "options": {
       "gender": {
         "male": "男性",
         "female": "女性",
         "other": "その他"
       },
-
       "currentVisaStatus": {
         "student": "留学",
         "dependent": "家族滞在",
@@ -788,7 +961,6 @@
         "longTermResident": "定住者",
         "other": "その他"
       },
-
       "preferCategory": {
         "newJob": "就職 / 新規就職",
         "jobChange": "転職",
@@ -797,7 +969,6 @@
         "visaServiceOnlyChange": "ビザ手続きのみ / 変更",
         "otherVisaService": "その他のビザ手続き"
       },
-
       "currentStage": {
         "registeredPaid": "登録済み / 支払済み",
         "vacancySearching": "求人検索中",
@@ -817,7 +988,6 @@
         "visaRenewal5Years": "ビザ更新 - 5年",
         "returnToNepal": "ネパールへ帰国"
       },
-
       "nationality": {
         "nepali": "ネパール",
         "indian": "インド",
@@ -831,7 +1001,6 @@
         "chinese": "中国",
         "other": "その他"
       },
-
       "statusOfResidence": {
         "student": "留学",
         "dependent": "家族滞在",
@@ -857,7 +1026,6 @@
         "trainee": "研修",
         "other": "その他"
       },
-
       "japaneseLanguageLevel": {
         "n1": "N1",
         "n2": "N2",
@@ -866,7 +1034,6 @@
         "n5": "N5",
         "none": "JLPTなし / 未取得"
       },
-
       "educationType": {
         "japaneseLanguageSchool": "日本語学校",
         "vocationalSchool": "専門学校",
@@ -877,7 +1044,6 @@
         "internationalSchool": "インターナショナルスクール",
         "other": "その他"
       },
-
       "employmentType": {
         "partTime": "アルバイト",
         "fullTime": "正社員",
@@ -885,7 +1051,6 @@
         "temporaryDispatchEmployee": "派遣社員",
         "other": "その他"
       },
-
       "prefecture": {
         "hokkaido": "北海道",
         "aomori": "青森県",
@@ -936,14 +1101,12 @@
         "okinawa": "沖縄県"
       }
     },
-
     "validation": {
       "fullNameRequired": "氏名は必須です",
       "phoneRequired": "電話番号は必須です",
       "currentVisaStatusRequired": "現在の在留資格は必須です",
       "currentStageRequired": "現在のステージは必須です"
     },
-
     "messages": {
       "createFailed": "顧客を作成できませんでした。"
     }
@@ -954,7 +1117,6 @@
       "clients": "顧客",
       "editClient": "顧客を編集"
     },
-
     "title": "顧客を編集",
     "clientIdLabel": "顧客ID:",
     "inactive": "無効",
@@ -962,128 +1124,102 @@
     "saveChanges": "変更を保存",
     "saving": "保存中...",
     "cancel": "キャンセル",
-
     "sections": {
       "basic": {
         "title": "基本情報",
         "description": "顧客情報、担当者、現在の進捗を更新します。"
       },
-
       "personal": {
         "title": "個人情報",
         "description": "個人情報、連絡先、現在の住所を更新します。"
       },
-
       "passport": {
         "title": "パスポート・在留情報",
         "description": "パスポートと在留資格に関する情報を更新します。"
       },
-
       "education": {
         "title": "学歴・日本語能力",
         "description": "学歴と日本語能力に関する情報を更新します。"
       },
-
       "employment": {
         "title": "職歴",
         "description": "顧客の職歴を更新します。"
       },
-
       "documents": {
         "title": "書類",
         "description": "新しいファイルを選択すると、現在アップロード済みのファイルが置き換えられます。"
       }
     },
-
     "fields": {
       "fullName": {
         "label": "氏名"
       },
-
       "phone": {
         "label": "電話番号"
       },
-
       "currentVisaStatus": {
         "label": "現在の在留資格",
         "placeholder": "現在の在留資格を選択"
       },
-
       "assignedStaff": {
         "label": "担当スタッフ",
         "placeholder": "スタッフを選択",
         "readOnlyHelper": "このアカウントから担当スタッフを変更することはできません。"
       },
-
       "preferCategory": {
         "label": "希望カテゴリー",
         "placeholder": "希望カテゴリーを選択"
       },
-
       "currentStage": {
         "label": "現在のステージ",
         "placeholder": "現在のステージを選択"
       },
-
       "dateOfBirth": {
         "label": "生年月日"
       },
-
       "gender": {
         "label": "性別",
         "placeholder": "性別を選択"
       },
-
       "email": {
         "label": "メール"
       },
-
       "nationality": {
         "label": "国籍",
         "placeholder": "国籍を選択"
       },
-
       "address": {
         "label": "現在の住所",
         "placeholder": "現在の住所を入力"
       },
-
       "prefecture": {
         "label": "都道府県",
         "placeholder": "都道府県を選択"
       },
-
       "passportNumber": {
         "label": "パスポート番号"
       },
-
       "passportExpiryDate": {
         "label": "パスポート有効期限"
       },
-
       "statusOfResidence": {
         "label": "在留資格",
         "placeholder": "在留資格を選択"
       },
-
       "schoolName": {
         "label": "学校名",
         "placeholder": "学校名を入力"
       },
-
       "enrollmentDate": {
         "label": "入学年月"
       },
-
       "graduationDate": {
         "label": "卒業年月"
       },
-
       "major": {
         "label": "専攻・学科",
         "placeholder": "専攻または学科を入力"
       },
-
       "japaneseLanguageLevel": {
         "label": "日本語レベル",
         "placeholder": "日本語レベルを選択"
@@ -1092,65 +1228,50 @@
         "label": "学校種別",
         "placeholder": "学校種別を選択"
       },
-
       "intake": {
         "label": "入学時期",
         "placeholder": "例: 2027年4月"
       },
-
       "companyName": {
         "label": "会社名",
         "placeholder": "会社名を入力"
       },
-
       "startDate": {
         "label": "入社年月"
       },
-
       "endDate": {
         "label": "退社年月"
       },
-
       "employmentType": {
         "label": "雇用形態",
         "placeholder": "雇用形態を選択"
       },
-
       "clientImage": {
         "replace": "顧客画像を置き換え"
       },
-
       "cv": {
         "replace": "履歴書を置き換え"
       }
     },
-
     "education": {
       "add": "学歴を追加",
       "itemLabel": "学歴 {number}"
     },
-
     "employment": {
       "add": "職歴を追加"
     },
-
     "validation": {
       "emailInvalid": "有効なメールアドレスを入力してください",
       "invalidFile": "無効なファイルです",
-
       "fullNameRequired": "氏名は必須です",
       "fullNameMin": "氏名は2文字以上で入力してください",
-
       "phoneRequired": "電話番号は必須です",
       "phoneMin": "電話番号は7文字以上で入力してください",
       "phoneMax": "電話番号は20文字以内で入力してください",
-
       "currentVisaStatusRequired": "現在の在留資格は必須です",
       "currentStageRequired": "現在のステージは必須です",
-
       "assignedStaffRequired": "担当スタッフは必須です"
     },
-
     "messages": {
       "notFound": "顧客が見つかりませんでした。",
       "clientIdMissing": "顧客IDがありません。",
@@ -1169,11 +1290,17 @@
       "basic": "基本情報",
       "personal": "個人情報",
       "passport": "パスポート・在留情報",
-      "education": "学歴・日本語",
-      "employment": "就労情報",
+      "education": "学歴",
+      "employment": "職歴",
       "sponsor": "スポンサー",
       "visa": "ビザ情報",
-      "documents": "書類"
+      "documents": "書類",
+      "recruitment": "採用管理情報",
+      "address": "住所",
+      "immigration": "在留・パスポート",
+      "japaneseQualifications": "日本語・資格",
+      "skillsCareer": "スキル・職務要約",
+      "applicationContent": "日本語応募書類内容"
     },
     "fields": {
       "clientId": "顧客ID",
@@ -1207,11 +1334,44 @@
       "sponsorStatusOfResidence": "スポンサーの在留資格",
       "visaStatus": "ビザステータス",
       "clientImage": "顧客画像",
-      "cv": "履歴書"
+      "cv": "履歴書",
+      "preferredCategory": "希望カテゴリ",
+      "currentStage": "現在のステージ",
+      "currentStageAmount": "現在のステージ金額",
+      "updatedAt": "更新日",
+      "furigana": "フリガナ",
+      "postalCode": "郵便番号",
+      "prefecture": "都道府県",
+      "currentVisaStatus": "現在の在留資格",
+      "residenceExpiryDate": "在留期限",
+      "schoolType": "学校種別",
+      "majorCourse": "専攻・コース",
+      "enrollmentDate": "入学日",
+      "graduationDate": "卒業日",
+      "graduationStatus": "卒業状況",
+      "qualificationCertificate": "資格・証明書",
+      "levelScore": "レベル・スコア",
+      "issuer": "発行機関",
+      "acquiredDate": "取得日",
+      "expiryDate": "有効期限",
+      "note": "備考",
+      "employmentType": "雇用形態",
+      "department": "部署",
+      "startDate": "開始日",
+      "endDate": "終了日",
+      "responsibilities": "担当業務・主な職務",
+      "achievements": "実績",
+      "skills": "スキル",
+      "careerSummary": "職務要約",
+      "motivation": "志望動機",
+      "selfPr": "自己PR",
+      "desiredConditions": "本人希望記入欄"
     },
     "documents": {
       "uploaded": "アップロード済み",
-      "notUploaded": "未アップロード"
+      "notUploaded": "未アップロード",
+      "photo": "写真",
+      "originalCv": "原本CV"
     },
     "visaTypes": {
       "Student": "留学",
@@ -1240,6 +1400,44 @@
     "messages": {
       "notFound": "顧客が見つかりませんでした。",
       "loadFailed": "顧客を読み込めませんでした。"
+    },
+    "header": {
+      "title": "顧客プロフィール"
+    },
+    "actions": {
+      "back": "戻る",
+      "generating": "生成中...",
+      "japaneseCv": "日本語CV",
+      "editClient": "顧客を編集"
+    },
+    "descriptions": {
+      "recruitment": "社内の顧客管理情報です。これらの項目は雇用主向けCVには自動的に含まれません。",
+      "personal": "日本語履歴書の作成に使用する候補者情報です。",
+      "immigration": "現在の在留資格は日本語CVで使用される主要な在留資格項目です。",
+      "education": "履歴書で使用する学歴情報です。",
+      "employment": "職務経歴書で使用する詳細な職歴情報です。",
+      "applicationContent": "生成される日本語応募書類で使用する内容です。"
+    },
+    "photo": {
+      "unavailable": "写真を表示できません",
+      "notUploaded": "写真未アップロード",
+      "viewPhoto": "候補者写真を表示",
+      "alt": "候補者写真",
+      "view": "表示",
+      "close": "写真を閉じる"
+    },
+    "empty": {
+      "education": "学歴はまだ追加されていません。",
+      "qualifications": "資格はまだ追加されていません。",
+      "employment": "職歴はまだ追加されていません。"
+    },
+    "itemTitles": {
+      "education": "学歴 {number}",
+      "qualification": "資格 {number}",
+      "employment": "職歴 {number}"
+    },
+    "employment": {
+      "currentlyEmployed": "在職中"
     }
   },
   "options": {
@@ -1365,7 +1563,7 @@
   },
   "clientPayments": {
     "title": "支払い",
-    "description": "支払い回収履歴と分割支払いを管理します。",
+    "description": "有料ステージが完了すると、支払いは自動的に記録されます。",
     "totalPayments": "支払総額",
     "history": "支払い履歴",
     "empty": "支払いはまだ記録されていません。",
@@ -1379,13 +1577,19 @@
       "stageAtPayment": "支払い時のステージ",
       "reference": "参照番号",
       "receipt": "領収書番号",
-      "bank": "銀行"
+      "bank": "銀行",
+      "stage": "ステージ",
+      "amount": "金額",
+      "status": "ステータス",
+      "staff": "スタッフ"
     },
     "summary": {
       "expected": "予定額",
       "alreadyPaid": "支払済み",
       "outstanding": "未払い",
-      "status": "ステータス"
+      "status": "ステータス",
+      "totalCollected": "回収総額",
+      "completedPayments": "完了済み支払い"
     },
     "form": {
       "title": "支払いを追加",
@@ -1403,7 +1607,9 @@
     },
     "actions": {
       "saving": "保存中...",
-      "savePayment": "支払いを保存"
+      "savePayment": "支払いを保存",
+      "showLess": "表示を減らす",
+      "showAll": "すべての支払い {count} 件を表示"
     },
     "statuses": {
       "Completed": "完了",
@@ -1469,11 +1675,19 @@
       "changeStage": "ステージ変更",
       "selectStage": "ステージを選択",
       "note": "メモ",
-      "notePlaceholder": "任意の進捗メモ..."
+      "notePlaceholder": "任意の進捗メモ...",
+      "nextStage": "次のステージ",
+      "searchStage": "ステージを検索して選択",
+      "noStages": "ステージが見つかりません"
     },
     "actions": {
       "updating": "更新中...",
-      "updateStage": "ステージを更新"
+      "updateStage": "ステージを更新",
+      "addStage": "ステージを追加",
+      "processing": "処理中...",
+      "payAndUpdate": "{amount} を支払ってステージを更新",
+      "showLess": "表示を減らす",
+      "showAllChanges": "すべての変更 {count} 件を表示"
     },
     "stages": {
       "Registration Pending": "登録待ち",
@@ -1496,6 +1710,25 @@
       "selectDifferentStage": "別のステージを選択してください。",
       "updateFailed": "顧客ステージを更新できませんでした。",
       "loadFailed": "顧客進捗を読み込めませんでした。"
+    },
+    "payment": {
+      "required": "支払いが必要です",
+      "notRequired": "支払いは不要です",
+      "fullRequired": "全額支払いが必要です",
+      "fullRequiredDescription": "ステージを更新するには、ステージ金額の全額を受領する必要があります。金額はステージマスターから取得され、この画面では編集できません。",
+      "method": "支払い方法",
+      "selectMethod": "支払い方法を選択",
+      "date": "支払日",
+      "bankName": "銀行名",
+      "referenceNumber": "参照番号",
+      "receiptNumber": "領収書番号"
+    },
+    "historyLabels": {
+      "initial": "初期",
+      "payment": "支払い",
+      "status": "ステータス",
+      "collectedBy": "回収担当",
+      "changedBy": "変更者"
     }
   },
   "clientRemarks": {
@@ -1538,7 +1771,6 @@
       "loadFailed": "備考を読み込めませんでした。"
     }
   },
-
   "profile": {
     "unavailable": "プロフィール情報を利用できません。",
     "backToDashboard": "ダッシュボードに戻る",

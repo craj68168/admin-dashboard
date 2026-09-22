@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Autocomplete from "@mui/material/Autocomplete";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -230,6 +231,9 @@ const Fact = ({
 // =================================================
 
 const Progress = ({ clientId }: ProgressProps) => {
+  const t = useTranslations("clientProgress");
+  const paymentT = useTranslations("clientPayments");
+
   const {
     values,
     updateValue,
@@ -288,6 +292,22 @@ const Progress = ({ clientId }: ProgressProps) => {
     showAllHistory || !canCollapseHistory
       ? history
       : history.slice(0, HISTORY_PREVIEW_COUNT);
+
+  const getPaymentMethodLabel = (method?: string | null) => {
+    if (!method) {
+      return "-";
+    }
+
+    return paymentT(`methods.${method}` as never);
+  };
+
+  const getPaymentStatusLabel = (status?: string | null) => {
+    if (!status) {
+      return "-";
+    }
+
+    return paymentT(`statuses.${status}` as never);
+  };
 
   return (
     <Box>
@@ -354,7 +374,7 @@ const Progress = ({ clientId }: ProgressProps) => {
             letterSpacing: "-0.01em",
           }}
         >
-          Progress
+          {t("title")}
         </Typography>
 
         {!isLoading && (
@@ -390,7 +410,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 flexShrink: 0,
               }}
             >
-              Current stage
+              {t("currentStage")}
             </Typography>
 
             <Typography
@@ -534,7 +554,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 flexWrap: "wrap",
               }}
             >
-              <PanelTitle>Change stage</PanelTitle>
+              <PanelTitle>{t("form.changeStage")}</PanelTitle>
 
               {canManageStages && (
                 <Button
@@ -565,7 +585,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                     },
                   }}
                 >
-                  Add stage
+                  {t("actions.addStage")}
                 </Button>
               )}
             </Box>
@@ -599,7 +619,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 onChange={(_event, stage) =>
                   updateValue("stage", stage?.key ?? "")
                 }
-                noOptionsText="No stages found"
+                noOptionsText={t("form.noStages")}
                 renderOption={(props, stage) => (
                   <Box
                     component="li"
@@ -654,8 +674,8 @@ const Progress = ({ clientId }: ProgressProps) => {
                   <TextField
                     {...params}
                     size="small"
-                    label="Next stage"
-                    placeholder="Search and select stage"
+                    label={t("form.nextStage")}
+                    placeholder={t("form.searchStage")}
                     error={Boolean(formErrors.stage)}
                     helperText={formErrors.stage}
                     sx={fieldSx}
@@ -709,8 +729,8 @@ const Progress = ({ clientId }: ProgressProps) => {
                       }}
                     >
                       {requiresPayment
-                        ? "Payment required"
-                        : "No payment required"}
+                        ? t("payment.required")
+                        : t("payment.notRequired")}
                     </Typography>
 
                     <Typography
@@ -799,7 +819,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                           fontWeight: 700,
                         }}
                       >
-                        Full payment required
+                        {t("payment.fullRequired")}
                       </Typography>
 
                       <Typography
@@ -813,9 +833,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                           lineHeight: 1.5,
                         }}
                       >
-                        The full stage amount must be received before the stage
-                        can be updated. The amount comes from the Stage Master
-                        and can&apos;t be edited here.
+                        {t("payment.fullRequiredDescription")}
                       </Typography>
                     </Box>
                   </Box>
@@ -826,7 +844,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                       required
                       fullWidth
                       size="small"
-                      label="Payment method"
+                      label={t("payment.method")}
                       value={values.paymentMethod}
                       onChange={(event) =>
                         updateValue(
@@ -838,11 +856,11 @@ const Progress = ({ clientId }: ProgressProps) => {
                       helperText={formErrors.paymentMethod}
                       sx={fieldSx}
                     >
-                      <MenuItem value="">Select payment method</MenuItem>
+                      <MenuItem value="">{t("payment.selectMethod")}</MenuItem>
 
                       {PAYMENT_METHOD_OPTIONS.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
-                          {option.label}
+                          {getPaymentMethodLabel(option.value)}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -852,7 +870,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                       fullWidth
                       size="small"
                       type="date"
-                      label="Payment date"
+                      label={t("payment.date")}
                       value={values.paymentDate}
                       onChange={(event) =>
                         updateValue("paymentDate", event.target.value)
@@ -870,7 +888,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Bank name"
+                      label={t("payment.bankName")}
                       value={values.bankName}
                       disabled={values.paymentMethod === "Cash"}
                       onChange={(event) =>
@@ -884,7 +902,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Reference number"
+                      label={t("payment.referenceNumber")}
                       value={values.referenceNumber}
                       onChange={(event) =>
                         updateValue("referenceNumber", event.target.value)
@@ -897,7 +915,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                     <TextField
                       fullWidth
                       size="small"
-                      label="Receipt number"
+                      label={t("payment.receiptNumber")}
                       value={values.receiptNumber}
                       onChange={(event) =>
                         updateValue("receiptNumber", event.target.value)
@@ -918,7 +936,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 minRows={2}
                 maxRows={5}
                 size="small"
-                label="Note"
+                label={t("form.note")}
                 value={values.note}
                 onChange={(event) => updateValue("note", event.target.value)}
                 error={Boolean(formErrors.note)}
@@ -979,12 +997,12 @@ const Progress = ({ clientId }: ProgressProps) => {
                 }}
               >
                 {isUpdating
-                  ? "Processing..."
+                  ? t("actions.processing")
                   : requiresPayment
-                    ? `Pay ${formatCurrency(
-                        selectedStageAmount,
-                      )} & update stage`
-                    : "Update stage"}
+                    ? t("actions.payAndUpdate", {
+                        amount: formatCurrency(selectedStageAmount),
+                      })
+                    : t("actions.updateStage")}
               </Button>
             </Box>
           </Box>
@@ -998,7 +1016,7 @@ const Progress = ({ clientId }: ProgressProps) => {
               minWidth: 0,
             }}
           >
-            <PanelTitle count={history.length}>Stage history</PanelTitle>
+            <PanelTitle count={history.length}>{t("history")}</PanelTitle>
 
             {history.length === 0 ? (
               <Box
@@ -1020,7 +1038,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                   textAlign: "center",
                 }}
               >
-                No stage history found.
+                {t("empty")}
               </Box>
             ) : (
               <Box>
@@ -1183,7 +1201,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                                     fontWeight: 500,
                                   }}
                                 >
-                                  {item.fromStageName || "Initial"}
+                                  {item.fromStageName || t("historyLabels.initial")}
                                 </Typography>
 
                                 <ArrowForwardRoundedIcon
@@ -1303,24 +1321,26 @@ const Progress = ({ clientId }: ProgressProps) => {
                               }}
                             >
                               <Fact
-                                label="Payment"
+                                label={t("historyLabels.payment")}
                                 value={formatCurrency(payment?.amountPaid)}
                                 color={SUCCESS}
                               />
 
                               <Fact
-                                label="Method"
-                                value={payment?.paymentMethod || "-"}
+                                label={t("payment.method")}
+                                value={getPaymentMethodLabel(payment?.paymentMethod)}
                               />
 
                               <Fact
-                                label="Status"
-                                value={payment?.paymentStatus || "Completed"}
+                                label={t("historyLabels.status")}
+                                value={getPaymentStatusLabel(
+                                  payment?.paymentStatus || "Completed",
+                                )}
                                 color={SUCCESS}
                               />
 
                               <Fact
-                                label="Collected by"
+                                label={t("historyLabels.collectedBy")}
                                 value={
                                   payment?.creditedStaffName ||
                                   item.changedByName ||
@@ -1339,7 +1359,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                               fontSize: 11.5,
                             }}
                           >
-                            Changed by{" "}
+                            {t("historyLabels.changedBy")}{" "}
                             {item.changedByName ||
                               item.staffId ||
                               item.changedByRole ||
@@ -1386,8 +1406,8 @@ const Progress = ({ clientId }: ProgressProps) => {
                     }}
                   >
                     {showAllHistory
-                      ? "Show less"
-                      : `Show all ${history.length} changes`}
+                      ? t("actions.showLess")
+                      : t("actions.showAllChanges", { count: history.length })}
                   </Button>
                 )}
               </Box>
