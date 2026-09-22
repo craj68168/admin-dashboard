@@ -40,6 +40,11 @@ const INK_FAINT = "#6B7280";
 
 const SURFACE_TINT = "#FAFAF9";
 
+// Single source of truth so every input field lines up.
+const CONTROL_HEIGHT = 36;
+// Buttons stay a touch smaller than the fields — feels lighter, less heavy.
+const BUTTON_HEIGHT = 32;
+
 const focusRing = {
   "&:focus-visible": {
     outline: `2px solid ${BRAND}`,
@@ -47,51 +52,72 @@ const focusRing = {
   },
 };
 
-// Shared by every input so they stay identical.
+// Shared by every input so they stay identical in height, radius and state.
 // 16px font on phones stops iOS Safari from zooming when a field is focused.
 const fieldSx = {
   "& .MuiOutlinedInput-root": {
+    height: CONTROL_HEIGHT,
     borderRadius: 2.5,
     bgcolor: "#ffffff",
-    transition: "box-shadow 150ms ease",
+    transition: "box-shadow 150ms ease, border-color 150ms ease",
 
-    "& fieldset": { borderColor: HAIRLINE_STRONG },
+    "& fieldset": { borderColor: HAIRLINE_STRONG, transition: "border-color 150ms ease" },
     "&:hover fieldset": { borderColor: "rgba(17, 24, 39, 0.34)" },
 
     "&.Mui-focused": { boxShadow: `0 0 0 3px ${BRAND_GLOW}` },
-    "&.Mui-focused fieldset": { borderColor: BRAND, borderWidth: 1 },
+    "&.Mui-focused fieldset": { borderColor: BRAND, borderWidth: 1.5 },
+    "&.Mui-focused .MuiInputAdornment-root svg": { color: BRAND },
 
     "&.Mui-disabled": { bgcolor: "#F3F4F6" },
   },
   "& .MuiInputBase-input": {
-    fontSize: { xs: 16, sm: 14 },
+    fontSize: { xs: 16, sm: 13.5 },
     color: INK,
     minWidth: 0,
+    py: 0,
     "&::placeholder": { color: INK_FAINT, opacity: 1 },
   },
 };
 
 const labelSx = {
   display: "block",
-  mb: 0.75,
-  fontSize: 13,
-  fontWeight: 600,
+  mb: 0.5,
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: "0.02em",
   color: INK_LABEL,
 };
 
 const popupPaperSx = {
-  mt: 0.5,
-  borderRadius: 2.5,
+  mt: 0.75,
+  borderRadius: 3,
   border: `1px solid ${HAIRLINE}`,
-  boxShadow: "0 16px 40px -16px rgba(17, 24, 39, 0.30)",
+  boxShadow: "0 20px 48px -16px rgba(17, 24, 39, 0.32)",
   "& .MuiAutocomplete-option": {
     mx: 0.75,
-    borderRadius: 1.75,
+    my: 0.25,
+    borderRadius: 2,
     fontSize: 14,
-    minHeight: 40,
-    '&[aria-selected="true"]': { bgcolor: BRAND_SOFT },
+    minHeight: 36,
+    transition: "background-color 120ms ease",
+    '&[aria-selected="true"]': { bgcolor: BRAND_SOFT, fontWeight: 600 },
     "&.Mui-focused": { bgcolor: BRAND_SOFT },
   },
+};
+
+// Shared base for every pill-shaped button (filters toggle, search, reset)
+// so height/radius/typography never drift apart again.
+const pillButtonSx = {
+  minHeight: BUTTON_HEIGHT,
+  borderRadius: 2.5,
+  textTransform: "none",
+  fontSize: 13,
+  fontWeight: 600,
+  "& .MuiButton-startIcon": { marginRight: 0.5 },
+  "& .MuiButton-startIcon > *:nth-of-type(1)": { fontSize: "16px !important" },
+  transition: "background-color 150ms ease, box-shadow 150ms ease, transform 100ms ease",
+  "&:active": { transform: "scale(0.98)" },
+  ...focusRing,
 };
 
 export default function SearchFilter<T extends FilterValues>(
@@ -136,16 +162,16 @@ export default function SearchFilter<T extends FilterValues>(
       elevation={0}
       role="search"
       sx={{
-        borderRadius: 3,
+        borderRadius: 3.5,
         border: "1px solid",
         borderColor: HAIRLINE,
         bgcolor: "#ffffff",
         boxShadow:
-          "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+          "0 1px 2px rgba(17,24,39,0.04), 0 20px 48px -24px rgba(17,24,39,0.35)",
         overflow: "hidden",
       }}
     >
-      <Box sx={{ p: { xs: 2, md: 2.5 } }}>
+      <Box sx={{ p: { xs: 1.75, sm: 2 } }}>
         {/* ================================= */}
         {/* MAIN SEARCH */}
         {/* ================================= */}
@@ -153,6 +179,7 @@ export default function SearchFilter<T extends FilterValues>(
         {searchField && (
           <TextField
             fullWidth
+            size="small"
             value={searchValue}
             placeholder={searchField.placeholder || t("searchPlaceholder")}
             onChange={(event) =>
@@ -164,7 +191,7 @@ export default function SearchFilter<T extends FilterValues>(
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 20, color: INK_FAINT }} />
+                    <SearchIcon sx={{ fontSize: 18, color: INK_FAINT }} />
                   </InputAdornment>
                 ),
                 endAdornment: searchValue ? (
@@ -176,20 +203,13 @@ export default function SearchFilter<T extends FilterValues>(
                       onClick={() => handleChange(searchField.name, "")}
                       sx={{ color: INK_FAINT, ...focusRing }}
                     >
-                      <CloseIcon sx={{ fontSize: 18 }} />
+                      <CloseIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   </InputAdornment>
                 ) : null,
               },
             }}
-            sx={{
-              ...fieldSx,
-              mb: hasFilters ? { xs: 1.5, md: 2.5 } : 0,
-              "& .MuiOutlinedInput-root": {
-                ...fieldSx["& .MuiOutlinedInput-root"],
-                height: 48,
-              },
-            }}
+            sx={{ ...fieldSx, mb: hasFilters ? { xs: 1.25, md: 1.75 } : 0 }}
           />
         )}
 
@@ -203,38 +223,36 @@ export default function SearchFilter<T extends FilterValues>(
             aria-expanded={filtersOpen}
             aria-controls={panelId}
             sx={{
+              ...pillButtonSx,
               display: { xs: "flex", md: "none" },
               width: "100%",
               justifyContent: "space-between",
-              minHeight: 44,
-              px: 1.75,
-              borderRadius: 2.5,
-              border: `1px solid ${HAIRLINE_STRONG}`,
-              textTransform: "none",
-              fontSize: 14,
-              fontWeight: 600,
+              px: 1.5,
+              border: `1px solid ${filtersOpen ? BRAND : HAIRLINE_STRONG}`,
               color: INK,
+              bgcolor: filtersOpen ? BRAND_SOFT : "transparent",
               "&:hover": { bgcolor: BRAND_SOFT, borderColor: BRAND },
-              ...focusRing,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <FilterListIcon sx={{ fontSize: 20, color: INK_MUTED }} />
+              <FilterListIcon sx={{ fontSize: 20, color: filtersOpen ? BRAND : INK_MUTED }} />
               {refineTitle}
               {activeCount > 0 && (
                 <Box
                   component="span"
                   sx={{
-                    minWidth: 20,
-                    height: 20,
-                    px: 0.75,
+                    minWidth: 18,
+                    height: 18,
+                    px: 0.625,
                     display: "grid",
                     placeItems: "center",
                     borderRadius: 999,
-                    bgcolor: BRAND,
+                    background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})`,
+                    boxShadow: `0 0 0 3px ${BRAND_GLOW}`,
                     color: "#ffffff",
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: 700,
+                    lineHeight: 1,
                   }}
                 >
                   {activeCount}
@@ -275,24 +293,23 @@ export default function SearchFilter<T extends FilterValues>(
                 role="group"
                 aria-label={refineTitle}
                 sx={{
-                  pt: { xs: 2, md: 0 },
+                  pt: { xs: 1.5, md: 0 },
                   display: "grid",
                   gridTemplateColumns: {
                     xs: "minmax(0, 1fr)",
                     sm: "repeat(2, minmax(0, 1fr))",
                     lg: "repeat(3, minmax(0, 1fr))",
                   },
-                  gap: 2,
+                  gap: { xs: 1.25, sm: 1.5 },
                 }}
               >
                 {fields.map((field) => {
                   const fieldName = String(field.name);
                   const inputId = `${uid}-${fieldName}`;
-
                   const span = Math.min(field.colSpan ?? 1, 3);
                   const gridColumn = {
                     xs: "span 1",
-                    sm: span >= 2 ? "span 2" : "span 1",
+                    sm: `span ${Math.min(span, 2)}`,
                     lg: `span ${span}`,
                   };
 
@@ -303,11 +320,7 @@ export default function SearchFilter<T extends FilterValues>(
                   if (field.type === "select") {
                     return (
                       <Box key={fieldName} sx={{ gridColumn }}>
-                        <Typography
-                          component="label"
-                          htmlFor={inputId}
-                          sx={labelSx}
-                        >
+                        <Typography component="label" htmlFor={inputId} sx={labelSx}>
                           {field.label}
                         </Typography>
 
@@ -320,6 +333,7 @@ export default function SearchFilter<T extends FilterValues>(
                             ) ?? null
                           }
                           fullWidth
+                          size="small"
                           autoHighlight
                           disabled={field.disabled}
                           getOptionLabel={(option) => option.label}
@@ -354,15 +368,8 @@ export default function SearchFilter<T extends FilterValues>(
                     const labelId = `${inputId}-label`;
 
                     return (
-                      <Box
-                        key={`${fieldName}-${String(field.endName)}`}
-                        sx={{ gridColumn }}
-                      >
-                        <Typography
-                          component="span"
-                          id={labelId}
-                          sx={labelSx}
-                        >
+                      <Box key={`${fieldName}-${String(field.endName)}`} sx={{ gridColumn }}>
+                        <Typography component="span" id={labelId} sx={labelSx}>
                           {field.label}
                         </Typography>
 
@@ -373,7 +380,7 @@ export default function SearchFilter<T extends FilterValues>(
                             display: "grid",
                             gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
                             alignItems: "center",
-                            gap: 1,
+                            gap: 0.75,
                           }}
                         >
                           <TextField
@@ -382,23 +389,22 @@ export default function SearchFilter<T extends FilterValues>(
                             type="date"
                             value={values[field.name] ?? ""}
                             disabled={field.disabled}
-                            onChange={(event) =>
-                              handleChange(field.name, event.target.value)
-                            }
+                            onChange={(event) => handleChange(field.name, event.target.value)}
                             slotProps={{
-                              htmlInput: {
-                                "aria-label": `${field.label} (${t("from")})`,
-                              },
+                              htmlInput: { "aria-label": `${field.label} (${t("from")})` },
                             }}
                             sx={fieldSx}
                           />
 
-                          <Typography
+                          <Box
                             aria-hidden
-                            sx={{ color: INK_FAINT, fontWeight: 600 }}
-                          >
-                            –
-                          </Typography>
+                            sx={{
+                              width: 12,
+                              height: 1.5,
+                              borderRadius: 1,
+                              bgcolor: HAIRLINE_STRONG,
+                            }}
+                          />
 
                           <TextField
                             fullWidth
@@ -406,13 +412,9 @@ export default function SearchFilter<T extends FilterValues>(
                             type="date"
                             value={values[field.endName] ?? ""}
                             disabled={field.disabled}
-                            onChange={(event) =>
-                              handleChange(field.endName, event.target.value)
-                            }
+                            onChange={(event) => handleChange(field.endName, event.target.value)}
                             slotProps={{
-                              htmlInput: {
-                                "aria-label": `${field.label} (${t("to")})`,
-                              },
+                              htmlInput: { "aria-label": `${field.label} (${t("to")})` },
                             }}
                             sx={fieldSx}
                           />
@@ -427,11 +429,7 @@ export default function SearchFilter<T extends FilterValues>(
 
                   return (
                     <Box key={fieldName} sx={{ gridColumn }}>
-                      <Typography
-                        component="label"
-                        htmlFor={inputId}
-                        sx={labelSx}
-                      >
+                      <Typography component="label" htmlFor={inputId} sx={labelSx}>
                         {field.label}
                       </Typography>
 
@@ -442,9 +440,7 @@ export default function SearchFilter<T extends FilterValues>(
                         value={values[field.name] ?? ""}
                         placeholder={field.placeholder}
                         disabled={field.disabled}
-                        onChange={(event) =>
-                          handleChange(field.name, event.target.value)
-                        }
+                        onChange={(event) => handleChange(field.name, event.target.value)}
                         onKeyDown={handleKeyDown}
                         sx={fieldSx}
                       />
@@ -463,15 +459,15 @@ export default function SearchFilter<T extends FilterValues>(
 
       <Box
         sx={{
-          px: { xs: 2, md: 2.5 },
-          py: 1.5,
+          px: { xs: 1.75, sm: 2 },
+          py: 1.25,
           borderTop: `1px solid ${HAIRLINE}`,
           bgcolor: SURFACE_TINT,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: 1.5,
+          gap: 1.25,
         }}
       >
         <Box
@@ -495,21 +491,22 @@ export default function SearchFilter<T extends FilterValues>(
               )
             }
             sx={{
+              ...pillButtonSx,
               flex: { xs: 1, sm: "none" },
-              minHeight: 42,
-              px: 2.5,
-              borderRadius: 2.5,
-              bgcolor: BRAND,
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              "&:hover": { bgcolor: BRAND_DARK, boxShadow: "none" },
-              "&.Mui-disabled": {
-                bgcolor: BRAND,
-                color: "#ffffff",
-                opacity: 0.65,
+              px: 2,
+              color: "#ffffff",
+              background: `linear-gradient(135deg, ${BRAND}, ${BRAND_DARK})`,
+              boxShadow: `0 6px 16px -6px ${BRAND_GLOW}`,
+              "&:hover": {
+                background: `linear-gradient(135deg, ${BRAND_DARK}, ${BRAND_DARK})`,
+                boxShadow: `0 8px 20px -6px rgba(16, 122, 100, 0.45)`,
               },
-              ...focusRing,
+              "&.Mui-disabled": {
+                background: BRAND,
+                color: "#ffffff",
+                opacity: 0.6,
+                boxShadow: "none",
+              },
             }}
           >
             {isLoading ? t("searching") : searchButtonText}
@@ -521,14 +518,10 @@ export default function SearchFilter<T extends FilterValues>(
             disabled={isLoading || !hasAnyValue}
             startIcon={<RestartAltIcon sx={{ fontSize: 18 }} />}
             sx={{
-              minHeight: 42,
-              px: 1.75,
-              borderRadius: 2.5,
-              textTransform: "none",
-              fontWeight: 600,
+              ...pillButtonSx,
+              px: 1.5,
               color: INK_MUTED,
-              "&:hover": { bgcolor: "rgba(17, 24, 39, 0.05)", color: INK },
-              ...focusRing,
+              "&:hover": { bgcolor: "rgba(17, 24, 39, 0.06)", color: INK },
             }}
           >
             {resetButtonText}

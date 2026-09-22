@@ -96,7 +96,9 @@
     "items": {
       "Dashboard": "ダッシュボード",
       "Staff": "スタッフ",
-      "Clients": "顧客"
+      "Clients": "顧客",
+      "Stages": "ステージ"
+
     }
   },
   "commonSearchFilter": {

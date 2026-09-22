@@ -18,6 +18,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import AccountTreeRoundedIcon from "@mui/icons-material/AccountTreeRounded";
 
 import { useSidebar } from "./hook";
 import type { SidebarItem, SidebarNavItemProps, SidebarProps } from "./type";
@@ -51,6 +52,7 @@ const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
   Dashboard: DashboardRoundedIcon,
   Staff: GroupsRoundedIcon,
   Clients: PeopleAltRoundedIcon,
+  Stages: AccountTreeRoundedIcon,
 };
 
 // =================================================

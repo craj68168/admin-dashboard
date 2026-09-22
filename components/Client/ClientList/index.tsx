@@ -369,7 +369,7 @@ const ClientListPage = () => {
     borderRadius: 2,
     textTransform: "none",
     fontSize: 13,
-    fontWeight: 700,
+    fontWeight: 600,
   } as const;
   // =================================================
   // UI
@@ -581,7 +581,7 @@ const ClientListPage = () => {
                   xs: 2,
                   sm: 2.5,
                 },
-                py: 1.75,
+                py: 1.25,
                 borderBottom: `1px solid ${HAIRLINE}`,
                 bgcolor: "#FAFAFA",
               }}
@@ -609,6 +609,7 @@ const ClientListPage = () => {
               disableRowSelectionOnClick
               hideFooter
               autoHeight
+              columnHeaderHeight={44}
               slots={{
                 noRowsOverlay: NoDataOverlay,
               }}
@@ -622,7 +623,7 @@ const ClientListPage = () => {
                   borderBottom: `1px solid ${HAIRLINE}`,
                 },
                 "& .MuiDataGrid-columnHeader": {
-                  bgcolor: "#F9FAFB",
+                  bgcolor: "#6ec5c2",
                   "&:focus, &:focus-within": {
                     outline: "none",
                   },
@@ -711,7 +712,7 @@ const ClientListPage = () => {
                   xs: 2,
                   sm: 2.5,
                 },
-                py: 1.75,
+                py: 1.25,
                 borderTop: `1px solid ${HAIRLINE}`,
                 bgcolor: "#FAFAFA",
               }}
