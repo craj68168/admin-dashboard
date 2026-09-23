@@ -9,6 +9,10 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
+
 import { Controller } from "react-hook-form";
 
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
@@ -87,6 +91,14 @@ const fieldSx = {
 export default function EditStagePage() {
   const t = useTranslations("editStage");
 
+  const router = useRouter();
+
+  const user = useAuthStore((state) => state.user);
+
+  const initialized = useAuthStore((state) => state.initialized);
+
+  const isSuperAdmin = user?.role === "superadmin";
+
   const {
     stage,
     form,
@@ -105,9 +117,26 @@ export default function EditStagePage() {
   const {
     register,
     control,
-
     formState: { errors, isDirty },
   } = form;
+
+  // =================================================
+  // ACCESS CONTROL
+  // =================================================
+
+  useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
+    if (!isSuperAdmin) {
+      router.replace("/admin/stages");
+    }
+  }, [initialized, isSuperAdmin, router]);
+
+  if (!initialized || !isSuperAdmin) {
+    return null;
+  }
 
   // =================================================
   // LOADING
@@ -647,9 +676,7 @@ export default function EditStagePage() {
                   ...focusRing,
                 }}
               >
-                {isSubmitting
-                  ? t("actions.saving")
-                  : t("actions.saveChanges")}
+                {isSubmitting ? t("actions.saving") : t("actions.saveChanges")}
               </Button>
             </Box>
           </Box>

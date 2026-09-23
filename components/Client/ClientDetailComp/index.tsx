@@ -354,6 +354,7 @@ const DocumentBadge = ({
         bgcolor: "currentColor",
       }}
     />
+
     {uploaded ? uploadedLabel : notUploadedLabel}
   </Box>
 );
@@ -581,6 +582,7 @@ const ClientDetail = () => {
   const t = useTranslations("clientDetail");
   const createT = useTranslations("createClient");
 
+
   const {
     clientId,
     client,
@@ -781,6 +783,9 @@ const ClientDetail = () => {
   }
 
   const profile = client.profile;
+
+  const originalCvUrl =
+  getUploadedFileUrl(profile?.cv);
 
   const education = profile?.education ?? [];
   const qualifications = profile?.qualifications ?? [];
@@ -1021,19 +1026,14 @@ const ClientDetail = () => {
               </Typography>
 
               {profile?.furigana && (
-                <Typography
-                  sx={{ mt: 0.25, color: MUTED, fontSize: 13 }}
-                >
+                <Typography sx={{ mt: 0.25, color: MUTED, fontSize: 13 }}>
                   {profile.furigana}
                 </Typography>
               )}
 
               <Typography sx={{ mt: 1, color: MUTED, fontSize: 12.5 }}>
                 {t("fields.clientId")}{" "}
-                <Box
-                  component="span"
-                  sx={{ color: BRAND, fontWeight: 700 }}
-                >
+                <Box component="span" sx={{ color: BRAND, fontWeight: 700 }}>
                   {clientId}
                 </Box>
               </Typography>
@@ -1060,14 +1060,8 @@ const ClientDetail = () => {
                 borderTop: `1px solid ${HAIRLINE}`,
               }}
             >
-              <ContactRow
-                icon={<PhoneOutlinedIcon />}
-                value={client.phone}
-              />
-              <ContactRow
-                icon={<EmailOutlinedIcon />}
-                value={profile?.email}
-              />
+              <ContactRow icon={<PhoneOutlinedIcon />} value={client.phone} />
+              <ContactRow icon={<EmailOutlinedIcon />} value={profile?.email} />
 
               <Divider sx={{ my: 0.5, borderColor: HAIRLINE }} />
 
@@ -1097,14 +1091,39 @@ const ClientDetail = () => {
                   gap: 1,
                 }}
               >
-                <Typography sx={{ color: MUTED, fontSize: 12.5 }}>
+                <Typography
+                  sx={{
+                    color: MUTED,
+                    fontSize: 12.5,
+                  }}
+                >
                   {t("documents.originalCv")}
                 </Typography>
-                <DocumentBadge
-                  uploaded={Boolean(profile?.cv)}
-                  uploadedLabel={t("documents.uploaded")}
-                  notUploadedLabel={t("documents.notUploaded")}
-                />
+
+                {originalCvUrl ? (
+                  <Button
+                    component="a"
+                    href={originalCvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="small"
+                    startIcon={<PictureAsPdfOutlinedIcon />}
+                    sx={{
+                      textTransform: "none",
+                      color: BRAND,
+                      fontWeight: 600,
+                      minWidth: "auto",
+                    }}
+                  >
+                    View CV
+                  </Button>
+                ) : (
+                  <DocumentBadge
+                    uploaded={false}
+                    uploadedLabel={t("documents.uploaded")}
+                    notUploadedLabel={t("documents.notUploaded")}
+                  />
+                )}
               </Box>
             </Box>
           </Box>
@@ -1299,7 +1318,9 @@ const ClientDetail = () => {
 
                         <Field
                           label={t("fields.graduationStatus")}
-                          value={getGraduationStatusLabel(item.graduationStatus)}
+                          value={getGraduationStatusLabel(
+                            item.graduationStatus,
+                          )}
                         />
                       </FieldGrid>
                     </ItemCard>
@@ -1439,9 +1460,7 @@ const ClientDetail = () => {
 
                       {(item.responsibilities || item.achievements) && (
                         <>
-                          <Divider
-                            sx={{ my: 2.5, borderColor: HAIRLINE }}
-                          />
+                          <Divider sx={{ my: 2.5, borderColor: HAIRLINE }} />
 
                           <Box
                             sx={{
@@ -1533,9 +1552,7 @@ const ClientDetail = () => {
               title={t("sections.applicationContent")}
               description={t("descriptions.applicationContent")}
             >
-              <Box
-                sx={{ display: "flex", flexDirection: "column", gap: 3 }}
-              >
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <Field
                   label={t("fields.motivation")}
                   value={displayValue(profile?.motivation)}
@@ -1556,21 +1573,15 @@ const ClientDetail = () => {
             {/* REMARKS / PROGRESS / PAYMENTS
                 These components render their own content, so they get the
                 same card shell as every other section. */}
-            <Box
-              sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}
-            >
+            <Box sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}>
               <Remarks clientId={client.clientId} />
             </Box>
 
-            <Box
-              sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}
-            >
+            <Box sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}>
               <Progress clientId={client.clientId} />
             </Box>
 
-            <Box
-              sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}
-            >
+            <Box sx={{ ...cardSx, p: { xs: 2, sm: 3, md: 3.5 } }}>
               <Payments clientId={client.clientId} />
             </Box>
           </Box>
