@@ -10,6 +10,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { Controller } from "react-hook-form";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
+
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
@@ -85,6 +89,14 @@ const fieldSx = {
 export default function AddStagePage() {
   const t = useTranslations("addStage");
 
+  const router = useRouter();
+
+  const user = useAuthStore((state) => state.user);
+
+  const initialized = useAuthStore((state) => state.initialized);
+
+  const isSuperAdmin = user?.role === "superadmin";
+
   const { form, onSubmit, handleCancel, isSubmitting } = useAddStageHook();
 
   const {
@@ -92,6 +104,24 @@ export default function AddStagePage() {
     control,
     formState: { errors, isDirty },
   } = form;
+
+  // =================================================
+  // ACCESS CONTROL
+  // =================================================
+
+  useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
+    if (!isSuperAdmin) {
+      router.replace("/admin/stages");
+    }
+  }, [initialized, isSuperAdmin, router]);
+
+  if (!initialized || !isSuperAdmin) {
+    return null;
+  }
 
   return (
     <Box
@@ -461,9 +491,7 @@ export default function AddStagePage() {
                   ...focusRing,
                 }}
               >
-                {isSubmitting
-                  ? t("actions.creating")
-                  : t("actions.create")}
+                {isSubmitting ? t("actions.creating") : t("actions.create")}
               </Button>
             </Box>
           </Box>
