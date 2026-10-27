@@ -4,12 +4,9 @@ import { useRouter } from "next/navigation";
 
 import { useLogout } from "@/hooks/logout";
 import { useAuthStore } from "@/store/auth-store";
+import { getPortalPaths } from "@/lib/portal-routes";
 
-import {
-  routeMap,
-  sidebarItems,
-  type SidebarItem,
-} from "./type";
+import { sidebarItems, type SidebarItem } from "./type";
 
 export function useSidebar() {
   const router = useRouter();
@@ -17,37 +14,36 @@ export function useSidebar() {
   const { logout } = useLogout();
 
   const user = useAuthStore((state) => state.user);
+  const paths = getPortalPaths(user?.role);
 
   // ================================================
   // ROLE-BASED SIDEBAR
   // ================================================
 
   const visibleSidebarItems: SidebarItem[] =
-    sidebarItems.filter((item) => {
-      // Super Admin can see everything
-      if (user?.role === "superadmin") {
-        return true;
-      }
-
-      // Staff cannot access Staff management
-      if (user?.role === "staff") {
-        return item !== "Staff";
-      }
-
-      // Safe fallback while auth is loading
-      return item === "Dashboard";
-    });
+    user?.role === "staff"
+      ? ["Dashboard", "Clients"]
+      : user?.role === "superadmin"
+        ? sidebarItems
+        : ["Dashboard"];
 
   // ================================================
   // NAVIGATION
   // ================================================
 
   const goToDashboard = () => {
-    router.push(routeMap.Dashboard);
+    router.push(paths.dashboard);
   };
 
   const goToItem = (item: SidebarItem) => {
-    router.push(routeMap[item]);
+    const destinations: Record<SidebarItem, string> = {
+      Dashboard: paths.dashboard,
+      Staff: "/admin/staff",
+      Clients: paths.clients,
+      Stages: "/admin/stages",
+    };
+
+    router.push(destinations[item]);
   };
 
   return {

@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
+import { getPortalPaths } from "@/lib/portal-routes";
 
 import { clientFormSchema } from "./validation";
 
@@ -130,6 +131,7 @@ export const useClientFormHook = (clientId?: string) => {
   const user = useAuthStore((state) => state.user);
 
   const role = user?.role;
+  const paths = getPortalPaths(role);
 
   const isEditMode = Boolean(clientId);
 
@@ -705,12 +707,12 @@ export const useClientFormHook = (clientId?: string) => {
       );
 
       if (savedClientId) {
-        router.push(`/admin/client/${encodeURIComponent(savedClientId)}`);
+        router.push(paths.client(savedClientId));
 
         return;
       }
 
-      router.push("/admin/client");
+      router.push(paths.clients);
     } catch (error) {
       console.error("SAVE CLIENT ERROR:", error);
 
@@ -762,12 +764,12 @@ export const useClientFormHook = (clientId?: string) => {
 
     handleCancel: () => {
       if (clientId) {
-        router.push(`/admin/client/${encodeURIComponent(clientId)}`);
+        router.push(paths.client(clientId));
 
         return;
       }
 
-      router.push("/admin/client");
+      router.push(paths.clients);
     },
   };
 };

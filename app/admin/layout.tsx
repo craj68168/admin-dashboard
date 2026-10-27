@@ -15,6 +15,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const theme = useTheme();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
 
   // Same breakpoint the Sidebar uses to switch between drawer and column.
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -39,10 +40,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/login");
+    } else if (user?.role !== "superadmin") {
+      router.replace("/staff/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, user?.role]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || user?.role !== "superadmin") {
     return (
       <Box
         sx={{

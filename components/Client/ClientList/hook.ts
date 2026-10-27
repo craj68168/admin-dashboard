@@ -4,6 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
+import { getPortalPaths } from "@/lib/portal-routes";
 import type {
   ClientExportFormat,
   ClientFilterValues,
@@ -33,6 +34,7 @@ export const useClientHook = () => {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const role = user?.role;
+  const paths = getPortalPaths(role);
   const [exportingFormat, setExportingFormat] =
     useState<ClientExportFormat | null>(null);
   // =================================================
@@ -284,7 +286,7 @@ export const useClientHook = () => {
     onPageChange,
     handleClientSearch,
     handleClientFilterReset,
-    handleCreateClient: () => router.push("/admin/client/add"),
+    handleCreateClient: () => router.push(paths.addClient),
     deleteClient,
     isDeleting,
     downloadClients,

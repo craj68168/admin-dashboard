@@ -12,6 +12,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import { useNavbar } from "./hook";
 import type { NavbarProps } from "./type";
 import LanguageSwitcher from "@/components/common/LanguageSwitcher";
+import { getPortalPaths } from "@/lib/portal-routes";
 
 // =================================================
 // DESIGN SYSTEM
@@ -33,6 +34,7 @@ type NavbarWithMenuProps = NavbarProps & {
 export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
   const { user, initials } = useNavbar();
   const tSidebar = useTranslations("sidebar");
+  const profilePath = getPortalPaths(user?.role).profile;
 
   return (
     <Box
@@ -138,7 +140,7 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
         {user && (
           <Box
             component={Link}
-            href="/admin/profile"
+            href={profilePath}
             aria-label={`Open profile (${user.name})`}
             sx={{
               display: "flex",
