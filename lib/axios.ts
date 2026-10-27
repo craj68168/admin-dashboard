@@ -27,13 +27,20 @@ api.interceptors.response.use(
 
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      const isLoginRequest = error.config?.url?.includes("/auth/login");
+      const requestUrl = error.config?.url ?? "";
+      const isLoginRequest = /\/auth\/(?:login|admin\/login|staff\/login)$/.test(
+        requestUrl,
+      );
 
       if (!isLoginRequest) {
         localStorage.removeItem("access_token");
 
-        if (window.location.pathname !== "/login") {
-          window.location.replace("/login");
+        const loginPath = window.location.pathname.startsWith("/staff")
+          ? "/staff/login"
+          : "/login";
+
+        if (window.location.pathname !== loginPath) {
+          window.location.replace(loginPath);
         }
       }
     }

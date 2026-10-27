@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 import { api } from "@/lib/axios";
+import { getPortalPaths } from "@/lib/portal-routes";
+import { useAuthStore } from "@/store/auth-store";
 
 import type { ClientDetailResponse } from "./type";
 
@@ -29,6 +31,8 @@ const getDownloadFileName = (contentDisposition?: string) => {
 export const useClientDetailHook = () => {
   const t = useTranslations("clientDetail");
   const router = useRouter();
+  const role = useAuthStore((state) => state.user?.role);
+  const paths = getPortalPaths(role);
 
   const params = useParams<{
     clientId: string;
@@ -71,7 +75,7 @@ export const useClientDetailHook = () => {
   // =================================================
 
   const handleBack = () => {
-    router.push("/admin/client");
+    router.push(paths.clients);
   };
 
   // =================================================
@@ -83,7 +87,7 @@ export const useClientDetailHook = () => {
       return;
     }
 
-    router.push(`/admin/client/${encodeURIComponent(clientId)}/edit`);
+    router.push(paths.editClient(clientId));
   };
 
   // =================================================

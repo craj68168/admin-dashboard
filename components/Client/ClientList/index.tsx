@@ -29,6 +29,7 @@ import {
 } from "@/components/constant";
 import { useClientHook } from "./hook";
 import type { ClientFilterValues, ClientListItem } from "./type";
+import { getPortalPaths } from "@/lib/portal-routes";
 // =================================================
 // DESIGN
 // =================================================
@@ -78,6 +79,7 @@ const ClientListPage = () => {
     downloadClients,
     exportingFormat,
   } = useClientHook();
+  const paths = getPortalPaths(role);
   // =================================================
   // DISPLAY HELPERS
   // =================================================
@@ -279,7 +281,7 @@ const ClientListPage = () => {
             <IconButton
               aria-label={t("actions.view")}
               onClick={() =>
-                router.push(`/admin/client/${encodeURIComponent(row.clientId)}`)
+                router.push(paths.client(row.clientId))
               }
               sx={{
                 width: 34,
@@ -301,9 +303,7 @@ const ClientListPage = () => {
             <IconButton
               aria-label={t("actions.edit")}
               onClick={() =>
-                router.push(
-                  `/admin/client/${encodeURIComponent(row.clientId)}/edit`,
-                )
+                router.push(paths.editClient(row.clientId))
               }
               sx={{
                 width: 34,
@@ -411,7 +411,7 @@ const ClientListPage = () => {
               items={[
                 {
                   label: t("breadcrumbs.dashboard"),
-                  href: "/admin/dashboard",
+                  href: paths.dashboard,
                 },
                 {
                   label: t("breadcrumbs.clients"),

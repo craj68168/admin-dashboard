@@ -1,8 +1,8 @@
-# Admin Dashboard Frontend 🚀
+# Fortune Admin and Staff Portals 🚀
 
 ## Project Overview 📋
 
-This repository contains the frontend application for the **Admin Dashboard**.
+This repository contains the frontend application for the Fortune superadmin and staff portals.
 
 The application is built with **Next.js**, **React**, **TypeScript**, **Material UI**, **TanStack Query**, and other modern frontend technologies.
 
@@ -137,7 +137,13 @@ admin-dashboard/
 
 ## Authentication 🔐
 
-The application supports authentication through the backend API.
+The application has separate sign-in entry points and protected areas:
+
+* Superadmin sign-in: `/login` → `/admin/dashboard`
+* Staff sign-in: `/staff/login` → `/staff/dashboard`
+* Staff client workflows live under `/staff/client`; superadmin workflows live under `/admin/client`.
+
+The backend exposes role-scoped login endpoints at `/api/auth/admin/login` and `/api/auth/staff/login`. The legacy `/api/auth/login` endpoint remains admin-only. Both portals use `/api/auth/me` for session validation, and role authorization is enforced by backend route middleware as well as frontend layouts.
 
 Authentication flow:
 

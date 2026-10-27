@@ -21,10 +21,16 @@ import { useLoginHook } from "./hook";
 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
-const LoginComponent = () => {
+import type { UserRole } from "@/store/type";
+
+type LoginComponentProps = {
+  role?: UserRole;
+};
+
+const LoginComponent = ({ role = "superadmin" }: LoginComponentProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loginAsync, loading } = useLoginHook();
+  const { loginAsync, loading } = useLoginHook(role);
 
   const {
     register,
@@ -113,7 +119,7 @@ const LoginComponent = () => {
               textTransform: "uppercase",
             }}
           >
-            Login
+            {role === "staff" ? "Staff Login" : "Admin Login"}
           </Typography>
 
           <Box
@@ -264,7 +270,11 @@ const LoginComponent = () => {
 
               <Box sx={{ textAlign: "center" }}>
                 <Link
-                  href="/forgot-password"
+                  href={
+                    role === "staff"
+                      ? "/staff/forgot-password"
+                      : "/forgot-password"
+                  }
                   style={{
                     textDecoration: "underline",
                     fontWeight: 600,
@@ -272,6 +282,18 @@ const LoginComponent = () => {
                   }}
                 >
                   Forgot password
+                </Link>
+              </Box>
+              <Box sx={{ textAlign: "center", mt: 1.5 }}>
+                <Link
+                  href={role === "staff" ? "/login" : "/staff/login"}
+                  style={{
+                    textDecoration: "underline",
+                    fontWeight: 600,
+                    color: "#06428A",
+                  }}
+                >
+                  {role === "staff" ? "Admin sign in" : "Staff sign in"}
                 </Link>
               </Box>
             </Box>

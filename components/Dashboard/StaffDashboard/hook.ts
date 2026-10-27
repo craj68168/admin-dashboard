@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { api } from "@/lib/axios";
+import { getPortalPaths } from "@/lib/portal-routes";
+import { useAuthStore } from "@/store/auth-store";
 
 import type { StaffDashboardResponse } from "./type";
 
@@ -29,6 +31,8 @@ const getCurrentJapanMonth = () => {
 
 export const useStaffDashboard = () => {
   const router = useRouter();
+  const role = useAuthStore((state) => state.user?.role);
+  const paths = getPortalPaths(role);
 
   const [selectedMonth, setSelectedMonth] = useState(getCurrentJapanMonth());
 
@@ -65,7 +69,7 @@ export const useStaffDashboard = () => {
   };
 
   const handleClientClick = (clientId: string) => {
-    router.push(`/admin/client/${encodeURIComponent(clientId)}`);
+    router.push(paths.client(clientId));
   };
 
   return {

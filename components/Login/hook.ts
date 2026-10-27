@@ -3,10 +3,13 @@ import { LoginPayload } from "./type";
 import { api } from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
+import type { UserRole } from "@/store/type";
+import { getPortalPaths } from "@/lib/portal-routes";
 
-export const useLoginHook = () => {
+export const useLoginHook = (role: UserRole = "superadmin") => {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const portal = getPortalPaths(role);
 
   const {
     mutate,
@@ -19,7 +22,7 @@ export const useLoginHook = () => {
     reset,
   } = useMutation({
     mutationFn: async (payload: LoginPayload) => {
-      const response = await api.post("/auth/login", payload);
+      const response = await api.post(portal.loginApi, payload);
 
       return response.data;
     },
@@ -33,7 +36,7 @@ export const useLoginHook = () => {
 
       setAuth(data.user, token);
 
-      router.replace("/admin/dashboard");
+      router.replace(portal.dashboard);
     },
   });
 

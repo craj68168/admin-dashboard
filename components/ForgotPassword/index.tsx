@@ -58,7 +58,11 @@ const errorTextSx = {
   color: "error.main",
 };
 
-export default function ForgotPassword() {
+export default function ForgotPassword({
+  loginPath = "/login",
+}: {
+  loginPath?: string;
+}) {
   const [showPassword, setShowPassword] =
     useState(false);
 
@@ -78,7 +82,7 @@ export default function ForgotPassword() {
     isVerifyingOtp,
     isResettingPassword,
     handleBackToEmail,
-  } = useForgotPasswordHook();
+  } = useForgotPasswordHook(loginPath);
 
   const emailForm =
     useForm<ForgotPasswordFormValues>({
@@ -593,7 +597,7 @@ export default function ForgotPassword() {
             }}
           >
             <Link
-              href="/login"
+              href={loginPath}
               style={{
                 textDecoration: "underline",
                 fontWeight: 600,

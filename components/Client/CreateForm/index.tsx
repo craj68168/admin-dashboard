@@ -39,6 +39,7 @@ import {
 
 import { useClientFormHook } from "./hook";
 import type { ClientFormProps } from "./type";
+import { getPortalPaths } from "@/lib/portal-routes";
 
 // =================================================
 // DESIGN TOKENS
@@ -545,6 +546,7 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
 
     handleCancel,
   } = useClientFormHook(clientId);
+  const paths = getPortalPaths(role);
 
   // =================================================
   // ARRAYS
@@ -745,11 +747,11 @@ const ClientForm = ({ clientId }: ClientFormProps) => {
             items={[
               {
                 label: t("breadcrumbs.dashboard"),
-                href: "/admin/dashboard",
+                href: paths.dashboard,
               },
               {
                 label: t("breadcrumbs.clients"),
-                href: "/admin/client",
+                href: paths.clients,
               },
               {
                 label: isEditMode

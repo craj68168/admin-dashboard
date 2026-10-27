@@ -36,7 +36,7 @@ const getErrorMessage = (
   return fallback;
 };
 
-export function useForgotPasswordHook() {
+export function useForgotPasswordHook(loginPath = "/login") {
   const router = useRouter();
 
   const [step, setStep] =
@@ -146,7 +146,7 @@ export function useForgotPasswordHook() {
             "Password reset successfully",
         );
 
-        router.replace("/login");
+        router.replace(loginPath);
       },
 
       onError: (error) => {

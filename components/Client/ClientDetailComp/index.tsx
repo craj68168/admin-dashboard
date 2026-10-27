@@ -35,6 +35,8 @@ import {
 } from "@/components/constant";
 
 import { useClientDetailHook } from "./hook";
+import { getPortalPaths } from "@/lib/portal-routes";
+import { useAuthStore } from "@/store/auth-store";
 
 import Remarks from "./Remarks";
 import Progress from "./Progress";
@@ -598,6 +600,8 @@ const ClientDetail = () => {
     handleEdit,
     handleGenerateJapaneseCv,
   } = useClientDetailHook();
+  const role = useAuthStore((state) => state.user?.role);
+  const paths = getPortalPaths(role);
 
   // Hooks must run before any early return
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -822,11 +826,11 @@ const ClientDetail = () => {
             items={[
               {
                 label: t("breadcrumbs.dashboard"),
-                href: "/admin/dashboard",
+                href: paths.dashboard,
               },
               {
                 label: t("breadcrumbs.clients"),
-                href: "/admin/client",
+                href: paths.clients,
               },
               {
                 label: client.fullName,
