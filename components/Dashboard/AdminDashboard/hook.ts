@@ -282,6 +282,7 @@ export const useAdminDashboard = () => {
     hasActiveFilters,
 
     overview: data?.overview,
+    charts: data?.charts,
 
     rankings: data?.rankings?.data ?? [],
 
