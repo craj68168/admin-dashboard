@@ -389,23 +389,23 @@
     "fields": {
       "name": {
         "label": "Name",
-        "placeholder": "Enter staff name"
+        "placeholder": "e.g. Taro Yamada"
       },
       "phone": {
         "label": "Phone",
-        "placeholder": "Enter phone number"
+        "placeholder": "e.g. 090-1234-5678"
       },
       "location": {
         "label": "Location",
-        "placeholder": "Select location"
+        "placeholder": "Choose a staff location"
       },
       "email": {
         "label": "Email",
-        "placeholder": "yamada@example.com"
+        "placeholder": "e.g. staff@example.com"
       },
       "password": {
         "label": "Password",
-        "placeholder": "Enter password"
+        "placeholder": "At least 6 characters"
       }
     },
     "locations": {

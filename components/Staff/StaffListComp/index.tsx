@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Box from "@mui/material/Box";
@@ -15,8 +15,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
+import { keyframes } from "@mui/material/styles";
 
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
@@ -25,6 +24,9 @@ import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import PersonAddAlt1OutlinedIcon from "@mui/icons-material/PersonAddAlt1Outlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import TableRowsOutlinedIcon from "@mui/icons-material/TableRowsOutlined";
+import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 
@@ -42,12 +44,13 @@ import { useStaffHook } from "./hook";
 import type { StaffFilterValues, StaffRecord } from "./type";
 
 // =================================================
-// THEME TOKENS (matches Staff/Admin dashboards + Sidebar)
+// THEME TOKENS
 // =================================================
 
 const BRAND = "#107A64";
 const BRAND_DARK = "#0C5F4F";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
+const BRAND_LINE = "rgba(16, 122, 100, 0.28)";
 const BRAND_RING = "rgba(16, 122, 100, 0.55)";
 
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
@@ -64,16 +67,61 @@ const SURFACE_TINT = "#FAFAF9";
 
 // Table header (DataGrid column headers)
 const HEADER_BG = "#6ec5c2";
-const HEADER_INK = "#374151";
+const HEADER_INK = "#1F2937";
 
-/**
- * Below this width the table becomes a stacked list.
- * "lg" keeps the DataGrid from scrolling sideways next to the sidebar.
- */
-const GRID_BREAKPOINT = "lg" as const;
+// =================================================
+// RESPONSIVE RULES & CONTAINER QUERIES
+// =================================================
+
+// 760px fits standard tablet widths (e.g. iPad portrait 768px)
+const GRID_MIN_WIDTH = 760;
+const GRID_BUFFER = 20;
+const TWO_COLUMN_MIN_WIDTH = 580;
+const THREE_COLUMN_MIN_WIDTH = 1100;
+
+const atLeast = (width: number) => `@container staff (min-width: ${width}px)`;
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function useWideSwitch(min: number, buffer: number) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [wide, setWide] = useState(false);
+
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const update = (width: number) =>
+      setWide((previous) =>
+        width >= min ? true : width < min - buffer ? false : previous,
+      );
+
+    update(element.getBoundingClientRect().width);
+
+    const observer = new ResizeObserver(([entry]) =>
+      update(entry.contentRect.width),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [min, buffer]);
+
+  return [ref, wide] as const;
+}
+
+// =================================================
+// MOTION
+// =================================================
+
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const reduceMotion = "@media (prefers-reduced-motion: reduce)";
 
 const softCard = {
-  borderRadius: 3,
+  borderRadius: { xs: 2.5, sm: 3 },
   border: "1px solid",
   borderColor: HAIRLINE,
   bgcolor: "#ffffff",
@@ -89,7 +137,7 @@ const focusRing = {
 };
 
 // =================================================
-// TYPES + HELPERS
+// HELPERS
 // =================================================
 
 const AVATAR_TONES = [
@@ -117,7 +165,7 @@ function getInitials(name?: string | null) {
 }
 
 // =================================================
-// SMALL PIECES
+// SUBCOMPONENTS
 // =================================================
 
 function StaffAvatar({
@@ -142,9 +190,11 @@ function StaffAvatar({
         placeItems: "center",
         bgcolor: tone.bg,
         color: tone.fg,
-        fontSize: size * 0.36,
+        fontSize: Math.max(11, size * 0.36),
         fontWeight: 600,
         letterSpacing: 0.2,
+        transition: "transform 220ms ease",
+        [reduceMotion]: { transition: "none" },
       }}
     >
       {getInitials(name)}
@@ -152,44 +202,62 @@ function StaffAvatar({
   );
 }
 
-function StatusPill({ active }: { active: boolean }) {
+function StaffStatus({ active }: { active: boolean }) {
   const t = useTranslations("staffList");
   return (
-    <Box
+    <Typography
       component="span"
       sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 0.75,
-        px: 1.25,
-        py: 0.375,
-        borderRadius: 999,
-        fontSize: 12.5,
+        fontSize: 12,
         fontWeight: 600,
-        lineHeight: 1.5,
+        lineHeight: 1.4,
         whiteSpace: "nowrap",
+        flexShrink: 0,
         color: active ? BRAND_DARK : INK_MUTED,
-        bgcolor: active ? BRAND_SOFT : "rgba(17, 24, 39, 0.06)",
       }}
     >
-      <Box
-        component="span"
-        sx={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          bgcolor: active ? BRAND : "#9CA3AF",
-        }}
-      />
       {active ? t("status.active") : t("status.inactive")}
-    </Box>
+    </Typography>
   );
 }
 
 const iconActionSx = {
   color: INK_MUTED,
-  transition: "background-color 200ms ease, color 200ms ease",
-  "&:hover": { bgcolor: BRAND_SOFT, color: BRAND },
+  minWidth: 34,
+  minHeight: 34,
+  transition:
+    "background-color 200ms ease, color 200ms ease, transform 160ms ease",
+  "@media (hover: hover)": {
+    "&:hover": {
+      bgcolor: BRAND_SOFT,
+      color: BRAND,
+      transform: "translateY(-1px)",
+    },
+  },
+  "&:active": { transform: "translateY(0)" },
+  [reduceMotion]: {
+    transition: "none",
+    "&:hover": { bgcolor: BRAND_SOFT, color: BRAND, transform: "none" },
+  },
+  ...focusRing,
+};
+
+const labelledButtonBase = {
+  flex: 1,
+  minWidth: 0,
+  minHeight: 36,
+  textTransform: "none",
+  fontWeight: 600,
+  fontSize: 12.5,
+  lineHeight: 1.3,
+  borderRadius: 2,
+  py: 0.6,
+  px: 1,
+  gap: 0.5,
+  transition:
+    "background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 160ms ease",
+  "&:active": { transform: "scale(0.98)" },
+  [reduceMotion]: { transition: "none", "&:active": { transform: "none" } },
   ...focusRing,
 };
 
@@ -228,7 +296,7 @@ function RowActions({
         display: "flex",
         alignItems: "center",
         justifyContent: labelled ? "stretch" : "flex-end",
-        gap: labelled ? 1 : 0.25,
+        gap: labelled ? 0.75 : 0.25,
         width: labelled ? "100%" : "auto",
         height: labelled ? "auto" : "100%",
       }}
@@ -240,43 +308,46 @@ function RowActions({
             disableElevation
             onClick={() => onViewDetails(row.staffId)}
             sx={{
-              flex: 1,
-              minWidth: 0,
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: 13.5,
-              borderRadius: 2.5,
-              py: 1,
+              ...labelledButtonBase,
               color: BRAND_DARK,
               bgcolor: BRAND_SOFT,
-              "&:hover": { bgcolor: "rgba(16, 122, 100, 0.14)" },
-              ...focusRing,
+              "@media (hover: hover)": {
+                "&:hover": { bgcolor: "rgba(16, 122, 100, 0.14)" },
+              },
             }}
           >
-            {t("actions.viewDetails")}
+            <Typography
+              component="span"
+              noWrap
+              sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+            >
+              {t("actions.viewDetails")}
+            </Typography>
           </Button>
+
           <Button
             variant="outlined"
             onClick={() => onViewClients(row.staffId)}
             sx={{
-              flex: 1,
-              minWidth: 0,
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: 13.5,
-              borderRadius: 2.5,
-              py: 1,
+              ...labelledButtonBase,
               color: INK,
               borderColor: HAIRLINE_STRONG,
-              "&:hover": {
-                borderColor: BRAND,
-                bgcolor: BRAND_SOFT,
-                color: BRAND_DARK,
+              "@media (hover: hover)": {
+                "&:hover": {
+                  borderColor: BRAND,
+                  bgcolor: BRAND_SOFT,
+                  color: BRAND_DARK,
+                },
               },
-              ...focusRing,
             }}
           >
-            {t("actions.viewClients")}
+            <Typography
+              component="span"
+              noWrap
+              sx={{ fontSize: "inherit", fontWeight: "inherit" }}
+            >
+              {t("actions.viewClients")}
+            </Typography>
           </Button>
         </>
       ) : (
@@ -313,16 +384,16 @@ function RowActions({
                 aria-haspopup="menu"
                 aria-controls={anchorEl ? menuId : undefined}
                 aria-expanded={anchorEl ? "true" : undefined}
-                size={labelled ? "medium" : "small"}
+                size="small"
                 disabled={busy}
                 onClick={(event) => setAnchorEl(event.currentTarget)}
                 sx={{
                   ...iconActionSx,
                   ...(labelled && {
                     border: `1px solid ${HAIRLINE_STRONG}`,
-                    borderRadius: 2.5,
-                    width: 42,
-                    height: 40,
+                    borderRadius: 2,
+                    minWidth: 36,
+                    minHeight: 36,
                   }),
                 }}
               >
@@ -343,10 +414,10 @@ function RowActions({
                 elevation: 0,
                 sx: {
                   mt: 0.5,
-                  minWidth: 200,
+                  minWidth: 190,
                   borderRadius: 2.5,
                   border: `1px solid ${HAIRLINE}`,
-                  boxShadow: "0 16px 40px -16px rgba(17,24,39,0.30)",
+                  boxShadow: "0 16px 40px -16px rgba(17,24,39,0.25)",
                   "& .MuiMenuItem-root": {
                     gap: 0.5,
                     py: 1.1,
@@ -354,11 +425,11 @@ function RowActions({
                     borderRadius: 1.75,
                   },
                   "& .MuiListItemText-primary": {
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: 500,
                   },
                   "& .MuiListItemIcon-root": {
-                    minWidth: 34,
+                    minWidth: 32,
                     color: "inherit",
                   },
                 },
@@ -388,7 +459,9 @@ function RowActions({
               }}
               sx={{
                 color: isActive ? DANGER : BRAND_DARK,
-                "&:hover": { bgcolor: isActive ? DANGER_SOFT : BRAND_SOFT },
+                "@media (hover: hover)": {
+                  "&:hover": { bgcolor: isActive ? DANGER_SOFT : BRAND_SOFT },
+                },
               }}
             >
               <ListItemIcon>
@@ -410,39 +483,95 @@ function RowActions({
 }
 
 // =================================================
-// LIST LAYOUT (below lg)
+// CARD LIST (Responsive Cards)
 // =================================================
+
+const listSx = {
+  m: 0,
+  p: { xs: 1.25, sm: 1.5, md: 2 },
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: { xs: 1.25, sm: 1.5, md: 2 },
+  bgcolor: SURFACE_TINT,
+  [atLeast(TWO_COLUMN_MIN_WIDTH)]: {
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  },
+  [atLeast(THREE_COLUMN_MIN_WIDTH)]: {
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  },
+};
 
 const listRowSx = {
   listStyle: "none",
+  position: "relative",
   display: "flex",
   flexDirection: "column",
-  gap: 2,
-  p: { xs: 2, sm: 2.5 },
-  borderBottom: `1px solid ${HAIRLINE}`,
-  "&:last-of-type": { borderBottom: 0 },
+  justifyContent: "space-between",
+  minWidth: 0,
+  p: { xs: 1.5, sm: 1.75 },
+  border: `1px solid ${HAIRLINE}`,
+  borderRadius: 2.5,
+  bgcolor: "#ffffff",
+  gap: 1.25,
 };
 
-function MetaItem({
-  label,
-  value,
-  span,
-}: {
-  label: string;
-  value: string;
-  span?: boolean;
-}) {
+const cardEffectsSx = {
+  overflow: "hidden",
+  transition:
+    "transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    insetBlock: 0,
+    left: 0,
+    width: 3.5,
+    bgcolor: BRAND,
+    opacity: 0,
+    transition: "opacity 200ms ease",
+  },
+  "@media (hover: hover)": {
+    "&:hover": {
+      transform: "translateY(-2px)",
+      borderColor: BRAND_LINE,
+      boxShadow: "0 10px 24px -14px rgba(16, 122, 100, 0.4)",
+    },
+    "&:hover::before": { opacity: 1 },
+  },
+  [reduceMotion]: {
+    animation: "none",
+    transition: "none",
+    "&:hover": { transform: "none" },
+  },
+};
+
+function MetaItem({ label, value }: { label: string; value: string }) {
   return (
-    <Box sx={{ minWidth: 0, gridColumn: span ? { xs: "1 / -1", sm: "auto" } : "auto" }}>
+    <Box sx={{ minWidth: 0 }}>
       <Typography
         component="dt"
-        sx={{ fontSize: 12, fontWeight: 500, color: INK_FAINT, mb: 0.25 }}
+        sx={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: INK_FAINT,
+          textTransform: "uppercase",
+          letterSpacing: 0.3,
+          lineHeight: 1.3,
+        }}
       >
         {label}
       </Typography>
       <Typography
         component="dd"
-        sx={{ m: 0, fontSize: 14, fontWeight: 500, color: INK, wordBreak: "break-word" }}
+        noWrap
+        title={value}
+        sx={{
+          m: 0,
+          mt: 0.25,
+          fontSize: 13,
+          fontWeight: 500,
+          lineHeight: 1.35,
+          color: INK,
+        }}
       >
         {value}
       </Typography>
@@ -452,43 +581,89 @@ function MetaItem({
 
 function StaffListItem({
   row,
+  index,
   ...actions
-}: { row: StaffRecord } & Omit<RowActionsProps, "row" | "variant">) {
+}: { row: StaffRecord; index: number } & Omit<
+  RowActionsProps,
+  "row" | "variant"
+>) {
   const t = useTranslations("staffList");
 
   return (
-    <Box component="li" sx={listRowSx}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-        <StaffAvatar name={row.name} seed={row.staffId} size={44} />
+    <Box
+      component="li"
+      sx={{
+        ...listRowSx,
+        ...cardEffectsSx,
+        animation: `${fadeUp} 280ms ease both`,
+        animationDelay: `${Math.min(index, 6) * 35}ms`,
+      }}
+    >
+      {/* Top row: Avatar + Name/Email + Status */}
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.25 }}>
+        <StaffAvatar name={row.name} seed={row.staffId} size={40} />
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography noWrap sx={{ fontSize: 15, fontWeight: 600, color: INK }}>
-            {row.name || "-"}
-          </Typography>
-          <Typography noWrap sx={{ fontSize: 13, color: INK_MUTED }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
+              mb: 0.25,
+            }}
+          >
+            <Typography
+              noWrap
+              title={row.name || "-"}
+              sx={{
+                fontSize: 14.5,
+                fontWeight: 600,
+                lineHeight: 1.3,
+                color: INK,
+              }}
+            >
+              {row.name || "-"}
+            </Typography>
+            <StaffStatus active={row.isActive} />
+          </Box>
+          <Typography
+            noWrap
+            title={row.email || "-"}
+            sx={{
+              fontSize: 12.5,
+              lineHeight: 1.35,
+              color: INK_MUTED,
+            }}
+          >
             {row.email || "-"}
           </Typography>
         </Box>
-        <StatusPill active={row.isActive} />
       </Box>
 
+      {/* Middle row: Clean structured metadata */}
       <Box
         component="dl"
         sx={{
           m: 0,
+          py: 1.25,
+          borderTop: `1px solid ${HAIRLINE}`,
+          borderBottom: `1px solid ${HAIRLINE}`,
           display: "grid",
-          gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(3, minmax(0, 1fr))" },
-          gap: 1.75,
+          gridTemplateColumns: { xs: "1fr 1fr", sm: "repeat(3, 1fr)" },
+          gap: 1,
         }}
       >
         <MetaItem label={t("columns.id")} value={row.staffId} />
         <MetaItem label={t("columns.location")} value={row.location || "-"} />
-        <MetaItem
-          label={t("columns.createdAt")}
-          value={String(formatCreatedAt(row.createdAt) ?? "-")}
-          span
-        />
+        <Box sx={{ gridColumn: { xs: "span 2", sm: "span 1" } }}>
+          <MetaItem
+            label={t("columns.createdAt")}
+            value={String(formatCreatedAt(row.createdAt) ?? "-")}
+          />
+        </Box>
       </Box>
 
+      {/* Bottom row: Touch-ready action buttons */}
       <RowActions row={row} variant="labelled" {...actions} />
     </Box>
   );
@@ -499,19 +674,15 @@ function StaffListSkeleton() {
     <>
       {Array.from({ length: 4 }).map((_, index) => (
         <Box key={index} component="li" sx={listRowSx}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Skeleton variant="circular" width={44} height={44} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            <Skeleton variant="circular" width={40} height={40} />
             <Box sx={{ flex: 1 }}>
-              <Skeleton width="55%" height={22} />
-              <Skeleton width="75%" height={18} />
+              <Skeleton width="55%" height={18} />
+              <Skeleton width="75%" height={16} />
             </Box>
-            <Skeleton variant="rounded" width={70} height={24} />
+            <Skeleton variant="rounded" width={64} height={22} />
           </Box>
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.75 }}>
-            <Skeleton width="60%" height={36} />
-            <Skeleton width="60%" height={36} />
-          </Box>
-          <Skeleton variant="rounded" height={40} />
+          <Skeleton variant="rounded" height={36} />
         </Box>
       ))}
     </>
@@ -524,7 +695,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
     <Box
       role="alert"
       sx={{
-        minHeight: 280,
+        minHeight: 260,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -532,13 +703,13 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
         textAlign: "center",
         gap: 0.75,
         px: 3,
-        py: 6,
+        py: 5,
       }}
     >
       <Typography sx={{ fontSize: 16, fontWeight: 600, color: INK }}>
         {t("error.title")}
       </Typography>
-      <Typography sx={{ fontSize: 14, color: INK_MUTED, maxWidth: 360 }}>
+      <Typography sx={{ fontSize: 13.5, color: INK_MUTED, maxWidth: 360 }}>
         {t("error.description")}
       </Typography>
       <Button
@@ -548,7 +719,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           mt: 1.5,
           textTransform: "none",
           fontWeight: 600,
-          borderRadius: 2.5,
+          borderRadius: 2,
           color: INK,
           borderColor: HAIRLINE_STRONG,
           "&:hover": {
@@ -566,18 +737,21 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 }
 
 // =================================================
-// PAGE
+// MAIN PAGE COMPONENT
 // =================================================
 
 export default function StaffPage() {
   const router = useRouter();
-  const theme = useTheme();
   const t = useTranslations("staffList");
   const role = useAuthStore((state) => state.user?.role);
   const canManage = role === "superadmin";
 
-  // Mobile-first: the list renders until the client confirms a wide viewport.
-  const isGrid = useMediaQuery(theme.breakpoints.up(GRID_BREAKPOINT));
+  // Measured width switch: auto switches layout
+  const [cardRef, isWideScreen] = useWideSwitch(GRID_MIN_WIDTH, GRID_BUFFER);
+  // Manual override toggle: user can pick "table" or "cards" at any viewport
+  const [viewMode, setViewMode] = useState<"table" | "cards" | "auto">("auto");
+  const isGrid = viewMode === "auto" ? isWideScreen : viewMode === "table";
+
   const mainRef = useRef<HTMLElement | null>(null);
 
   const {
@@ -672,11 +846,9 @@ export default function StaffPage() {
 
   const handlePageChange: typeof onPageChange = (...args) => {
     onPageChange(...args);
-    // On the stacked list the next page starts far below the fold.
-    mainRef.current?.scrollTo({ top: 0 });
+    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Without this, a failed request would look like "no staff found".
   const showError = isError && !isLoading && rows.length === 0;
 
   const rowActionHandlers = {
@@ -689,7 +861,7 @@ export default function StaffPage() {
   };
 
   // -----------------------------------------------
-  // DataGrid columns (desktop)
+  // DataGrid columns (Optimized for Tablet & Desktop)
   // -----------------------------------------------
 
   const baseColumn = { resizable: false, disableColumnMenu: true } as const;
@@ -699,18 +871,36 @@ export default function StaffPage() {
       ...baseColumn,
       field: "name",
       headerName: t("columns.fullName"),
-      flex: 1.6,
-      minWidth: 240,
+      flex: 1.3,
+      minWidth: 190,
       renderCell: (params) => {
         const row = params.row as StaffRecord;
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
-            <StaffAvatar name={row.name} seed={row.staffId} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              minWidth: 0,
+            }}
+          >
+            <StaffAvatar name={row.name} seed={row.staffId} size={34} />
             <Box sx={{ minWidth: 0 }}>
-              <Typography noWrap sx={{ fontSize: 14, fontWeight: 600, color: INK, lineHeight: 1.35 }}>
+              <Typography
+                noWrap
+                sx={{
+                  fontSize: 13.5,
+                  fontWeight: 600,
+                  color: INK,
+                  lineHeight: 1.35,
+                }}
+              >
                 {row.name || "-"}
               </Typography>
-              <Typography noWrap sx={{ fontSize: 13, color: INK_MUTED, lineHeight: 1.35 }}>
+              <Typography
+                noWrap
+                sx={{ fontSize: 12, color: INK_MUTED, lineHeight: 1.35 }}
+              >
                 {row.email || "-"}
               </Typography>
             </Box>
@@ -722,10 +912,22 @@ export default function StaffPage() {
       ...baseColumn,
       field: "staffId",
       headerName: t("columns.id"),
-      flex: 0.7,
-      minWidth: 110,
+      flex: 0.6,
+      minWidth: 95,
       renderCell: (params) => (
-        <Typography noWrap sx={{ fontSize: 14, fontWeight: 600, color: INK }}>
+        <Typography
+          noWrap
+          sx={{
+            fontSize: 12.5,
+            fontWeight: 600,
+            fontFamily: "monospace",
+            color: INK,
+            bgcolor: "rgba(17, 24, 39, 0.04)",
+            px: 0.75,
+            py: 0.25,
+            borderRadius: 1,
+          }}
+        >
           {params.value}
         </Typography>
       ),
@@ -734,10 +936,10 @@ export default function StaffPage() {
       ...baseColumn,
       field: "location",
       headerName: t("columns.location"),
-      flex: 0.7,
-      minWidth: 110,
+      flex: 0.6,
+      minWidth: 95,
       renderCell: (params) => (
-        <Typography noWrap sx={{ fontSize: 14, color: INK_MUTED }}>
+        <Typography noWrap sx={{ fontSize: 13.5, color: INK_MUTED }}>
           {params.value || "-"}
         </Typography>
       ),
@@ -746,18 +948,18 @@ export default function StaffPage() {
       ...baseColumn,
       field: "isActive",
       headerName: t("columns.status"),
-      width: 120,
-      renderCell: (params) => <StatusPill active={Boolean(params.value)} />,
+      width: 110,
+      renderCell: (params) => <StaffStatus active={Boolean(params.value)} />,
     },
     {
       ...baseColumn,
       field: "createdAt",
       headerName: t("columns.createdAt"),
-      flex: 0.9,
-      minWidth: 150,
+      flex: 0.75,
+      minWidth: 125,
       valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
       renderCell: (params) => (
-        <Typography noWrap sx={{ fontSize: 14, color: INK_MUTED }}>
+        <Typography noWrap sx={{ fontSize: 13, color: INK_MUTED }}>
           {params.value}
         </Typography>
       ),
@@ -766,12 +968,16 @@ export default function StaffPage() {
       ...baseColumn,
       field: "actions",
       headerName: t("columns.action"),
-      width: canManage ? 128 : 92,
+      width: canManage ? 116 : 84,
       align: "right",
       headerAlign: "right",
       sortable: false,
       renderCell: (params) => (
-        <RowActions row={params.row as StaffRecord} variant="icons" {...rowActionHandlers} />
+        <RowActions
+          row={params.row as StaffRecord}
+          variant="icons"
+          {...rowActionHandlers}
+        />
       ),
     },
   ];
@@ -798,17 +1004,29 @@ export default function StaffPage() {
           flex: 1,
           minWidth: 0,
           overflowY: "auto",
-          px: { xs: 2, sm: 3, md: 4 },
-          py: { xs: 2.5, md: 4 },
+          WebkitOverflowScrolling: "touch",
+          px: { xs: 1.5, sm: 2.5, md: 3 },
+          py: { xs: 1.75, sm: 2.5, md: 3 },
         }}
       >
         <Box sx={{ maxWidth: 1320, mx: "auto" }}>
           {/* BREADCRUMB */}
-          <Box sx={{ mb: { xs: 1.5, md: 2 }, overflowX: "auto" }}>
+          <Box
+            sx={{
+              mb: { xs: 1, md: 1.5 },
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+            }}
+          >
             <Breadcrumb
               items={[
                 { label: t("breadcrumbs.dashboard"), href: "/admin/dashboard" },
-                { label: t("breadcrumbs.staff"), href: "/admin/staff", current: true },
+                {
+                  label: t("breadcrumbs.staff"),
+                  href: "/admin/staff",
+                  current: true,
+                },
               ]}
             />
           </Box>
@@ -818,20 +1036,20 @@ export default function StaffPage() {
             sx={{
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "stretch", sm: "flex-end" },
+              alignItems: { xs: "stretch", sm: "center" },
               justifyContent: "space-between",
-              gap: { xs: 2, sm: 2.5 },
-              mb: { xs: 2.5, md: 3 },
+              gap: { xs: 1.5, sm: 2 },
+              mb: { xs: 2, md: 2.5 },
             }}
           >
-            <Box sx={{ minWidth: 0 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 component="h1"
                 sx={{
-                  fontSize: { xs: 24, md: 30 },
-                  fontWeight: 600,
+                  fontSize: { xs: 21, sm: 24, md: 26 },
+                  fontWeight: 700,
                   letterSpacing: -0.4,
-                  lineHeight: 1.2,
+                  lineHeight: 1.25,
                   color: INK,
                 }}
               >
@@ -839,7 +1057,13 @@ export default function StaffPage() {
               </Typography>
 
               <Typography
-                sx={{ mt: 1, fontSize: 14, color: INK_MUTED, maxWidth: 620 }}
+                sx={{
+                  mt: 0.5,
+                  fontSize: { xs: 13, sm: 13.5 },
+                  lineHeight: 1.45,
+                  color: INK_MUTED,
+                  maxWidth: 620,
+                }}
               >
                 {t("description")}
               </Typography>
@@ -849,19 +1073,36 @@ export default function StaffPage() {
               <Button
                 variant="contained"
                 disableElevation
-                startIcon={<PersonAddAlt1OutlinedIcon />}
+                startIcon={<PersonAddAlt1OutlinedIcon sx={{ fontSize: 18 }} />}
                 onClick={() => router.push("/admin/staff/add")}
                 sx={{
                   flexShrink: 0,
-                  width: { xs: "100%", sm: "auto" },
-                  bgcolor: BRAND,
-                  borderRadius: 2.5,
+                  alignSelf: { xs: "flex-start", sm: "center" },
+                  minHeight: 38,
+                  px: { xs: 1.75, sm: 2.25 },
+                  py: 0.6,
+                  borderRadius: 999,
                   textTransform: "none",
+                  fontSize: 13.5,
                   fontWeight: 600,
-                  px: 2.5,
-                  py: 1.1,
-                  boxShadow: "none",
-                  "&:hover": { bgcolor: BRAND_DARK, boxShadow: "none" },
+                  whiteSpace: "nowrap",
+                  color: "#ffffff",
+                  background: `linear-gradient(135deg, ${BRAND} 0%, ${BRAND_DARK} 100%)`,
+                  boxShadow: "0 6px 14px -6px rgba(16, 122, 100, 0.75)",
+                  transition:
+                    "transform 180ms ease, box-shadow 220ms ease, filter 200ms ease",
+                  "&:hover": {
+                    transform: "translateY(-1px)",
+                    filter: "brightness(1.06)",
+                    boxShadow: "0 10px 20px -8px rgba(16, 122, 100, 0.85)",
+                  },
+                  "&:active": {
+                    transform: "translateY(0)",
+                  },
+                  [reduceMotion]: {
+                    transition: "none",
+                    "&:hover": { transform: "none" },
+                  },
                   ...focusRing,
                 }}
               >
@@ -871,7 +1112,7 @@ export default function StaffPage() {
           </Box>
 
           {/* FILTERS */}
-          <Box sx={{ mb: { xs: 2, md: 3 } }}>
+          <Box sx={{ mb: { xs: 1.5, md: 2 } }}>
             <SearchFilter<StaffFilterValues>
               key={JSON.stringify(staffFilters)}
               searchField={{
@@ -889,14 +1130,29 @@ export default function StaffPage() {
             />
           </Box>
 
-          {/* TABLE / LIST */}
-          <Paper elevation={0} sx={{ ...softCard, overflow: "hidden" }}>
+          {/* TABLE / LIST WRAPPER */}
+          <Paper
+            ref={cardRef}
+            elevation={0}
+            sx={{
+              ...softCard,
+              overflow: "hidden",
+              containerType: "inline-size",
+              containerName: "staff",
+            }}
+          >
+            {/* TOOLBAR: ROWS COUNT & VIEW MODE SWITCHER */}
             <Box
               sx={{
-                px: { xs: 2, sm: 2.5 },
-                py: 1.5,
+                px: { xs: 1.75, sm: 2.5 },
+                py: 1.25,
                 borderBottom: `1px solid ${HAIRLINE}`,
                 bgcolor: SURFACE_TINT,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 1.25,
               }}
             >
               <PaginationRowsLabel
@@ -905,8 +1161,90 @@ export default function StaffPage() {
                 to={pagination?.to ?? null}
                 itemLabel="staff members"
               />
+
+              {/* View Switcher: allows user to toggle Table / Card mode on any screen */}
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  p: 0.35,
+                  borderRadius: 2,
+                  bgcolor: "rgba(17, 24, 39, 0.05)",
+                  border: `1px solid ${HAIRLINE}`,
+                }}
+              >
+                <Tooltip title="Table View">
+                  <IconButton
+                    size="small"
+                    aria-label="Table view"
+                    onClick={() => setViewMode("table")}
+                    sx={{
+                      p: 0.6,
+                      borderRadius: 1.5,
+                      color: isGrid ? BRAND_DARK : INK_FAINT,
+                      bgcolor: isGrid ? "#ffffff" : "transparent",
+                      boxShadow: isGrid
+                        ? "0 1px 3px rgba(0,0,0,0.08)"
+                        : "none",
+                      "&:hover": {
+                        bgcolor: isGrid
+                          ? "#ffffff"
+                          : "rgba(17,24,39,0.04)",
+                      },
+                    }}
+                  >
+                    <TableRowsOutlinedIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Card View">
+                  <IconButton
+                    size="small"
+                    aria-label="Card view"
+                    onClick={() => setViewMode("cards")}
+                    sx={{
+                      p: 0.6,
+                      borderRadius: 1.5,
+                      color: !isGrid ? BRAND_DARK : INK_FAINT,
+                      bgcolor: !isGrid ? "#ffffff" : "transparent",
+                      boxShadow: !isGrid
+                        ? "0 1px 3px rgba(0,0,0,0.08)"
+                        : "none",
+                      "&:hover": {
+                        bgcolor: !isGrid
+                          ? "#ffffff"
+                          : "rgba(17,24,39,0.04)",
+                      },
+                    }}
+                  >
+                    <GridViewOutlinedIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
 
+            {/* TABLE HORIZONTAL SCROLL HINT (Shown on smaller screens in table mode) */}
+            {isGrid && !showError && (
+              <Box
+                sx={{
+                  display: { xs: "flex", md: "none" },
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  gap: 0.6,
+                  px: 2,
+                  py: 0.6,
+                  bgcolor: "rgba(16, 122, 100, 0.03)",
+                  borderBottom: `1px solid ${HAIRLINE}`,
+                  fontSize: 11.5,
+                  fontWeight: 500,
+                  color: INK_FAINT,
+                }}
+              >
+                <SwapHorizIcon sx={{ fontSize: 15, color: BRAND }} />
+                <span>Swipe table horizontally to see more columns</span>
+              </Box>
+            )}
+
+            {/* DATA VIEW (DataGrid or Cards) */}
             {showError ? (
               <ErrorState onRetry={() => void refetch()} />
             ) : isGrid ? (
@@ -920,12 +1258,25 @@ export default function StaffPage() {
                 loading={isLoading}
                 hideFooter
                 autoHeight
-                rowHeight={68}
-                columnHeaderHeight={46}
+                rowHeight={56}
+                columnHeaderHeight={42}
                 sx={{
                   border: "none",
                   "--DataGrid-containerBackground": HEADER_BG,
                   "--DataGrid-rowBorderColor": HAIRLINE,
+
+                  "& .MuiDataGrid-virtualScroller": {
+                    overflowX: "auto",
+                    WebkitOverflowScrolling: "touch",
+                    "&::-webkit-scrollbar": {
+                      height: 6,
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      borderRadius: 3,
+                      bgcolor: "rgba(17, 24, 39, 0.16)",
+                      "&:hover": { bgcolor: "rgba(17, 24, 39, 0.28)" },
+                    },
+                  },
 
                   "& .MuiDataGrid-columnHeaders": {
                     bgcolor: HEADER_BG,
@@ -935,14 +1286,12 @@ export default function StaffPage() {
                     bgcolor: HEADER_BG,
                     "&:focus, &:focus-within": { outline: "none" },
                   },
-                  "& .MuiDataGrid-columnHeader--sorted": {
-                    bgcolor: HEADER_BG,
-                  },
                   "& .MuiDataGrid-columnHeaderTitle": {
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: 700,
-                    letterSpacing: 0.1,
+                    letterSpacing: 0.2,
                     color: HEADER_INK,
+                    textTransform: "uppercase",
                   },
                   "& .MuiDataGrid-columnSeparator": { display: "none" },
 
@@ -953,13 +1302,20 @@ export default function StaffPage() {
                     "&:focus, &:focus-within": { outline: "none" },
                   },
                   "& .MuiDataGrid-cell[data-colindex='0'], & .MuiDataGrid-columnHeader[aria-colindex='1']":
-                    { pl: 2.5 },
+                    { pl: { xs: 1.5, sm: 2.5 } },
                   "& .MuiDataGrid-cell[data-field='actions'], & .MuiDataGrid-columnHeader[data-field='actions']":
-                    { pr: 2 },
+                    { pr: { xs: 1.5, sm: 2 } },
 
                   "& .MuiDataGrid-row": {
-                    transition: "background-color 200ms ease",
-                    "&:hover": { bgcolor: "rgba(16, 122, 100, 0.04)" },
+                    transition:
+                      "background-color 180ms ease, box-shadow 180ms ease",
+                    [reduceMotion]: { transition: "none" },
+                    "@media (hover: hover)": {
+                      "&:hover": {
+                        bgcolor: "rgba(16, 122, 100, 0.04)",
+                        boxShadow: `inset 3px 0 0 ${BRAND}`,
+                      },
+                    },
                   },
                   "& .MuiDataGrid-row:last-of-type .MuiDataGrid-cell": {
                     borderBottom: 0,
@@ -971,8 +1327,7 @@ export default function StaffPage() {
                 component="ul"
                 aria-busy={isLoading}
                 sx={{
-                  m: 0,
-                  p: 0,
+                  ...listSx,
                   opacity: isLoading && rows.length > 0 ? 0.55 : 1,
                   pointerEvents: isLoading && rows.length > 0 ? "none" : "auto",
                   transition: "opacity 150ms ease",
@@ -985,8 +1340,9 @@ export default function StaffPage() {
                     component="li"
                     sx={{
                       listStyle: "none",
+                      gridColumn: "1 / -1",
                       position: "relative",
-                      minHeight: 280,
+                      minHeight: 260,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -995,10 +1351,11 @@ export default function StaffPage() {
                     <NoDataOverlay />
                   </Box>
                 ) : (
-                  rows.map((row) => (
+                  rows.map((row, index) => (
                     <StaffListItem
                       key={row.staffId}
                       row={row}
+                      index={index}
                       {...rowActionHandlers}
                     />
                   ))
@@ -1006,13 +1363,17 @@ export default function StaffPage() {
               </Box>
             )}
 
+            {/* PAGINATION FOOTER */}
             <Box
               sx={{
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: { xs: "center", sm: "flex-end" },
+                alignItems: "center",
+                gap: { xs: 1, sm: 2 },
                 overflowX: "auto",
                 px: { xs: 1.5, sm: 2.5 },
-                py: 1.5,
+                py: 1.25,
                 borderTop: `1px solid ${HAIRLINE}`,
                 bgcolor: SURFACE_TINT,
               }}
@@ -1029,6 +1390,7 @@ export default function StaffPage() {
         </Box>
       </Box>
 
+      {/* CONFIRMATION DIALOG */}
       <ConfirmActionDialog
         open={statusDialog.open}
         title={
