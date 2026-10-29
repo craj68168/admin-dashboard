@@ -20,11 +20,18 @@ import { getPortalPaths } from "@/lib/portal-routes";
 // =================================================
 
 const BRAND = "#107A64";
+const BRAND_DEEP = "#0A5A49";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const BRAND_DARK = "#0C5F4F";
-const HAIRLINE = "rgba(17, 24, 39, 0.06)";
-const INK = "#111827";
-const INK_MUTED = "#4B5563";
+const BRAND_LINE = "rgba(16, 122, 100, 0.22)";
+const HAIRLINE = "rgba(17, 24, 39, 0.07)";
+const INK = "#0F172A";
+const INK_MUTED = "#5B6A7E";
+const RADIUS = 20;
+
+const focusRing = {
+  outline: `2px solid ${BRAND}`,
+  outlineOffset: 2,
+};
 
 type NavbarWithMenuProps = NavbarProps & {
   /** Opens the sidebar drawer. When provided, a menu button shows below `md`. */
@@ -44,29 +51,28 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
         top: 0,
         zIndex: 10,
 
-        // One compact row at every width. The old phone layout stacked the
-        // title above the controls and used ~130px of a small screen.
+        // One compact row at every width.
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         gap: { xs: 1.5, sm: 3 },
 
-        minHeight: { xs: 56, sm: 64 },
+        minHeight: { xs: 60, sm: 68 },
         mb: { xs: 1.5, md: 2 },
-        px: { xs: 2, sm: 2.5, md: 3 },
+        px: { xs: 1.5, sm: 2.5, md: 3 },
         py: { xs: 0.75, sm: 1 },
 
-        bgcolor: "rgba(255, 255, 255, 0.94)",
+        bgcolor: "rgba(255, 255, 255, 0.92)",
         border: `1px solid ${HAIRLINE}`,
-        borderRadius: 3,
+        borderRadius: `${RADIUS}px`,
         boxShadow:
-          "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+          "0 1px 2px rgba(15,23,42,0.03), 0 18px 40px -28px rgba(15,23,42,0.30)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
       }}
     >
       {/* =================================================
-          MENU BUTTON (phones + tablets, opens the sidebar drawer)
+          MENU BUTTON (below md, opens the sidebar drawer)
       ================================================= */}
 
       {onMenuClick && (
@@ -77,10 +83,9 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
             display: { xs: "grid", md: "none" },
             placeItems: "center",
             flexShrink: 0,
-            width: 40,
-            height: 40,
-            ml: -0.5,
-            borderRadius: 2.5,
+            width: 42,
+            height: 42,
+            borderRadius: `${RADIUS - 4}px`,
             border: `1px solid ${HAIRLINE}`,
             color: INK_MUTED,
             bgcolor: "#ffffff",
@@ -88,13 +93,10 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
               "background-color 200ms ease, border-color 200ms ease, color 200ms ease",
             "&:hover": {
               bgcolor: BRAND_SOFT,
-              borderColor: "rgba(16, 122, 100, 0.22)",
+              borderColor: BRAND_LINE,
               color: BRAND,
             },
-            "&.Mui-focusVisible": {
-              outline: `2px solid ${BRAND}`,
-              outlineOffset: 2,
-            },
+            "&.Mui-focusVisible": focusRing,
           }}
         >
           <MenuRoundedIcon sx={{ fontSize: 22 }} />
@@ -113,11 +115,12 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
           flex: 1,
           minWidth: 0,
           m: 0,
+          pl: { xs: 0.25, md: 0.5 },
           color: INK,
-          fontSize: { xs: 17, sm: 19, md: 21 },
-          lineHeight: 1.3,
-          fontWeight: 600,
-          letterSpacing: "-0.02em",
+          fontSize: { xs: 18, sm: 20, md: 22 },
+          lineHeight: 1.25,
+          fontWeight: 700,
+          letterSpacing: -0.4,
         }}
       >
         {title}
@@ -148,8 +151,8 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
               gap: 1.25,
               minWidth: 0,
 
-              // Phones: just the avatar (44px tap target). sm and up: avatar + name.
-              p: { xs: 0.5, sm: "5px 14px 5px 5px" },
+              // Phones: avatar only. sm and up: avatar + name + role.
+              p: { xs: 0.5, sm: "5px 16px 5px 5px" },
 
               color: "inherit",
               textDecoration: "none",
@@ -160,22 +163,19 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                 "background-color 200ms ease, border-color 200ms ease",
 
               "&:hover": {
-                bgcolor: "rgba(16, 122, 100, 0.05)",
-                borderColor: "rgba(16, 122, 100, 0.22)",
+                bgcolor: BRAND_SOFT,
+                borderColor: BRAND_LINE,
               },
 
-              "&:focus-visible": {
-                outline: `2px solid ${BRAND}`,
-                outlineOffset: 2,
-              },
+              "&:focus-visible": focusRing,
             }}
           >
             {/* AVATAR */}
             <Box
               aria-hidden
               sx={{
-                width: { xs: 36, sm: 38 },
-                height: { xs: 36, sm: 38 },
+                width: { xs: 36, sm: 40 },
+                height: { xs: 36, sm: 40 },
                 flexShrink: 0,
                 display: "grid",
                 placeItems: "center",
@@ -184,7 +184,8 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                 color: "#ffffff",
                 fontSize: 13,
                 fontWeight: 700,
-                letterSpacing: "0.03em",
+                letterSpacing: 0.4,
+                boxShadow: `0 0 0 2px #ffffff, 0 0 0 3px ${BRAND_LINE}`,
               }}
             >
               {initials}
@@ -196,6 +197,7 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                 display: { xs: "none", sm: "block" },
                 minWidth: 0,
                 maxWidth: { sm: 150, md: 240 },
+                ml: 0.25,
               }}
             >
               <Typography
@@ -223,18 +225,26 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                   component="span"
                   sx={{
                     flexShrink: 0,
-                    px: 0.9,
-                    py: 0.125,
-                    borderRadius: 999,
-                    bgcolor: BRAND_SOFT,
-                    color: BRAND_DARK,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.6,
+                    color: BRAND_DEEP,
                     fontSize: 12,
-                    lineHeight: 1.5,
+                    lineHeight: 1.4,
                     fontWeight: 600,
                     textTransform: "capitalize",
                     whiteSpace: "nowrap",
                   }}
                 >
+                  <Box
+                    component="span"
+                    sx={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      bgcolor: BRAND,
+                    }}
+                  />
                   {user.role}
                 </Box>
 
@@ -247,8 +257,8 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                       maxWidth: 110,
                       color: INK_MUTED,
                       fontSize: 12,
-                      lineHeight: 1.5,
-                      fontWeight: 500,
+                      lineHeight: 1.4,
+                      fontWeight: 400,
                     }}
                   >
                     {user.location}

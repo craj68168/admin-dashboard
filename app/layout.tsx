@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 import GlobalSnackbar from "@/components/common/GlobalSnackbar";
@@ -7,6 +8,12 @@ import AuthProvider from "../components/auth/AuthProvider";
 import { QueryProvider } from "./providers/query-provider";
 import { MuiThemeProvider } from "./providers/theme-provider";
 import { LanguageProvider } from "./providers/language-provider";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-space-grotesk",
+});
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -31,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${spaceGrotesk.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <AppRouterCacheProvider>
           <MuiThemeProvider>

@@ -29,16 +29,7 @@ export const theme = createTheme({
   },
 
   typography: {
-    fontFamily: [
-      '"Noto Sans JP"',
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "Roboto",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-    ].join(","),
+    fontFamily: "var(--font-app)",
 
     h1: {
       fontSize: "22px",

@@ -144,9 +144,39 @@ export type AdminDashboardResponse = {
 
   overview: DashboardOverview;
 
+  charts: DashboardCharts;
+
   rankings: PaginatedDashboardResult<StaffRanking>;
 
   stageBreakdown: StageBreakdown[];
 
   payments: PaginatedDashboardResult<DashboardPayment>;
+};
+
+
+export type DashboardCharts = {
+  dailyCollection: {
+    date: string;
+    amount: number;
+    count: number;
+  }[];
+
+  staffPerformance: {
+    staffId: string;
+    staffName: string;
+    targetAmount: number;
+    totalCollected: number;
+  }[];
+
+  paymentsByMethod: {
+    method: string;
+    amount: number;
+    count: number;
+  }[];
+
+  paymentsByStatus: {
+    status: DashboardPaymentStatus;
+    amount: number;
+    count: number;
+  }[];
 };
