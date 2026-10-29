@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -28,9 +28,11 @@ const RADIUS = 20;
 function AnimatedSection({
   children,
   delay = 0,
+  stretch = false,
 }: {
   children: ReactNode;
   delay?: number;
+  stretch?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -44,7 +46,7 @@ function AnimatedSection({
         delay: reduceMotion ? 0 : delay,
         ease: "easeOut",
       }}
-      style={{ minWidth: 0, display: "flow-root" }}
+      style={{ minWidth: 0, display: stretch ? "flex" : "flow-root" }}
     >
       {children}
     </motion.div>
@@ -52,7 +54,7 @@ function AnimatedSection({
 }
 
 export default function AdminDashboard() {
-  const t = useTranslations("adminDashboard");
+  const lang = useLocale();
   const data = useAdminDashboard();
   const [showFilters, setShowFilters] = useState(false);
   const { overview, isLoading, isFetching, loadError, refetch } = data;
@@ -67,6 +69,7 @@ export default function AdminDashboard() {
         }}
       >
         <CircularProgress
+          aria-label={lang === "ja" ? "ダッシュボードを読み込み中" : "Loading dashboard"}
           size={28}
           sx={{
             color: BRAND,
@@ -87,12 +90,14 @@ export default function AdminDashboard() {
               disabled={isFetching}
               onClick={() => void refetch()}
             >
-              Retry
+              {lang === "ja" ? "再試行" : "Retry"}
             </Button>
           }
           sx={{ maxWidth: 1320, mx: "auto", borderRadius: `${RADIUS}px` }}
         >
-          {loadError || "Dashboard data is unavailable. Please try again."}
+          {lang === "ja"
+            ? "ダッシュボードのデータを読み込めません。もう一度お試しください。"
+            : loadError || "Dashboard data is unavailable. Please try again."}
         </Alert>
       </Box>
     );
@@ -102,6 +107,7 @@ export default function AdminDashboard() {
     <Box
       sx={{
         bgcolor: CANVAS,
+        minWidth: 0,
         minHeight: "100vh",
         px: {
           xs: 1.5,
@@ -116,7 +122,7 @@ export default function AdminDashboard() {
     >
       {isFetching && (
         <LinearProgress
-          aria-label="Updating dashboard"
+          aria-label={lang === "ja" ? "ダッシュボードを更新中" : "Updating dashboard"}
           sx={{
             position: "fixed",
             top: 0,
@@ -150,16 +156,18 @@ export default function AdminDashboard() {
           <Breadcrumb
             items={[
               {
-                label: t("dashboard"),
+                label: lang === "ja" ? "ダッシュボード" : "Dashboard",
                 current: true,
               },
             ]}
           />
         </Box>
 
-        <AnimatedSection>
-          <DashboardHeader data={dashboardData} />
-        </AnimatedSection>
+        {/* DashboardHeader, OverviewCards and MonthlyTarget run their own
+        entrance animations (header first, then the cards, then the target
+        panel). They are deliberately not wrapped in AnimatedSection, so each
+        one animates once instead of fading in twice. */}
+        <DashboardHeader data={dashboardData} />
 
         {loadError && (
           <Alert
@@ -170,7 +178,7 @@ export default function AdminDashboard() {
               border: "1px solid rgba(211,47,47,0.14)",
             }}
           >
-            {loadError}
+            {lang === "ja" ? "ダッシュボードの更新に失敗しました。もう一度お試しください。" : loadError}
           </Alert>
         )}
 
@@ -182,13 +190,9 @@ export default function AdminDashboard() {
           />
         </AnimatedSection>
 
-        <AnimatedSection delay={0.08}>
-          <OverviewCards data={dashboardData} />
-        </AnimatedSection>
+        <OverviewCards data={dashboardData} />
 
-        <AnimatedSection delay={0.12}>
-          <MonthlyTarget data={dashboardData} />
-        </AnimatedSection>
+        <MonthlyTarget data={dashboardData} />
 
         {/* =================================================
         CHARTS
@@ -200,16 +204,16 @@ export default function AdminDashboard() {
             display: "grid",
             gap: 2,
             gridTemplateColumns: {
-              xs: "1fr",
+              xs: "minmax(0, 1fr)",
               lg: "minmax(0, 1.6fr) minmax(0, 1fr)",
             },
           }}
         >
-          <AnimatedSection>
+          <AnimatedSection stretch>
             <CollectionTrend data={dashboardData} />
           </AnimatedSection>
 
-          <AnimatedSection delay={0.05}>
+          <AnimatedSection delay={0.05} stretch>
             <StaffPerformance data={dashboardData} />
           </AnimatedSection>
         </Box>
@@ -220,16 +224,16 @@ export default function AdminDashboard() {
             display: "grid",
             gap: 2,
             gridTemplateColumns: {
-              xs: "1fr",
-              md: "repeat(2, minmax(0, 1fr))",
+              xs: "minmax(0, 1fr)",
+              lg: "repeat(2, minmax(0, 1fr))",
             },
           }}
         >
-          <AnimatedSection>
+          <AnimatedSection stretch>
             <PaymentMethods data={dashboardData} />
           </AnimatedSection>
 
-          <AnimatedSection delay={0.05}>
+          <AnimatedSection delay={0.05} stretch>
             <PaymentStatus data={dashboardData} />
           </AnimatedSection>
         </Box>

@@ -389,23 +389,23 @@
     "fields": {
       "name": {
         "label": "氏名",
-        "placeholder": "スタッフ名を入力"
+        "placeholder": "例：山田太郎"
       },
       "phone": {
         "label": "電話番号",
-        "placeholder": "電話番号を入力"
+        "placeholder": "例：090-1234-5678"
       },
       "location": {
         "label": "所在地",
-        "placeholder": "所在地を選択"
+        "placeholder": "スタッフの所在地を選択"
       },
       "email": {
         "label": "メール",
-        "placeholder": "yamada@example.com"
+        "placeholder": "例：staff@example.com"
       },
       "password": {
         "label": "パスワード",
-        "placeholder": "パスワードを入力"
+        "placeholder": "6文字以上のパスワードを設定"
       }
     },
     "locations": {

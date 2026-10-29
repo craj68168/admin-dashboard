@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -14,6 +14,7 @@ import Typography from "@mui/material/Typography";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import type { useAdminDashboard } from "./hook";
 import type { DashboardPerformanceStatus } from "./type";
+
 type Props = {
   data: Pick<
     ReturnType<typeof useAdminDashboard>,
@@ -24,6 +25,7 @@ type Props = {
     | "handleStaffClick"
   >;
 };
+
 const BRAND = "#107A64";
 const BRAND_DEEP = "#0A5A49";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
@@ -32,9 +34,11 @@ const INK = "#0F172A";
 const INK_BODY = "#334155";
 const INK_MUTED = "#5B6A7E";
 const RADIUS = 20;
+
 const NUMERIC = {
   fontVariantNumeric: "tabular-nums",
 };
+
 const softCard = {
   p: {
     xs: 2,
@@ -48,6 +52,37 @@ const softCard = {
   boxShadow:
     "0 1px 2px rgba(15,23,42,0.03), 0 18px 40px -28px rgba(15,23,42,0.30)",
 };
+
+// =================================================
+// RESPONSIVE RULES
+//
+// The table answers to the width of its own card (a CSS container query), not
+// the screen. Collapsing the sidebar changes the card's width without changing
+// the screen's, so the screen width alone can't be trusted.
+//
+//   card width   columns shown
+//   >= 880       Rank, Staff, Target, Collected, Remaining, Achievement,
+//                Payments, Clients, Status
+//   640 - 879    Rank, Staff (+ counts), Collected (+ target / remaining),
+//                Achievement, Status
+//   420 - 639    Rank, Staff (+ all details), Collected (+ % and bar), Status
+//   < 420        Rank, Staff (+ all details), Collected (+ % and bar, status
+//                pill underneath)
+//
+// Nothing scrolls sideways and there is nothing to tap to expand.
+// =================================================
+
+const BP = { status: 420, mid: 640, wide: 880 } as const;
+
+const atLeast = (width: number) =>
+  `@container ranking (min-width: ${width}px)`;
+
+// A table cell that only appears from `width` up.
+const cellFrom = (width: number) => ({
+  display: "none",
+  [atLeast(width)]: { display: "table-cell" },
+});
+
 const headCellSx = {
   fontSize: 11,
   fontWeight: 700,
@@ -57,14 +92,27 @@ const headCellSx = {
   bgcolor: "rgba(16, 122, 100, 0.04)",
   borderBottomColor: HAIRLINE,
   py: 1.5,
+  px: 1.5,
   whiteSpace: "nowrap",
 };
+
 const bodyCellSx = {
   fontSize: 14,
   color: INK_BODY,
   borderBottomColor: "rgba(17, 24, 39, 0.05)",
   py: 1.75,
+  px: 1.5,
+  verticalAlign: "middle",
 };
+
+const edgeLeft = { pl: { xs: 2, sm: 2.5, md: 3 } };
+const edgeRight = { pr: { xs: 2, sm: 2.5, md: 3 } };
+
+// Collected is the last column on very narrow cards; Status is the last one
+// from 420 up. Each takes the outer padding while it is the last.
+const amountEdge = { pr: 2, [atLeast(BP.status)]: { pr: 1.5 } };
+const statusEdge = { ...cellFrom(BP.status), ...edgeRight };
+
 const rowSx = {
   transition: "background-color 200ms ease",
   "&:hover": {
@@ -74,6 +122,68 @@ const rowSx = {
     borderBottom: 0,
   },
 };
+
+// Small text lines that stand in for a hidden column.
+const smallLine = {
+  fontSize: 12,
+  fontWeight: 400,
+  lineHeight: 1.3,
+  color: INK_MUTED,
+  ...NUMERIC,
+};
+
+// Target / remaining / payments / clients as one tidy line under the staff
+// name on narrow cards.
+const detailsUnderStaff = {
+  ...smallLine,
+  display: "flex",
+  flexWrap: "wrap",
+  columnGap: 1.25,
+  rowGap: 0.25,
+  mt: 0.75,
+  [atLeast(BP.mid)]: { display: "none" },
+};
+
+// Payments and clients under the staff name once there is a bit more room.
+const countsUnderStaff = {
+  ...smallLine,
+  display: "none",
+  flexWrap: "wrap",
+  columnGap: 1.25,
+  mt: 0.5,
+  [atLeast(BP.mid)]: { display: "flex" },
+  [atLeast(BP.wide)]: { display: "none" },
+};
+
+// Target and remaining under the collected amount while those columns are hidden
+// but there is room.
+const targetUnderAmount = {
+  ...smallLine,
+  display: "none",
+  mt: 0.25,
+  [atLeast(BP.mid)]: { display: "block" },
+  [atLeast(BP.wide)]: { display: "none" },
+};
+
+// Achievement % and bar under the amount on narrow cards.
+const achievementUnderAmount = {
+  display: "block",
+  mt: 0.5,
+  fontSize: 12,
+  fontWeight: 700,
+  lineHeight: 1.3,
+  color: INK_BODY,
+  ...NUMERIC,
+  [atLeast(BP.mid)]: { display: "none" },
+};
+
+// Status pill under the amount on the narrowest cards.
+const pillUnderAmount = {
+  display: "block",
+  mt: 0.75,
+  [atLeast(BP.status)]: { display: "none" },
+};
+
 const paginationSx = {
   borderTop: `1px solid ${HAIRLINE}`,
   "& .MuiTablePagination-toolbar": {
@@ -88,15 +198,13 @@ const paginationSx = {
     display: { xs: "none", sm: "block" },
   },
 };
-const showOnDesktop = { display: { xs: "none", md: "block" } };
-const showOnMobile = {
-  display: { xs: "flex", md: "none" },
-  flexDirection: "column",
-};
+
 const amountFormatter = new Intl.NumberFormat("ja-JP");
 const formatAmount = (value: number) =>
   amountFormatter.format(Number(value || 0));
+
 type Tone = "success" | "warning" | "danger" | "info" | "neutral";
+
 const performanceTone = (status: DashboardPerformanceStatus): Tone => {
   if (status === "Achieved") {
     return "success";
@@ -109,6 +217,7 @@ const performanceTone = (status: DashboardPerformanceStatus): Tone => {
   }
   return "neutral";
 };
+
 const PILL_TONES: Record<
   Tone,
   {
@@ -143,6 +252,7 @@ const PILL_TONES: Record<
     line: "rgba(15, 23, 42, 0.10)",
   },
 };
+
 function Pill({ label, tone }: { label: string; tone: Tone }) {
   const palette = PILL_TONES[tone] ?? PILL_TONES.neutral;
   return (
@@ -179,11 +289,13 @@ function Pill({ label, tone }: { label: string; tone: Tone }) {
     </Box>
   );
 }
+
 type SectionHeaderProps = {
   title: string;
   subtitle?: string;
   icon: ReactNode;
 };
+
 function SectionHeader({ title, subtitle, icon }: SectionHeaderProps) {
   return (
     <Box
@@ -238,6 +350,7 @@ function SectionHeader({ title, subtitle, icon }: SectionHeaderProps) {
     </Box>
   );
 }
+
 function MiniBar({
   percentage,
   size = 74,
@@ -276,6 +389,7 @@ function MiniBar({
     </Box>
   );
 }
+
 function RankBadge({ rank }: { rank: number }) {
   const isPodium = rank <= 3;
   return (
@@ -307,62 +421,7 @@ function RankBadge({ rank }: { rank: number }) {
     </Box>
   );
 }
-function CardField({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <Box sx={{ minWidth: 0 }}>
-      <Typography
-        sx={{
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: 0.4,
-          color: INK_MUTED,
-        }}
-      >
-        {label}
-      </Typography>
 
-      <Box
-        sx={{
-          mt: 0.25,
-          fontSize: 13,
-          fontWeight: 600,
-          color: INK_BODY,
-          overflowWrap: "anywhere",
-          ...NUMERIC,
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
-}
-function EmptyNote({ message }: { message: string }) {
-  return (
-    <Typography
-      sx={{
-        py: 4,
-        px: 2,
-        textAlign: "center",
-        fontSize: 14,
-        color: INK_MUTED,
-      }}
-    >
-      {message}
-    </Typography>
-  );
-}
-const mobileCardSx = {
-  px: 2,
-  py: 2,
-  borderBottom: `1px solid ${HAIRLINE}`,
-  "&:last-of-type": { borderBottom: 0 },
-};
 export default function StaffRanking({ data }: Props) {
   const {
     rankings,
@@ -371,13 +430,28 @@ export default function StaffRanking({ data }: Props) {
     handleRankingLimitChange,
     handleStaffClick,
   } = data;
-  const t = useTranslations("adminDashboard");
+  const lang = useLocale();
+  const ja = lang === "ja";
+
   const performanceStatusLabel: Record<DashboardPerformanceStatus, string> = {
-    "No Target": t("status.noTarget"),
-    "Not Started": t("status.notStarted"),
-    "In Progress": t("status.inProgress"),
-    Achieved: t("status.achieved"),
+    "No Target": ja ? "目標なし" : "No Target",
+    "Not Started": ja ? "未開始" : "Not Started",
+    "In Progress": ja ? "進行中" : "In Progress",
+    Achieved: ja ? "達成" : "Achieved",
   };
+
+  // Short labels for the lines that stand in for hidden columns.
+  const targetLabel = ja ? "目標" : "Target";
+  const remainingLabel = ja ? "残額" : "Remaining";
+  const paymentsText = (n: number) =>
+    ja ? `入金${n}件` : `${n} ${n === 1 ? "payment" : "payments"}`;
+  const clientsText = (n: number) =>
+    ja ? `顧客${n}` : `${n} ${n === 1 ? "client" : "clients"}`;
+
+  const emptyText = ja
+    ? "スタッフの実績データはありません。"
+    : "No staff performance data found.";
+
   return (
     <Paper
       elevation={0}
@@ -386,208 +460,257 @@ export default function StaffRanking({ data }: Props) {
         mt: 2,
         p: 0,
         overflow: "hidden",
+        // Lets the table respond to this card's width (see RESPONSIVE RULES).
+        containerType: "inline-size",
+        containerName: "ranking",
       }}
     >
       <SectionHeader
-        title={t("staffRanking")}
-        subtitle={t("staffRankingDescription")}
+        title={ja ? "スタッフランキング" : "Staff Ranking"}
+        subtitle={
+          ja ? "月間入金額順のランキングです。" : "Ranked by monthly collection amount."
+        }
         icon={<EmojiEventsOutlinedIcon sx={{ fontSize: 18 }} />}
       />
 
-      {/* ---------- Desktop table ---------- */}
-
-      <TableContainer sx={showOnDesktop}>
-        <Table
-          sx={{
-            minWidth: 900,
-          }}
-        >
+      <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
+        <Table size="small" sx={{ width: "100%" }}>
           <TableHead>
             <TableRow>
+              <TableCell sx={{ ...headCellSx, ...edgeLeft }}>
+                {ja ? "順位" : "Rank"}
+              </TableCell>
+
+              <TableCell sx={headCellSx}>{ja ? "スタッフ" : "Staff"}</TableCell>
+
               <TableCell
-                sx={{
-                  ...headCellSx,
-                  pl: {
-                    xs: 2.5,
-                    md: 3,
-                  },
-                }}
+                align="right"
+                sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
               >
-                {t("rank")}
+                {targetLabel}
               </TableCell>
 
-              <TableCell sx={headCellSx}>{t("staff")}</TableCell>
-
-              <TableCell sx={headCellSx} align="right">
-                {t("target")}
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="right">
-                {t("collected")}
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="right">
-                Target Remaining
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="right">
-                {t("achievement")}
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="center">
-                {t("paymentsHeader")}
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="center">
-                {t("clients")}
+              <TableCell align="right" sx={{ ...headCellSx, ...amountEdge }}>
+                {ja ? "入金額" : "Collected"}
               </TableCell>
 
               <TableCell
-                sx={{
-                  ...headCellSx,
-                  pr: {
-                    xs: 2.5,
-                    md: 3,
-                  },
-                }}
+                align="right"
+                sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
               >
-                {t("statusHeader")}
+                {ja ? "目標までの残額" : "Target Remaining"}
+              </TableCell>
+
+              <TableCell
+                align="right"
+                sx={{ ...headCellSx, ...cellFrom(BP.mid) }}
+              >
+                {ja ? "達成率" : "Achievement"}
+              </TableCell>
+
+              <TableCell
+                align="center"
+                sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
+              >
+                {ja ? "入金件数" : "Payments"}
+              </TableCell>
+
+              <TableCell
+                align="center"
+                sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
+              >
+                {ja ? "顧客数" : "Clients"}
+              </TableCell>
+
+              <TableCell sx={{ ...headCellSx, ...statusEdge }}>
+                {ja ? "ステータス" : "Status"}
               </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {rankings.map((staff) => (
-              <TableRow
-                key={staff.staffId}
-                hover={false}
-                tabIndex={0}
-                sx={{
-                  ...rowSx,
-                  cursor: "pointer",
-                  "&:focus-visible": {
-                    outline: `2px solid ${BRAND}`,
-                    outlineOffset: -2,
-                  },
-                }}
-                onClick={() => handleStaffClick(staff.staffId)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    handleStaffClick(staff.staffId);
-                  }
-                }}
-              >
-                <TableCell
+            {rankings.map((staff) => {
+              const label = performanceStatusLabel[staff.status];
+              const tone = performanceTone(staff.status);
+
+              return (
+                <TableRow
+                  key={staff.staffId}
+                  hover={false}
+                  tabIndex={0}
                   sx={{
-                    ...bodyCellSx,
-                    pl: {
-                      xs: 2.5,
-                      md: 3,
+                    ...rowSx,
+                    cursor: "pointer",
+                    "&:focus-visible": {
+                      outline: `2px solid ${BRAND}`,
+                      outlineOffset: -2,
                     },
                   }}
+                  onClick={() => handleStaffClick(staff.staffId)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleStaffClick(staff.staffId);
+                    }
+                  }}
                 >
-                  <RankBadge rank={staff.rank} />
-                </TableCell>
+                  {/* RANK */}
+                  <TableCell sx={{ ...bodyCellSx, ...edgeLeft }}>
+                    <RankBadge rank={staff.rank} />
+                  </TableCell>
 
-                <TableCell sx={bodyCellSx}>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 600,
-                      color: INK,
-                    }}
-                  >
-                    {staff.staffName}
-                  </Typography>
+                  {/* STAFF (carries the hidden columns on narrow cards) */}
+                  <TableCell sx={bodyCellSx}>
+                    <Typography
+                      sx={{
+                        overflowWrap: "anywhere",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        lineHeight: 1.3,
+                        color: INK,
+                      }}
+                    >
+                      {staff.staffName}
+                    </Typography>
 
-                  <Typography
+                    <Typography
+                      sx={{
+                        overflowWrap: "anywhere",
+                        mt: 0.25,
+                        fontSize: 12,
+                        lineHeight: 1.3,
+                        color: INK_MUTED,
+                      }}
+                    >
+                      {staff.staffId}
+                    </Typography>
+
+                    {/* under 640 */}
+                    <Box sx={detailsUnderStaff}>
+                      <span>
+                        {targetLabel} ¥{formatAmount(staff.targetAmount)}
+                      </span>
+                      <span>
+                        {remainingLabel} ¥{formatAmount(staff.remainingAmount)}
+                      </span>
+                      <span>{paymentsText(staff.paymentCount)}</span>
+                      <span>{clientsText(staff.clientCount)}</span>
+                    </Box>
+
+                    {/* 640 - 879 */}
+                    <Box sx={countsUnderStaff}>
+                      <span>{paymentsText(staff.paymentCount)}</span>
+                      <span>{clientsText(staff.clientCount)}</span>
+                    </Box>
+                  </TableCell>
+
+                  {/* TARGET */}
+                  <TableCell
+                    align="right"
                     sx={{
-                      fontSize: 12,
+                      ...bodyCellSx,
+                      ...NUMERIC,
+                      ...cellFrom(BP.wide),
                       color: INK_MUTED,
                     }}
                   >
-                    {staff.staffId}
-                  </Typography>
-                </TableCell>
+                    ¥{formatAmount(staff.targetAmount)}
+                  </TableCell>
 
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    ...NUMERIC,
-                    color: INK_MUTED,
-                  }}
-                  align="right"
-                >
-                  ¥{formatAmount(staff.targetAmount)}
-                </TableCell>
+                  {/* COLLECTED (target / achievement / status stack under it) */}
+                  <TableCell
+                    align="right"
+                    sx={{ ...bodyCellSx, ...amountEdge, whiteSpace: "nowrap" }}
+                  >
+                    <Typography
+                      component="div"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        lineHeight: 1.3,
+                        color: BRAND,
+                        ...NUMERIC,
+                      }}
+                    >
+                      ¥{formatAmount(staff.totalCollected)}
+                    </Typography>
 
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    ...NUMERIC,
-                    fontWeight: 700,
-                    color: BRAND,
-                  }}
-                  align="right"
-                >
-                  ¥{formatAmount(staff.totalCollected)}
-                </TableCell>
+                    {/* 640 - 879 */}
+                    <Box sx={targetUnderAmount}>
+                      <div>
+                        {targetLabel} ¥{formatAmount(staff.targetAmount)}
+                      </div>
+                      <div>
+                        {remainingLabel} ¥{formatAmount(staff.remainingAmount)}
+                      </div>
+                    </Box>
 
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    ...NUMERIC,
-                    color: INK_MUTED,
-                  }}
-                  align="right"
-                >
-                  ¥{formatAmount(staff.remainingAmount)}
-                </TableCell>
+                    {/* under 640 */}
+                    <Box sx={achievementUnderAmount}>
+                      {staff.achievementPercentage}%
+                      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                        <MiniBar percentage={staff.achievementPercentage} />
+                      </Box>
+                    </Box>
 
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    ...NUMERIC,
-                    fontWeight: 700,
-                  }}
-                  align="right"
-                >
-                  {staff.achievementPercentage}%
-                  <Box
+                    {/* under 420 */}
+                    <Box sx={pillUnderAmount}>
+                      <Pill label={label} tone={tone} />
+                    </Box>
+                  </TableCell>
+
+                  {/* REMAINING */}
+                  <TableCell
+                    align="right"
                     sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
+                      ...bodyCellSx,
+                      ...NUMERIC,
+                      ...cellFrom(BP.wide),
+                      color: INK_MUTED,
                     }}
                   >
-                    <MiniBar percentage={staff.achievementPercentage} />
-                  </Box>
-                </TableCell>
+                    ¥{formatAmount(staff.remainingAmount)}
+                  </TableCell>
 
-                <TableCell sx={{ ...bodyCellSx, ...NUMERIC }} align="center">
-                  {staff.paymentCount}
-                </TableCell>
+                  {/* ACHIEVEMENT */}
+                  <TableCell
+                    align="right"
+                    sx={{
+                      ...bodyCellSx,
+                      ...NUMERIC,
+                      ...cellFrom(BP.mid),
+                      fontWeight: 700,
+                    }}
+                  >
+                    {staff.achievementPercentage}%
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <MiniBar percentage={staff.achievementPercentage} />
+                    </Box>
+                  </TableCell>
 
-                <TableCell sx={{ ...bodyCellSx, ...NUMERIC }} align="center">
-                  {staff.clientCount}
-                </TableCell>
+                  {/* PAYMENTS */}
+                  <TableCell
+                    align="center"
+                    sx={{ ...bodyCellSx, ...NUMERIC, ...cellFrom(BP.wide) }}
+                  >
+                    {staff.paymentCount}
+                  </TableCell>
 
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    pr: {
-                      xs: 2.5,
-                      md: 3,
-                    },
-                  }}
-                >
-                  <Pill
-                    label={performanceStatusLabel[staff.status]}
-                    tone={performanceTone(staff.status)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+                  {/* CLIENTS */}
+                  <TableCell
+                    align="center"
+                    sx={{ ...bodyCellSx, ...NUMERIC, ...cellFrom(BP.wide) }}
+                  >
+                    {staff.clientCount}
+                  </TableCell>
+
+                  {/* STATUS */}
+                  <TableCell sx={{ ...bodyCellSx, ...statusEdge }}>
+                    <Pill label={label} tone={tone} />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
 
             {rankings.length === 0 && (
               <TableRow>
@@ -601,7 +724,7 @@ export default function StaffRanking({ data }: Props) {
                     borderBottom: 0,
                   }}
                 >
-                  No staff performance data found.
+                  {emptyText}
                 </TableCell>
               </TableRow>
             )}
@@ -609,153 +732,36 @@ export default function StaffRanking({ data }: Props) {
         </Table>
       </TableContainer>
 
-      {/* ---------- Mobile cards ---------- */}
-
-      <Box sx={showOnMobile}>
-        {rankings.map((staff) => (
-          <Box
-            key={staff.staffId}
-            role="button"
-            tabIndex={0}
-            onClick={() => handleStaffClick(staff.staffId)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                handleStaffClick(staff.staffId);
-              }
-            }}
-            sx={{
-              ...mobileCardSx,
-              cursor: "pointer",
-              "&:active": {
-                bgcolor: "rgba(16, 122, 100, 0.05)",
-              },
-              "&:focus-visible": {
-                outline: `2px solid ${BRAND}`,
-                outlineOffset: -2,
-              },
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-              }}
-            >
-              <RankBadge rank={staff.rank} />
-
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: INK,
-                  }}
-                >
-                  {staff.staffName}
-                </Typography>
-
-                <Typography sx={{ fontSize: 12, color: INK_MUTED }}>
-                  {staff.staffId}
-                </Typography>
-              </Box>
-
-              <Pill
-                label={performanceStatusLabel[staff.status]}
-                tone={performanceTone(staff.status)}
-              />
-            </Box>
-
-            <Box
-              sx={{
-                mt: 1.75,
-                display: "flex",
-                alignItems: "baseline",
-                justifyContent: "space-between",
-                gap: 1.5,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  letterSpacing: -0.4,
-                  color: BRAND,
-                  ...NUMERIC,
-                }}
-              >
-                ¥{formatAmount(staff.totalCollected)}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  color: INK_MUTED,
-                  ...NUMERIC,
-                }}
-              >
-                {t("target")} ¥{formatAmount(staff.targetAmount)}
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                mt: 0.5,
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-              }}
-            >
-              <Box sx={{ flex: 1 }}>
-                <MiniBar percentage={staff.achievementPercentage} size="100%" />
-              </Box>
-
-              <Typography
-                sx={{
-                  mt: 0.75,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: INK_BODY,
-                  ...NUMERIC,
-                }}
-              >
-                {staff.achievementPercentage}%
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                mt: 1.75,
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: 1.5,
-              }}
-            >
-              <CardField label="Remaining">
-                ¥{formatAmount(staff.remainingAmount)}
-              </CardField>
-
-              <CardField label={t("paymentsHeader")}>
-                {staff.paymentCount}
-              </CardField>
-
-              <CardField label={t("clients")}>{staff.clientCount}</CardField>
-            </Box>
-          </Box>
-        ))}
-
-        {rankings.length === 0 && (
-          <EmptyNote message="No staff performance data found." />
-        )}
-      </Box>
-
       <TablePagination
         component="div"
+        labelRowsPerPage={ja ? "1ページの表示件数：" : "Rows per page:"}
+        labelDisplayedRows={({ from, to, count }) =>
+          ja
+            ? `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`
+            : `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`
+        }
+        getItemAriaLabel={(type) =>
+          ja
+            ? type === "first"
+              ? "最初のページへ"
+              : type === "last"
+                ? "最後のページへ"
+                : type === "next"
+                  ? "次のページへ"
+                  : "前のページへ"
+            : `Go to ${type} page`
+        }
         count={rankingPagination.total}
         page={Math.max(rankingPagination.currentPage - 1, 0)}
         rowsPerPage={rankingPagination.perPage}
         rowsPerPageOptions={[10, 25, 50]}
+        slotProps={{
+          select: {
+            inputProps: {
+              "aria-label": ja ? "1ページの表示件数" : "Rows per page",
+            },
+          },
+        }}
         onPageChange={(_, page) => handleRankingPageChange(page + 1)}
         onRowsPerPageChange={(event) =>
           handleRankingLimitChange(Number(event.target.value))

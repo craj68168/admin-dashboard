@@ -32,40 +32,36 @@ const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 
 const INK = "#111827";
 const INK_MUTED = "#4B5563";
+const PLACEHOLDER = "#6B7280";
 
 const softCard = {
   borderRadius: 3,
-
   border: "1px solid",
-
   borderColor: HAIRLINE,
-
   bgcolor: "#ffffff",
-
   boxShadow:
     "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
 };
 
 const fieldLabelSx = {
   display: "block",
-
   mb: 0.75,
-
   fontSize: 13,
-
   fontWeight: 600,
-
   color: INK,
 };
 
 const fieldInputSx = {
   height: 44,
-
   borderRadius: 2,
-
   bgcolor: "#ffffff",
-
   fontSize: 14,
+
+  // Soft grey placeholder (opacity reset because browsers dim it by default).
+  "& .MuiOutlinedInput-input::placeholder": {
+    color: PLACEHOLDER,
+    opacity: 1,
+  },
 
   "& .MuiOutlinedInput-notchedOutline": {
     borderColor: "rgba(17, 24, 39, 0.12)",
@@ -77,7 +73,6 @@ const fieldInputSx = {
 
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
     borderColor: BRAND,
-
     borderWidth: 1,
   },
 
@@ -88,9 +83,7 @@ const fieldInputSx = {
 
 const fieldErrorSx = {
   mt: 0.5,
-
   fontSize: 12,
-
   color: "#DC2626",
 };
 
@@ -135,11 +128,8 @@ export default function AddStaff() {
         component="main"
         sx={{
           maxWidth: 900,
-
           mx: "auto",
-
           px: { xs: 2, sm: 3, md: 4 },
-
           py: { xs: 3, md: 4 },
         }}
       >
@@ -150,23 +140,14 @@ export default function AddStaff() {
           href="/admin/staff"
           sx={{
             display: "inline-flex",
-
             alignItems: "center",
-
             gap: 0.75,
-
             mb: 2.5,
-
             fontSize: 13,
-
             fontWeight: 600,
-
             color: INK_MUTED,
-
             textDecoration: "none",
-
             transition: "color 200ms ease",
-
             "&:hover": {
               color: BRAND,
             },
@@ -181,30 +162,20 @@ export default function AddStaff() {
         <Box
           sx={{
             display: "flex",
-
             alignItems: "center",
-
             gap: 2,
-
             mb: 3,
           }}
         >
           <Box
             sx={{
               display: "grid",
-
               placeItems: "center",
-
               flexShrink: 0,
-
               width: 48,
-
               height: 48,
-
               borderRadius: 2.5,
-
               bgcolor: "rgba(16, 122, 100, 0.08)",
-
               color: BRAND,
             }}
           >
@@ -241,12 +212,10 @@ export default function AddStaff() {
           <Box
             sx={{
               display: "grid",
-
               gridTemplateColumns: {
                 xs: "1fr",
                 md: "repeat(2, minmax(0, 1fr))",
               },
-
               gap: { xs: 2, sm: 2.5 },
             }}
           >
@@ -305,6 +274,7 @@ export default function AddStaff() {
             <Box>
               <Typography
                 component="label"
+                id="location-label"
                 htmlFor="location"
                 sx={fieldLabelSx}
               >
@@ -314,9 +284,20 @@ export default function AddStaff() {
               <Select
                 {...register("location")}
                 id="location"
+                labelId="location-label"
                 fullWidth
                 defaultValue=""
                 displayEmpty
+                // Grey placeholder until a location is chosen.
+                renderValue={(value) =>
+                  value ? (
+                    t(`locations.${value as (typeof STAFF_LOCATIONS)[number]}`)
+                  ) : (
+                    <Box component="span" sx={{ color: PLACEHOLDER }}>
+                      {t("fields.location.placeholder")}
+                    </Box>
+                  )
+                }
                 error={Boolean(errors.location)}
                 aria-invalid={Boolean(errors.location)}
                 sx={fieldInputSx}
@@ -397,15 +378,10 @@ export default function AddStaff() {
             <Box
               sx={{
                 display: "flex",
-
                 justifyContent: "flex-end",
-
                 gridColumn: { xs: "auto", md: "1 / -1" },
-
                 mt: 1,
-
                 pt: 2,
-
                 borderTop: `1px solid ${HAIRLINE}`,
               }}
             >
@@ -416,30 +392,19 @@ export default function AddStaff() {
                 disabled={isPending}
                 sx={{
                   height: 44,
-
                   px: 3.5,
-
                   borderRadius: 2.5,
-
                   textTransform: "none",
-
                   fontWeight: 600,
-
                   fontSize: 14,
-
                   bgcolor: BRAND,
-
                   boxShadow: "none",
-
                   "&:hover": {
                     bgcolor: "#0C5F4F",
-
                     boxShadow: "none",
                   },
-
                   "&.Mui-disabled": {
                     bgcolor: "rgba(16, 122, 100, 0.35)",
-
                     color: "#ffffff",
                   },
                 }}
