@@ -156,10 +156,33 @@ function ChartCard({
   return (
     <Paper
       elevation={0}
-      sx={{ ...softCard, p: 0, height: "100%", overflow: "hidden" }}
+      sx={{
+        ...softCard,
+        p: 0,
+        height: "100%",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        "& > :first-child": { flexShrink: 0 },
+      }}
     >
       <SectionHeader title={title} subtitle={subtitle} icon={icon} />
-      <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>{children}</Box>
+
+      {/* The card stretches to match its neighbour in the row. The body takes
+      the spare height and centres the chart in it, so the extra space is split
+      evenly above and below instead of collecting at the bottom. */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          p: { xs: 2, sm: 2.5, md: 3 },
+        }}
+      >
+        {children}
+      </Box>
     </Paper>
   );
 }

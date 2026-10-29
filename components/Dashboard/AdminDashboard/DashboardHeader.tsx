@@ -1,103 +1,145 @@
 "use client";
+
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { useTranslations } from "next-intl";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { useAdminDashboard } from "./hook";
+
 type Props = {
   data: Pick<
     ReturnType<typeof useAdminDashboard>,
     "selectedMonth" | "handleMonthChange"
   >;
 };
+
 const BRAND = "#107A64";
-const BRAND_DEEP = "#0A5A49";
-const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
-const BRAND_LINE = "rgba(16, 122, 100, 0.20)";
+const BRAND_RING = "rgba(16, 122, 100, 0.20)";
+const HAIRLINE = "#E5E7EB";
+const FIELD_BORDER = "#CBD1D9";
+const FIELD_BORDER_HOVER = "#9AA3AF";
 const INK = "#0F172A";
-const INK_MUTED = "#5B6A7E";
-const RADIUS = 20;
+const INK_MUTED = "#5B6472";
+
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/**
+ * Entrance runs once on mount. The container only sequences its children, so
+ * the divider underneath stays still; the text block and the month picker
+ * rise 8px and fade in 50ms apart. Data changes never replay it.
+ */
+const containerVariants: Variants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: EASE_OUT },
+  },
+};
+
 const fieldSx = {
+  width: { xs: "100%", sm: "auto" },
+  minWidth: { sm: 196 },
   "& .MuiOutlinedInput-root": {
-    borderRadius: `${RADIUS - 4}px`,
+    borderRadius: "12px",
     bgcolor: "#ffffff",
+    fontSize: 14,
+    fontWeight: 500,
+    color: INK,
+    fontVariantNumeric: "tabular-nums",
+    boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
+    transition: "box-shadow 150ms ease",
     "& fieldset": {
-      borderColor: "rgba(17, 24, 39, 0.12)",
+      borderColor: FIELD_BORDER,
+      transition: "border-color 150ms ease",
     },
     "&:hover fieldset": {
-      borderColor: "rgba(16, 122, 100, 0.40)",
+      borderColor: FIELD_BORDER_HOVER,
+    },
+    "&.Mui-focused": {
+      boxShadow: `0 0 0 3px ${BRAND_RING}, 0 1px 2px rgba(16, 24, 40, 0.05)`,
     },
     "&.Mui-focused fieldset": {
       borderColor: BRAND,
       borderWidth: 1,
     },
   },
+  // 44px touch target on phones, 42px on larger screens
+  "& .MuiOutlinedInput-input": {
+    py: { xs: "12px", sm: "10px" },
+  },
+  // the calendar affordance is the one clickable hint inside the field
+  "& input::-webkit-calendar-picker-indicator": {
+    cursor: "pointer",
+    opacity: 0.55,
+    transition: "opacity 120ms ease",
+  },
+  "& input::-webkit-calendar-picker-indicator:hover": {
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    fontSize: 14,
+    color: INK_MUTED,
+    maxWidth: "calc(100% - 28px)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
   "& .MuiInputLabel-root.Mui-focused": {
     color: BRAND,
   },
+  "@media (prefers-reduced-motion: reduce)": {
+    "& .MuiOutlinedInput-root, & .MuiOutlinedInput-root fieldset, & input::-webkit-calendar-picker-indicator":
+      {
+        transition: "none",
+      },
+  },
 };
+
 export default function DashboardHeader({ data }: Props) {
   const { selectedMonth, handleMonthChange } = data;
   const t = useTranslations("adminDashboard");
+  const reduceMotion = useReducedMotion();
+
   return (
     <Box
+      component={motion.header}
+      variants={containerVariants}
+      initial={reduceMotion ? false : "hidden"}
+      animate="show"
       sx={{
         display: "flex",
-        flexWrap: "wrap",
-        alignItems: "flex-end",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "stretch", sm: "flex-end" },
         justifyContent: "space-between",
-        gap: 2.5,
+        gap: { xs: 2, sm: 3 },
+        pb: { xs: 2.5, sm: 3 },
+        borderBottom: "1px solid",
+        borderColor: HAIRLINE,
       }}
     >
-      <Box sx={{ minWidth: 0 }}>
-        <Box
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 1,
-            px: 1.25,
-            py: 0.5,
-            borderRadius: 999,
-            bgcolor: BRAND_SOFT,
-            border: "1px solid",
-            borderColor: BRAND_LINE,
-          }}
-        >
-          <Box
-            sx={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              bgcolor: BRAND,
-            }}
-          />
-
-          <Typography
-            sx={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 0.8,
-              textTransform: "uppercase",
-              color: BRAND_DEEP,
-            }}
-          >
-            {selectedMonth}
-          </Typography>
-        </Box>
-
+      <Box
+        component={motion.div}
+        variants={itemVariants}
+        sx={{ minWidth: 0, flex: 1 }}
+      >
         <Typography
           component="h1"
           sx={{
-            mt: 1.25,
-            fontSize: {
-              xs: 24,
-              sm: 28,
-              md: 32,
-            },
+            fontSize: { xs: 26, sm: 30, md: 34 },
             fontWeight: 700,
-            letterSpacing: -0.8,
-            lineHeight: 1.2,
+            letterSpacing: { xs: -0.7, md: -1 },
+            lineHeight: 1.15,
             color: INK,
+            overflowWrap: "anywhere",
           }}
         >
           {t("title")}
@@ -105,36 +147,36 @@ export default function DashboardHeader({ data }: Props) {
 
         <Typography
           sx={{
-            mt: 0.75,
-            fontSize: 14,
-            color: INK_MUTED,
-            maxWidth: 620,
+            mt: 1.25,
+            maxWidth: "62ch",
+            fontSize: 14.5,
             lineHeight: 1.6,
+            color: INK_MUTED,
           }}
         >
           {t("description")}
         </Typography>
       </Box>
 
-      <TextField
-        type="month"
-        size="small"
-        label={t("performanceMonth")}
-        value={selectedMonth}
-        onChange={(event) => handleMonthChange(event.target.value)}
-        slotProps={{
-          inputLabel: {
-            shrink: true,
-          },
-        }}
-        sx={{
-          ...fieldSx,
-          width: {
-            xs: "100%",
-            sm: 220,
-          },
-        }}
-      />
+      <Box
+        component={motion.div}
+        variants={itemVariants}
+        sx={{ flexShrink: 0, width: { xs: "100%", sm: "auto" } }}
+      >
+        <TextField
+          type="month"
+          size="small"
+          label={t("performanceMonth")}
+          value={selectedMonth}
+          onChange={(event) => handleMonthChange(event.target.value)}
+          slotProps={{
+            inputLabel: {
+              shrink: true,
+            },
+          }}
+          sx={fieldSx}
+        />
+      </Box>
     </Box>
   );
 }
