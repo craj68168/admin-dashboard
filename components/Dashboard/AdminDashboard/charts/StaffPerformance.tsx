@@ -153,7 +153,8 @@ function ChartCard({
       sx={{
         ...softCard,
         p: 0,
-        height: "calc(100% - 90px)",
+        flex: 1,
+        minWidth: 0,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -217,6 +218,7 @@ function StaffBars({
           flex: 1,
           minHeight: 0,
           height: { xs: 220, md: 240 },
+          maxHeight: { xs: 220, md: 240 },
           overflowY: "auto",
           overflowX: "hidden",
           scrollbarGutter: "stable",
@@ -267,6 +269,7 @@ function StaffBars({
                 component="span"
                 sx={{
                   display: "flex",
+                  flexWrap: "wrap",
                   alignItems: "baseline",
                   justifyContent: "space-between",
                   gap: 1.5,
@@ -274,8 +277,7 @@ function StaffBars({
               >
                 <Typography
                   component="span"
-                  noWrap
-                  sx={{ minWidth: 0, fontSize: 14, fontWeight: 600, color: INK }}
+                  sx={{ minWidth: 0, overflowWrap: "anywhere", fontSize: 14, fontWeight: 600, color: INK }}
                 >
                   {row.staffName}
                 </Typography>
@@ -283,7 +285,8 @@ function StaffBars({
                 <Typography
                   component="span"
                   sx={{
-                    flexShrink: 0,
+                    minWidth: 0,
+                    overflowWrap: "anywhere",
                     fontSize: 12,
                     fontWeight: 400,
                     color: INK_MUTED,
@@ -308,7 +311,7 @@ function StaffBars({
                 sx={{
                   mt: 1,
                   display: "grid",
-                  gridTemplateColumns: "minmax(0, 1fr) 40px",
+                  gridTemplateColumns: "minmax(0, 1fr) auto",
                   alignItems: "center",
                   columnGap: 1.5,
                 }}

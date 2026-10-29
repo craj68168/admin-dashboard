@@ -90,6 +90,7 @@ function StageRow({
             fontWeight: 500,
             color: INK_BODY,
             minWidth: 0,
+            overflowWrap: "anywhere",
           }}
         >
           {name}
@@ -100,6 +101,7 @@ function StageRow({
             fontSize: 14,
             fontWeight: 700,
             color: BRAND,
+            flexShrink: 0,
             ...NUMERIC,
           }}
         >
@@ -198,8 +200,8 @@ export default function StageBreakdown({ data }: Props) {
             display: "grid",
             gap: 1.25,
             gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(auto-fill, minmax(260px, 1fr))",
+              xs: "minmax(0, 1fr)",
+              sm: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
             },
           }}
         >

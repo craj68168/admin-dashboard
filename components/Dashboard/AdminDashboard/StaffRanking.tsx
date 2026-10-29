@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -88,10 +88,10 @@ const paginationSx = {
     display: { xs: "none", sm: "block" },
   },
 };
-const showOnDesktop = { display: { xs: "none", md: "block" } };
+const showOnDesktop = { display: { xs: "none", lg: "block" }, maxWidth: "100%", overflowX: "auto" };
 const showOnMobile = {
-  display: { xs: "flex", md: "none" },
-  flexDirection: "column",
+  display: { xs: "grid", lg: "none" },
+  gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
 };
 const amountFormatter = new Intl.NumberFormat("ja-JP");
 const formatAmount = (value: number) =>
@@ -371,12 +371,12 @@ export default function StaffRanking({ data }: Props) {
     handleRankingLimitChange,
     handleStaffClick,
   } = data;
-  const t = useTranslations("adminDashboard");
+  const lang = useLocale();
   const performanceStatusLabel: Record<DashboardPerformanceStatus, string> = {
-    "No Target": t("status.noTarget"),
-    "Not Started": t("status.notStarted"),
-    "In Progress": t("status.inProgress"),
-    Achieved: t("status.achieved"),
+    "No Target": lang === "ja" ? "目標なし" : "No Target",
+    "Not Started": lang === "ja" ? "未開始" : "Not Started",
+    "In Progress": lang === "ja" ? "進行中" : "In Progress",
+    Achieved: lang === "ja" ? "達成" : "Achieved",
   };
   return (
     <Paper
@@ -389,8 +389,8 @@ export default function StaffRanking({ data }: Props) {
       }}
     >
       <SectionHeader
-        title={t("staffRanking")}
-        subtitle={t("staffRankingDescription")}
+        title={lang === "ja" ? "スタッフランキング" : "Staff Ranking"}
+        subtitle={lang === "ja" ? "月間入金額順のランキングです。" : "Ranked by monthly collection amount."}
         icon={<EmojiEventsOutlinedIcon sx={{ fontSize: 18 }} />}
       />
 
@@ -413,33 +413,33 @@ export default function StaffRanking({ data }: Props) {
                   },
                 }}
               >
-                {t("rank")}
+                {lang === "ja" ? "順位" : "Rank"}
               </TableCell>
 
-              <TableCell sx={headCellSx}>{t("staff")}</TableCell>
+              <TableCell sx={headCellSx}>{lang === "ja" ? "スタッフ" : "Staff"}</TableCell>
 
               <TableCell sx={headCellSx} align="right">
-                {t("target")}
-              </TableCell>
-
-              <TableCell sx={headCellSx} align="right">
-                {t("collected")}
+                {lang === "ja" ? "目標" : "Target"}
               </TableCell>
 
               <TableCell sx={headCellSx} align="right">
-                Target Remaining
+                {lang === "ja" ? "入金額" : "Collected"}
               </TableCell>
 
               <TableCell sx={headCellSx} align="right">
-                {t("achievement")}
+                {lang === "ja" ? "目標までの残額" : "Target Remaining"}
+              </TableCell>
+
+              <TableCell sx={headCellSx} align="right">
+                {lang === "ja" ? "達成率" : "Achievement"}
               </TableCell>
 
               <TableCell sx={headCellSx} align="center">
-                {t("paymentsHeader")}
+                {lang === "ja" ? "入金件数" : "Payments"}
               </TableCell>
 
               <TableCell sx={headCellSx} align="center">
-                {t("clients")}
+                {lang === "ja" ? "顧客数" : "Clients"}
               </TableCell>
 
               <TableCell
@@ -451,7 +451,7 @@ export default function StaffRanking({ data }: Props) {
                   },
                 }}
               >
-                {t("statusHeader")}
+                {lang === "ja" ? "ステータス" : "Status"}
               </TableCell>
             </TableRow>
           </TableHead>
@@ -601,7 +601,7 @@ export default function StaffRanking({ data }: Props) {
                     borderBottom: 0,
                   }}
                 >
-                  No staff performance data found.
+                  {lang === "ja" ? "スタッフの実績データはありません。" : "No staff performance data found."}
                 </TableCell>
               </TableRow>
             )}
@@ -639,13 +639,14 @@ export default function StaffRanking({ data }: Props) {
             <Box
               sx={{
                 display: "flex",
+                flexWrap: "wrap",
                 alignItems: "center",
                 gap: 1.5,
               }}
             >
               <RankBadge rank={staff.rank} />
 
-              <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Box sx={{ flex: "1 1 120px", minWidth: 0, overflowWrap: "anywhere" }}>
                 <Typography
                   sx={{
                     fontSize: 14,
@@ -671,6 +672,7 @@ export default function StaffRanking({ data }: Props) {
               sx={{
                 mt: 1.75,
                 display: "flex",
+                flexWrap: "wrap",
                 alignItems: "baseline",
                 justifyContent: "space-between",
                 gap: 1.5,
@@ -679,6 +681,8 @@ export default function StaffRanking({ data }: Props) {
               <Typography
                 sx={{
                   fontSize: 20,
+                  minWidth: 0,
+                  overflowWrap: "anywhere",
                   fontWeight: 700,
                   letterSpacing: -0.4,
                   color: BRAND,
@@ -692,10 +696,12 @@ export default function StaffRanking({ data }: Props) {
                 sx={{
                   fontSize: 12,
                   color: INK_MUTED,
+                  minWidth: 0,
+                  overflowWrap: "anywhere",
                   ...NUMERIC,
                 }}
               >
-                {t("target")} ¥{formatAmount(staff.targetAmount)}
+                {lang === "ja" ? "目標" : "Target"} ¥{formatAmount(staff.targetAmount)}
               </Typography>
             </Box>
 
@@ -728,34 +734,44 @@ export default function StaffRanking({ data }: Props) {
               sx={{
                 mt: 1.75,
                 display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 100px), 1fr))",
                 gap: 1.5,
               }}
             >
-              <CardField label="Remaining">
+              <CardField label={lang === "ja" ? "残額" : "Remaining"}>
                 ¥{formatAmount(staff.remainingAmount)}
               </CardField>
 
-              <CardField label={t("paymentsHeader")}>
+              <CardField label={lang === "ja" ? "入金件数" : "Payments"}>
                 {staff.paymentCount}
               </CardField>
 
-              <CardField label={t("clients")}>{staff.clientCount}</CardField>
+              <CardField label={lang === "ja" ? "顧客数" : "Clients"}>{staff.clientCount}</CardField>
             </Box>
           </Box>
         ))}
 
         {rankings.length === 0 && (
-          <EmptyNote message="No staff performance data found." />
+          <EmptyNote message={lang === "ja" ? "スタッフの実績データはありません。" : "No staff performance data found."} />
         )}
       </Box>
 
       <TablePagination
         component="div"
+        labelRowsPerPage={lang === "ja" ? "1ページの表示件数：" : "Rows per page:"}
+        labelDisplayedRows={({ from, to, count }) => lang === "ja"
+          ? `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`
+          : `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`}
+        getItemAriaLabel={(type) => lang === "ja"
+          ? type === "first" ? "最初のページへ"
+            : type === "last" ? "最後のページへ"
+            : type === "next" ? "次のページへ" : "前のページへ"
+          : `Go to ${type} page`}
         count={rankingPagination.total}
         page={Math.max(rankingPagination.currentPage - 1, 0)}
         rowsPerPage={rankingPagination.perPage}
         rowsPerPageOptions={[10, 25, 50]}
+        slotProps={{ select: { inputProps: { "aria-label": lang === "ja" ? "1ページの表示件数" : "Rows per page" } } }}
         onPageChange={(_, page) => handleRankingPageChange(page + 1)}
         onRowsPerPageChange={(event) =>
           handleRankingLimitChange(Number(event.target.value))

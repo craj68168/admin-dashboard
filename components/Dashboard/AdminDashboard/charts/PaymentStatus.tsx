@@ -159,7 +159,8 @@ function ChartCard({
       sx={{
         ...softCard,
         p: 0,
-        height: "100%",
+        flex: 1,
+        minWidth: 0,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -235,7 +236,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) auto",
+                gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "minmax(0, 1fr) auto" },
                 alignItems: "baseline",
                 columnGap: 2,
               }}
@@ -243,6 +244,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
               <Box
                 sx={{
                   display: "flex",
+                  flexWrap: "wrap",
                   alignItems: "center",
                   gap: 1,
                   minWidth: 0,
@@ -259,8 +261,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
                   }}
                 />
                 <Typography
-                  noWrap
-                  sx={{ fontSize: 14, fontWeight: 600, color: INK }}
+                  sx={{ minWidth: 0, overflowWrap: "anywhere", fontSize: 14, fontWeight: 600, color: INK }}
                 >
                   {slice.label}
                 </Typography>
@@ -277,7 +278,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
               </Box>
 
               <Typography
-                sx={{ fontSize: 14, fontWeight: 700, color: INK, ...NUMERIC }}
+                sx={{ minWidth: 0, overflowWrap: "anywhere", fontSize: 14, fontWeight: 700, color: INK, ...NUMERIC }}
               >
                 ¥{formatAmount(slice.amount)}
               </Typography>
@@ -391,7 +392,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
     >
       <Box
         ref={ringRef}
-        sx={{ position: "relative", width: 184, height: 184, flexShrink: 0 }}
+        sx={{ position: "relative", width: 184, maxWidth: "100%", aspectRatio: "1", flexShrink: 0 }}
       >
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}

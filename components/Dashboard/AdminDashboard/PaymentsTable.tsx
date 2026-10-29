@@ -1,5 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -105,29 +106,28 @@ const paginationSx = {
     },
 };
 
-const showOnDesktop = { display: { xs: "none", md: "block" } };
+const showOnDesktop = { display: { xs: "none", lg: "block" }, maxWidth: "100%", overflowX: "auto" };
 const showOnMobile = {
-  display: { xs: "flex", md: "none" },
-  flexDirection: "column",
+  display: { xs: "grid", lg: "none" },
+  gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
 };
 
 const amountFormatter = new Intl.NumberFormat("ja-JP");
-const dateFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Tokyo",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
 
 const formatAmount = (value: number) =>
   amountFormatter.format(Number(value || 0));
 
-const formatJapanDate = (value: string) => {
+const formatJapanDate = (value: string, lang: string) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     return "-";
   }
-  return dateFormatter.format(date);
+  return new Intl.DateTimeFormat(lang === "ja" ? "ja-JP" : "en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 };
 
 const initialsOf = (name: string | undefined, fallbackId: string) => {
@@ -185,6 +185,7 @@ const PILL_TONES: Record<Tone, { bg: string; fg: string; line: string }> = {
 };
 
 function Pill({ label, tone }: { label: string; tone: Tone }) {
+  const lang = useLocale();
   const palette = PILL_TONES[tone] ?? PILL_TONES.neutral;
   return (
     <Box
@@ -216,7 +217,12 @@ function Pill({ label, tone }: { label: string; tone: Tone }) {
           flexShrink: 0,
         }}
       />
-      {label}
+      {lang === "ja"
+        ? label === "Completed" ? "完了"
+          : label === "Cancelled" ? "キャンセル"
+          : label === "Refunded" ? "返金済み"
+          : label
+        : label}
     </Box>
   );
 }
@@ -233,6 +239,7 @@ function SectionHeader({ title, subtitle, icon, aside }: SectionHeaderProps) {
     <Box
       sx={{
         display: "flex",
+        flexWrap: "wrap",
         alignItems: "center",
         gap: 1.5,
         px: { xs: 2, sm: 2.5, md: 3 },
@@ -255,7 +262,7 @@ function SectionHeader({ title, subtitle, icon, aside }: SectionHeaderProps) {
         {icon}
       </Box>
 
-      <Box sx={{ minWidth: 0, flex: 1 }}>
+      <Box sx={{ minWidth: 0, flex: "1 1 120px", overflowWrap: "anywhere" }}>
         <Typography
           sx={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.2, color: INK }}
         >
@@ -305,6 +312,7 @@ function CardField({
 }
 
 function EmptyState() {
+  const lang = useLocale();
   return (
     <Box
       sx={{
@@ -331,12 +339,12 @@ function EmptyState() {
       </Box>
       <Box>
         <Typography sx={{ fontSize: 15, fontWeight: 600, color: INK }}>
-          No payments found
+          {lang === "ja" ? "入金が見つかりません" : "No payments found"}
         </Typography>
         <Typography
           sx={{ mt: 0.5, fontSize: 13, fontWeight: 400, color: INK_MUTED }}
         >
-          Try another month or adjust the filters.
+          {lang === "ja" ? "別の月を選択するか、絞り込み条件を変更してください。" : "Try another month or adjust the filters."}
         </Typography>
       </Box>
     </Box>
@@ -375,6 +383,7 @@ type ClientLinkProps = {
 // Name first (that is what people recognise), ID underneath. The whole block
 // is one button that opens the client.
 function ClientLink({ clientId, clientName, onOpen }: ClientLinkProps) {
+  const lang = useLocale();
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
       <InitialsAvatar text={initialsOf(clientName, clientId)} />
@@ -383,7 +392,9 @@ function ClientLink({ clientId, clientName, onOpen }: ClientLinkProps) {
         component="button"
         type="button"
         onClick={() => onOpen(clientId)}
-        aria-label={`Open client ${clientName ? `${clientName}, ` : ""}${clientId}`}
+        aria-label={lang === "ja"
+          ? `顧客${clientName ? `${clientName}、` : ""}${clientId}の詳細を開く`
+          : `Open client ${clientName ? `${clientName}, ` : ""}${clientId}`}
         sx={{
           p: 0,
           border: 0,
@@ -402,9 +413,9 @@ function ClientLink({ clientId, clientName, onOpen }: ClientLinkProps) {
         <Typography
           className="client-primary"
           component="span"
-          noWrap
           sx={{
             display: "block",
+            overflowWrap: "anywhere",
             fontSize: 14,
             fontWeight: 600,
             lineHeight: 1.3,
@@ -418,9 +429,9 @@ function ClientLink({ clientId, clientName, onOpen }: ClientLinkProps) {
         {clientName && (
           <Typography
             component="span"
-            noWrap
             sx={{
               display: "block",
+              overflowWrap: "anywhere",
               mt: 0.25,
               fontSize: 12,
               fontWeight: 400,
@@ -453,6 +464,7 @@ const mobileCardSx = {
 };
 
 export default function PaymentsTable({ data }: Props) {
+  const lang = useLocale();
   const {
     selectedMonth,
     payments,
@@ -468,8 +480,8 @@ export default function PaymentsTable({ data }: Props) {
       sx={{ ...softCard, mt: 2, p: 0, overflow: "hidden" }}
     >
       <SectionHeader
-        title="Payments"
-        subtitle={`Payments for ${selectedMonth}`}
+        title={lang === "ja" ? "入金一覧" : "Payments"}
+        subtitle={lang === "ja" ? `${selectedMonth}の入金` : `Payments for ${selectedMonth}`}
         icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 18 }} />}
         aside={
           <Typography
@@ -481,8 +493,8 @@ export default function PaymentsTable({ data }: Props) {
               ...NUMERIC,
             }}
           >
-            {formatAmount(paymentPagination.total)}{" "}
-            {paymentPagination.total === 1 ? "payment" : "payments"}
+            {formatAmount(paymentPagination.total)}
+            {lang === "ja" ? "件の入金" : paymentPagination.total === 1 ? " payment" : " payments"}
           </Typography>
         }
       />
@@ -493,15 +505,15 @@ export default function PaymentsTable({ data }: Props) {
         <Table size="small" sx={{ minWidth: 820 }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ ...headCellSx, ...edgeLeft }}>Client</TableCell>
-              <TableCell sx={headCellSx}>Stage</TableCell>
+              <TableCell sx={{ ...headCellSx, ...edgeLeft }}>{lang === "ja" ? "顧客" : "Client"}</TableCell>
+              <TableCell sx={headCellSx}>{lang === "ja" ? "ステージ" : "Stage"}</TableCell>
               <TableCell sx={headCellSx} align="right">
-                Amount
+                {lang === "ja" ? "金額" : "Amount"}
               </TableCell>
-              <TableCell sx={headCellSx}>Method</TableCell>
-              <TableCell sx={headCellSx}>Status</TableCell>
-              <TableCell sx={headCellSx}>Staff</TableCell>
-              <TableCell sx={{ ...headCellSx, ...edgeRight }}>Date</TableCell>
+              <TableCell sx={headCellSx}>{lang === "ja" ? "支払方法" : "Method"}</TableCell>
+              <TableCell sx={headCellSx}>{lang === "ja" ? "ステータス" : "Status"}</TableCell>
+              <TableCell sx={headCellSx}>{lang === "ja" ? "スタッフ" : "Staff"}</TableCell>
+              <TableCell sx={{ ...headCellSx, ...edgeRight }}>{lang === "ja" ? "日付" : "Date"}</TableCell>
             </TableRow>
           </TableHead>
 
@@ -525,7 +537,16 @@ export default function PaymentsTable({ data }: Props) {
                   ¥{formatAmount(payment.amountPaid)}
                 </TableCell>
 
-                <TableCell sx={bodyCellSx}>{payment.paymentMethod}</TableCell>
+                <TableCell sx={bodyCellSx}>
+                  {lang === "ja"
+                    ? payment.paymentMethod === "Cash" ? "現金"
+                      : payment.paymentMethod === "Bank Transfer" ? "銀行振込"
+                      : payment.paymentMethod === "Online Payment" ? "オンライン決済"
+                      : payment.paymentMethod === "Cheque" ? "小切手"
+                      : payment.paymentMethod === "Other" ? "その他"
+                      : payment.paymentMethod
+                    : payment.paymentMethod}
+                </TableCell>
 
                 <TableCell sx={bodyCellSx}>
                   <Pill
@@ -572,7 +593,7 @@ export default function PaymentsTable({ data }: Props) {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {formatJapanDate(payment.paymentDate)}
+                  {formatJapanDate(payment.paymentDate, lang)}
                 </TableCell>
               </TableRow>
             ))}
@@ -596,12 +617,13 @@ export default function PaymentsTable({ data }: Props) {
             <Box
               sx={{
                 display: "flex",
+                flexWrap: "wrap",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
                 gap: 1.5,
               }}
             >
-              <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Box sx={{ minWidth: 0, flex: "1 1 160px" }}>
                 <ClientLink
                   clientId={payment.clientId}
                   clientName={payment.clientName}
@@ -609,7 +631,7 @@ export default function PaymentsTable({ data }: Props) {
                 />
               </Box>
 
-              <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+              <Box sx={{ textAlign: { xs: "left", sm: "right" }, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" }}>
                 <Typography
                   sx={{
                     fontSize: 16,
@@ -635,17 +657,26 @@ export default function PaymentsTable({ data }: Props) {
                 pt: 1.5,
                 borderTop: `1px dashed ${HAIRLINE}`,
                 display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))",
                 gap: 1.5,
               }}
             >
-              <CardField label="Stage">{payment.stageName}</CardField>
-              <CardField label="Method">{payment.paymentMethod}</CardField>
-              <CardField label="Staff">
+              <CardField label={lang === "ja" ? "ステージ" : "Stage"}>{payment.stageName}</CardField>
+              <CardField label={lang === "ja" ? "支払方法" : "Method"}>
+                {lang === "ja"
+                  ? payment.paymentMethod === "Cash" ? "現金"
+                    : payment.paymentMethod === "Bank Transfer" ? "銀行振込"
+                    : payment.paymentMethod === "Online Payment" ? "オンライン決済"
+                    : payment.paymentMethod === "Cheque" ? "小切手"
+                    : payment.paymentMethod === "Other" ? "その他"
+                    : payment.paymentMethod
+                  : payment.paymentMethod}
+              </CardField>
+              <CardField label={lang === "ja" ? "スタッフ" : "Staff"}>
                 {payment.creditedStaffName} ({payment.creditedStaff})
               </CardField>
-              <CardField label="Date">
-                {formatJapanDate(payment.paymentDate)}
+              <CardField label={lang === "ja" ? "日付" : "Date"}>
+                {formatJapanDate(payment.paymentDate, lang)}
               </CardField>
             </Box>
           </Box>
@@ -656,10 +687,20 @@ export default function PaymentsTable({ data }: Props) {
 
       <TablePagination
         component="div"
+        labelRowsPerPage={lang === "ja" ? "1ページの表示件数：" : "Rows per page:"}
+        labelDisplayedRows={({ from, to, count }) => lang === "ja"
+          ? `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`
+          : `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`}
+        getItemAriaLabel={(type) => lang === "ja"
+          ? type === "first" ? "最初のページへ"
+            : type === "last" ? "最後のページへ"
+            : type === "next" ? "次のページへ" : "前のページへ"
+          : `Go to ${type} page`}
         count={paymentPagination.total}
         page={Math.max(paymentPagination.currentPage - 1, 0)}
         rowsPerPage={paymentPagination.perPage}
         rowsPerPageOptions={[10, 25, 50]}
+        slotProps={{ select: { inputProps: { "aria-label": lang === "ja" ? "1ページの表示件数" : "Rows per page" } } }}
         onPageChange={(_, page) => handlePaymentPageChange(page + 1)}
         onRowsPerPageChange={(event) =>
           handlePaymentLimitChange(Number(event.target.value))

@@ -28,9 +28,11 @@ const RADIUS = 20;
 function AnimatedSection({
   children,
   delay = 0,
+  stretch = false,
 }: {
   children: ReactNode;
   delay?: number;
+  stretch?: boolean;
 }) {
   const reduceMotion = useReducedMotion();
 
@@ -44,7 +46,7 @@ function AnimatedSection({
         delay: reduceMotion ? 0 : delay,
         ease: "easeOut",
       }}
-      style={{ minWidth: 0, display: "flow-root" }}
+      style={{ minWidth: 0, display: stretch ? "flex" : "flow-root" }}
     >
       {children}
     </motion.div>
@@ -105,6 +107,7 @@ export default function AdminDashboard() {
     <Box
       sx={{
         bgcolor: CANVAS,
+        minWidth: 0,
         minHeight: "100vh",
         px: {
           xs: 1.5,
@@ -201,18 +204,16 @@ export default function AdminDashboard() {
             display: "grid",
             gap: 2,
             gridTemplateColumns: {
-              xs: "1fr",
+              xs: "minmax(0, 1fr)",
               lg: "minmax(0, 1.6fr) minmax(0, 1fr)",
             },
-            // Reclaim the space left by the chart cards' 90px height reduction.
-            mb: "-90px",
           }}
         >
-          <AnimatedSection>
+          <AnimatedSection stretch>
             <CollectionTrend data={dashboardData} />
           </AnimatedSection>
 
-          <AnimatedSection delay={0.05}>
+          <AnimatedSection delay={0.05} stretch>
             <StaffPerformance data={dashboardData} />
           </AnimatedSection>
         </Box>
@@ -223,16 +224,16 @@ export default function AdminDashboard() {
             display: "grid",
             gap: 2,
             gridTemplateColumns: {
-              xs: "1fr",
-              md: "repeat(2, minmax(0, 1fr))",
+              xs: "minmax(0, 1fr)",
+              lg: "repeat(2, minmax(0, 1fr))",
             },
           }}
         >
-          <AnimatedSection>
+          <AnimatedSection stretch>
             <PaymentMethods data={dashboardData} />
           </AnimatedSection>
 
-          <AnimatedSection delay={0.05}>
+          <AnimatedSection delay={0.05} stretch>
             <PaymentStatus data={dashboardData} />
           </AnimatedSection>
         </Box>

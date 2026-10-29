@@ -342,6 +342,8 @@ export default function DashboardFilters({
       <Box
         sx={{
           display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "flex-end",
           alignItems: "center",
           gap: 0.5,
           pr: { xs: 1, md: 2 },
@@ -357,8 +359,9 @@ export default function DashboardFilters({
           aria-expanded={showFilters}
           aria-controls="dashboard-filters-panel"
           sx={{
-            flex: 1,
+            flex: "1 1 220px",
             minWidth: 0,
+            minHeight: 44,
             px: { xs: 2, sm: 2.5, md: 3 },
             py: 2,
             display: "flex",
@@ -378,6 +381,7 @@ export default function DashboardFilters({
             component="span"
             sx={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
               gap: 1.25,
               minWidth: 0,
@@ -388,6 +392,7 @@ export default function DashboardFilters({
               component="span"
               sx={{
                 fontSize: 16,
+                overflowWrap: "anywhere",
                 fontWeight: 700,
                 letterSpacing: -0.2,
                 color: INK,
@@ -511,6 +516,7 @@ export default function DashboardFilters({
               sx={{
                 minWidth: 120,
                 height: 40,
+                width: { xs: "100%", sm: "auto" },
                 flexShrink: 0,
                 borderRadius: `${RADIUS - 4}px`,
                 bgcolor: BRAND,
@@ -536,12 +542,7 @@ export default function DashboardFilters({
               mt: 2,
               display: "grid",
               gap: 1.5,
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, minmax(0, 1fr))",
-                md: "repeat(3, minmax(0, 1fr))",
-                xl: "repeat(4, minmax(0, 1fr))",
-              },
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
             }}
           >
             <FilterAutocomplete

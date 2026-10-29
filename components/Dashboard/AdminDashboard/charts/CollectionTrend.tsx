@@ -108,7 +108,9 @@ function Pill({ label, tone }: { label: string; tone: Tone }) {
         fontSize: 12,
         fontWeight: 600,
         lineHeight: 1.4,
-        whiteSpace: "nowrap",
+        maxWidth: "100%",
+        whiteSpace: "normal",
+        overflowWrap: "anywhere",
         ...NUMERIC,
       }}
     >
@@ -295,7 +297,8 @@ function ChartCard({
       sx={{
         ...softCard,
         p: 0,
-        height: "calc(100% - 90px)",
+        flex: 1,
+        minWidth: 0,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -437,7 +440,7 @@ function TrendChart({
   const active =
     hover !== null && lastIndex >= 0 ? Math.min(hover, lastIndex) : null;
   const activeDay = active !== null ? days[active] : null;
-  const tooltipWidth = 176;
+  const tooltipWidth = Math.min(176, width);
   const tooltipLeft =
     active !== null
       ? Math.min(
@@ -522,7 +525,7 @@ function TrendChart({
             borderTop: `1px solid ${HAIRLINE}`,
             display: "grid",
             gap: 2,
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
           }}
         >
           {hasTarget && (
@@ -579,9 +582,9 @@ function TrendChart({
         sx={{
           position: "relative",
           mt: 2.5,
-          height: width < 480 ? 200 : 240,
-          flex: "1 1 auto",
-          minHeight: 80,
+          height: width < 480 ? 140 : 150,
+          flex: "1 0 auto",
+          minHeight: 140,
           borderRadius: 2,
           ...focusRing,
         }}

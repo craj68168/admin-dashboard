@@ -9,7 +9,7 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -21,7 +21,6 @@ type Props = {
   };
 };
 
-const BRAND = "#107A64";
 const BRAND_DEEP = "#0A5A49";
 const BORDER = "#E6E8EC";
 const INK = "#0F172A";
@@ -92,13 +91,11 @@ function CountUp({
 }) {
   const reduceMotion = useReducedMotion();
   const motionValue = useMotionValue(reduceMotion ? value : 0);
-  const target = useRef(value);
-  target.current = value;
   const hasRun = useRef(false);
 
   // whole numbers while counting, the exact value once it lands
   const display = useTransform(motionValue, (n) =>
-    format(n === target.current ? n : Math.round(n)),
+    format(n === value ? n : Math.round(n)),
   );
 
   useEffect(() => {
@@ -302,7 +299,7 @@ function SummaryCard({
 
 export default function OverviewCards({ data }: Props) {
   const { overview } = data;
-  const t = useTranslations("adminDashboard");
+  const lang = useLocale();
   const reduceMotion = useReducedMotion();
 
   return (
@@ -325,46 +322,61 @@ export default function OverviewCards({ data }: Props) {
     >
       <SummaryCard
         tone="quiet"
-        label={t("totalClients")}
+        label={lang === "ja" ? "総顧客数" : "Total Clients"}
         value={String(overview.totalClients)}
         subtitle={
           <>
-            <Num>{overview.monthlyClientCount}</Num> paying this month
+            <Num>{overview.monthlyClientCount}</Num>
+            {lang === "ja" ? "名が今月入金" : " paying this month"}
           </>
         }
       />
 
       <SummaryCard
         tone="quiet"
-        label={t("activeStaff")}
+        label={lang === "ja" ? "稼働中スタッフ" : "Active Staff"}
         value={String(overview.activeStaff)}
         subtitle={
           <>
-            of <Num>{overview.totalStaff}</Num> total staff
+            {lang === "ja" ? "スタッフ総数 " : "of "}
+            <Num>{overview.totalStaff}</Num>
+            {lang === "ja" ? "名" : " total staff"}
           </>
         }
       />
 
       <SummaryCard
         tone="primary"
-        label="Collected this month"
+        label={lang === "ja" ? "今月の入金額" : "Collected this month"}
         value={formatYen(overview.monthlyCollected)}
         countTo={overview.monthlyCollected}
         subtitle={
           <>
-            <Num>{overview.monthlyPaymentCount}</Num> completed payments
+            <Num>{overview.monthlyPaymentCount}</Num>
+            {lang === "ja" ? "件の完了済み入金" : overview.monthlyPaymentCount === 1 ? " completed payment" : " completed payments"}
           </>
         }
       />
 
       <SummaryCard
-        label="Total collected"
+        label={lang === "ja" ? "入金総額" : "Total collected"}
         value={formatYen(overview.totalCollectedAllTime)}
         countTo={overview.totalCollectedAllTime}
         subtitle={
           <>
-            <Num>{overview.totalCompletedPayments}</Num> payments from{" "}
-            <Num>{overview.totalPayingClients}</Num> clients
+            {lang === "ja" ? (
+              <>
+                <Num>{overview.totalPayingClients}</Num>名から
+                <Num>{overview.totalCompletedPayments}</Num>件の入金
+              </>
+            ) : (
+              <>
+                <Num>{overview.totalCompletedPayments}</Num>
+                {overview.totalCompletedPayments === 1 ? " payment from " : " payments from "}
+                <Num>{overview.totalPayingClients}</Num>
+                {overview.totalPayingClients === 1 ? " client" : " clients"}
+              </>
+            )}
           </>
         }
       />

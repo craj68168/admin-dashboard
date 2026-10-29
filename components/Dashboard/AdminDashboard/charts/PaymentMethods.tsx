@@ -147,7 +147,7 @@ function ChartCard({
   return (
     <Paper
       elevation={0}
-      sx={{ ...softCard, p: 0, height: "100%", overflow: "hidden" }}
+      sx={{ ...softCard, p: 0, flex: 1, minWidth: 0, overflow: "hidden" }}
     >
       <SectionHeader title={title} subtitle={subtitle} icon={icon} />
       <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>{children}</Box>
@@ -218,7 +218,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(0, 1fr) auto",
+                  gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "minmax(0, 1fr) auto" },
                   alignItems: "baseline",
                   columnGap: 2,
                 }}
@@ -226,20 +226,21 @@ function MethodRows({ slices }: { slices: Slice[] }) {
                 <Box
                   sx={{
                     display: "flex",
+                    flexWrap: "wrap",
                     alignItems: "baseline",
                     gap: 1,
                     minWidth: 0,
                   }}
                 >
                   <Typography
-                    noWrap
-                    sx={{ fontSize: 14, fontWeight: 600, color: INK }}
+                    sx={{ minWidth: 0, overflowWrap: "anywhere", fontSize: 14, fontWeight: 600, color: INK }}
                   >
                     {slice.label}
                   </Typography>
                   <Typography
                     sx={{
-                      flexShrink: 0,
+                      minWidth: 0,
+                      overflowWrap: "anywhere",
                       fontSize: 12,
                       fontWeight: 400,
                       color: INK_MUTED,
@@ -251,7 +252,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
                 </Box>
 
                 <Typography
-                  sx={{ fontSize: 14, fontWeight: 700, color: INK, ...NUMERIC }}
+                  sx={{ minWidth: 0, overflowWrap: "anywhere", fontSize: 14, fontWeight: 700, color: INK, ...NUMERIC }}
                 >
                   ¥{formatAmount(slice.amount)}
                 </Typography>
@@ -311,6 +312,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
           px: 1.5,
           borderTop: `1px solid ${HAIRLINE}`,
           display: "flex",
+          flexWrap: "wrap",
           alignItems: "baseline",
           justifyContent: "space-between",
           gap: 2,

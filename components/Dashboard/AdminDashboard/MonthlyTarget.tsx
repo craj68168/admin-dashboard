@@ -9,7 +9,7 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
@@ -114,13 +114,11 @@ function CountUp({
 }) {
   const reduceMotion = useReducedMotion();
   const motionValue = useMotionValue(reduceMotion ? value : 0);
-  const target = useRef(value);
-  target.current = value;
   const hasRun = useRef(false);
 
   // whole numbers while counting, the exact value once it lands
   const display = useTransform(motionValue, (n) =>
-    format(n === target.current ? n : Math.round(n)),
+    format(n === value ? n : Math.round(n)),
   );
 
   useEffect(() => {
@@ -204,7 +202,7 @@ function Stat({ label, value, color, lead, countTo }: StatProps) {
 
 export default function MonthlyTarget({ data }: Props) {
   const { selectedMonth, overview } = data;
-  const t = useTranslations("adminDashboard");
+  const lang = useLocale();
   const reduceMotion = useReducedMotion();
 
   const targetProgress = Math.min(Math.max(overview.targetAchievement, 0), 100);
@@ -215,16 +213,16 @@ export default function MonthlyTarget({ data }: Props) {
 
   // The bar fills from 0 once the panel has landed, then eases between values
   // when the selected month changes. Reduced motion jumps straight to the value.
-  const [shownProgress, setShownProgress] = useState(
+  const [animatedProgress, setAnimatedProgress] = useState(
     reduceMotion ? targetProgress : 0,
   );
+  const shownProgress = reduceMotion ? targetProgress : animatedProgress;
 
   useEffect(() => {
     if (reduceMotion) {
-      setShownProgress(targetProgress);
       return;
     }
-    const timer = window.setTimeout(() => setShownProgress(targetProgress), 450);
+    const timer = window.setTimeout(() => setAnimatedProgress(targetProgress), 450);
     return () => window.clearTimeout(timer);
   }, [targetProgress, reduceMotion]);
 
@@ -247,8 +245,8 @@ export default function MonthlyTarget({ data }: Props) {
         boxShadow:
           "inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 1px 2px rgba(6, 63, 51, 0.30), 0 24px 48px -28px rgba(10, 90, 73, 0.75)",
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        alignItems: { md: "center" },
+        flexDirection: { xs: "column", lg: "row" },
+        alignItems: { lg: "center" },
         gap: { xs: 3, md: 5 },
 
         // two soft glows give the surface depth without adding any lines
@@ -284,7 +282,7 @@ export default function MonthlyTarget({ data }: Props) {
         sx={{
           position: "relative",
           zIndex: 1,
-          flex: { md: "0 1 360px" },
+          flex: { lg: "0 1 360px" },
           minWidth: 0,
         }}
       >
@@ -310,7 +308,7 @@ export default function MonthlyTarget({ data }: Props) {
                 overflowWrap: "anywhere",
               }}
             >
-              {t("monthlyCollectionTarget")}
+              {lang === "ja" ? "月間入金目標" : "Monthly Collection Target"}
             </Typography>
 
             <Typography
@@ -367,7 +365,7 @@ export default function MonthlyTarget({ data }: Props) {
               color: ON_BRAND_MUTED,
             }}
           >
-            {t("achievement")}
+            {lang === "ja" ? "達成率" : "Achievement"}
           </Typography>
         </Box>
 
@@ -375,7 +373,7 @@ export default function MonthlyTarget({ data }: Props) {
           <LinearProgress
             variant="determinate"
             value={shownProgress}
-            aria-label={t("monthlyCollectionTarget")}
+            aria-label={lang === "ja" ? "月間入金目標" : "Monthly Collection Target"}
             aria-valuenow={Math.round(targetProgress)}
             sx={{
               height: 10,
@@ -424,12 +422,13 @@ export default function MonthlyTarget({ data }: Props) {
           flex: 1,
           minWidth: 0,
           display: "grid",
-          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
           columnGap: 3,
           rowGap: 2.25,
           alignContent: "center",
           p: { xs: 2, md: 2.75 },
           borderRadius: "14px",
+          overflow: "hidden",
           bgcolor: INSET_FILL,
           border: "1px solid",
           borderColor: INSET_LINE,
@@ -437,7 +436,7 @@ export default function MonthlyTarget({ data }: Props) {
       >
         <Stat
           lead
-          label={t("collected")}
+          label={lang === "ja" ? "入金額" : "Collected"}
           value={`¥${formatAmount(overview.monthlyCollected)}`}
           countTo={overview.monthlyCollected}
           color={MINT}
@@ -453,11 +452,11 @@ export default function MonthlyTarget({ data }: Props) {
         />
 
         <Stat
-          label={t("totalTarget")}
+          label={lang === "ja" ? "目標総額" : "Total Target"}
           value={`¥${formatAmount(overview.totalTarget)}`}
         />
 
-        <Stat label="Remaining" value={`¥${formatAmount(targetRemaining)}`} />
+        <Stat label={lang === "ja" ? "残額" : "Remaining"} value={`¥${formatAmount(targetRemaining)}`} />
       </Box>
     </Paper>
   );
