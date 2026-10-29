@@ -152,7 +152,7 @@ const TONE_STYLES: Record<
     shadow:
       "0 1px 2px rgba(16, 122, 100, 0.08), 0 14px 30px -18px rgba(16, 122, 100, 0.50)",
     valueColor: BRAND_DEEP,
-    valueSize: { xs: 32, md: 38 },
+    valueSize: { xs: 26, md: 30 },
     valueWeight: 700,
     labelColor: "#2F5F54",
   },
@@ -162,7 +162,7 @@ const TONE_STYLES: Record<
     shadow:
       "0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 18px -14px rgba(16, 24, 40, 0.16)",
     valueColor: INK,
-    valueSize: { xs: 28, md: 32 },
+    valueSize: { xs: 24, md: 26 },
     valueWeight: 700,
     labelColor: INK_MUTED,
   },
@@ -171,7 +171,7 @@ const TONE_STYLES: Record<
     borderColor: BORDER,
     shadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
     valueColor: INK,
-    valueSize: { xs: 24, md: 26 },
+    valueSize: { xs: 22, md: 24 },
     valueWeight: 600,
     labelColor: INK_MUTED,
   },
@@ -210,9 +210,9 @@ function SummaryCard({
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        gap: 2,
-        p: { xs: 2.25, md: 2.75 },
-        borderRadius: "16px",
+        gap: 1,
+        p: { xs: 1.75, md: 2 },
+        borderRadius: "12px",
         borderColor: style.borderColor,
         background: style.background,
         boxShadow: style.shadow,
@@ -238,7 +238,7 @@ function SummaryCard({
       <Box sx={{ position: "relative", zIndex: 1, minWidth: 0 }}>
         <Typography
           sx={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: tone === "quiet" ? 400 : 500,
             lineHeight: 1.4,
             color: style.labelColor,
@@ -250,10 +250,10 @@ function SummaryCard({
 
         <Typography
           sx={{
-            mt: 1,
+            mt: 0.75,
             fontSize: style.valueSize,
             fontWeight: style.valueWeight,
-            letterSpacing: tone === "primary" ? -1.2 : -0.8,
+            letterSpacing: tone === "primary" ? -0.8 : -0.5,
             lineHeight: 1.1,
             color: style.valueColor,
             overflowWrap: "anywhere",
@@ -284,8 +284,8 @@ function SummaryCard({
           sx={{
             position: "relative",
             zIndex: 1,
-            fontSize: 13,
-            lineHeight: 1.5,
+            fontSize: 12,
+            lineHeight: 1.4,
             color: INK_MUTED,
             overflowWrap: "anywhere",
           }}
@@ -311,7 +311,7 @@ export default function OverviewCards({ data }: Props) {
       sx={{
         mt: 2,
         display: "grid",
-        gap: 2,
+        gap: 1.5,
         gridTemplateColumns: {
           xs: "minmax(0, 1fr)",
           sm: "repeat(2, minmax(0, 1fr))",

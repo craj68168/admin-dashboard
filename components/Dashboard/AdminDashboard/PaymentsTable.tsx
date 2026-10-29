@@ -56,66 +56,104 @@ const softCard = {
     "0 1px 2px rgba(15,23,42,0.03), 0 18px 40px -28px rgba(15,23,42,0.30)",
 };
 
-// Theme body1/body2 are weight 500, so every cell sets its own weight.
-const headCellSx = {
-  fontSize: 12,
-  fontWeight: 600,
-  color: INK_MUTED,
-  bgcolor: "rgba(16, 122, 100, 0.04)",
-  borderBottomColor: HAIRLINE,
-  py: 1.5,
-  whiteSpace: "nowrap",
-};
-
-const bodyCellSx = {
-  fontSize: 14,
-  fontWeight: 400,
-  color: INK_BODY,
-  borderBottomColor: "rgba(17, 24, 39, 0.05)",
-  py: 1.5,
-};
-
-const rowSx = {
-  transition: "background-color 160ms ease",
-  "&:hover": { bgcolor: "rgba(16, 122, 100, 0.045)" },
-  "&:last-of-type td": { borderBottom: 0 },
-};
-
-const edgeLeft = { pl: { xs: 2.5, md: 3 } };
-const edgeRight = { pr: { xs: 2.5, md: 3 } };
-
-const paginationSx = {
-  borderTop: `1px solid ${HAIRLINE}`,
-  "& .MuiTablePagination-toolbar": {
-    flexWrap: "wrap",
-    justifyContent: { xs: "center", sm: "flex-end" },
-    px: { xs: 1, sm: 2 },
-  },
-  "& .MuiTablePagination-spacer": {
-    display: { xs: "none", sm: "block" },
-  },
-  "& .MuiTablePagination-selectLabel": {
-    display: { xs: "none", sm: "block" },
-  },
-  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows, & .MuiTablePagination-select":
-    {
-      fontSize: 13,
-      fontWeight: 400,
-      color: INK_MUTED,
-      ...NUMERIC,
-    },
-};
-
-const showOnDesktop = { display: { xs: "none", lg: "block" }, maxWidth: "100%", overflowX: "auto" };
-const showOnMobile = {
-  display: { xs: "grid", lg: "none" },
-  gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
-};
+// =================================================
+// COPY (English / Japanese)
+// =================================================
 
 const amountFormatter = new Intl.NumberFormat("ja-JP");
-
 const formatAmount = (value: number) =>
   amountFormatter.format(Number(value || 0));
+
+type Copy = {
+  payments: string;
+  paymentsFor: (month: string) => string;
+  count: (total: number) => string;
+  client: string;
+  stage: string;
+  amount: string;
+  method: string;
+  status: string;
+  staff: string;
+  date: string;
+  emptyTitle: string;
+  emptyBody: string;
+  methods: Record<string, string>;
+  statuses: Record<string, string>;
+  openClient: (name: string | undefined, id: string) => string;
+  rowsPerPage: string;
+  rowsPerPageAria: string;
+  displayedRows: (info: { from: number; to: number; count: number }) => string;
+  pageAria: (type: string) => string;
+};
+
+const EN: Copy = {
+  payments: "Payments",
+  paymentsFor: (month) => `Payments for ${month}`,
+  count: (total) =>
+    `${formatAmount(total)}${total === 1 ? " payment" : " payments"}`,
+  client: "Client",
+  stage: "Stage",
+  amount: "Amount",
+  method: "Method",
+  status: "Status",
+  staff: "Staff",
+  date: "Date",
+  emptyTitle: "No payments found",
+  emptyBody: "Try another month or adjust the filters.",
+  methods: {},
+  statuses: {},
+  openClient: (name, id) => `Open client ${name ? `${name}, ` : ""}${id}`,
+  rowsPerPage: "Rows per page:",
+  rowsPerPageAria: "Rows per page",
+  displayedRows: ({ from, to, count }) =>
+    `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`,
+  pageAria: (type) => `Go to ${type} page`,
+};
+
+const JA: Copy = {
+  payments: "入金一覧",
+  paymentsFor: (month) => `${month}の入金`,
+  count: (total) => `${formatAmount(total)}件の入金`,
+  client: "顧客",
+  stage: "ステージ",
+  amount: "金額",
+  method: "支払方法",
+  status: "ステータス",
+  staff: "スタッフ",
+  date: "日付",
+  emptyTitle: "入金が見つかりません",
+  emptyBody: "別の月を選択するか、絞り込み条件を変更してください。",
+  methods: {
+    Cash: "現金",
+    "Bank Transfer": "銀行振込",
+    "Online Payment": "オンライン決済",
+    Cheque: "小切手",
+    Other: "その他",
+  },
+  statuses: {
+    Completed: "完了",
+    Cancelled: "キャンセル",
+    Refunded: "返金済み",
+  },
+  openClient: (name, id) => `顧客${name ? `${name}、` : ""}${id}の詳細を開く`,
+  rowsPerPage: "1ページの表示件数：",
+  rowsPerPageAria: "1ページの表示件数",
+  displayedRows: ({ from, to, count }) =>
+    `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`,
+  pageAria: (type) =>
+    type === "first"
+      ? "最初のページへ"
+      : type === "last"
+        ? "最後のページへ"
+        : type === "next"
+          ? "次のページへ"
+          : "前のページへ",
+};
+
+function useCopy() {
+  const lang = useLocale();
+  return { lang, c: lang === "ja" ? JA : EN };
+}
 
 const formatJapanDate = (value: string, lang: string) => {
   const date = new Date(value);
@@ -140,6 +178,143 @@ const initialsOf = (name: string | undefined, fallbackId: string) => {
   }
   return fallbackId.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase() || "?";
 };
+
+// =================================================
+// RESPONSIVE RULES
+//
+// The table answers to the width of its own card (a CSS container query), not
+// the screen. That matters because collapsing the sidebar changes the card's
+// width without changing the screen's.
+//
+//   card width   columns shown
+//   >= 860       Client, Stage, Amount, Method, Status, Staff, Date
+//   640 - 859    Client, Stage, Amount (+ method), Status, Date (+ staff)
+//   420 - 639    Client (+ stage, method, date, staff), Amount, Status
+//   < 420        Client (+ details), Amount (+ status underneath)
+//
+// Nothing scrolls sideways and there is nothing to tap to expand.
+// =================================================
+
+const BP = { status: 420, mid: 640, wide: 860 } as const;
+
+const atLeast = (width: number) =>
+  `@container payments (min-width: ${width}px)`;
+
+// A table cell that only appears from `width` up.
+const cellFrom = (width: number) => ({
+  display: "none",
+  [atLeast(width)]: { display: "table-cell" },
+});
+
+// Theme body1/body2 are weight 500, so every cell sets its own weight.
+const headCellSx = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: INK_MUTED,
+  bgcolor: "rgba(16, 122, 100, 0.04)",
+  borderBottomColor: HAIRLINE,
+  py: 1.5,
+  px: 1.5,
+  whiteSpace: "nowrap",
+};
+
+const bodyCellSx = {
+  fontSize: 14,
+  fontWeight: 400,
+  color: INK_BODY,
+  borderBottomColor: "rgba(17, 24, 39, 0.05)",
+  py: 1.5,
+  px: 1.5,
+  verticalAlign: "middle",
+};
+
+const edgeLeft = { pl: { xs: 2, sm: 2.5, md: 3 } };
+const edgeRight = { pr: { xs: 2, sm: 2.5, md: 3 } };
+
+// The Amount column is the last one on very narrow cards and Status is the last
+// one a little wider, so each takes the outer padding until something follows.
+const amountEdge = { pr: 2, [atLeast(BP.status)]: { pr: 1.5 } };
+const statusEdge = {
+  ...cellFrom(BP.status),
+  pr: 2,
+  [atLeast(BP.mid)]: { pr: 1.5 },
+};
+
+const rowSx = {
+  transition: "background-color 160ms ease",
+  "&:hover": { bgcolor: "rgba(16, 122, 100, 0.045)" },
+  "&:last-of-type td": { borderBottom: 0 },
+};
+
+// Small text lines that stand in for a hidden column.
+const smallLine = {
+  fontSize: 12,
+  fontWeight: 400,
+  lineHeight: 1.3,
+  color: INK_MUTED,
+};
+
+// Method under the amount: only while the Method column is hidden but there is room.
+const methodUnderAmount = {
+  ...smallLine,
+  display: "none",
+  mt: 0.25,
+  [atLeast(BP.mid)]: { display: "block" },
+  [atLeast(BP.wide)]: { display: "none" },
+};
+
+// Staff under the date: same idea.
+const staffUnderDate = {
+  ...smallLine,
+  display: "none",
+  mt: 0.25,
+  [atLeast(BP.mid)]: { display: "block" },
+  [atLeast(BP.wide)]: { display: "none" },
+};
+
+// Status pill under the amount on the narrowest cards.
+const pillUnderAmount = {
+  display: "block",
+  mt: 0.75,
+  [atLeast(BP.status)]: { display: "none" },
+};
+
+// Stage / method / date / staff as one tidy line under the client on narrow cards.
+const detailsUnderClient = {
+  ...smallLine,
+  display: "flex",
+  flexWrap: "wrap",
+  columnGap: 1.25,
+  rowGap: 0.25,
+  mt: 0.75,
+  [atLeast(BP.mid)]: { display: "none" },
+};
+
+const paginationSx = {
+  borderTop: `1px solid ${HAIRLINE}`,
+  "& .MuiTablePagination-toolbar": {
+    flexWrap: "wrap",
+    justifyContent: { xs: "center", sm: "flex-end" },
+    px: { xs: 1, sm: 2 },
+  },
+  "& .MuiTablePagination-spacer": {
+    display: { xs: "none", sm: "block" },
+  },
+  "& .MuiTablePagination-selectLabel": {
+    display: { xs: "none", sm: "block" },
+  },
+  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows, & .MuiTablePagination-select":
+    {
+      fontSize: 13,
+      fontWeight: 400,
+      color: INK_MUTED,
+      ...NUMERIC,
+    },
+};
+
+// =================================================
+// SMALL PIECES
+// =================================================
 
 type Tone = "success" | "warning" | "danger" | "info" | "neutral";
 
@@ -185,7 +360,7 @@ const PILL_TONES: Record<Tone, { bg: string; fg: string; line: string }> = {
 };
 
 function Pill({ label, tone }: { label: string; tone: Tone }) {
-  const lang = useLocale();
+  const { c } = useCopy();
   const palette = PILL_TONES[tone] ?? PILL_TONES.neutral;
   return (
     <Box
@@ -217,12 +392,7 @@ function Pill({ label, tone }: { label: string; tone: Tone }) {
           flexShrink: 0,
         }}
       />
-      {lang === "ja"
-        ? label === "Completed" ? "完了"
-          : label === "Cancelled" ? "キャンセル"
-          : label === "Refunded" ? "返金済み"
-          : label
-        : label}
+      {c.statuses[label] ?? label}
     </Box>
   );
 }
@@ -282,37 +452,8 @@ function SectionHeader({ title, subtitle, icon, aside }: SectionHeaderProps) {
   );
 }
 
-function CardField({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <Box sx={{ minWidth: 0 }}>
-      <Typography sx={{ fontSize: 12, fontWeight: 400, color: INK_MUTED }}>
-        {label}
-      </Typography>
-
-      <Box
-        sx={{
-          mt: 0.25,
-          fontSize: 13,
-          fontWeight: 600,
-          color: INK_BODY,
-          overflowWrap: "anywhere",
-          ...NUMERIC,
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
-}
-
 function EmptyState() {
-  const lang = useLocale();
+  const { c } = useCopy();
   return (
     <Box
       sx={{
@@ -339,12 +480,12 @@ function EmptyState() {
       </Box>
       <Box>
         <Typography sx={{ fontSize: 15, fontWeight: 600, color: INK }}>
-          {lang === "ja" ? "入金が見つかりません" : "No payments found"}
+          {c.emptyTitle}
         </Typography>
         <Typography
           sx={{ mt: 0.5, fontSize: 13, fontWeight: 400, color: INK_MUTED }}
         >
-          {lang === "ja" ? "別の月を選択するか、絞り込み条件を変更してください。" : "Try another month or adjust the filters."}
+          {c.emptyBody}
         </Typography>
       </Box>
     </Box>
@@ -378,93 +519,97 @@ type ClientLinkProps = {
   clientId: string;
   clientName?: string;
   onOpen: (clientId: string) => void;
+  // Shown under the name on narrow cards, where other columns are hidden.
+  below?: ReactNode;
 };
 
-// Name first (that is what people recognise), ID underneath. The whole block
-// is one button that opens the client.
-function ClientLink({ clientId, clientName, onOpen }: ClientLinkProps) {
-  const lang = useLocale();
+// Name first (that is what people recognise), ID underneath. The name and ID
+// are one button that opens the client.
+function ClientLink({ clientId, clientName, onOpen, below }: ClientLinkProps) {
+  const { c } = useCopy();
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, minWidth: 0 }}>
       <InitialsAvatar text={initialsOf(clientName, clientId)} />
 
-      <Box
-        component="button"
-        type="button"
-        onClick={() => onOpen(clientId)}
-        aria-label={lang === "ja"
-          ? `顧客${clientName ? `${clientName}、` : ""}${clientId}の詳細を開く`
-          : `Open client ${clientName ? `${clientName}, ` : ""}${clientId}`}
-        sx={{
-          p: 0,
-          border: 0,
-          bgcolor: "transparent",
-          font: "inherit",
-          textAlign: "left",
-          cursor: "pointer",
-          minWidth: 0,
-          "&:hover .client-primary": {
-            color: BRAND,
-            textDecoration: "underline",
-          },
-          ...focusRing,
-        }}
-      >
-        <Typography
-          className="client-primary"
-          component="span"
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Box
+          component="button"
+          type="button"
+          onClick={() => onOpen(clientId)}
+          aria-label={c.openClient(clientName, clientId)}
           sx={{
-            display: "block",
-            overflowWrap: "anywhere",
-            fontSize: 14,
-            fontWeight: 600,
-            lineHeight: 1.3,
-            color: INK,
-            transition: "color 160ms ease",
+            p: 0,
+            border: 0,
+            bgcolor: "transparent",
+            font: "inherit",
+            textAlign: "left",
+            cursor: "pointer",
+            minWidth: 0,
+            maxWidth: "100%",
+            "&:hover .client-primary": {
+              color: BRAND,
+              textDecoration: "underline",
+            },
+            ...focusRing,
           }}
         >
-          {clientName || clientId}
-        </Typography>
-
-        {clientName && (
           <Typography
+            className="client-primary"
             component="span"
             sx={{
               display: "block",
               overflowWrap: "anywhere",
-              mt: 0.25,
-              fontSize: 12,
-              fontWeight: 400,
+              fontSize: 14,
+              fontWeight: 600,
               lineHeight: 1.3,
-              color: INK_MUTED,
-              ...NUMERIC,
+              color: INK,
+              transition: "color 160ms ease",
             }}
           >
-            {clientId}
+            {clientName || clientId}
           </Typography>
-        )}
+
+          {clientName && (
+            <Typography
+              component="span"
+              sx={{
+                display: "block",
+                overflowWrap: "anywhere",
+                mt: 0.25,
+                fontSize: 12,
+                fontWeight: 400,
+                lineHeight: 1.3,
+                color: INK_MUTED,
+                ...NUMERIC,
+              }}
+            >
+              {clientId}
+            </Typography>
+          )}
+        </Box>
+
+        {below}
       </Box>
     </Box>
   );
 }
 
 const amountSx = (status: DashboardPaymentStatus) => ({
+  fontSize: 14,
   fontWeight: 700,
+  lineHeight: 1.3,
   color: status === "Cancelled" ? INK_MUTED : INK,
   textDecoration: status === "Cancelled" ? "line-through" : "none",
   textDecorationColor: "rgba(91, 106, 126, 0.6)",
   ...NUMERIC,
 });
 
-const mobileCardSx = {
-  px: 2,
-  py: 2,
-  borderBottom: `1px solid ${HAIRLINE}`,
-  "&:last-of-type": { borderBottom: 0 },
-};
+// =================================================
+// MAIN
+// =================================================
 
 export default function PaymentsTable({ data }: Props) {
-  const lang = useLocale();
+  const { lang, c } = useCopy();
   const {
     selectedMonth,
     payments,
@@ -477,11 +622,19 @@ export default function PaymentsTable({ data }: Props) {
   return (
     <Paper
       elevation={0}
-      sx={{ ...softCard, mt: 2, p: 0, overflow: "hidden" }}
+      sx={{
+        ...softCard,
+        mt: 2,
+        p: 0,
+        overflow: "hidden",
+        // Lets the table respond to this card's width (see RESPONSIVE RULES).
+        containerType: "inline-size",
+        containerName: "payments",
+      }}
     >
       <SectionHeader
-        title={lang === "ja" ? "入金一覧" : "Payments"}
-        subtitle={lang === "ja" ? `${selectedMonth}の入金` : `Payments for ${selectedMonth}`}
+        title={c.payments}
+        subtitle={c.paymentsFor(selectedMonth)}
         icon={<ReceiptLongOutlinedIcon sx={{ fontSize: 18 }} />}
         aside={
           <Typography
@@ -493,110 +646,152 @@ export default function PaymentsTable({ data }: Props) {
               ...NUMERIC,
             }}
           >
-            {formatAmount(paymentPagination.total)}
-            {lang === "ja" ? "件の入金" : paymentPagination.total === 1 ? " payment" : " payments"}
+            {c.count(paymentPagination.total)}
           </Typography>
         }
       />
 
-      {/* ---------- Desktop table ---------- */}
-
-      <TableContainer sx={showOnDesktop}>
-        <Table size="small" sx={{ minWidth: 820 }}>
+      <TableContainer sx={{ maxWidth: "100%", overflowX: "auto" }}>
+        <Table size="small" sx={{ width: "100%" }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ ...headCellSx, ...edgeLeft }}>{lang === "ja" ? "顧客" : "Client"}</TableCell>
-              <TableCell sx={headCellSx}>{lang === "ja" ? "ステージ" : "Stage"}</TableCell>
-              <TableCell sx={headCellSx} align="right">
-                {lang === "ja" ? "金額" : "Amount"}
+              <TableCell sx={{ ...headCellSx, ...edgeLeft }}>{c.client}</TableCell>
+
+              <TableCell sx={{ ...headCellSx, ...cellFrom(BP.mid) }}>
+                {c.stage}
               </TableCell>
-              <TableCell sx={headCellSx}>{lang === "ja" ? "支払方法" : "Method"}</TableCell>
-              <TableCell sx={headCellSx}>{lang === "ja" ? "ステータス" : "Status"}</TableCell>
-              <TableCell sx={headCellSx}>{lang === "ja" ? "スタッフ" : "Staff"}</TableCell>
-              <TableCell sx={{ ...headCellSx, ...edgeRight }}>{lang === "ja" ? "日付" : "Date"}</TableCell>
+
+              <TableCell
+                align="right"
+                sx={{ ...headCellSx, ...amountEdge }}
+              >
+                {c.amount}
+              </TableCell>
+
+              <TableCell sx={{ ...headCellSx, ...cellFrom(BP.wide) }}>
+                {c.method}
+              </TableCell>
+
+              <TableCell sx={{ ...headCellSx, ...statusEdge }}>
+                {c.status}
+              </TableCell>
+
+              <TableCell sx={{ ...headCellSx, ...cellFrom(BP.wide) }}>
+                {c.staff}
+              </TableCell>
+
+              <TableCell
+                sx={{ ...headCellSx, ...edgeRight, ...cellFrom(BP.mid) }}
+              >
+                {c.date}
+              </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {payments.map((payment) => (
-              <TableRow key={payment._id} hover={false} sx={rowSx}>
-                <TableCell sx={{ ...bodyCellSx, ...edgeLeft }}>
-                  <ClientLink
-                    clientId={payment.clientId}
-                    clientName={payment.clientName}
-                    onOpen={handleClientClick}
-                  />
-                </TableCell>
+            {payments.map((payment) => {
+              const tone = paymentTone(payment.paymentStatus);
+              const method =
+                c.methods[payment.paymentMethod] ?? payment.paymentMethod;
+              const date = formatJapanDate(payment.paymentDate, lang);
 
-                <TableCell sx={bodyCellSx}>{payment.stageName}</TableCell>
+              return (
+                <TableRow key={payment._id} hover={false} sx={rowSx}>
+                  {/* CLIENT (carries the hidden columns on narrow cards) */}
+                  <TableCell sx={{ ...bodyCellSx, ...edgeLeft }}>
+                    <ClientLink
+                      clientId={payment.clientId}
+                      clientName={payment.clientName}
+                      onOpen={handleClientClick}
+                      below={
+                        <Box sx={detailsUnderClient}>
+                          <span>{payment.stageName}</span>
+                          <span>{method}</span>
+                          <span style={{ fontVariantNumeric: "tabular-nums" }}>
+                            {date}
+                          </span>
+                          <span>{payment.creditedStaffName}</span>
+                        </Box>
+                      }
+                    />
+                  </TableCell>
 
-                <TableCell
-                  align="right"
-                  sx={{ ...bodyCellSx, ...amountSx(payment.paymentStatus) }}
-                >
-                  ¥{formatAmount(payment.amountPaid)}
-                </TableCell>
+                  {/* STAGE */}
+                  <TableCell sx={{ ...bodyCellSx, ...cellFrom(BP.mid) }}>
+                    {payment.stageName}
+                  </TableCell>
 
-                <TableCell sx={bodyCellSx}>
-                  {lang === "ja"
-                    ? payment.paymentMethod === "Cash" ? "現金"
-                      : payment.paymentMethod === "Bank Transfer" ? "銀行振込"
-                      : payment.paymentMethod === "Online Payment" ? "オンライン決済"
-                      : payment.paymentMethod === "Cheque" ? "小切手"
-                      : payment.paymentMethod === "Other" ? "その他"
-                      : payment.paymentMethod
-                    : payment.paymentMethod}
-                </TableCell>
+                  {/* AMOUNT (method / status stack under it when needed) */}
+                  <TableCell
+                    align="right"
+                    sx={{ ...bodyCellSx, ...amountEdge, whiteSpace: "nowrap" }}
+                  >
+                    <Typography
+                      component="div"
+                      sx={amountSx(payment.paymentStatus)}
+                    >
+                      ¥{formatAmount(payment.amountPaid)}
+                    </Typography>
 
-                <TableCell sx={bodyCellSx}>
-                  <Pill
-                    label={payment.paymentStatus}
-                    tone={paymentTone(payment.paymentStatus)}
-                  />
-                </TableCell>
+                    <Box sx={methodUnderAmount}>{method}</Box>
 
-                <TableCell sx={bodyCellSx}>
-                  <Typography
-                    component="span"
+                    <Box sx={pillUnderAmount}>
+                      <Pill label={payment.paymentStatus} tone={tone} />
+                    </Box>
+                  </TableCell>
+
+                  {/* METHOD */}
+                  <TableCell sx={{ ...bodyCellSx, ...cellFrom(BP.wide) }}>
+                    {method}
+                  </TableCell>
+
+                  {/* STATUS */}
+                  <TableCell sx={{ ...bodyCellSx, ...statusEdge }}>
+                    <Pill label={payment.paymentStatus} tone={tone} />
+                  </TableCell>
+
+                  {/* STAFF */}
+                  <TableCell sx={{ ...bodyCellSx, ...cellFrom(BP.wide) }}>
+                    <Typography
+                      component="span"
+                      sx={{
+                        display: "block",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        lineHeight: 1.3,
+                        color: INK_BODY,
+                      }}
+                    >
+                      {payment.creditedStaffName}
+                    </Typography>
+
+                    <Typography
+                      component="span"
+                      sx={{ ...smallLine, display: "block", mt: 0.25 }}
+                    >
+                      {payment.creditedStaff}
+                    </Typography>
+                  </TableCell>
+
+                  {/* DATE (staff stacks under it when needed) */}
+                  <TableCell
                     sx={{
-                      display: "block",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      lineHeight: 1.3,
-                      color: INK_BODY,
+                      ...bodyCellSx,
+                      ...edgeRight,
+                      ...NUMERIC,
+                      ...cellFrom(BP.mid),
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    {payment.creditedStaffName}
-                  </Typography>
+                    <Box component="div" sx={{ color: INK_MUTED }}>
+                      {date}
+                    </Box>
 
-                  <Typography
-                    component="span"
-                    sx={{
-                      display: "block",
-                      mt: 0.25,
-                      fontSize: 12,
-                      fontWeight: 400,
-                      lineHeight: 1.3,
-                      color: INK_MUTED,
-                    }}
-                  >
-                    {payment.creditedStaff}
-                  </Typography>
-                </TableCell>
-
-                <TableCell
-                  sx={{
-                    ...bodyCellSx,
-                    ...edgeRight,
-                    ...NUMERIC,
-                    color: INK_MUTED,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {formatJapanDate(payment.paymentDate, lang)}
-                </TableCell>
-              </TableRow>
-            ))}
+                    <Box sx={staffUnderDate}>{payment.creditedStaffName}</Box>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
 
             {payments.length === 0 && (
               <TableRow>
@@ -609,98 +804,18 @@ export default function PaymentsTable({ data }: Props) {
         </Table>
       </TableContainer>
 
-      {/* ---------- Mobile cards ---------- */}
-
-      <Box sx={showOnMobile}>
-        {payments.map((payment) => (
-          <Box key={payment._id} sx={mobileCardSx}>
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "flex-start",
-                justifyContent: "space-between",
-                gap: 1.5,
-              }}
-            >
-              <Box sx={{ minWidth: 0, flex: "1 1 160px" }}>
-                <ClientLink
-                  clientId={payment.clientId}
-                  clientName={payment.clientName}
-                  onOpen={handleClientClick}
-                />
-              </Box>
-
-              <Box sx={{ textAlign: { xs: "left", sm: "right" }, minWidth: 0, maxWidth: "100%", overflowWrap: "anywhere" }}>
-                <Typography
-                  sx={{
-                    fontSize: 16,
-                    lineHeight: 1.3,
-                    ...amountSx(payment.paymentStatus),
-                  }}
-                >
-                  ¥{formatAmount(payment.amountPaid)}
-                </Typography>
-
-                <Box sx={{ mt: 0.75 }}>
-                  <Pill
-                    label={payment.paymentStatus}
-                    tone={paymentTone(payment.paymentStatus)}
-                  />
-                </Box>
-              </Box>
-            </Box>
-
-            <Box
-              sx={{
-                mt: 1.75,
-                pt: 1.5,
-                borderTop: `1px dashed ${HAIRLINE}`,
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 120px), 1fr))",
-                gap: 1.5,
-              }}
-            >
-              <CardField label={lang === "ja" ? "ステージ" : "Stage"}>{payment.stageName}</CardField>
-              <CardField label={lang === "ja" ? "支払方法" : "Method"}>
-                {lang === "ja"
-                  ? payment.paymentMethod === "Cash" ? "現金"
-                    : payment.paymentMethod === "Bank Transfer" ? "銀行振込"
-                    : payment.paymentMethod === "Online Payment" ? "オンライン決済"
-                    : payment.paymentMethod === "Cheque" ? "小切手"
-                    : payment.paymentMethod === "Other" ? "その他"
-                    : payment.paymentMethod
-                  : payment.paymentMethod}
-              </CardField>
-              <CardField label={lang === "ja" ? "スタッフ" : "Staff"}>
-                {payment.creditedStaffName} ({payment.creditedStaff})
-              </CardField>
-              <CardField label={lang === "ja" ? "日付" : "Date"}>
-                {formatJapanDate(payment.paymentDate, lang)}
-              </CardField>
-            </Box>
-          </Box>
-        ))}
-
-        {payments.length === 0 && <EmptyState />}
-      </Box>
-
       <TablePagination
         component="div"
-        labelRowsPerPage={lang === "ja" ? "1ページの表示件数：" : "Rows per page:"}
-        labelDisplayedRows={({ from, to, count }) => lang === "ja"
-          ? `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`
-          : `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`}
-        getItemAriaLabel={(type) => lang === "ja"
-          ? type === "first" ? "最初のページへ"
-            : type === "last" ? "最後のページへ"
-            : type === "next" ? "次のページへ" : "前のページへ"
-          : `Go to ${type} page`}
+        labelRowsPerPage={c.rowsPerPage}
+        labelDisplayedRows={c.displayedRows}
+        getItemAriaLabel={c.pageAria}
         count={paymentPagination.total}
         page={Math.max(paymentPagination.currentPage - 1, 0)}
         rowsPerPage={paymentPagination.perPage}
         rowsPerPageOptions={[10, 25, 50]}
-        slotProps={{ select: { inputProps: { "aria-label": lang === "ja" ? "1ページの表示件数" : "Rows per page" } } }}
+        slotProps={{
+          select: { inputProps: { "aria-label": c.rowsPerPageAria } },
+        }}
         onPageChange={(_, page) => handlePaymentPageChange(page + 1)}
         onRowsPerPageChange={(event) =>
           handlePaymentLimitChange(Number(event.target.value))

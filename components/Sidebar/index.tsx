@@ -53,6 +53,9 @@ const BRAND_NAME = "Fortune Link";
 // the navbar too, so the two can never drift apart.
 export const HEADER_HEIGHT = 72;
 
+// Full-width sidebar: slimmer on md (small laptops / landscape tablets),
+// full size from lg up.
+const DRAWER_WIDTH_MD = 240;
 const DRAWER_WIDTH = 272;
 const RAIL_WIDTH = 84;
 
@@ -90,7 +93,7 @@ const sidebarIcons: Record<SidebarItem, typeof DashboardRoundedIcon> = {
 //
 // RESPONSIVE BEHAVIOUR
 //  - md and up: a sticky, full-height panel pinned to the left edge.
-//    `collapsed` = icon rail, otherwise full.
+//    `collapsed` = icon rail, otherwise full (240px on md, 272px on lg+).
 //  - below md:  a temporary MUI Drawer. `collapsed` = closed, otherwise open.
 //    It closes when an item is chosen, when the route changes, on backdrop
 //    tap and on Escape. The Drawer also traps focus and locks page scroll.
@@ -154,7 +157,13 @@ export default function Sidebar({
           display: { xs: "block", md: "none" },
           "& .MuiBackdrop-root": { bgcolor: "rgba(15, 23, 42, 0.45)" },
           "& .MuiDrawer-paper": {
-            width: "min(300px, 86vw)",
+            width: "min(220px, 82vw)",
+
+            // Fit the visible area on phones whose browser bar collapses, so
+            // the pinned Sign out button is never pushed off screen.
+            height: "100vh",
+            "@supports (height: 100dvh)": { height: "100dvh" },
+
             boxSizing: "border-box",
             border: "none",
             bgcolor: "#ffffff",
@@ -187,7 +196,9 @@ export default function Sidebar({
           top: 0,
           alignSelf: "flex-start",
           boxSizing: "border-box",
-          width: collapsed ? RAIL_WIDTH : DRAWER_WIDTH,
+          width: collapsed
+            ? RAIL_WIDTH
+            : { md: DRAWER_WIDTH_MD, lg: DRAWER_WIDTH },
           height: "100vh",
           "@supports (height: 100dvh)": { height: "100dvh" },
           zIndex: 20,

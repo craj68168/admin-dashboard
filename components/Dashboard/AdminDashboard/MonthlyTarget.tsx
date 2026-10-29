@@ -158,7 +158,7 @@ function Stat({ label, value, color, lead, countTo }: StatProps) {
     >
       <Typography
         sx={{
-          fontSize: 13,
+          fontSize: 12,
           lineHeight: 1.4,
           color: ON_BRAND_MUTED,
           overflowWrap: "anywhere",
@@ -170,7 +170,7 @@ function Stat({ label, value, color, lead, countTo }: StatProps) {
       <Typography
         sx={{
           mt: 0.5,
-          fontSize: lead ? { xs: 30, md: 36 } : { xs: 18, md: 20 },
+          fontSize: lead ? { xs: 24, md: 28 } : { xs: 16, md: 18 },
           fontWeight: lead ? 700 : 600,
           letterSpacing: lead ? -1 : -0.3,
           lineHeight: 1.15,
@@ -238,8 +238,8 @@ export default function MonthlyTarget({ data }: Props) {
         isolation: "isolate",
         overflow: "hidden",
         mt: 2,
-        p: { xs: 2.5, md: 3.5 },
-        borderRadius: "20px",
+        p: { xs: 2, md: 2.5 },
+        borderRadius: "14px",
         color: ON_BRAND,
         background: `linear-gradient(135deg, ${BRAND_DARKEST} 0%, ${BRAND_DEEP} 42%, ${BRAND_MID} 100%)`,
         boxShadow:
@@ -247,7 +247,7 @@ export default function MonthlyTarget({ data }: Props) {
         display: "flex",
         flexDirection: { xs: "column", lg: "row" },
         alignItems: { lg: "center" },
-        gap: { xs: 3, md: 5 },
+        gap: { xs: 2, md: 3 },
 
         // two soft glows give the surface depth without adding any lines
         "&::before": {
@@ -282,7 +282,7 @@ export default function MonthlyTarget({ data }: Props) {
         sx={{
           position: "relative",
           zIndex: 1,
-          flex: { lg: "0 1 360px" },
+          flex: { lg: "0 1 280px" },
           minWidth: 0,
         }}
       >
@@ -295,13 +295,13 @@ export default function MonthlyTarget({ data }: Props) {
         >
           <TrackChangesOutlinedIcon
             aria-hidden="true"
-            sx={{ fontSize: 18, mt: "2px", color: MINT, flexShrink: 0 }}
+            sx={{ fontSize: 16, mt: "2px", color: MINT, flexShrink: 0 }}
           />
 
           <Box sx={{ minWidth: 0 }}>
             <Typography
               sx={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 lineHeight: 1.35,
                 color: ON_BRAND,
@@ -314,7 +314,7 @@ export default function MonthlyTarget({ data }: Props) {
             <Typography
               sx={{
                 mt: 0.25,
-                fontSize: 13,
+                fontSize: 12,
                 lineHeight: 1.4,
                 color: ON_BRAND_MUTED,
                 ...NUMERIC,
@@ -327,7 +327,7 @@ export default function MonthlyTarget({ data }: Props) {
 
         <Box
           sx={{
-            mt: 3,
+            mt: 1.5,
             display: "flex",
             alignItems: "baseline",
             flexWrap: "wrap",
@@ -337,9 +337,9 @@ export default function MonthlyTarget({ data }: Props) {
           <Typography
             sx={{
               position: "relative",
-              fontSize: { xs: 52, md: 64 },
+              fontSize: { xs: 36, md: 44 },
               fontWeight: 700,
-              letterSpacing: -2.5,
+              letterSpacing: -1.5,
               lineHeight: 1,
               color: ON_BRAND,
               ...NUMERIC,
@@ -360,7 +360,7 @@ export default function MonthlyTarget({ data }: Props) {
 
           <Typography
             sx={{
-              fontSize: 14,
+              fontSize: 12,
               lineHeight: 1.4,
               color: ON_BRAND_MUTED,
             }}
@@ -369,14 +369,14 @@ export default function MonthlyTarget({ data }: Props) {
           </Typography>
         </Box>
 
-        <Box sx={{ position: "relative", mt: 2.5 }}>
+        <Box sx={{ position: "relative", mt: 1.75 }}>
           <LinearProgress
             variant="determinate"
             value={shownProgress}
             aria-label={lang === "ja" ? "月間入金目標" : "Monthly Collection Target"}
             aria-valuenow={Math.round(targetProgress)}
             sx={{
-              height: 10,
+              height: 6,
               borderRadius: 999,
               bgcolor: TRACK,
               "& .MuiLinearProgress-bar": {
@@ -397,8 +397,8 @@ export default function MonthlyTarget({ data }: Props) {
               position: "absolute",
               top: "50%",
               left: `${shownProgress}%`,
-              width: 14,
-              height: 14,
+              width: 10,
+              height: 10,
               borderRadius: "50%",
               bgcolor: "#ffffff",
               boxShadow: `0 0 0 3px rgba(207, 243, 230, 0.28), 0 0 14px 2px rgba(207, 243, 230, 0.55)`,
@@ -423,11 +423,11 @@ export default function MonthlyTarget({ data }: Props) {
           minWidth: 0,
           display: "grid",
           gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" },
-          columnGap: 3,
-          rowGap: 2.25,
+          columnGap: 2,
+          rowGap: 1.5,
           alignContent: "center",
-          p: { xs: 2, md: 2.75 },
-          borderRadius: "14px",
+          p: { xs: 1.5, md: 2 },
+          borderRadius: "10px",
           overflow: "hidden",
           bgcolor: INSET_FILL,
           border: "1px solid",

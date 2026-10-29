@@ -47,11 +47,11 @@ const itemVariants: Variants = {
 
 const fieldSx = {
   width: { xs: "100%", sm: "auto" },
-  minWidth: { sm: 196 },
+  minWidth: { sm: 180 },
   "& .MuiOutlinedInput-root": {
-    borderRadius: "12px",
+    borderRadius: "10px",
     bgcolor: "#ffffff",
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 500,
     color: INK,
     fontVariantNumeric: "tabular-nums",
@@ -72,9 +72,9 @@ const fieldSx = {
       borderWidth: 1,
     },
   },
-  // 44px touch target on phones, 42px on larger screens
+  // Keep a comfortable touch target on phones and a compact desktop field.
   "& .MuiOutlinedInput-input": {
-    py: { xs: "12px", sm: "10px" },
+    py: { xs: "12px", sm: "8px" },
   },
   // the calendar affordance is the one clickable hint inside the field
   "& input::-webkit-calendar-picker-indicator": {
@@ -86,7 +86,7 @@ const fieldSx = {
     opacity: 1,
   },
   "& .MuiInputLabel-root": {
-    fontSize: 14,
+    fontSize: 13,
     color: INK_MUTED,
     maxWidth: "calc(100% - 28px)",
     overflow: "hidden",
@@ -120,8 +120,8 @@ export default function DashboardHeader({ data }: Props) {
         flexDirection: { xs: "column", sm: "row" },
         alignItems: { xs: "stretch", sm: "flex-end" },
         justifyContent: "space-between",
-        gap: { xs: 2, sm: 3 },
-        pb: { xs: 2.5, sm: 3 },
+        gap: { xs: 1.5, sm: 2 },
+        pb: 2,
         borderBottom: "1px solid",
         borderColor: HAIRLINE,
       }}
@@ -134,9 +134,9 @@ export default function DashboardHeader({ data }: Props) {
         <Typography
           component="h1"
           sx={{
-            fontSize: { xs: 26, sm: 30, md: 34 },
+            fontSize: { xs: 22, sm: 24, md: 28 },
             fontWeight: 700,
-            letterSpacing: { xs: -0.7, md: -1 },
+            letterSpacing: { xs: -0.5, md: -0.7 },
             lineHeight: 1.15,
             color: INK,
             overflowWrap: "anywhere",
@@ -147,10 +147,10 @@ export default function DashboardHeader({ data }: Props) {
 
         <Typography
           sx={{
-            mt: 1.25,
+            mt: 0.75,
             maxWidth: "62ch",
-            fontSize: 14.5,
-            lineHeight: 1.6,
+            fontSize: 13,
+            lineHeight: 1.45,
             color: INK_MUTED,
           }}
         >
