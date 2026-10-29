@@ -72,12 +72,19 @@ function SectionHeader({ title, subtitle, icon }: SectionHeaderProps) {
 
       <Box sx={{ minWidth: 0 }}>
         <Typography
-          sx={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.2, color: INK }}
+          sx={{
+            fontSize: 16,
+            fontWeight: 700,
+            letterSpacing: -0.2,
+            color: INK,
+          }}
         >
           {title}
         </Typography>
         {subtitle && (
-          <Typography sx={{ mt: 0.25, fontSize: 12, fontWeight: 400, color: INK_MUTED }}>
+          <Typography
+            sx={{ mt: 0.25, fontSize: 12, fontWeight: 400, color: INK_MUTED }}
+          >
             {subtitle}
           </Typography>
         )}
@@ -105,7 +112,14 @@ function EmptyNote({ message }: { message: string }) {
           border: `12px solid ${TRACK}`,
         }}
       />
-      <Typography sx={{ fontSize: 14, fontWeight: 400, color: INK_MUTED, textAlign: "center" }}>
+      <Typography
+        sx={{
+          fontSize: 14,
+          fontWeight: 400,
+          color: INK_MUTED,
+          textAlign: "center",
+        }}
+      >
         {message}
       </Typography>
     </Box>
@@ -166,7 +180,9 @@ type SliceLegendProps = {
 
 function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, minWidth: 0 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 0.5, minWidth: 0 }}
+    >
       {slices.map((slice) => {
         const percent = total > 0 ? Math.round((slice.count / total) * 100) : 0;
         const dimmed = activeKey !== null && activeKey !== slice.key;
@@ -199,7 +215,14 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
                 columnGap: 2,
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  minWidth: 0,
+                }}
+              >
                 <Box
                   component="span"
                   sx={{
@@ -216,7 +239,14 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
                 >
                   {slice.label}
                 </Typography>
-                <Typography sx={{ fontSize: 12, fontWeight: 400, color: INK_MUTED, ...NUMERIC }}>
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    fontWeight: 400,
+                    color: INK_MUTED,
+                    ...NUMERIC,
+                  }}
+                >
                   {slice.count} {slice.count === 1 ? "payment" : "payments"}
                 </Typography>
               </Box>
@@ -301,11 +331,17 @@ function DonutChart({ slices }: { slices: Slice[] }) {
   const rounded = visible.length > 1;
   const gap = rounded ? STROKE + 3 : 0;
 
-  let cursor = 0;
-  const segments = visible.map((slice) => {
+  const segments = visible.map((slice, index) => {
     const length = (slice.count / total) * CIRCUMFERENCE;
-    const start = cursor;
-    cursor += length;
+
+    const start = visible
+      .slice(0, index)
+      .reduce(
+        (offset, previousSlice) =>
+          offset + (previousSlice.count / total) * CIRCUMFERENCE,
+        0,
+      );
+
     return {
       slice,
       dash: rounded ? Math.max(length - gap, 0.01) : length,
@@ -405,7 +441,9 @@ function DonutChart({ slices }: { slices: Slice[] }) {
           >
             {formatAmount(centerValue)}
           </Typography>
-          <Typography sx={{ mt: 0.25, fontSize: 12, fontWeight: 400, color: INK_MUTED }}>
+          <Typography
+            sx={{ mt: 0.25, fontSize: 12, fontWeight: 400, color: INK_MUTED }}
+          >
             {centerLabel}
           </Typography>
         </Box>

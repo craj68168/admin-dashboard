@@ -13,10 +13,7 @@ import {
 // =================================================
 
 const BRAND = "#107A64";
-const BRAND_HOVER = "#0C5F4F";
-const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const HAIRLINE = "rgba(17, 24, 39, 0.06)";
-const INK = "#111827";
 const INK_MUTED = "#4B5563";
 
 export default function LanguageSwitcher() {
