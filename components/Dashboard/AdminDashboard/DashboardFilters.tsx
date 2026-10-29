@@ -373,21 +373,6 @@ export default function DashboardFilters({
               minWidth: 0,
             }}
           >
-            <Box
-              component="span"
-              sx={{
-                display: "grid",
-                placeItems: "center",
-                flexShrink: 0,
-                width: 34,
-                height: 34,
-                borderRadius: 2.5,
-                bgcolor: BRAND_SOFT,
-                color: BRAND,
-              }}
-            >
-              <TuneOutlinedIcon sx={{ fontSize: 19 }} />
-            </Box>
 
             <Typography
               component="span"

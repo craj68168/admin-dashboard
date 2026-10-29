@@ -2,6 +2,7 @@
 import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "motion/react";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -231,21 +232,6 @@ const EMPTY_CHARTS: ChartsData = {
   paymentsByStatus: [],
 };
 
-const compactFormatter = new Intl.NumberFormat("en", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const dayLabelFormatter = new Intl.DateTimeFormat("en-US", {
-  timeZone: "Asia/Tokyo",
-  month: "short",
-  day: "numeric",
-});
-const formatCompact = (value: number) =>
-  `¥${compactFormatter.format(Number(value || 0))}`;
-const formatDayLabel = (key: string) => {
-  const date = new Date(`${key}T00:00:00+09:00`);
-  return Number.isNaN(date.getTime()) ? key : dayLabelFormatter.format(date);
-};
 const niceCeil = (value: number) => {
   if (value <= 0) {
     return 1;
@@ -366,6 +352,22 @@ function TrendChart({
   selectedMonth: string;
   todayKey: string;
 }) {
+  const lang = useLocale();
+  const compactFormatter = new Intl.NumberFormat(lang === "ja" ? "ja" : "en", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
+  const dayLabelFormatter = new Intl.DateTimeFormat(lang === "ja" ? "ja" : "en", {
+    timeZone: "Asia/Tokyo",
+    month: "short",
+    day: "numeric",
+  });
+  const formatCompact = (value: number) =>
+    `¥${compactFormatter.format(Number(value || 0))}`;
+  const formatDayLabel = (key: string) => {
+    const date = new Date(`${key}T00:00:00+09:00`);
+    return Number.isNaN(date.getTime()) ? key : dayLabelFormatter.format(date);
+  };
   const [wrapRef, width, plotHeight] = useElementSize<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
@@ -378,7 +380,7 @@ function TrendChart({
   const drawn = inView || reduceMotion;
 
   if (days.length === 0) {
-    return <EmptyNote message="No collection data for this month." />;
+    return <EmptyNote message={lang === "ja" ? "今月の入金データはありません。" : "No collection data for this month."} />;
   }
 
   const count = days.length;
@@ -446,7 +448,9 @@ function TrendChart({
 
   const liveText =
     activeDay && active !== null
-      ? `${formatDayLabel(activeDay.date)}: ${formatAmount(activeDay.amount)} yen collected that day, ${formatAmount(cumulative[active])} yen in total${hasTarget ? `, target pace ${formatAmount(Math.round(paceAt(active)))} yen` : ""}.`
+      ? lang === "ja"
+        ? `${formatDayLabel(activeDay.date)}：当日の入金額は${formatAmount(activeDay.amount)}円、累計入金額は${formatAmount(cumulative[active])}円です。${hasTarget ? `目標ペースは${formatAmount(Math.round(paceAt(active)))}円です。` : ""}`
+        : `${formatDayLabel(activeDay.date)}: ${formatAmount(activeDay.amount)} yen collected that day, ${formatAmount(cumulative[active])} yen in total${hasTarget ? `, target pace ${formatAmount(Math.round(paceAt(active)))} yen` : ""}.`
       : "";
 
   const handlePointer = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -480,7 +484,7 @@ function TrendChart({
       >
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ fontSize: 12, fontWeight: 400, color: INK_MUTED }}>
-            Collected so far
+            {lang === "ja" ? "これまでの入金額" : "Collected so far"}
           </Typography>
           <Typography
             sx={{
@@ -500,7 +504,11 @@ function TrendChart({
         {hasTarget && lastIndex >= 0 && (
           <Pill
             tone={difference >= 0 ? "success" : "warning"}
-            label={`${difference >= 0 ? "Ahead of pace by" : "Behind pace by"} ¥${formatAmount(Math.round(Math.abs(difference)))}`}
+            label={
+              lang === "ja"
+                ? `目標ペースを${formatAmount(Math.round(Math.abs(difference)))}円${difference >= 0 ? "上回っています" : "下回っています"}`
+                : `${difference >= 0 ? "Ahead of pace by" : "Behind pace by"} ¥${formatAmount(Math.round(Math.abs(difference)))}`
+            }
           />
         )}
       </Box>
@@ -518,17 +526,17 @@ function TrendChart({
           }}
         >
           {hasTarget && (
-            <Stat label="Target pace today">
+            <Stat label={lang === "ja" ? "本日時点の目標額" : "Target pace today"}>
               ¥{formatAmount(Math.round(paceNow))}
             </Stat>
           )}
 
           {hasTarget && (
-            <Stat label="Monthly target">¥{formatAmount(totalTarget)}</Stat>
+            <Stat label={lang === "ja" ? "月間目標" : "Monthly target"}>¥{formatAmount(totalTarget)}</Stat>
           )}
 
           {showBestDay && (
-            <Stat label="Best day">
+            <Stat label={lang === "ja" ? "入金額が最も多い日" : "Best day"}>
               {formatDayLabel(bestDay.date)}, ¥{formatAmount(bestDay.amount)}
             </Stat>
           )}
@@ -543,7 +551,9 @@ function TrendChart({
         ref={wrapRef}
         tabIndex={0}
         role="group"
-        aria-label="Collection trend chart. Use the left and right arrow keys to inspect each day."
+        aria-label={lang === "ja"
+          ? "入金推移グラフ。左右の矢印キーで各日のデータを確認できます。"
+          : "Collection trend chart. Use the left and right arrow keys to inspect each day."}
         onBlur={() => setHover(null)}
         onKeyDown={(event) => {
           if (lastIndex < 0) {
@@ -581,7 +591,9 @@ function TrendChart({
             width={width}
             height={height}
             role="img"
-            aria-label={`Cumulative collections reached ${formatCompact(collected)}${hasTarget ? ` against a target pace of ${formatCompact(paceNow)}` : ""}.`}
+            aria-label={lang === "ja"
+                ? `累計入金額は${formatCompact(collected)}です。${hasTarget ? `目標ペースは${formatCompact(paceNow)}です。` : ""}`
+                : `Cumulative collections reached ${formatCompact(collected)}${hasTarget ? ` against a target pace of ${formatCompact(paceNow)}` : ""}.`}
             onPointerMove={handlePointer}
             onPointerDown={handlePointer}
             onPointerLeave={() => setHover(null)}
@@ -739,16 +751,16 @@ function TrendChart({
             <Box sx={{ fontWeight: 700 }}>{formatDayLabel(activeDay.date)}</Box>
 
             <Box sx={{ fontWeight: 400 }}>
-              That day: ¥{formatAmount(activeDay.amount)}
+              {lang === "ja" ? "当日" : "That day"}: ¥{formatAmount(activeDay.amount)}
             </Box>
 
             <Box sx={{ fontWeight: 600 }}>
-              Total: ¥{formatAmount(cumulative[active])}
+              {lang === "ja" ? "累計" : "Total"}: ¥{formatAmount(cumulative[active])}
             </Box>
 
             {hasTarget && (
               <Box sx={{ fontWeight: 400, color: "rgba(255,255,255,0.72)" }}>
-                Pace: ¥{formatAmount(Math.round(paceAt(active)))}
+                {lang === "ja" ? "目標ペース" : "Pace"}: ¥{formatAmount(Math.round(paceAt(active)))}
               </Box>
             )}
           </Box>
@@ -773,13 +785,13 @@ function TrendChart({
       >
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
           <LegendDot color={BRAND} />
-          Collected
+          {lang === "ja" ? "入金額" : "Collected"}
         </Box>
 
         {hasTarget && (
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
             <LegendDot color={INK_MUTED} dashed />
-            Target pace
+            {lang === "ja" ? "目標ペース" : "Target pace"}
           </Box>
         )}
       </Box>
@@ -788,14 +800,15 @@ function TrendChart({
 }
 
 export default function CollectionTrend({ data }: Props) {
+  const lang = useLocale();
   const { selectedMonth, overview, charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
   const todayKey = dateFormatter.format(new Date());
 
   return (
     <ChartCard
-      title="Collection trend"
-      subtitle="Cumulative collections against the target pace"
+      title={lang === "ja" ? "入金推移" : "Collection trend"}
+      subtitle={lang === "ja" ? "累計入金額と目標ペースの比較" : "Cumulative collections against the target pace"}
       icon={<ShowChartOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <TrendChart

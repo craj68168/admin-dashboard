@@ -1,6 +1,7 @@
 "use client";
 import { useRef, type ReactNode } from "react";
 import { useInView } from "motion/react";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import Paper from "@mui/material/Paper";
@@ -135,13 +136,6 @@ const EMPTY_CHARTS: ChartsData = {
   paymentsByStatus: [],
 };
 
-const compactFormatter = new Intl.NumberFormat("en", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const formatCompact = (value: number) =>
-  `¥${compactFormatter.format(Number(value || 0))}`;
-
 function ChartCard({
   title,
   subtitle,
@@ -191,6 +185,13 @@ function StaffBars({
   total: number;
   onSelect: (staffId: string) => void;
 }) {
+  const lang = useLocale();
+  const compactFormatter = new Intl.NumberFormat(lang === "ja" ? "ja" : "en", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
+  const formatCompact = (value: number) =>
+    `¥${compactFormatter.format(Number(value || 0))}`;
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   // Grow the bars once, when the card scrolls into view (the dashboard
@@ -210,7 +211,7 @@ function StaffBars({
     >
       <Box
         role="region"
-        aria-label="Staff collections and targets"
+        aria-label={lang === "ja" ? "スタッフ別の入金額と目標" : "Staff collections and targets"}
         tabIndex={0}
         sx={{
           flex: 1,
@@ -228,7 +229,7 @@ function StaffBars({
         }}
       >
         {rows.length === 0 && (
-          <EmptyNote message="No staff collections or targets this month." />
+          <EmptyNote message={lang === "ja" ? "今月のスタッフの入金額や目標はありません。" : "No staff collections or targets this month."} />
         )}
         {rows.map((row) => {
           const fill = Math.max(
@@ -246,7 +247,9 @@ function StaffBars({
             <ButtonBase
               key={row.staffId}
               onClick={() => onSelect(row.staffId)}
-              aria-label={`${row.staffName}: collected ${formatAmount(row.totalCollected)} yen${hasTarget ? ` of ${formatAmount(row.targetAmount)} yen target` : ""}`}
+              aria-label={lang === "ja"
+                ? `${row.staffName}：入金額${formatAmount(row.totalCollected)}円${hasTarget ? `、目標額${formatAmount(row.targetAmount)}円` : ""}`
+                : `${row.staffName}: collected ${formatAmount(row.totalCollected)} yen${hasTarget ? ` of ${formatAmount(row.targetAmount)} yen target` : ""}`}
               sx={{
                 display: "block",
                 flexShrink: 0,
@@ -294,7 +297,9 @@ function StaffBars({
                     {formatCompact(row.totalCollected)}
                   </Box>
 
-                  {hasTarget ? ` of ${formatCompact(row.targetAmount)}` : " no target"}
+                  {lang === "ja"
+                    ? hasTarget ? ` / 目標 ${formatCompact(row.targetAmount)}` : " 目標なし"
+                    : hasTarget ? ` of ${formatCompact(row.targetAmount)}` : " no target"}
                 </Typography>
               </Box>
 
@@ -396,7 +401,7 @@ function StaffBars({
               component="span"
               sx={{ width: 2, height: 12, borderRadius: 1, bgcolor: INK }}
             />
-            Target
+            {lang === "ja" ? "目標" : "Target"}
           </Box>
 
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
@@ -404,7 +409,7 @@ function StaffBars({
               component="span"
               sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: BRAND }}
             />
-            Target met
+            {lang === "ja" ? "目標達成" : "Target met"}
           </Box>
 
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
@@ -417,12 +422,12 @@ function StaffBars({
                 bgcolor: BRAND_PROGRESS,
               }}
             />
-            In progress
+            {lang === "ja" ? "進行中" : "In progress"}
           </Box>
         </Box>
 
         <span>
-          {total} staff
+          {lang === "ja" ? `スタッフ${total}名` : `${total} staff`}
         </span>
       </Box>
     </Box>
@@ -430,6 +435,7 @@ function StaffBars({
 }
 
 export default function StaffPerformance({ data }: Props) {
+  const lang = useLocale();
   const { handleStaffClick, charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
 
@@ -439,8 +445,8 @@ export default function StaffPerformance({ data }: Props) {
 
   return (
     <ChartCard
-      title="Collected vs target by staff"
-      subtitle="Select a staff member to open their page"
+      title={lang === "ja" ? "スタッフ別の入金額と目標" : "Collected vs target by staff"}
+      subtitle={lang === "ja" ? "スタッフを選択すると詳細ページが開きます" : "Select a staff member to open their page"}
       icon={<BarChartOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <StaffBars

@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, type ReactNode } from "react";
 import { useInView } from "motion/react";
+import { useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -179,6 +180,7 @@ type SliceLegendProps = {
 };
 
 function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
+  const lang = useLocale();
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 0.5, minWidth: 0 }}
@@ -247,7 +249,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
                     ...NUMERIC,
                   }}
                 >
-                  {slice.count} {slice.count === 1 ? "payment" : "payments"}
+                  {lang === "ja" ? `${slice.count}件` : `${slice.count} ${slice.count === 1 ? "payment" : "payments"}`}
                 </Typography>
               </Box>
 
@@ -311,6 +313,7 @@ const STROKE = 12;
 const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 function DonutChart({ slices }: { slices: Slice[] }) {
+  const lang = useLocale();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
@@ -323,7 +326,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
   const total = slices.reduce((sum, slice) => sum + slice.count, 0);
 
   if (total <= 0) {
-    return <EmptyNote message="No payments recorded this month." />;
+    return <EmptyNote message={lang === "ja" ? "今月の入金記録はありません。" : "No payments recorded this month."} />;
   }
 
   const visible = slices.filter((slice) => slice.count > 0);
@@ -351,7 +354,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
 
   const active = slices.find((slice) => slice.key === activeKey) ?? null;
   const centerValue = active ? active.count : total;
-  const centerLabel = active ? active.label : "total payments";
+  const centerLabel = active ? active.label : lang === "ja" ? "入金総件数" : "total payments";
 
   return (
     <Box
@@ -372,9 +375,9 @@ function DonutChart({ slices }: { slices: Slice[] }) {
           width="100%"
           height="100%"
           role="img"
-          aria-label={`${total} payments by status: ${slices
-            .map((slice) => `${slice.label} ${slice.count}`)
-            .join(", ")}.`}
+          aria-label={lang === "ja"
+            ? `入金総件数${total}件のステータス別内訳：${slices.map((slice) => `${slice.label} ${slice.count}件`).join("、")}。`
+            : `${total} payments by status: ${slices.map((slice) => `${slice.label} ${slice.count}`).join(", ")}.`}
         >
           <circle
             cx={CENTER}
@@ -462,19 +465,25 @@ function DonutChart({ slices }: { slices: Slice[] }) {
 }
 
 export default function PaymentStatus({ data }: Props) {
+  const lang = useLocale();
   const { charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
 
   return (
     <ChartCard
-      title="Payment status"
-      subtitle="Payment counts by status in the selected month"
+      title={lang === "ja" ? "入金ステータス" : "Payment status"}
+      subtitle={lang === "ja" ? "選択した月のステータス別入金件数" : "Payment counts by status in the selected month"}
       icon={<DonutLargeOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <DonutChart
         slices={chartData.paymentsByStatus.map((item) => ({
           key: item.status,
-          label: item.status,
+          label: lang === "ja"
+            ? item.status === "Completed" ? "完了"
+              : item.status === "Refunded" ? "返金済み"
+              : item.status === "Cancelled" ? "キャンセル"
+              : item.status
+            : item.status,
           amount: item.amount,
           count: item.count,
           color: STATUS_COLORS[item.status] ?? INK_MUTED,
