@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -113,11 +113,8 @@ const nullableDate = (value?: string) => {
 };
 
 const getErrorMessage = (error: unknown, fallback: string) => {
-  if (axios.isAxiosError(error)) {
-    return error.response?.data?.message || fallback;
-  }
-
-  return fallback;
+  const message = getApiErrorMessage(error);
+  return message === "Something went wrong" ? fallback : message;
 };
 
 // =================================================
@@ -211,13 +208,13 @@ export const useClientFormHook = (clientId?: string) => {
   if (!isEditMode && isStageError) {
     registrationConfigError = getErrorMessage(
       stageError,
-      "Failed to load registration stage.",
+      "messages.registrationStageLoadFailed",
     );
   } else if (!isEditMode && !isStageLoading && !registrationStage) {
-    registrationConfigError = 'Active stage "registeredPaid" was not found.';
+    registrationConfigError = "messages.registrationStageMissing";
   } else if (!isEditMode && !isStageLoading && registrationAmount <= 0) {
     registrationConfigError =
-      'The "Registered / Paid" stage must have an amount greater than ¥0.';
+      "messages.registrationStageAmountInvalid";
   }
 
   // =================================================
@@ -491,7 +488,7 @@ export const useClientFormHook = (clientId?: string) => {
     if (role === "superadmin" && !values.assignedStaff) {
       setError("assignedStaff", {
         type: "manual",
-        message: "Please select an assigned staff member.",
+        message: "validation.assignedStaffRequired",
       });
 
       return;
@@ -505,7 +502,7 @@ export const useClientFormHook = (clientId?: string) => {
       if (!registrationStage || registrationAmount <= 0) {
         setSubmitError(
           registrationConfigError ||
-            "Registration stage is not configured correctly.",
+            "messages.registrationInvalid",
         );
 
         return;
@@ -514,7 +511,7 @@ export const useClientFormHook = (clientId?: string) => {
       if (!values.paymentMethod) {
         setError("paymentMethod", {
           type: "manual",
-          message: "Payment method is required.",
+          message: "validation.paymentMethodRequired",
         });
 
         return;
@@ -523,7 +520,7 @@ export const useClientFormHook = (clientId?: string) => {
       if (!values.paymentDate) {
         setError("paymentDate", {
           type: "manual",
-          message: "Payment date is required.",
+          message: "validation.paymentDateRequired",
         });
 
         return;

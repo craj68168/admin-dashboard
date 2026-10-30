@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const optionalText = (max: number) =>
-  z.string().trim().max(max).optional().or(z.literal(""));
+  z.string().trim().max(max, `validation.max${max}`).optional().or(z.literal(""));
 
 const educationSchema = z.object({
   schoolName: optionalText(200),
@@ -46,16 +46,16 @@ const employmentSchema = z.object({
 });
 
 export const clientFormSchema = z.object({
-  fullName: z.string().trim().min(1, "Full name is required.").max(200),
+  fullName: z.string().trim().min(1, "validation.fullNameRequired").max(200, "validation.max200"),
 
   furigana: optionalText(200),
 
-  phone: z.string().trim().min(1, "Phone number is required.").max(50),
+  phone: z.string().trim().min(1, "validation.phoneRequired").max(50, "validation.max50"),
 
   email: z
     .string()
     .trim()
-    .email("Please enter a valid email.")
+    .email("validation.emailInvalid")
     .optional()
     .or(z.literal("")),
 
@@ -70,14 +70,14 @@ export const clientFormSchema = z.object({
   currentVisaStatus: z
     .string()
     .trim()
-    .min(1, "Current visa status is required."),
+    .min(1, "validation.currentVisaStatusRequired"),
 
   residenceExpiryDate: optionalText(20),
 
   passportNumber: optionalText(100),
   passportExpiryDate: optionalText(20),
 
-  preferCategory: z.string().trim().min(1, "Preferred category is required."),
+  preferCategory: z.string().trim().min(1, "validation.preferCategoryRequired"),
 
   assignedStaff: optionalText(100),
   intake: optionalText(100),
