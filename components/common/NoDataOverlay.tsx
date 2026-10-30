@@ -3,8 +3,27 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
+import { createTranslator, useLocale } from "next-intl";
+
+const messages = {
+  en: {
+    title: "No data found",
+    description: "There are no records to display yet.",
+    logoAlt: "Fortune Link logo",
+  },
+  ja: {
+    title: "データが見つかりません",
+    description: "表示するデータはまだありません。",
+    logoAlt: "Fortune Linkのロゴ",
+  },
+};
 
 export default function NoDataOverlay() {
+  const locale = useLocale();
+  const t = createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
   return (
     <Box
       sx={{
@@ -20,17 +39,17 @@ export default function NoDataOverlay() {
     >
       <Image
         src="/company_logo.png"
-        alt="Fortune Link"
+        alt={t("logoAlt")}
         width={112}
         height={112}
         unoptimized
         style={{ objectFit: "contain", opacity: 0.7, display: "block" }}
       />
       <Typography sx={{ color: "#475569", fontSize: "14px", fontWeight: 600 }}>
-        No data found
+        {t("title")}
       </Typography>
       <Typography sx={{ color: "#94A3B8", fontSize: "12px" }}>
-        There are no records to display yet.
+        {t("description")}
       </Typography>
     </Box>
   );
