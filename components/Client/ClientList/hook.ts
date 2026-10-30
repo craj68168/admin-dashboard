@@ -3,6 +3,9 @@ import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
+import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
+import { useNotificationStore } from "@/store/notification-store";
 import { useAuthStore } from "@/store/auth-store";
 import { getPortalPaths } from "@/lib/portal-routes";
 import type {
@@ -240,6 +243,24 @@ export const useClientHook = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(`Failed to download ${format} clients:`, error);
+      let message = "Failed to export clients.";
+      if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+        try {
+          const body: unknown = JSON.parse(await error.response.data.text());
+          if (typeof body === "object" && body !== null && "message" in body &&
+              typeof body.message === "string" && body.message.trim()) {
+            message = body.message;
+          }
+        } catch {
+          // Unreadable export responses use the localized export-error fallback.
+        }
+      } else {
+        const detail = getApiErrorMessage(error);
+        if (typeof detail === "string" && detail !== "Something went wrong") {
+          message = detail;
+        }
+      }
+      useNotificationStore.getState().showNotification(message, "error");
     } finally {
       setExportingFormat(null);
     }
@@ -248,8 +269,10 @@ export const useClientHook = () => {
   // DELETE
   // =================================================
   const { mutate: deleteClient, isPending: isDeleting } = useMutation({
-    mutationFn: (clientId: string) =>
-      api.delete(`/clients/${encodeURIComponent(clientId)}`),
+    mutationFn: async (clientId: string) => {
+      const response = await api.delete(`/clients/${encodeURIComponent(clientId)}`);
+      return response.data;
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["clients"],
