@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,13 +49,15 @@ const defaultValues: StaffTargetFormValues = {
 // =================================================
 
 export const usePerformanceHook = (staffId: string) => {
-  const t = useTranslations("staffPerformance");
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.role === "superadmin";
   const [selectedMonth, setSelectedMonth] = useState(getCurrentJapanMonth());
   const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState<{
+    message: string;
+    fallback: "messages.targetCreated" | "messages.targetUpdated";
+  } | null>(null);
 
   // =================================================
   // FORM
@@ -70,9 +71,9 @@ export const usePerformanceHook = (staffId: string) => {
   } = useForm<StaffTargetFormValues>({
     resolver: zodResolver(
       createStaffTargetSchema({
-        targetAmountRequired: t("validation.targetAmountRequired"),
-        targetAmountPositive: t("validation.targetAmountPositive"),
-        noteMax: t("validation.noteMax"),
+        targetAmountRequired: "validation.targetAmountRequired",
+        targetAmountPositive: "validation.targetAmountPositive",
+        noteMax: "validation.noteMax",
       }),
     ),
 
@@ -183,7 +184,7 @@ export const usePerformanceHook = (staffId: string) => {
       },
       onMutate: () => {
         setServerError("");
-        setSuccessMessage("");
+        setSuccessMessage(null);
       },
     });
 
@@ -213,14 +214,14 @@ export const usePerformanceHook = (staffId: string) => {
 
   const onSubmit = async (values: StaffTargetFormValues) => {
     setServerError("");
-    setSuccessMessage("");
+    setSuccessMessage(null);
     if (!isAdmin) {
       return;
     }
 
     try {
       setServerError("");
-      setSuccessMessage("");
+      setSuccessMessage(null);
 
       if (target) {
         const response = await updateTarget({
@@ -229,26 +230,18 @@ export const usePerformanceHook = (staffId: string) => {
           values,
         });
 
-        setSuccessMessage(response.message || t("messages.targetUpdated"));
+        setSuccessMessage({ message: response.message, fallback: "messages.targetUpdated" });
       } else {
         const response = await createTarget(values);
 
-        setSuccessMessage(response.message || t("messages.targetCreated"));
+        setSuccessMessage({ message: response.message, fallback: "messages.targetCreated" });
       }
 
       await refreshPerformance();
     } catch (error) {
       console.error("Staff target error:", error);
 
-      if (axios.isAxiosError(error)) {
-        setServerError(
-          error.response?.data?.message || t("messages.saveFailed"),
-        );
-
-        return;
-      }
-
-      setServerError(t("messages.saveFailed"));
+      setServerError(getApiErrorMessage(error));
     }
   };
 
@@ -260,23 +253,14 @@ export const usePerformanceHook = (staffId: string) => {
     setSelectedMonth(month);
 
     setServerError("");
-    setSuccessMessage("");
+    setSuccessMessage(null);
   };
 
   // =================================================
   // LOAD ERROR
   // =================================================
 
-  let loadError = "";
-
-  if (isPerformanceError) {
-    if (axios.isAxiosError(performanceError)) {
-      loadError =
-        performanceError.response?.data?.message || t("messages.loadFailed");
-    } else {
-      loadError = t("messages.loadFailed");
-    }
-  }
+  const loadError = isPerformanceError ? getApiErrorMessage(performanceError) : "";
 
   return {
     user,

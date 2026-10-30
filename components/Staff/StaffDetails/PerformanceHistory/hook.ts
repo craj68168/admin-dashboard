@@ -1,7 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,7 +9,6 @@ import { api } from "@/lib/axios";
 import type { PerformanceHistoryResponse } from "./type";
 
 export const usePerformanceHistoryHook = (staffId: string) => {
-  const t = useTranslations("staffPerformanceHistory");
 
   const {
     data: historyResponse,
@@ -45,16 +43,7 @@ export const usePerformanceHistoryHook = (staffId: string) => {
 
   const history = historyResponse?.data ?? [];
 
-  let loadError = "";
-
-  if (isError) {
-    if (axios.isAxiosError(error)) {
-      loadError =
-        error.response?.data?.message || t("loadFailed");
-    } else {
-      loadError = t("loadFailed");
-    }
-  }
+  const loadError = isError ? getApiErrorMessage(error) : "";
 
   return {
     staff: historyResponse?.staff,

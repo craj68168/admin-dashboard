@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, type ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -24,6 +24,180 @@ import { Controller } from "react-hook-form";
 import type { PerformanceProps, PerformanceStatus } from "./type";
 
 import { usePerformanceHook } from "./hook";
+
+const messages = {
+  en: {
+    title: "Collection Performance",
+    description: "Monthly payment collection performance for this staff member.",
+    month: "Month",
+    monthlyProgress: "Monthly Progress",
+    payments: "Payments",
+    clients: "Clients",
+    refreshing: "Refreshing...",
+    updateTarget: "Update Target",
+    setMonthlyTarget: "Set Monthly Target",
+    setTarget: "Set Target",
+    targetMonth: "Target month: {month}",
+    saving: "Saving...",
+    summary: {
+      target: "Target",
+      collected: "Collected",
+      remaining: "Remaining",
+      achievement: "Achievement"
+    },
+    form: {
+      targetAmount: "Target Amount",
+      targetAmountPlaceholder: "1000000",
+      note: "Note",
+      notePlaceholder: "Optional target note..."
+    },
+    status: {
+      noTarget: "No Target",
+      notStarted: "Not Started",
+      inProgress: "In Progress",
+      achieved: "Achieved"
+    },
+    validation: {
+      targetAmountRequired: "Target amount is required",
+      targetAmountPositive: "Target amount must be greater than 0",
+      noteMax: "Note cannot exceed 2000 characters",
+      invalid: "Please check this field."
+    },
+    messages: {
+      targetUpdated: "Staff target updated successfully.",
+      targetCreated: "Staff target created successfully.",
+      saveFailed: "Failed to save staff target.",
+      loadFailed: "Failed to load staff performance."
+    },
+    serverMessages: {
+      aTargetAlreadyExistsForThisStaffMemberAndMonth: "A target already exists for this staff member and month.",
+      authenticationRequired: "Authentication required",
+      cannotAssignATargetToAnInactiveStaffMember: "Cannot assign a target to an inactive staff member.",
+      failedToCreateStaffTarget: "Failed to create staff target.",
+      failedToGetStaffPerformanceHistory: "Failed to get staff performance history.",
+      failedToGetStaffTarget: "Failed to get staff target.",
+      failedToUpdateStaffTarget: "Failed to update staff target.",
+      internalServerError: "Internal Server Error",
+      invalidOrExpiredToken: "Invalid or expired token",
+      invalidTargetID: "Invalid target ID.",
+      invalidTokenFormat: "Invalid token format",
+      invalidUserRole: "Invalid user role",
+      monthMustBeInYYYYMMFormat: "Month must be in YYYY-MM format.",
+      noteCannotExceed2000Characters: "Note cannot exceed 2000 characters.",
+      serverError: "Server error",
+      staffIDIsRequired: "Staff ID is required.",
+      staffNotFound: "Staff not found.",
+      staffTargetCreatedSuccessfully: "Staff target created successfully.",
+      staffTargetNotFound: "Staff target not found.",
+      staffTargetUpdatedSuccessfully: "Staff target updated successfully.",
+      targetAmountMustBeGreaterThan0: "Target amount must be greater than 0.",
+      targetMonthMustBeInYYYYMMFormat: "Target month must be in YYYY-MM format.",
+      tokenExpired: "Token expired",
+      tokenNotProvided: "Token not provided",
+      userAccountNoLongerExists: "User account no longer exists",
+      youAreNotAuthorizedToAccessThisResource: "You are not authorized to access this resource",
+      youAreNotAuthorizedToViewAnotherStaffMemberSPerformance: "You are not authorized to view another staff member's performance.",
+      youAreNotAuthorizedToViewAnotherStaffMemberSTarget: "You are not authorized to view another staff member's target.",
+      yourAccountHasBeenDisabled: "Your account has been disabled",
+      networkError: "Network Error",
+      failedToFetch: "Failed to fetch",
+      requestAborted: "Request aborted",
+      canceled: "canceled"
+    },
+    requestFailed: "Request failed with status code {status}.",
+    requestTimeout: "The request timed out. Please try again."
+  },
+  ja: {
+    title: "入金実績",
+    description: "このスタッフの月間入金実績を確認できます。",
+    month: "月",
+    monthlyProgress: "月間進捗",
+    payments: "入金件数",
+    clients: "顧客数",
+    refreshing: "更新中...",
+    updateTarget: "目標を更新",
+    setMonthlyTarget: "月間目標を設定",
+    setTarget: "目標を設定",
+    targetMonth: "対象月: {month}",
+    saving: "保存中...",
+    summary: {
+      target: "目標",
+      collected: "入金額",
+      remaining: "残額",
+      achievement: "達成率"
+    },
+    form: {
+      targetAmount: "目標金額",
+      targetAmountPlaceholder: "1000000",
+      note: "メモ",
+      notePlaceholder: "任意の目標メモ..."
+    },
+    status: {
+      noTarget: "目標なし",
+      notStarted: "未開始",
+      inProgress: "進行中",
+      achieved: "達成"
+    },
+    validation: {
+      targetAmountRequired: "目標金額は必須です",
+      targetAmountPositive: "目標金額は0より大きい値を入力してください",
+      noteMax: "メモは2000文字以内で入力してください",
+      invalid: "入力内容を確認してください。"
+    },
+    messages: {
+      targetUpdated: "スタッフ目標を更新しました。",
+      targetCreated: "スタッフ目標を作成しました。",
+      saveFailed: "スタッフ目標を保存できませんでした。",
+      loadFailed: "スタッフ実績を読み込めませんでした。"
+    },
+    serverMessages: {
+      aTargetAlreadyExistsForThisStaffMemberAndMonth: "このスタッフの対象月の目標はすでに存在します。",
+      authenticationRequired: "ログインが必要です。",
+      cannotAssignATargetToAnInactiveStaffMember: "無効なスタッフに目標を設定することはできません。",
+      failedToCreateStaffTarget: "スタッフの目標を作成できませんでした。",
+      failedToGetStaffPerformanceHistory: "スタッフの実績履歴を取得できませんでした。",
+      failedToGetStaffTarget: "スタッフの目標を取得できませんでした。",
+      failedToUpdateStaffTarget: "スタッフの目標を更新できませんでした。",
+      internalServerError: "サーバー内部でエラーが発生しました。",
+      invalidOrExpiredToken: "認証トークンが無効か、期限切れです。",
+      invalidTargetID: "目標IDが正しくありません。",
+      invalidTokenFormat: "認証トークンの形式が正しくありません。",
+      invalidUserRole: "ユーザー権限が正しくありません。",
+      monthMustBeInYYYYMMFormat: "月はYYYY-MM形式で入力してください。",
+      noteCannotExceed2000Characters: "メモは2000文字以内で入力してください。",
+      serverError: "サーバーエラーが発生しました。",
+      staffIDIsRequired: "スタッフIDを指定してください。",
+      staffNotFound: "スタッフが見つかりません。",
+      staffTargetCreatedSuccessfully: "スタッフの目標を作成しました。",
+      staffTargetNotFound: "スタッフの目標が見つかりません。",
+      staffTargetUpdatedSuccessfully: "スタッフの目標を更新しました。",
+      targetAmountMustBeGreaterThan0: "目標額は0より大きい金額で入力してください。",
+      targetMonthMustBeInYYYYMMFormat: "目標月はYYYY-MM形式で入力してください。",
+      tokenExpired: "認証トークンの有効期限が切れています。",
+      tokenNotProvided: "認証トークンが指定されていません。",
+      userAccountNoLongerExists: "ユーザーアカウントが存在しません。",
+      youAreNotAuthorizedToAccessThisResource: "この情報にアクセスする権限がありません。",
+      youAreNotAuthorizedToViewAnotherStaffMemberSPerformance: "他のスタッフの実績を閲覧する権限がありません。",
+      youAreNotAuthorizedToViewAnotherStaffMemberSTarget: "他のスタッフの目標を閲覧する権限がありません。",
+      yourAccountHasBeenDisabled: "アカウントは無効になっています。",
+      networkError: "ネットワークに接続できません。接続を確認してください。",
+      failedToFetch: "データを取得できませんでした。接続を確認してください。",
+      requestAborted: "リクエストが中断されました。",
+      canceled: "リクエストがキャンセルされました。"
+    },
+    requestFailed: "リクエストに失敗しました（ステータスコード：{status}）。",
+    requestTimeout: "リクエストがタイムアウトしました。もう一度お試しください。"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 
 // =================================================
 // DESIGN SYSTEM
@@ -235,7 +409,8 @@ function KpiCell({
 // =================================================
 
 const Performance = ({ staffId }: PerformanceProps) => {
-  const t = useTranslations("staffPerformance");
+  const locale = useLocale();
+  const t = useLocalTranslations();
   const headingId = useId();
   const formHeadingId = useId();
 
@@ -347,7 +522,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
             "& .MuiAlert-icon": { color: DANGER },
           }}
         >
-          {loadError}
+          {translateServerMessage(loadError, locale, t, "messages.loadFailed")}
         </Alert>
       )}
 
@@ -361,7 +536,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
             "& .MuiAlert-icon": { color: DANGER },
           }}
         >
-          {serverError}
+          {translateServerMessage(serverError, locale, t, "messages.saveFailed")}
         </Alert>
       )}
 
@@ -375,7 +550,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
             "& .MuiAlert-icon": { color: BRAND },
           }}
         >
-          {successMessage}
+          {translateServerMessage(successMessage.message, locale, t, successMessage.fallback)}
         </Alert>
       )}
 
@@ -612,7 +787,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
                     lineHeight: 1.5,
                   }}
                 >
-                  {t("targetMonth", { month: selectedMonth })}
+                  {t("targetMonth", { month: formatMonth(selectedMonth, locale) })}
                 </Typography>
 
                 <Box
@@ -632,7 +807,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
                         label={t("form.targetAmount")}
                         placeholder={t("form.targetAmountPlaceholder")}
                         error={Boolean(errors.targetAmount)}
-                        helperText={errors.targetAmount?.message}
+                        helperText={translateValidationError(errors.targetAmount?.message, t)}
                         slotProps={{
                           htmlInput: { min: 1, inputMode: "numeric" },
                           input: {
@@ -665,7 +840,7 @@ const Performance = ({ staffId }: PerformanceProps) => {
                         label={t("form.note")}
                         placeholder={t("form.notePlaceholder")}
                         error={Boolean(errors.note)}
-                        helperText={errors.note?.message}
+                        helperText={translateValidationError(errors.note?.message, t)}
                         sx={fieldSx}
                       />
                     )}
@@ -728,3 +903,32 @@ const Performance = ({ staffId }: PerformanceProps) => {
 };
 
 export default Performance;
+type LocalTranslator = ReturnType<typeof useLocalTranslations>;
+
+function translateServerMessage(message: string, locale: string, t: LocalTranslator, fallback: "messages.loadFailed" | "messages.saveFailed" | "messages.targetCreated" | "messages.targetUpdated") {
+  if (!message || message === "Something went wrong") return t(fallback);
+  const normalize = (value: string) => value.trim().replace(/[.!]+$/, "").toLowerCase();
+  const key = (Object.keys(messages.en.serverMessages) as Array<keyof typeof messages.en.serverMessages>)
+    .find((key) => normalize(messages.en.serverMessages[key]) === normalize(message));
+  if (key) return t(`serverMessages.${key}`);
+  const status = /^Request failed with status code (\d+)\.?$/i.exec(message);
+  if (status) return t("requestFailed", { status: status[1] });
+  if (/^timeout of \d+ms exceeded$/i.test(message)) return t("requestTimeout");
+  return locale === "ja" ? t(fallback) : message;
+}
+
+function formatMonth(month: string, locale: string) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) return month;
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    timeZone: "Asia/Tokyo",
+  }).format(new Date(`${month}-01T00:00:00+09:00`));
+}
+
+function translateValidationError(message: string | undefined, t: LocalTranslator) {
+  if (!message) return undefined;
+  const key = (Object.keys(messages.en.validation) as Array<keyof typeof messages.en.validation>)
+    .find((key) => `validation.${key}` === message);
+  return t(key ? `validation.${key}` : "validation.invalid");
+}
