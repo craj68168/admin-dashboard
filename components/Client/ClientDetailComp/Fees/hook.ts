@@ -1,8 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import axios from "axios";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -10,9 +8,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useAuthStore } from "@/store/auth-store";
 
-import { createClientFeeSchema } from "./validation";
+import { clientFeeSchema } from "./validation";
 
 import type {
   ClientFee,
@@ -60,8 +59,6 @@ const getTokyoDateInputValue = (value?: string | null) => {
 };
 
 export const useClientFeesHook = (clientId: string) => {
-  const t = useTranslations("clientFees");
-
   const queryClient = useQueryClient();
 
   const user = useAuthStore((state) => state.user);
@@ -76,18 +73,6 @@ export const useClientFeesHook = (clientId: string) => {
 
   const [successMessage, setSuccessMessage] = useState("");
 
-  const schema = useMemo(
-    () =>
-      createClientFeeSchema({
-        feeNameRequired: t("validation.feeNameRequired"),
-        feeNameMax: t("validation.feeNameMax"),
-        expectedAmountRequired: t("validation.expectedAmountRequired"),
-        expectedAmountPositive: t("validation.expectedAmountPositive"),
-        noteMax: t("validation.noteMax"),
-      }),
-    [t],
-  );
-
   const {
     control,
     handleSubmit,
@@ -95,7 +80,7 @@ export const useClientFeesHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<ClientFeeFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(clientFeeSchema),
 
     defaultValues,
   });
@@ -235,11 +220,11 @@ export const useClientFeesHook = (clientId: string) => {
           values,
         });
 
-        setSuccessMessage(response.message || t("messages.updated"));
+        setSuccessMessage(response.message || "messages.updated");
       } else {
         const response = await createFee(values);
 
-        setSuccessMessage(response.message || t("messages.created"));
+        setSuccessMessage(response.message || "messages.created");
       }
 
       setEditingFeeId(null);
@@ -248,13 +233,7 @@ export const useClientFeesHook = (clientId: string) => {
     } catch (error) {
       console.error("Client fee error:", error);
 
-      if (axios.isAxiosError(error)) {
-        setServerError(error.response?.data?.message || t("messages.saveFailed"));
-
-        return;
-      }
-
-      setServerError(t("messages.saveFailed"));
+      setServerError(getApiErrorMessage(error));
     }
   };
 
@@ -318,7 +297,7 @@ export const useClientFeesHook = (clientId: string) => {
 
       const response = await cancelFee(feeToCancel._id);
 
-      setSuccessMessage(response.message || t("messages.cancelled"));
+      setSuccessMessage(response.message || "messages.cancelled");
 
       if (editingFeeId === feeToCancel._id) {
         setEditingFeeId(null);
@@ -330,13 +309,8 @@ export const useClientFeesHook = (clientId: string) => {
     } catch (error) {
       console.error("Cancel fee error:", error);
 
-      if (axios.isAxiosError(error)) {
-        setServerError(
-          error.response?.data?.message || t("messages.cancelFailed"),
-        );
-      } else {
-        setServerError(t("messages.cancelFailed"));
-      }
+      const message = getApiErrorMessage(error);
+      setServerError(message === "Something went wrong" ? "messages.cancelFailed" : message);
 
       setFeeToCancel(null);
     }
@@ -346,16 +320,7 @@ export const useClientFeesHook = (clientId: string) => {
   // LOAD ERROR
   // =================================================
 
-  let loadError = "";
-
-  if (isFeesError) {
-    if (axios.isAxiosError(feesError)) {
-      loadError =
-        feesError.response?.data?.message || t("messages.loadFailed");
-    } else {
-      loadError = t("messages.loadFailed");
-    }
-  }
+  const loadError = isFeesError ? getApiErrorMessage(feesError) : "";
 
   return {
     isAdmin,

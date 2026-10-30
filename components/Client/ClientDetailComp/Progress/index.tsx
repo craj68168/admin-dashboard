@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Autocomplete from "@mui/material/Autocomplete";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -26,6 +26,459 @@ import { useProgressHook } from "./hook";
 import AddStageModal from "./AddStageModal";
 
 import type { ProgressProps } from "./type";
+
+const messages = {
+  "en": {
+    "title": "Progress",
+    "description": "Client recruitment and visa progress history.",
+    "history": "Stage History",
+    "empty": "No stage changes recorded yet.",
+    "currentStage": "Current Stage",
+    "admin": "Admin",
+    "form": {
+      "changeStage": "Change Stage",
+      "selectStage": "Select stage",
+      "note": "Note",
+      "notePlaceholder": "Optional progress note...",
+      "nextStage": "Next stage",
+      "searchStage": "Search and select stage",
+      "noStages": "No stages found"
+    },
+    "actions": {
+      "updating": "Updating...",
+      "updateStage": "Update Stage",
+      "addStage": "Add stage",
+      "processing": "Processing...",
+      "payAndUpdate": "Pay {amount} & update stage",
+      "showLess": "Show less",
+      "showAllChanges": "Show all {count} changes"
+    },
+    "stages": {
+      "registeredPaid": "Registered / Paid",
+      "vacancySearching": "Vacancy Searching",
+      "interviewFixedPreparation": "Interview Fixed / Preparation",
+      "interviewFailed": "Interview Failed",
+      "jobOfferReceived": "Naitei / Job Offer Received",
+      "jobOfferAccepted": "Job Offer Accepted",
+      "jobOfferNotAccepted": "Job Offer Not Accepted",
+      "visaDocumentsSubmitted": "Visa Documents Submitted",
+      "visaAppliedResultWaiting": "Visa Applied / Result Waiting",
+      "visaApproved": "Visa Approved",
+      "visaRejected": "Visa Rejected",
+      "companyJoining": "Waiting for Nyusha / Company Joining",
+      "employmentStartedCompanyJoined": "Employment Started / Company Joined",
+      "visaRenewal1Year": "Visa Renewal - 1 Year",
+      "visaRenewal3Years": "Visa Renewal - 3 Years",
+      "visaRenewal5Years": "Visa Renewal - 5 Years",
+      "returnToNepal": "Return to Nepal",
+      "new": "New",
+      "documentCollection": "Document Collection",
+      "processing": "Processing",
+      "cOEApplied": "COE Applied",
+      "cOEReceived": "COE Received",
+      "visaApplied": "Visa Applied",
+      "departed": "Departed",
+      "arrivedInJapan": "Arrived in Japan",
+      "registrationPending": "Registration Pending",
+      "registeredVacancySearching": "Registered / Vacancy Searching",
+      "legacyPayment": "Legacy Payment"
+    },
+    "validation": {
+      "stageRequired": "Please select the next stage.",
+      "noteMax": "Note must be 2000 characters or less.",
+      "referenceMax": "Reference number must be 200 characters or less.",
+      "receiptMax": "Receipt number must be 200 characters or less.",
+      "bankMax": "Bank name must be 200 characters or less.",
+      "paymentMethodRequired": "Payment method is required.",
+      "paymentDateRequired": "Payment date is required.",
+      "differentStage": "Please select a different stage.",
+      "invalid": "Please check this field."
+    },
+    "messages": {
+      "selectDifferentStage": "Please select a different stage.",
+      "updateFailed": "Failed to update client stage.",
+      "loadFailed": "Failed to load stage history.",
+      "saveFailed": "Failed to update client stage.",
+      "stagesLoadFailed": "Failed to load stages."
+    },
+    "payment": {
+      "required": "Payment required",
+      "notRequired": "No payment required",
+      "fullRequired": "Full payment required",
+      "fullRequiredDescription": "The full stage amount must be received before the stage can be updated. The amount comes from the Stage Master and cannot be edited here.",
+      "method": "Payment method",
+      "selectMethod": "Select payment method",
+      "date": "Payment date",
+      "bankName": "Bank name",
+      "referenceNumber": "Reference number",
+      "receiptNumber": "Receipt number"
+    },
+    "historyLabels": {
+      "initial": "Initial",
+      "payment": "Payment",
+      "status": "Status",
+      "collectedBy": "Collected by",
+      "changedBy": "Changed by"
+    },
+    "autocomplete": {
+      "clear": "Clear",
+      "open": "Open",
+      "close": "Close"
+    },
+    "serverMessages": {
+      "aStageWithTheSameKeyOrStageIDAlreadyExists": "A stage with the same key or stage ID already exists.",
+      "aStageWithTheSameNameAlreadyExists": "A stage with the same name already exists.",
+      "aStageWithTheSameValueAlreadyExists": "A stage with the same value already exists.",
+      "aValidPaymentDateIsRequired": "A valid payment date is required.",
+      "aValidPaymentMethodIsRequiredBeforeEnteringThisStage": "A valid payment method is required before entering this stage.",
+      "aValidStageNameIsRequiredToGenerateTheStageKey": "A valid stage name is required to generate the stage key.",
+      "assignedStaffCouldNotBeFound": "Assigned staff could not be found.",
+      "authenticatedUserIDWasNotFound": "Authenticated user ID was not found.",
+      "authenticatedUserInformationIsMissing": "Authenticated user information is missing.",
+      "authenticationRequired": "Authentication required",
+      "clientIDIsRequired": "Client ID is required.",
+      "clientNotFound": "Client not found.",
+      "clientStageUpdatedSuccessfully": "Client stage updated successfully.",
+      "deactivateItInstead": "Deactivate it instead.",
+      "duplicateDataExists": "Duplicate data exists.",
+      "failedToCreateStage": "Failed to create stage.",
+      "failedToDeleteStage": "Failed to delete stage.",
+      "failedToGetClientStageHistory": "Failed to get client stage history.",
+      "failedToGetStage": "Failed to get stage.",
+      "failedToGetStages": "Failed to get stages.",
+      "failedToUpdateClientStage": "Failed to update client stage.",
+      "failedToUpdateStageStatus": "Failed to update stage status.",
+      "failedToUpdateStage": "Failed to update stage.",
+      "internalServerError": "Internal Server Error",
+      "invalidOrExpiredToken": "Invalid or expired token",
+      "invalidTokenFormat": "Invalid token format",
+      "invalidUserRole": "Invalid user role",
+      "noteCannotExceed3000Characters": "Note cannot exceed 3000 characters.",
+      "paymentRecordedAndClientStageUpdatedSuccessfully": "Payment recorded and client stage updated successfully.",
+      "serverError": "Server error",
+      "stageIDCannotBeChanged": "Stage ID cannot be changed.",
+      "stageIDIsRequired": "Stage ID is required.",
+      "stageActivatedSuccessfully": "Stage activated successfully.",
+      "stageAmountMustBeAWholeNumberGreaterThanOrEqualTo0": "Stage amount must be a whole number greater than or equal to 0.",
+      "stageCreatedSuccessfully": "Stage created successfully.",
+      "stageDeactivatedSuccessfully": "Stage deactivated successfully.",
+      "stageDeletedSuccessfully": "Stage deleted successfully.",
+      "stageIsRequired": "Stage is required.",
+      "stageKeyCannotBeChanged": "Stage key cannot be changed.",
+      "stageNameCannotBeEmpty": "Stage name cannot be empty.",
+      "stageNameIsRequired": "Stage name is required.",
+      "stageNotFound": "Stage not found.",
+      "stageUpdatedSuccessfully": "Stage updated successfully.",
+      "theClientIsAlreadyInThisStage": "The client is already in this stage.",
+      "theGeneratedStageKeyIsInvalid": "The generated stage key is invalid.",
+      "theSelectedStageDoesNotExistOrIsInactive": "The selected stage does not exist or is inactive.",
+      "tokenExpired": "Token expired",
+      "tokenNotProvided": "Token not provided",
+      "userAccountNoLongerExists": "User account no longer exists",
+      "youAreNotAuthorizedToAccessThisClient": "You are not authorized to access this client.",
+      "youAreNotAuthorizedToAccessThisResource": "You are not authorized to access this resource",
+      "youAreNotAuthorizedToUpdateThisClient": "You are not authorized to update this client.",
+      "yourAccountHasBeenDisabled": "Your account has been disabled",
+      "displayOrderMustBeAPositiveWholeNumber2": "displayOrder must be a positive whole number.",
+      "isActiveMustBeTrueOrFalse": "isActive must be true or false.",
+      "somethingWentWrong": "Something went wrong",
+      "networkError": "Network Error",
+      "failedToFetch": "Failed to fetch",
+      "requestAborted": "Request aborted",
+      "canceled": "canceled",
+      "validationError": "Please check the submitted information."
+    },
+    "requestFailed": "Request failed with status code {status}.",
+    "requestTimeout": "The request timed out. Please try again.",
+    "payments": {
+      "methods": {
+        "Cash": "Cash",
+        "Bank Transfer": "Bank Transfer",
+        "Online Payment": "Online Payment",
+        "Cheque": "Cheque",
+        "Other": "Other"
+      },
+      "statuses": {
+        "Completed": "Completed",
+        "Cancelled": "Cancelled",
+        "Refunded": "Refunded"
+      }
+    },
+    "unknownStaff": "Unknown",
+    "roles": {"staff": "Staff", "admin": "Admin", "superadmin": "Super Admin"}
+  },
+  "ja": {
+    "title": "進捗",
+    "description": "顧客の採用およびビザ進捗履歴です。",
+    "history": "ステージ履歴",
+    "empty": "ステージ変更はまだ記録されていません。",
+    "currentStage": "現在のステージ",
+    "admin": "管理者",
+    "form": {
+      "changeStage": "ステージ変更",
+      "selectStage": "ステージを選択",
+      "note": "メモ",
+      "notePlaceholder": "任意の進捗メモ...",
+      "nextStage": "次のステージ",
+      "searchStage": "ステージを検索して選択",
+      "noStages": "ステージが見つかりません"
+    },
+    "actions": {
+      "updating": "更新中...",
+      "updateStage": "ステージを更新",
+      "addStage": "ステージを追加",
+      "processing": "処理中...",
+      "payAndUpdate": "{amount} を支払ってステージを更新",
+      "showLess": "表示を減らす",
+      "showAllChanges": "すべての変更 {count} 件を表示"
+    },
+    "stages": {
+      "registeredPaid": "登録済み / 支払済み",
+      "vacancySearching": "求人検索中",
+      "interviewFixedPreparation": "面接確定 / 準備中",
+      "interviewFailed": "面接不合格",
+      "jobOfferReceived": "内定 / オファー受領",
+      "jobOfferAccepted": "内定承諾",
+      "jobOfferNotAccepted": "内定未承諾",
+      "visaDocumentsSubmitted": "ビザ書類提出済み",
+      "visaAppliedResultWaiting": "ビザ申請済み / 結果待ち",
+      "visaApproved": "ビザ承認",
+      "visaRejected": "ビザ却下",
+      "companyJoining": "入社待ち",
+      "employmentStartedCompanyJoined": "勤務開始 / 入社済み",
+      "visaRenewal1Year": "ビザ更新 - 1年",
+      "visaRenewal3Years": "ビザ更新 - 3年",
+      "visaRenewal5Years": "ビザ更新 - 5年",
+      "returnToNepal": "ネパールへ帰国",
+      "new": "新規",
+      "documentCollection": "書類収集中",
+      "processing": "処理中",
+      "cOEApplied": "COE申請済み",
+      "cOEReceived": "COE受領済み",
+      "visaApplied": "ビザ申請済み",
+      "departed": "出国済み",
+      "arrivedInJapan": "日本到着",
+      "registrationPending": "登録待ち",
+      "registeredVacancySearching": "登録済み / 求人検索中",
+      "legacyPayment": "過去の入金"
+    },
+    "validation": {
+      "stageRequired": "次のステージを選択してください。",
+      "noteMax": "メモは2000文字以内で入力してください。",
+      "referenceMax": "参照番号は200文字以内で入力してください。",
+      "receiptMax": "領収書番号は200文字以内で入力してください。",
+      "bankMax": "銀行名は200文字以内で入力してください。",
+      "paymentMethodRequired": "支払方法を選択してください。",
+      "paymentDateRequired": "支払日を入力してください。",
+      "differentStage": "現在とは異なるステージを選択してください。",
+      "invalid": "入力内容を確認してください。"
+    },
+    "messages": {
+      "selectDifferentStage": "別のステージを選択してください。",
+      "updateFailed": "顧客ステージを更新できませんでした。",
+      "loadFailed": "ステージ履歴を読み込めませんでした。",
+      "saveFailed": "顧客のステージを更新できませんでした。",
+      "stagesLoadFailed": "ステージを読み込めませんでした。"
+    },
+    "payment": {
+      "required": "支払いが必要です",
+      "notRequired": "支払いは不要です",
+      "fullRequired": "全額支払いが必要です",
+      "fullRequiredDescription": "ステージを更新するには、ステージ金額の全額を受領する必要があります。金額はステージマスターから取得され、この画面では編集できません。",
+      "method": "支払い方法",
+      "selectMethod": "支払い方法を選択",
+      "date": "支払日",
+      "bankName": "銀行名",
+      "referenceNumber": "参照番号",
+      "receiptNumber": "領収書番号"
+    },
+    "historyLabels": {
+      "initial": "初期",
+      "payment": "支払い",
+      "status": "ステータス",
+      "collectedBy": "回収担当",
+      "changedBy": "変更者"
+    },
+    "autocomplete": {
+      "clear": "クリア",
+      "open": "開く",
+      "close": "閉じる"
+    },
+    "serverMessages": {
+      "aStageWithTheSameKeyOrStageIDAlreadyExists": "同じキーまたはステージIDのステージがすでに存在します。",
+      "aStageWithTheSameNameAlreadyExists": "同じ名前のステージがすでに存在します。",
+      "aStageWithTheSameValueAlreadyExists": "同じ値のステージがすでに存在します。",
+      "aValidPaymentDateIsRequired": "有効な入金日を入力してください。",
+      "aValidPaymentMethodIsRequiredBeforeEnteringThisStage": "このステージに進む前に、有効な支払方法を選択してください。",
+      "aValidStageNameIsRequiredToGenerateTheStageKey": "ステージキーの生成には有効なステージ名が必要です。",
+      "assignedStaffCouldNotBeFound": "担当スタッフが見つかりません。",
+      "authenticatedUserIDWasNotFound": "認証済みユーザーのIDが見つかりません。",
+      "authenticatedUserInformationIsMissing": "認証済みユーザーの情報がありません。",
+      "authenticationRequired": "ログインが必要です。",
+      "clientIDIsRequired": "顧客IDを指定してください。",
+      "clientNotFound": "顧客が見つかりません。",
+      "clientStageUpdatedSuccessfully": "顧客のステージを更新しました。",
+      "deactivateItInstead": "代わりに無効にしてください。",
+      "duplicateDataExists": "データが重複しています。",
+      "failedToCreateStage": "ステージを作成できませんでした。",
+      "failedToDeleteStage": "ステージを削除できませんでした。",
+      "failedToGetClientStageHistory": "顧客のステージ履歴を取得できませんでした。",
+      "failedToGetStage": "ステージを取得できませんでした。",
+      "failedToGetStages": "ステージ一覧を取得できませんでした。",
+      "failedToUpdateClientStage": "顧客のステージを更新できませんでした。",
+      "failedToUpdateStageStatus": "ステージのステータスを更新できませんでした。",
+      "failedToUpdateStage": "ステージを更新できませんでした。",
+      "internalServerError": "サーバー内部でエラーが発生しました。",
+      "invalidOrExpiredToken": "認証トークンが無効か、期限切れです。",
+      "invalidTokenFormat": "認証トークンの形式が正しくありません。",
+      "invalidUserRole": "ユーザー権限が正しくありません。",
+      "noteCannotExceed3000Characters": "メモは3000文字以内で入力してください。",
+      "paymentRecordedAndClientStageUpdatedSuccessfully": "入金を記録し、顧客のステージを更新しました。",
+      "serverError": "サーバーエラーが発生しました。",
+      "stageIDCannotBeChanged": "ステージIDは変更できません。",
+      "stageIDIsRequired": "ステージIDを指定してください。",
+      "stageActivatedSuccessfully": "ステージを有効にしました。",
+      "stageAmountMustBeAWholeNumberGreaterThanOrEqualTo0": "ステージの金額は0以上の整数で入力してください。",
+      "stageCreatedSuccessfully": "ステージを作成しました。",
+      "stageDeactivatedSuccessfully": "ステージを無効にしました。",
+      "stageDeletedSuccessfully": "ステージを削除しました。",
+      "stageIsRequired": "ステージを選択してください。",
+      "stageKeyCannotBeChanged": "ステージキーは変更できません。",
+      "stageNameCannotBeEmpty": "ステージ名を入力してください。",
+      "stageNameIsRequired": "ステージ名を入力してください。",
+      "stageNotFound": "ステージが見つかりません。",
+      "stageUpdatedSuccessfully": "ステージを更新しました。",
+      "theClientIsAlreadyInThisStage": "顧客はすでにこのステージにいます。",
+      "theGeneratedStageKeyIsInvalid": "生成されたステージキーが正しくありません。",
+      "theSelectedStageDoesNotExistOrIsInactive": "選択したステージが存在しないか、無効になっています。",
+      "tokenExpired": "認証トークンの有効期限が切れています。",
+      "tokenNotProvided": "認証トークンが指定されていません。",
+      "userAccountNoLongerExists": "ユーザーアカウントが存在しません。",
+      "youAreNotAuthorizedToAccessThisClient": "この顧客にアクセスする権限がありません。",
+      "youAreNotAuthorizedToAccessThisResource": "この情報にアクセスする権限がありません。",
+      "youAreNotAuthorizedToUpdateThisClient": "この顧客を更新する権限がありません。",
+      "yourAccountHasBeenDisabled": "アカウントは無効になっています。",
+      "displayOrderMustBeAPositiveWholeNumber2": "表示順は正の整数で入力してください。",
+      "isActiveMustBeTrueOrFalse": "有効状態はtrueまたはfalseで指定してください。",
+      "somethingWentWrong": "エラーが発生しました。もう一度お試しください。",
+      "networkError": "ネットワークに接続できません。接続を確認してください。",
+      "failedToFetch": "データを取得できませんでした。接続を確認してください。",
+      "requestAborted": "リクエストが中断されました。",
+      "canceled": "リクエストがキャンセルされました。",
+      "validationError": "送信した情報に誤りがあります。入力内容を確認してください。"
+    },
+    "requestFailed": "リクエストに失敗しました（ステータスコード：{status}）。",
+    "requestTimeout": "リクエストがタイムアウトしました。もう一度お試しください。",
+    "payments": {
+      "methods": {
+        "Cash": "現金",
+        "Bank Transfer": "銀行振込",
+        "Online Payment": "オンライン決済",
+        "Cheque": "小切手",
+        "Other": "その他"
+      },
+      "statuses": {
+        "Completed": "完了",
+        "Cancelled": "キャンセル済み",
+        "Refunded": "返金済み"
+      }
+    },
+    "unknownStaff": "不明",
+    "roles": {"staff": "スタッフ", "admin": "管理者", "superadmin": "最高管理者"}
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({locale, messages: messages[locale === "ja" ? "ja" : "en"]});
+}
+
+const normalizeMessage = (value: string) => value.trim().replace(/\.+$/, "").toLowerCase();
+const serverMessageKeys = new Map(
+  Object.entries(messages.en.serverMessages).map(([key, value]) => [normalizeMessage(value), key]),
+);
+
+// Resolve stored message keys and known API messages when rendering so locale changes
+// also update messages already on screen.
+function translateServerMessage(
+  message: string | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useLocalTranslations>,
+  fallback: keyof typeof messages.en.messages,
+) {
+  if (typeof message !== "string" || !message.trim()) return t(("messages." + fallback) as never);
+  if (message.startsWith("messages.") && t.has(message as never)) return t(message as never);
+  const key = serverMessageKeys.get(normalizeMessage(message));
+  if (key) return t(("serverMessages." + key) as never);
+  const httpError = /^Request failed with status code (\d+)\.?$/i.exec(message.trim());
+  if (httpError) return t("requestFailed", {status: httpError[1]});
+  if (/^timeout of \d+ms exceeded/i.test(message)) return t("requestTimeout");
+
+  if (locale !== "ja" || /^[\u3040-\u30ff\u3400-\u9fff]/u.test(message)) return message;
+  if (/validation failed|cast to .+ failed/i.test(message)) return t("serverMessages.validationError");
+  if (/E11000|duplicate key/i.test(message)) return t("serverMessages.duplicateDataExists");
+  return t(("messages." + fallback) as never);
+}
+
+function translateValidationError(message: string | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  if (!message) return undefined;
+  return t.has(message as never) ? t(message as never) : t("validation.invalid");
+}
+
+const stageMessageKeys: Readonly<Record<string, keyof typeof messages.en.stages>> = {
+  "legacy payment": "legacyPayment",
+  "registered/paid": "registeredPaid",
+  "registeredpaid": "registeredPaid",
+  "vacancy searching": "vacancySearching",
+  "vacancysearching": "vacancySearching",
+  "interview fixed/preparation": "interviewFixedPreparation",
+  "interviewfixedpreparation": "interviewFixedPreparation",
+  "interview failed": "interviewFailed",
+  "interviewfailed": "interviewFailed",
+  "naitei/job offer received": "jobOfferReceived",
+  "jobofferreceived": "jobOfferReceived",
+  "job offer accepted": "jobOfferAccepted",
+  "jobofferaccepted": "jobOfferAccepted",
+  "job offer rejected": "jobOfferNotAccepted",
+  "joboffernotaccepted": "jobOfferNotAccepted",
+  "visa documents submitted": "visaDocumentsSubmitted",
+  "visadocumentssubmitted": "visaDocumentsSubmitted",
+  "visa applied/result waiting": "visaAppliedResultWaiting",
+  "visaappliedresultwaiting": "visaAppliedResultWaiting",
+  "visa approved": "visaApproved",
+  "visaapproved": "visaApproved",
+  "visa rejected": "visaRejected",
+  "visarejected": "visaRejected",
+  "waiting for nyusha/company joining": "companyJoining",
+  "companyjoining": "companyJoining",
+  "employment started/company joined": "employmentStartedCompanyJoined",
+  "employmentstartedcompanyjoined": "employmentStartedCompanyJoined",
+  "visa renewal - 1 year": "visaRenewal1Year",
+  "visarenewal1year": "visaRenewal1Year",
+  "visa renewal - 3 years": "visaRenewal3Years",
+  "visarenewal3years": "visaRenewal3Years",
+  "visa renewal - 5 years": "visaRenewal5Years",
+  "visarenewal5years": "visaRenewal5Years",
+  "return to nepal": "returnToNepal",
+  "returntonepal": "returnToNepal",
+  "job offer not accepted": "jobOfferNotAccepted",
+  "new": "new",
+  "document collection": "documentCollection",
+  "processing": "processing",
+  "coe applied": "cOEApplied",
+  "coe received": "cOEReceived",
+  "visa applied": "visaApplied",
+  "departed": "departed",
+  "arrived in japan": "arrivedInJapan",
+  "registration pending": "registrationPending",
+  "registered/vacancy searching": "registeredVacancySearching"
+};
+function translateStage(value: string | null | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  if (!value) return "-";
+  const key = stageMessageKeys[value.trim().toLowerCase().replace(/\s*\/\s*/g, "/")];
+  return key ? t(("stages." + key) as never) : value;
+}
+
 
 // =================================================
 // DESIGN TOKENS
@@ -98,7 +551,7 @@ const fieldGridSx = {
 // FORMATTERS
 // =================================================
 
-const formatDateTime = (value?: string | null) => {
+const formatDateTime = (value: string | null | undefined, locale: string) => {
   if (!value) {
     return "-";
   }
@@ -109,7 +562,7 @@ const formatDateTime = (value?: string | null) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(locale === "ja" ? "ja-JP" : "en-GB", {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -231,8 +684,9 @@ const Fact = ({
 // =================================================
 
 const Progress = ({ clientId }: ProgressProps) => {
-  const t = useTranslations("clientProgress");
-  const paymentT = useTranslations("clientPayments");
+  const locale = useLocale();
+  const t = useLocalTranslations();
+  const paymentT = createTranslator({locale, messages: messages[locale === "ja" ? "ja" : "en"].payments});
 
   const {
     values,
@@ -299,6 +753,13 @@ const Progress = ({ clientId }: ProgressProps) => {
     }
 
     return paymentT(`methods.${method}` as never);
+  };
+
+  const getStaffNameLabel = (value?: string | null) => value === "Unknown" ? t("unknownStaff") : value || "-";
+
+  const getRoleLabel = (role?: string | null) => {
+    if (role === "staff" || role === "admin" || role === "superadmin") return t(`roles.${role}`);
+    return role || "-";
   };
 
   const getPaymentStatusLabel = (status?: string | null) => {
@@ -428,7 +889,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 whiteSpace: "nowrap",
               }}
             >
-              {currentStageName}
+              {translateStage(currentStageName, t)}
             </Typography>
 
             <Box
@@ -466,7 +927,7 @@ const Progress = ({ clientId }: ProgressProps) => {
             borderRadius: 2,
           }}
         >
-          {loadError}
+          {translateServerMessage(loadError, locale, t, "loadFailed")}
         </Alert>
       )}
 
@@ -479,7 +940,7 @@ const Progress = ({ clientId }: ProgressProps) => {
             borderRadius: 2,
           }}
         >
-          {submitError}
+          {translateServerMessage(submitError, locale, t, "saveFailed")}
         </Alert>
       )}
 
@@ -611,7 +1072,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                   null
                 }
                 getOptionLabel={(stage) =>
-                  `${stage.name} — ${formatCurrency(stage.amount)}`
+                  `${translateStage(stage.name, t)} — ${formatCurrency(stage.amount)}`
                 }
                 isOptionEqualToValue={(option, value) =>
                   option.key === value.key
@@ -620,6 +1081,9 @@ const Progress = ({ clientId }: ProgressProps) => {
                   updateValue("stage", stage?.key ?? "")
                 }
                 noOptionsText={t("form.noStages")}
+                clearText={t("autocomplete.clear")}
+                openText={t("autocomplete.open")}
+                closeText={t("autocomplete.close")}
                 renderOption={(props, stage) => (
                   <Box
                     component="li"
@@ -644,7 +1108,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                           color: INK,
                         }}
                       >
-                        {stage.name}
+                        {translateStage(stage.name, t)}
                       </Typography>
 
                       <Typography
@@ -677,7 +1141,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                     label={t("form.nextStage")}
                     placeholder={t("form.searchStage")}
                     error={Boolean(formErrors.stage)}
-                    helperText={formErrors.stage}
+                    helperText={translateValidationError(formErrors.stage, t)}
                     sx={fieldSx}
                   />
                 )}
@@ -746,7 +1210,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         wordBreak: "break-word",
                       }}
                     >
-                      {selectedStageDetails.name}
+                      {translateStage(selectedStageDetails.name, t)}
                     </Typography>
                   </Box>
 
@@ -853,7 +1317,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         )
                       }
                       error={Boolean(formErrors.paymentMethod)}
-                      helperText={formErrors.paymentMethod}
+                      helperText={translateValidationError(formErrors.paymentMethod, t)}
                       sx={fieldSx}
                     >
                       <MenuItem value="">{t("payment.selectMethod")}</MenuItem>
@@ -876,7 +1340,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         updateValue("paymentDate", event.target.value)
                       }
                       error={Boolean(formErrors.paymentDate)}
-                      helperText={formErrors.paymentDate}
+                      helperText={translateValidationError(formErrors.paymentDate, t)}
                       slotProps={{
                         inputLabel: {
                           shrink: true,
@@ -895,7 +1359,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         updateValue("bankName", event.target.value)
                       }
                       error={Boolean(formErrors.bankName)}
-                      helperText={formErrors.bankName}
+                      helperText={translateValidationError(formErrors.bankName, t)}
                       sx={fieldSx}
                     />
 
@@ -908,7 +1372,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         updateValue("referenceNumber", event.target.value)
                       }
                       error={Boolean(formErrors.referenceNumber)}
-                      helperText={formErrors.referenceNumber}
+                      helperText={translateValidationError(formErrors.referenceNumber, t)}
                       sx={fieldSx}
                     />
 
@@ -921,7 +1385,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                         updateValue("receiptNumber", event.target.value)
                       }
                       error={Boolean(formErrors.receiptNumber)}
-                      helperText={formErrors.receiptNumber}
+                      helperText={translateValidationError(formErrors.receiptNumber, t)}
                       sx={fieldSx}
                     />
                   </Box>
@@ -940,7 +1404,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                 value={values.note}
                 onChange={(event) => updateValue("note", event.target.value)}
                 error={Boolean(formErrors.note)}
-                helperText={formErrors.note}
+                helperText={translateValidationError(formErrors.note, t)}
                 sx={fieldSx}
               />
 
@@ -1201,7 +1665,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                                     fontWeight: 500,
                                   }}
                                 >
-                                  {item.fromStageName || t("historyLabels.initial")}
+                                  {item.fromStageName ? translateStage(item.fromStageName, t) : t("historyLabels.initial")}
                                 </Typography>
 
                                 <ArrowForwardRoundedIcon
@@ -1221,7 +1685,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                                     fontWeight: 700,
                                   }}
                                 >
-                                  {item.toStageName}
+                                  {translateStage(item.toStageName, t)}
                                 </Typography>
                               </Box>
 
@@ -1236,7 +1700,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                                   fontVariantNumeric: "tabular-nums",
                                 }}
                               >
-                                {formatDateTime(item.createdAt)}
+                                {formatDateTime(item.createdAt, locale)}
                               </Typography>
                             </Box>
 
@@ -1342,9 +1806,7 @@ const Progress = ({ clientId }: ProgressProps) => {
                               <Fact
                                 label={t("historyLabels.collectedBy")}
                                 value={
-                                  payment?.creditedStaffName ||
-                                  item.changedByName ||
-                                  "-"
+                                  getStaffNameLabel(payment?.creditedStaffName || item.changedByName)
                                 }
                               />
                             </Box>
@@ -1360,10 +1822,9 @@ const Progress = ({ clientId }: ProgressProps) => {
                             }}
                           >
                             {t("historyLabels.changedBy")}{" "}
-                            {item.changedByName ||
-                              item.staffId ||
-                              item.changedByRole ||
-                              "-"}
+                            {item.changedByName
+                              ? getStaffNameLabel(item.changedByName)
+                              : item.staffId || getRoleLabel(item.changedByRole)}
                           </Typography>
                         </Box>
                       </Box>

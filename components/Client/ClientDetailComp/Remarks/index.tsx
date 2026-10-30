@@ -16,13 +16,208 @@ import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 
 import { Controller } from "react-hook-form";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 
 import { REMARK_MEDIUMS } from "./type";
 
 import type { RemarksProps } from "./type";
 
 import { useRemarksHook } from "./hook";
+
+const messages = {
+  "en": {
+    "title": "Remarks",
+    "description": "Communication and follow-up history for this client.",
+    "history": "Remark History",
+    "empty": "No remarks have been added yet.",
+    "admin": "Admin",
+    "form": {
+      "title": "New Remark",
+      "date": "Date",
+      "staff": "Staff",
+      "staffHelper": "Automatically recorded from the logged-in account.",
+      "medium": "Medium",
+      "selectMedium": "Select medium",
+      "memo": "Memo",
+      "memoPlaceholder": "Enter conversation or follow-up details..."
+    },
+    "actions": {
+      "saving": "Saving...",
+      "save": "Save"
+    },
+    "mediums": {
+      "Phone Call": "Phone Call",
+      "Meeting": "Meeting",
+      "WhatsApp": "WhatsApp",
+      "Email": "Email",
+      "Company Visit": "Company Visit",
+      "LINE": "LINE",
+      "Other": "Other"
+    },
+    "validation": {
+      "dateRequired": "Date is required",
+      "mediumRequired": "Medium is required",
+      "memoRequired": "Memo is required",
+      "memoMax": "Memo cannot exceed 5000 characters",
+      "invalid": "Please check this field."
+    },
+    "messages": {
+      "saveFailed": "Failed to save remark.",
+      "loadFailed": "Failed to load remarks."
+    },
+    "showLess": "Show less",
+    "showAll": "Show all {count} remarks",
+    "serverMessages": {
+      "authenticatedUserIDWasNotFound": "Authenticated user ID was not found.",
+      "authenticatedUserInformationIsMissing": "Authenticated user information is missing.",
+      "authenticationRequired": "Authentication required",
+      "clientIDIsRequired": "Client ID is required.",
+      "clientNotFound": "Client not found.",
+      "duplicateDataExists": "Duplicate data exists.",
+      "failedToAddRemark": "Failed to add remark.",
+      "failedToRetrieveRemarks": "Failed to retrieve remarks.",
+      "internalServerError": "Internal Server Error",
+      "invalidOrExpiredToken": "Invalid or expired token",
+      "invalidRemarkDate": "Invalid remark date.",
+      "invalidTokenFormat": "Invalid token format",
+      "invalidUserRole": "Invalid user role",
+      "mediumIsRequired": "Medium is required.",
+      "remarkAddedSuccessfully": "Remark added successfully.",
+      "remarkIsRequired": "Remark is required.",
+      "serverError": "Server error",
+      "tokenExpired": "Token expired",
+      "tokenNotProvided": "Token not provided",
+      "userAccountNoLongerExists": "User account no longer exists",
+      "youAreNotAuthorizedToAccessThisClientSRemarks": "You are not authorized to access this client's remarks.",
+      "youAreNotAuthorizedToAccessThisResource": "You are not authorized to access this resource",
+      "youAreNotAuthorizedToAddRemarksToThisClient": "You are not authorized to add remarks to this client.",
+      "yourAccountHasBeenDisabled": "Your account has been disabled",
+      "somethingWentWrong": "Something went wrong",
+      "networkError": "Network Error",
+      "failedToFetch": "Failed to fetch",
+      "requestAborted": "Request aborted",
+      "canceled": "canceled",
+      "validationError": "Please check the submitted information."
+    },
+    "requestFailed": "Request failed with status code {status}.",
+    "requestTimeout": "The request timed out. Please try again."
+  },
+  "ja": {
+    "title": "備考",
+    "description": "この顧客との連絡およびフォローアップ履歴です。",
+    "history": "備考履歴",
+    "empty": "備考はまだ追加されていません。",
+    "admin": "管理者",
+    "form": {
+      "title": "新規備考",
+      "date": "日付",
+      "staff": "スタッフ",
+      "staffHelper": "ログイン中のアカウントから自動記録されます。",
+      "medium": "連絡手段",
+      "selectMedium": "連絡手段を選択",
+      "memo": "メモ",
+      "memoPlaceholder": "会話内容またはフォローアップ詳細を入力..."
+    },
+    "actions": {
+      "saving": "保存中...",
+      "save": "保存"
+    },
+    "mediums": {
+      "Phone Call": "電話",
+      "Meeting": "面談",
+      "WhatsApp": "WhatsApp",
+      "Email": "メール",
+      "Company Visit": "会社訪問",
+      "LINE": "LINE",
+      "Other": "その他"
+    },
+    "validation": {
+      "dateRequired": "日付は必須です",
+      "mediumRequired": "連絡手段は必須です",
+      "memoRequired": "メモは必須です",
+      "memoMax": "メモは5000文字以内で入力してください",
+      "invalid": "入力内容を確認してください。"
+    },
+    "messages": {
+      "saveFailed": "備考を保存できませんでした。",
+      "loadFailed": "備考を読み込めませんでした。"
+    },
+    "showLess": "表示を減らす",
+    "showAll": "対応履歴をすべて表示（{count}件）",
+    "serverMessages": {
+      "authenticatedUserIDWasNotFound": "認証済みユーザーのIDが見つかりません。",
+      "authenticatedUserInformationIsMissing": "認証済みユーザーの情報がありません。",
+      "authenticationRequired": "ログインが必要です。",
+      "clientIDIsRequired": "顧客IDを指定してください。",
+      "clientNotFound": "顧客が見つかりません。",
+      "duplicateDataExists": "データが重複しています。",
+      "failedToAddRemark": "備考を追加できませんでした。",
+      "failedToRetrieveRemarks": "備考を取得できませんでした。",
+      "internalServerError": "サーバー内部でエラーが発生しました。",
+      "invalidOrExpiredToken": "認証トークンが無効か、期限切れです。",
+      "invalidRemarkDate": "備考の日付が正しくありません。",
+      "invalidTokenFormat": "認証トークンの形式が正しくありません。",
+      "invalidUserRole": "ユーザー権限が正しくありません。",
+      "mediumIsRequired": "連絡手段を入力してください。",
+      "remarkAddedSuccessfully": "備考を追加しました。",
+      "remarkIsRequired": "備考を入力してください。",
+      "serverError": "サーバーエラーが発生しました。",
+      "tokenExpired": "認証トークンの有効期限が切れています。",
+      "tokenNotProvided": "認証トークンが指定されていません。",
+      "userAccountNoLongerExists": "ユーザーアカウントが存在しません。",
+      "youAreNotAuthorizedToAccessThisClientSRemarks": "この顧客の備考を閲覧する権限がありません。",
+      "youAreNotAuthorizedToAccessThisResource": "この情報にアクセスする権限がありません。",
+      "youAreNotAuthorizedToAddRemarksToThisClient": "この顧客に備考を追加する権限がありません。",
+      "yourAccountHasBeenDisabled": "アカウントは無効になっています。",
+      "somethingWentWrong": "エラーが発生しました。もう一度お試しください。",
+      "networkError": "ネットワークに接続できません。接続を確認してください。",
+      "failedToFetch": "データを取得できませんでした。接続を確認してください。",
+      "requestAborted": "リクエストが中断されました。",
+      "canceled": "リクエストがキャンセルされました。",
+      "validationError": "送信した情報に誤りがあります。入力内容を確認してください。"
+    },
+    "requestFailed": "リクエストに失敗しました（ステータスコード：{status}）。",
+    "requestTimeout": "リクエストがタイムアウトしました。もう一度お試しください。"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({locale, messages: messages[locale === "ja" ? "ja" : "en"]});
+}
+
+const normalizeMessage = (value: string) => value.trim().replace(/\.+$/, "").toLowerCase();
+const serverMessageKeys = new Map(
+  Object.entries(messages.en.serverMessages).map(([key, value]) => [normalizeMessage(value), key]),
+);
+
+// Resolve stored message keys and known API messages when rendering so locale changes
+// also update messages already on screen.
+function translateServerMessage(
+  message: string | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useLocalTranslations>,
+  fallback: keyof typeof messages.en.messages,
+) {
+  if (typeof message !== "string" || !message.trim()) return t(("messages." + fallback) as never);
+  if (message.startsWith("messages.") && t.has(message as never)) return t(message as never);
+  const key = serverMessageKeys.get(normalizeMessage(message));
+  if (key) return t(("serverMessages." + key) as never);
+  const httpError = /^Request failed with status code (\d+)\.?$/i.exec(message.trim());
+  if (httpError) return t("requestFailed", {status: httpError[1]});
+  if (/^timeout of \d+ms exceeded/i.test(message)) return t("requestTimeout");
+
+  if (locale !== "ja" || /^[\u3040-\u30ff\u3400-\u9fff]/u.test(message)) return message;
+  if (/validation failed|cast to .+ failed/i.test(message)) return t("serverMessages.validationError");
+  if (/E11000|duplicate key/i.test(message)) return t("serverMessages.duplicateDataExists");
+  return t(("messages." + fallback) as never);
+}
+
+function translateValidationError(message: string | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  if (!message) return undefined;
+  return t.has(message as never) ? t(message as never) : t("validation.invalid");
+}
+
 
 // =================================================
 // DESIGN TOKENS
@@ -99,7 +294,7 @@ const fieldSx = {
 // HELPERS
 // =================================================
 
-const formatJapanDate = (value: string) => {
+const formatJapanDate = (value: string | undefined, locale: string) => {
   if (!value) {
     return "-";
   }
@@ -110,7 +305,7 @@ const formatJapanDate = (value: string) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-CA", {
+  return new Intl.DateTimeFormat(locale === "ja" ? "ja-JP" : "en-CA", {
     timeZone: "Asia/Tokyo",
     year: "numeric",
     month: "2-digit",
@@ -141,7 +336,8 @@ const getInitials = (name?: string) => {
 // =================================================
 
 const Remarks = ({ clientId }: RemarksProps) => {
-  const t = useTranslations("clientRemarks");
+  const locale = useLocale();
+  const t = useLocalTranslations();
 
   const {
     user,
@@ -279,7 +475,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
 
           {serverError && (
             <Alert severity="error" sx={{ ...errorAlertSx, mb: 1.5 }}>
-              {serverError}
+              {translateServerMessage(serverError, locale, t, "saveFailed")}
             </Alert>
           )}
 
@@ -315,7 +511,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
                     size="small"
                     label={t("form.date")}
                     error={Boolean(errors.remarkDate)}
-                    helperText={errors.remarkDate?.message}
+                    helperText={translateValidationError(errors.remarkDate?.message, t)}
                     slotProps={{ inputLabel: { shrink: true } }}
                     sx={fieldSx}
                   />
@@ -334,7 +530,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
                     size="small"
                     label={t("form.medium")}
                     error={Boolean(errors.medium)}
-                    helperText={errors.medium?.message}
+                    helperText={translateValidationError(errors.medium?.message, t)}
                     sx={fieldSx}
                   >
                     <MenuItem value="">{t("form.selectMedium")}</MenuItem>
@@ -383,7 +579,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
                   label={t("form.memo")}
                   placeholder={t("form.memoPlaceholder")}
                   error={Boolean(errors.remarks)}
-                  helperText={errors.remarks?.message}
+                  helperText={translateValidationError(errors.remarks?.message, t)}
                   sx={fieldSx}
                 />
               )}
@@ -459,7 +655,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
 
           {loadError && (
             <Alert severity="error" sx={errorAlertSx}>
-              {loadError}
+              {translateServerMessage(loadError, locale, t, "loadFailed")}
             </Alert>
           )}
 
@@ -629,7 +825,7 @@ const Remarks = ({ clientId }: RemarksProps) => {
                             fontVariantNumeric: "tabular-nums",
                           }}
                         >
-                          {formatJapanDate(remark.remarkDate)}
+                          {formatJapanDate(remark.remarkDate, locale)}
                         </Typography>
                       </Box>
 
@@ -686,8 +882,8 @@ const Remarks = ({ clientId }: RemarksProps) => {
                   }}
                 >
                   {showAllRemarks
-                    ? "Show less"
-                    : `Show all ${remarks.length} remarks`}
+                    ? t("showLess")
+                    : t("showAll", {count: remarks.length})}
                 </Button>
               )}
             </Box>

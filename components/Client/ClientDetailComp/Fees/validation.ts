@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 const defaultMessages = {
-  feeNameRequired: "Fee name is required",
-  feeNameMax: "Fee name cannot exceed 150 characters",
-  expectedAmountRequired: "Expected amount is required",
-  expectedAmountPositive: "Expected amount must be greater than 0",
-  noteMax: "Note cannot exceed 3000 characters",
+  feeNameRequired: "validation.feeNameRequired",
+  feeNameMax: "validation.feeNameMax",
+  expectedAmountRequired: "validation.expectedAmountRequired",
+  expectedAmountPositive: "validation.expectedAmountPositive",
+  noteMax: "validation.noteMax",
 };
 
 export const createClientFeeSchema = (

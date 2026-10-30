@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -16,6 +16,394 @@ import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { usePaymentsHook } from "./hook";
 
 import type { PaymentsProps } from "./type";
+
+const messages = {
+  "en": {
+    "title": "Payments",
+    "description": "Payments are recorded automatically when a paid stage is completed.",
+    "totalPayments": "Total Payments",
+    "history": "Payment History",
+    "empty": "No payments recorded yet.",
+    "feeExpected": "Fee Expected: ¥{amount}",
+    "noAvailableFees": "There are no active fees with an outstanding balance.",
+    "fields": {
+      "date": "Date",
+      "method": "Method",
+      "creditedStaff": "Credited Staff",
+      "recordedBy": "Recorded By",
+      "stageAtPayment": "Stage at Payment",
+      "reference": "Reference",
+      "receipt": "Receipt",
+      "bank": "Bank",
+      "stage": "Stage",
+      "amount": "Amount",
+      "status": "Status",
+      "staff": "Staff"
+    },
+    "summary": {
+      "expected": "Expected",
+      "alreadyPaid": "Already Paid",
+      "outstanding": "Outstanding",
+      "status": "Status",
+      "totalCollected": "Total collected",
+      "completedPayments": "Completed payments"
+    },
+    "form": {
+      "title": "Add Payment",
+      "fee": "Fee",
+      "selectFee": "Select fee",
+      "feeOption": "{feeName} - Outstanding ¥{amount}",
+      "amountPaying": "Amount Paying",
+      "paymentMethod": "Payment Method",
+      "selectPaymentMethod": "Select payment method",
+      "paymentDate": "Payment Date",
+      "referenceNumber": "Reference Number",
+      "receiptNumber": "Receipt Number",
+      "bankName": "Bank Name",
+      "note": "Note"
+    },
+    "actions": {
+      "saving": "Saving...",
+      "savePayment": "Save Payment",
+      "showLess": "Show less",
+      "showAll": "Show all {count} payments"
+    },
+    "statuses": {
+      "Completed": "Completed",
+      "Cancelled": "Cancelled",
+      "Refunded": "Refunded"
+    },
+    "paymentStatuses": {
+      "Unpaid": "Unpaid",
+      "Partial": "Partial",
+      "Paid": "Paid",
+      "Cancelled": "Cancelled"
+    },
+    "methods": {
+      "Cash": "Cash",
+      "Bank Transfer": "Bank Transfer",
+      "Online Payment": "Online Payment",
+      "Cheque": "Cheque",
+      "Other": "Other"
+    },
+    "validation": {
+      "feeRequired": "Please select a fee",
+      "amountRequired": "Amount is required",
+      "amountPositive": "Amount must be greater than 0",
+      "paymentMethodRequired": "Payment method is required",
+      "paymentDateRequired": "Payment date is required",
+      "referenceNumberMax": "Reference number is too long",
+      "receiptNumberMax": "Receipt number is too long",
+      "bankNameMax": "Bank name is too long",
+      "noteMax": "Note cannot exceed 3000 characters"
+    },
+    "messages": {
+      "selectValidFee": "Please select a valid fee.",
+      "feeInactive": "This fee is no longer active.",
+      "amountExceeds": "Amount cannot exceed the outstanding balance of ¥{amount}.",
+      "recorded": "Payment recorded successfully.",
+      "recordedFullyPaid": "Payment recorded successfully. This fee is now fully paid.",
+      "recordFailed": "Failed to record payment.",
+      "loadFailed": "Failed to load payments.",
+      "loadFeesFailed": "Failed to load client fees."
+    },
+    "stages": {
+      "registeredPaid": "Registered / Paid",
+      "vacancySearching": "Vacancy Searching",
+      "interviewFixedPreparation": "Interview Fixed / Preparation",
+      "interviewFailed": "Interview Failed",
+      "jobOfferReceived": "Naitei / Job Offer Received",
+      "jobOfferAccepted": "Job Offer Accepted",
+      "jobOfferNotAccepted": "Job Offer Not Accepted",
+      "visaDocumentsSubmitted": "Visa Documents Submitted",
+      "visaAppliedResultWaiting": "Visa Applied / Result Waiting",
+      "visaApproved": "Visa Approved",
+      "visaRejected": "Visa Rejected",
+      "companyJoining": "Waiting for Nyusha / Company Joining",
+      "employmentStartedCompanyJoined": "Employment Started / Company Joined",
+      "visaRenewal1Year": "Visa Renewal - 1 Year",
+      "visaRenewal3Years": "Visa Renewal - 3 Years",
+      "visaRenewal5Years": "Visa Renewal - 5 Years",
+      "returnToNepal": "Return to Nepal",
+      "new": "New",
+      "documentCollection": "Document Collection",
+      "processing": "Processing",
+      "cOEApplied": "COE Applied",
+      "cOEReceived": "COE Received",
+      "visaApplied": "Visa Applied",
+      "departed": "Departed",
+      "arrivedInJapan": "Arrived in Japan",
+      "registrationPending": "Registration Pending",
+      "registeredVacancySearching": "Registered / Vacancy Searching",
+      "legacyPayment": "Legacy Payment"
+    },
+    "serverMessages": {
+      "authenticatedUserIDWasNotFound": "Authenticated user ID was not found.",
+      "authenticatedUserInformationIsMissing": "Authenticated user information is missing.",
+      "authenticationRequired": "Authentication required",
+      "clientIDIsRequired": "Client ID is required.",
+      "clientNotFound": "Client not found.",
+      "duplicateDataExists": "Duplicate data exists.",
+      "failedToGetClientPayments": "Failed to get client payments.",
+      "internalServerError": "Internal Server Error",
+      "invalidOrExpiredToken": "Invalid or expired token",
+      "invalidTokenFormat": "Invalid token format",
+      "invalidUserRole": "Invalid user role",
+      "serverError": "Server error",
+      "tokenExpired": "Token expired",
+      "tokenNotProvided": "Token not provided",
+      "userAccountNoLongerExists": "User account no longer exists",
+      "youAreNotAuthorizedToAccessThisResource": "You are not authorized to access this resource",
+      "youAreNotAuthorizedToViewThisClientSPayments": "You are not authorized to view this client's payments.",
+      "yourAccountHasBeenDisabled": "Your account has been disabled",
+      "somethingWentWrong": "Something went wrong",
+      "networkError": "Network Error",
+      "failedToFetch": "Failed to fetch",
+      "requestAborted": "Request aborted",
+      "canceled": "canceled",
+      "validationError": "Please check the submitted information."
+    },
+    "requestFailed": "Request failed with status code {status}.",
+    "requestTimeout": "The request timed out. Please try again.",
+    "unknownStaff": "Unknown"
+  },
+  "ja": {
+    "title": "支払い",
+    "description": "有料ステージが完了すると、支払いは自動的に記録されます。",
+    "totalPayments": "支払総額",
+    "history": "支払い履歴",
+    "empty": "支払いはまだ記録されていません。",
+    "feeExpected": "予定料金: ¥{amount}",
+    "noAvailableFees": "未払い残高のある有効な料金はありません。",
+    "fields": {
+      "date": "日付",
+      "method": "方法",
+      "creditedStaff": "担当スタッフ",
+      "recordedBy": "記録者",
+      "stageAtPayment": "支払い時のステージ",
+      "reference": "参照番号",
+      "receipt": "領収書番号",
+      "bank": "銀行",
+      "stage": "ステージ",
+      "amount": "金額",
+      "status": "ステータス",
+      "staff": "スタッフ"
+    },
+    "summary": {
+      "expected": "予定額",
+      "alreadyPaid": "支払済み",
+      "outstanding": "未払い",
+      "status": "ステータス",
+      "totalCollected": "回収総額",
+      "completedPayments": "完了済み支払い"
+    },
+    "form": {
+      "title": "支払いを追加",
+      "fee": "料金",
+      "selectFee": "料金を選択",
+      "feeOption": "{feeName} - 未払い ¥{amount}",
+      "amountPaying": "支払金額",
+      "paymentMethod": "支払い方法",
+      "selectPaymentMethod": "支払い方法を選択",
+      "paymentDate": "支払日",
+      "referenceNumber": "参照番号",
+      "receiptNumber": "領収書番号",
+      "bankName": "銀行名",
+      "note": "メモ"
+    },
+    "actions": {
+      "saving": "保存中...",
+      "savePayment": "支払いを保存",
+      "showLess": "表示を減らす",
+      "showAll": "すべての支払い {count} 件を表示"
+    },
+    "statuses": {
+      "Completed": "完了",
+      "Cancelled": "キャンセル済み",
+      "Refunded": "返金済み"
+    },
+    "paymentStatuses": {
+      "Unpaid": "未払い",
+      "Partial": "一部支払い",
+      "Paid": "支払済み",
+      "Cancelled": "キャンセル済み"
+    },
+    "methods": {
+      "Cash": "現金",
+      "Bank Transfer": "銀行振込",
+      "Online Payment": "オンライン決済",
+      "Cheque": "小切手",
+      "Other": "その他"
+    },
+    "validation": {
+      "feeRequired": "料金を選択してください",
+      "amountRequired": "金額は必須です",
+      "amountPositive": "金額は0より大きい必要があります",
+      "paymentMethodRequired": "支払い方法は必須です",
+      "paymentDateRequired": "支払日は必須です",
+      "referenceNumberMax": "参照番号が長すぎます",
+      "receiptNumberMax": "領収書番号が長すぎます",
+      "bankNameMax": "銀行名が長すぎます",
+      "noteMax": "メモは3000文字以内で入力してください"
+    },
+    "messages": {
+      "selectValidFee": "有効な料金を選択してください。",
+      "feeInactive": "この料金は有効ではありません。",
+      "amountExceeds": "金額は未払い残高 ¥{amount} を超えることはできません。",
+      "recorded": "支払いを記録しました。",
+      "recordedFullyPaid": "支払いを記録しました。この料金は全額支払い済みになりました。",
+      "recordFailed": "支払いを記録できませんでした。",
+      "loadFailed": "入金情報を読み込めませんでした。",
+      "loadFeesFailed": "顧客料金を読み込めませんでした。"
+    },
+    "stages": {
+      "registeredPaid": "登録済み / 支払済み",
+      "vacancySearching": "求人検索中",
+      "interviewFixedPreparation": "面接確定 / 準備中",
+      "interviewFailed": "面接不合格",
+      "jobOfferReceived": "内定 / オファー受領",
+      "jobOfferAccepted": "内定承諾",
+      "jobOfferNotAccepted": "内定未承諾",
+      "visaDocumentsSubmitted": "ビザ書類提出済み",
+      "visaAppliedResultWaiting": "ビザ申請済み / 結果待ち",
+      "visaApproved": "ビザ承認",
+      "visaRejected": "ビザ却下",
+      "companyJoining": "入社待ち",
+      "employmentStartedCompanyJoined": "勤務開始 / 入社済み",
+      "visaRenewal1Year": "ビザ更新 - 1年",
+      "visaRenewal3Years": "ビザ更新 - 3年",
+      "visaRenewal5Years": "ビザ更新 - 5年",
+      "returnToNepal": "ネパールへ帰国",
+      "new": "新規",
+      "documentCollection": "書類収集中",
+      "processing": "処理中",
+      "cOEApplied": "COE申請済み",
+      "cOEReceived": "COE受領済み",
+      "visaApplied": "ビザ申請済み",
+      "departed": "出国済み",
+      "arrivedInJapan": "日本到着",
+      "registrationPending": "登録待ち",
+      "registeredVacancySearching": "登録済み / 求人検索中",
+      "legacyPayment": "過去の入金"
+    },
+    "serverMessages": {
+      "authenticatedUserIDWasNotFound": "認証済みユーザーのIDが見つかりません。",
+      "authenticatedUserInformationIsMissing": "認証済みユーザーの情報がありません。",
+      "authenticationRequired": "ログインが必要です。",
+      "clientIDIsRequired": "顧客IDを指定してください。",
+      "clientNotFound": "顧客が見つかりません。",
+      "duplicateDataExists": "データが重複しています。",
+      "failedToGetClientPayments": "顧客の入金情報を取得できませんでした。",
+      "internalServerError": "サーバー内部でエラーが発生しました。",
+      "invalidOrExpiredToken": "認証トークンが無効か、期限切れです。",
+      "invalidTokenFormat": "認証トークンの形式が正しくありません。",
+      "invalidUserRole": "ユーザー権限が正しくありません。",
+      "serverError": "サーバーエラーが発生しました。",
+      "tokenExpired": "認証トークンの有効期限が切れています。",
+      "tokenNotProvided": "認証トークンが指定されていません。",
+      "userAccountNoLongerExists": "ユーザーアカウントが存在しません。",
+      "youAreNotAuthorizedToAccessThisResource": "この情報にアクセスする権限がありません。",
+      "youAreNotAuthorizedToViewThisClientSPayments": "この顧客の入金情報を閲覧する権限がありません。",
+      "yourAccountHasBeenDisabled": "アカウントは無効になっています。",
+      "somethingWentWrong": "エラーが発生しました。もう一度お試しください。",
+      "networkError": "ネットワークに接続できません。接続を確認してください。",
+      "failedToFetch": "データを取得できませんでした。接続を確認してください。",
+      "requestAborted": "リクエストが中断されました。",
+      "canceled": "リクエストがキャンセルされました。",
+      "validationError": "送信した情報に誤りがあります。入力内容を確認してください。"
+    },
+    "requestFailed": "リクエストに失敗しました（ステータスコード：{status}）。",
+    "requestTimeout": "リクエストがタイムアウトしました。もう一度お試しください。",
+    "unknownStaff": "不明"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({locale, messages: messages[locale === "ja" ? "ja" : "en"]});
+}
+
+const normalizeMessage = (value: string) => value.trim().replace(/\.+$/, "").toLowerCase();
+const serverMessageKeys = new Map(
+  Object.entries(messages.en.serverMessages).map(([key, value]) => [normalizeMessage(value), key]),
+);
+
+// Resolve stored message keys and known API messages when rendering so locale changes
+// also update messages already on screen.
+function translateServerMessage(
+  message: string | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useLocalTranslations>,
+  fallback: keyof typeof messages.en.messages,
+) {
+  if (typeof message !== "string" || !message.trim()) return t(("messages." + fallback) as never);
+  if (message.startsWith("messages.") && t.has(message as never)) return t(message as never);
+  const key = serverMessageKeys.get(normalizeMessage(message));
+  if (key) return t(("serverMessages." + key) as never);
+  const httpError = /^Request failed with status code (\d+)\.?$/i.exec(message.trim());
+  if (httpError) return t("requestFailed", {status: httpError[1]});
+  if (/^timeout of \d+ms exceeded/i.test(message)) return t("requestTimeout");
+
+  if (locale !== "ja" || /^[\u3040-\u30ff\u3400-\u9fff]/u.test(message)) return message;
+  if (/validation failed|cast to .+ failed/i.test(message)) return t("serverMessages.validationError");
+  if (/E11000|duplicate key/i.test(message)) return t("serverMessages.duplicateDataExists");
+  return t(("messages." + fallback) as never);
+}
+
+const stageMessageKeys: Readonly<Record<string, keyof typeof messages.en.stages>> = {
+  "legacy payment": "legacyPayment",
+  "registered/paid": "registeredPaid",
+  "registeredpaid": "registeredPaid",
+  "vacancy searching": "vacancySearching",
+  "vacancysearching": "vacancySearching",
+  "interview fixed/preparation": "interviewFixedPreparation",
+  "interviewfixedpreparation": "interviewFixedPreparation",
+  "interview failed": "interviewFailed",
+  "interviewfailed": "interviewFailed",
+  "naitei/job offer received": "jobOfferReceived",
+  "jobofferreceived": "jobOfferReceived",
+  "job offer accepted": "jobOfferAccepted",
+  "jobofferaccepted": "jobOfferAccepted",
+  "job offer rejected": "jobOfferNotAccepted",
+  "joboffernotaccepted": "jobOfferNotAccepted",
+  "visa documents submitted": "visaDocumentsSubmitted",
+  "visadocumentssubmitted": "visaDocumentsSubmitted",
+  "visa applied/result waiting": "visaAppliedResultWaiting",
+  "visaappliedresultwaiting": "visaAppliedResultWaiting",
+  "visa approved": "visaApproved",
+  "visaapproved": "visaApproved",
+  "visa rejected": "visaRejected",
+  "visarejected": "visaRejected",
+  "waiting for nyusha/company joining": "companyJoining",
+  "companyjoining": "companyJoining",
+  "employment started/company joined": "employmentStartedCompanyJoined",
+  "employmentstartedcompanyjoined": "employmentStartedCompanyJoined",
+  "visa renewal - 1 year": "visaRenewal1Year",
+  "visarenewal1year": "visaRenewal1Year",
+  "visa renewal - 3 years": "visaRenewal3Years",
+  "visarenewal3years": "visaRenewal3Years",
+  "visa renewal - 5 years": "visaRenewal5Years",
+  "visarenewal5years": "visaRenewal5Years",
+  "return to nepal": "returnToNepal",
+  "returntonepal": "returnToNepal",
+  "job offer not accepted": "jobOfferNotAccepted",
+  "new": "new",
+  "document collection": "documentCollection",
+  "processing": "processing",
+  "coe applied": "cOEApplied",
+  "coe received": "cOEReceived",
+  "visa applied": "visaApplied",
+  "departed": "departed",
+  "arrived in japan": "arrivedInJapan",
+  "registration pending": "registrationPending",
+  "registered/vacancy searching": "registeredVacancySearching"
+};
+function translateStage(value: string | null | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  if (!value) return "-";
+  const key = stageMessageKeys[value.trim().toLowerCase().replace(/\s*\/\s*/g, "/")];
+  return key ? t(("stages." + key) as never) : value;
+}
+
 
 // =================================================
 // DESIGN TOKENS
@@ -40,7 +428,7 @@ const formatAmount = (amount?: number | null) => {
   return new Intl.NumberFormat("ja-JP").format(Number(amount ?? 0));
 };
 
-const formatDate = (value?: string | null) => {
+const formatDate = (value: string | null | undefined, locale: string) => {
   if (!value) {
     return "-";
   }
@@ -51,7 +439,7 @@ const formatDate = (value?: string | null) => {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-CA", {
+  return new Intl.DateTimeFormat(locale === "ja" ? "ja-JP" : "en-CA", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -164,7 +552,8 @@ const Fact = ({ label, value }: { label: string; value: string }) => (
 // =================================================
 
 const Payments = ({ clientId }: PaymentsProps) => {
-  const t = useTranslations("clientPayments");
+  const locale = useLocale();
+  const t = useLocalTranslations();
 
   const { payments, summary, isLoading, isFetching, isError, errorMessage } =
     usePaymentsHook(clientId);
@@ -193,6 +582,8 @@ const Payments = ({ clientId }: PaymentsProps) => {
     showAll || !canCollapse
       ? payments
       : payments.slice(0, PAYMENTS_PREVIEW_COUNT);
+
+  const getStaffNameLabel = (value?: string | null) => value === "Unknown" ? t("unknownStaff") : value || "-";
 
   const getPaymentStatusLabel = (status?: string | null) => {
     if (!status) {
@@ -283,7 +674,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
 
       {isError && (
         <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>
-          {errorMessage}
+          {translateServerMessage(errorMessage, locale, t, "loadFailed")}
         </Alert>
       )}
 
@@ -426,11 +817,11 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         fontVariantNumeric: "tabular-nums",
                       }}
                     >
-                      {formatDate(payment.paymentDate)}
+                      {formatDate(payment.paymentDate, locale)}
                     </Box>
 
                     <Box component="td" sx={{ fontWeight: 600 }}>
-                      {payment.stageName || "-"}
+                      {translateStage(payment.stageName, t)}
                     </Box>
 
                     <Box
@@ -465,16 +856,14 @@ const Payments = ({ clientId }: PaymentsProps) => {
                       <Typography
                         sx={{ fontSize: 13, fontWeight: 600, color: INK }}
                       >
-                        {payment.creditedStaffName ||
-                          payment.creditedStaff ||
-                          "-"}
+                        {getStaffNameLabel(payment.creditedStaffName || payment.creditedStaff)}
                       </Typography>
 
                       {payment.collectedByName && (
                         <Typography
                           sx={{ mt: 0.15, fontSize: 11.5, color: INK_MUTED }}
                         >
-                          {t("fields.recordedBy")} {payment.collectedByName}
+                          {t("fields.recordedBy")} {getStaffNameLabel(payment.collectedByName)}
                         </Typography>
                       )}
                     </Box>
@@ -527,7 +916,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         wordBreak: "break-word",
                       }}
                     >
-                      {payment.stageName || "-"}
+                      {translateStage(payment.stageName, t)}
                     </Typography>
 
                     <Typography
@@ -538,7 +927,7 @@ const Payments = ({ clientId }: PaymentsProps) => {
                         fontVariantNumeric: "tabular-nums",
                       }}
                     >
-                      {formatDate(payment.paymentDate)}
+                      {formatDate(payment.paymentDate, locale)}
                     </Typography>
                   </Box>
 
@@ -595,14 +984,14 @@ const Payments = ({ clientId }: PaymentsProps) => {
                   <Fact
                     label={t("fields.staff")}
                     value={
-                      payment.creditedStaffName || payment.creditedStaff || "-"
+                      getStaffNameLabel(payment.creditedStaffName || payment.creditedStaff)
                     }
                   />
                 </Box>
 
                 {payment.collectedByName && (
                   <Typography sx={{ mt: 1.25, color: INK_MUTED, fontSize: 11.5 }}>
-                    {t("fields.recordedBy")} {payment.collectedByName}
+                    {t("fields.recordedBy")} {getStaffNameLabel(payment.collectedByName)}
                   </Typography>
                 )}
               </Box>

@@ -1,20 +1,12 @@
 "use client";
 
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 
 import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
 
 import type { ClientPaymentResponse } from "./type";
-
-const getErrorMessage = (error: unknown) => {
-  if (axios.isAxiosError(error)) {
-    return error.response?.data?.message || "Failed to load payments.";
-  }
-
-  return "Failed to load payments.";
-};
 
 export const usePaymentsHook = (clientId: string) => {
   const { data, isLoading, isFetching, isError, error } =
@@ -46,6 +38,6 @@ export const usePaymentsHook = (clientId: string) => {
     isFetching,
     isError,
 
-    errorMessage: isError ? getErrorMessage(error) : "",
+    errorMessage: isError ? getApiErrorMessage(error) : "",
   };
 };

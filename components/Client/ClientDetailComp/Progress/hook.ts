@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotificationStore } from "@/store/notification-store";
 
@@ -72,11 +72,8 @@ const createDefaultAddStageValues = (): AddStageFormValues => ({
 // =================================================
 
 const getErrorMessage = (error: unknown, fallback: string) => {
-  if (axios.isAxiosError(error)) {
-    return error.response?.data?.message || fallback;
-  }
-
-  return fallback;
+  const message = getApiErrorMessage(error);
+  return message === "Something went wrong" ? fallback : message;
 };
 
 // =================================================
@@ -464,7 +461,7 @@ export const useProgressHook = (clientId: string) => {
 
     if (values.stage === currentStage) {
       setFormErrors({
-        stage: "Please select a different stage.",
+        stage: "validation.differentStage",
       });
 
       return;
@@ -575,9 +572,9 @@ export const useProgressHook = (clientId: string) => {
   // =================================================
 
   const loadError = isProgressError
-    ? getErrorMessage(progressError, "Failed to load stage history.")
+    ? getErrorMessage(progressError, "messages.loadFailed")
     : isStageError
-      ? getErrorMessage(stageError, "Failed to load stages.")
+      ? getErrorMessage(stageError, "messages.stagesLoadFailed")
       : "";
 
   // =================================================
