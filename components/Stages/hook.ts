@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-query";
 
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
@@ -384,8 +384,9 @@ const filteredStages = useMemo(() => {
     onSuccess: async () => {
       setStageToDelete(null);
 
-      toast.success(
+      useNotificationStore.getState().showNotification(
         "Stage deleted successfully",
+        "success",
       );
 
       await queryClient.invalidateQueries({
@@ -403,16 +404,18 @@ const filteredStages = useMemo(() => {
         const message =
           error.response?.data?.message;
 
-        toast.error(
+        useNotificationStore.getState().showNotification(
           message ||
             "Failed to delete stage",
+          "error",
         );
 
         return;
       }
 
-      toast.error(
+      useNotificationStore.getState().showNotification(
         "Failed to delete stage",
+        "error",
       );
     },
   });
@@ -461,8 +464,9 @@ const filteredStages = useMemo(() => {
 
   const handleConfirmDelete = () => {
     if (!stageToDelete?.stageId) {
-      toast.error(
+      useNotificationStore.getState().showNotification(
         "Stage ID is missing",
+        "error",
       );
 
       return;

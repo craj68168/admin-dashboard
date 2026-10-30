@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, type ReactNode } from "react";
 import { useInView } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -9,6 +9,43 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import type { useAdminDashboard } from "../hook";
 import type { DashboardCharts } from "../type";
+
+const messages = {
+  en: {
+    noCompletedPaymentsThisMonth: "No completed payments this month.",
+    totalCollected: "Total collected",
+    paymentMethods: "Payment methods",
+    completedPaymentsByMethod: "Completed payments by method",
+    methodCash: "Cash",
+    methodBankTransfer: "Bank Transfer",
+    methodOnlinePayment: "Online Payment",
+    methodCheque: "Cheque",
+    methodOther: "Other",
+    methodSummary: "{label}: {amount} yen from {count} {count, plural, one {payment} other {payments}}, {share}% of the total.",
+    paymentCount: "{count} {count, plural, one {payment} other {payments}}"
+  },
+  ja: {
+    noCompletedPaymentsThisMonth: "今月の完了済み入金はありません。",
+    totalCollected: "入金総額",
+    paymentMethods: "支払方法",
+    completedPaymentsByMethod: "支払方法別の完了済み入金",
+    methodCash: "現金",
+    methodBankTransfer: "銀行振込",
+    methodOnlinePayment: "オンライン決済",
+    methodCheque: "小切手",
+    methodOther: "その他",
+    methodSummary: "{label}：{count}件の入金で{amount}円、全体の{share}%です。",
+    paymentCount: "{count}件"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<ReturnType<typeof useAdminDashboard>, "charts">;
@@ -163,7 +200,7 @@ type Slice = {
 };
 
 function MethodRows({ slices }: { slices: Slice[] }) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
@@ -175,7 +212,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
 
   if (total <= 0) {
-    return <EmptyNote message={lang === "ja" ? "今月の完了済み入金はありません。" : "No completed payments this month."} />;
+    return <EmptyNote message={t("noCompletedPaymentsThisMonth")} />;
   }
 
   const maxAmount = Math.max(...slices.map((slice) => slice.amount), 1);
@@ -197,9 +234,12 @@ function MethodRows({ slices }: { slices: Slice[] }) {
               key={slice.key}
               tabIndex={0}
               role="group"
-              aria-label={lang === "ja"
-                ? `${slice.label}：${slice.count}件の入金で${formatAmount(slice.amount)}円、全体の${share}%です。`
-                : `${slice.label}: ${formatAmount(slice.amount)} yen from ${slice.count} ${slice.count === 1 ? "payment" : "payments"}, ${share}% of the total.`}
+              aria-label={t("methodSummary", {
+                label: slice.label,
+                count: slice.count,
+                amount: formatAmount(slice.amount),
+                share,
+              })}
               onMouseEnter={() => setActiveKey(slice.key)}
               onMouseLeave={() => setActiveKey(null)}
               onFocus={() => setActiveKey(slice.key)}
@@ -247,7 +287,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
                       ...NUMERIC,
                     }}
                   >
-                    {lang === "ja" ? `${slice.count}件` : `${slice.count} ${slice.count === 1 ? "payment" : "payments"}`}
+                    {t("paymentCount", { count: slice.count })}
                   </Typography>
                 </Box>
 
@@ -321,7 +361,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
         <Typography
           sx={{ fontSize: 13, fontWeight: 500, color: INK_MUTED }}
         >
-          {lang === "ja" ? "入金総額" : "Total collected"}
+          {t("totalCollected")}
         </Typography>
         <Typography
           sx={{ fontSize: 16, fontWeight: 700, color: BRAND, ...NUMERIC }}
@@ -334,7 +374,7 @@ function MethodRows({ slices }: { slices: Slice[] }) {
 }
 
 export default function PaymentMethods({ data }: Props) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const { charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
 
@@ -354,14 +394,7 @@ export default function PaymentMethods({ data }: Props) {
       );
       return {
         key: method,
-        label: lang === "ja"
-          ? method === "Cash" ? "現金"
-            : method === "Bank Transfer" ? "銀行振込"
-            : method === "Online Payment" ? "オンライン決済"
-            : method === "Cheque" ? "小切手"
-            : method === "Other" ? "その他"
-            : method
-          : method,
+        label: translatePaymentMethod(method, t),
         amount: item?.amount ?? 0,
         count: item?.count ?? 0,
       };
@@ -370,11 +403,18 @@ export default function PaymentMethods({ data }: Props) {
 
   return (
     <ChartCard
-      title={lang === "ja" ? "支払方法" : "Payment methods"}
-      subtitle={lang === "ja" ? "支払方法別の完了済み入金" : "Completed payments by method"}
+      title={t("paymentMethods")}
+      subtitle={t("completedPaymentsByMethod")}
       icon={<BarChartOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <MethodRows slices={methodSlices} />
     </ChartCard>
   );
+}
+
+function translatePaymentMethod(method: string, t: ReturnType<typeof useLocalTranslations>) {
+  const key = `method${method.replace(/\s/g, "")}`;
+  return t.has(key as keyof typeof messages.en)
+    ? t(key as keyof typeof messages.en)
+    : method;
 }

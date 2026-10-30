@@ -14,7 +14,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 
@@ -122,9 +122,10 @@ onSuccess: async (response) => {
     }),
   ]);
 
-  toast.success(
+  useNotificationStore.getState().showNotification(
     response.message ||
       "Stage created successfully",
+    "success",
   );
 
   router.push("/admin/stages");
@@ -140,16 +141,18 @@ onSuccess: async (response) => {
         const message =
           error.response?.data?.message;
 
-        toast.error(
+        useNotificationStore.getState().showNotification(
           message ||
             "Failed to create stage",
+          "error",
         );
 
         return;
       }
 
-      toast.error(
+      useNotificationStore.getState().showNotification(
         "Failed to create stage",
+        "error",
       );
     },
   });

@@ -2,7 +2,7 @@
 import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -10,6 +10,53 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import ShowChartOutlinedIcon from "@mui/icons-material/ShowChartOutlined";
 import type { useAdminDashboard } from "../hook";
 import type { DashboardCharts } from "../type";
+
+const messages = {
+  en: {
+    noCollectionDataForThisMonth: "No collection data for this month.",
+    collectedSoFar: "Collected so far",
+    targetPaceToday: "Target pace today",
+    monthlyTarget: "Monthly target",
+    bestDay: "Best day",
+    thatDay: "That day",
+    total: "Total",
+    pace: "Pace",
+    collected: "Collected",
+    targetPace: "Target pace",
+    collectionTrend: "Collection trend",
+    dailySummary: "{date}: {dailyAmount} yen collected that day, {cumulativeAmount} yen in total{hasTarget, select, true {, target pace {targetPace} yen} other {}}.",
+    paceDifference: "{ahead, select, true {Ahead of pace by} other {Behind pace by}} ¥{amount}",
+    chartInstructions: "Collection trend chart. Use the left and right arrow keys to inspect each day.",
+    chartSummary: "Cumulative collections reached {collected}{hasTarget, select, true { against a target pace of {targetPace}} other {}}.",
+    description: "Cumulative collections against the target pace"
+  },
+  ja: {
+    noCollectionDataForThisMonth: "今月の入金データはありません。",
+    collectedSoFar: "これまでの入金額",
+    targetPaceToday: "本日時点の目標額",
+    monthlyTarget: "月間目標",
+    bestDay: "入金額が最も多い日",
+    thatDay: "当日",
+    total: "累計",
+    pace: "目標ペース",
+    collected: "入金額",
+    targetPace: "目標ペース",
+    collectionTrend: "入金推移",
+    dailySummary: "{date}：当日の入金額は{dailyAmount}円、累計入金額は{cumulativeAmount}円です。{hasTarget, select, true {目標ペースは{targetPace}円です。} other {}}",
+    paceDifference: "目標ペースを{amount}円{ahead, select, true {上回っています} other {下回っています}}",
+    chartInstructions: "入金推移グラフ。左右の矢印キーで各日のデータを確認できます。",
+    chartSummary: "累計入金額は{collected}です。{hasTarget, select, true {目標ペースは{targetPace}です。} other {}}",
+    description: "累計入金額と目標ペースの比較"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -355,6 +402,7 @@ function TrendChart({
   selectedMonth: string;
   todayKey: string;
 }) {
+  const t = useLocalTranslations();
   const lang = useLocale();
   const compactFormatter = new Intl.NumberFormat(lang === "ja" ? "ja" : "en", {
     notation: "compact",
@@ -383,7 +431,7 @@ function TrendChart({
   const drawn = inView || reduceMotion;
 
   if (days.length === 0) {
-    return <EmptyNote message={lang === "ja" ? "今月の入金データはありません。" : "No collection data for this month."} />;
+    return <EmptyNote message={t("noCollectionDataForThisMonth")} />;
   }
 
   const count = days.length;
@@ -451,9 +499,13 @@ function TrendChart({
 
   const liveText =
     activeDay && active !== null
-      ? lang === "ja"
-        ? `${formatDayLabel(activeDay.date)}：当日の入金額は${formatAmount(activeDay.amount)}円、累計入金額は${formatAmount(cumulative[active])}円です。${hasTarget ? `目標ペースは${formatAmount(Math.round(paceAt(active)))}円です。` : ""}`
-        : `${formatDayLabel(activeDay.date)}: ${formatAmount(activeDay.amount)} yen collected that day, ${formatAmount(cumulative[active])} yen in total${hasTarget ? `, target pace ${formatAmount(Math.round(paceAt(active)))} yen` : ""}.`
+      ? t("dailySummary", {
+        date: formatDayLabel(activeDay.date),
+        dailyAmount: formatAmount(activeDay.amount),
+        cumulativeAmount: formatAmount(cumulative[active]),
+        hasTarget: String(Boolean(hasTarget)),
+        targetPace: formatAmount(Math.round(paceAt(active))),
+      })
       : "";
 
   const handlePointer = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -487,7 +539,7 @@ function TrendChart({
       >
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ fontSize: 12, fontWeight: 400, color: INK_MUTED }}>
-            {lang === "ja" ? "これまでの入金額" : "Collected so far"}
+            {t("collectedSoFar")}
           </Typography>
           <Typography
             sx={{
@@ -508,9 +560,10 @@ function TrendChart({
           <Pill
             tone={difference >= 0 ? "success" : "warning"}
             label={
-              lang === "ja"
-                ? `目標ペースを${formatAmount(Math.round(Math.abs(difference)))}円${difference >= 0 ? "上回っています" : "下回っています"}`
-                : `${difference >= 0 ? "Ahead of pace by" : "Behind pace by"} ¥${formatAmount(Math.round(Math.abs(difference)))}`
+              t("paceDifference", {
+                amount: formatAmount(Math.round(Math.abs(difference))),
+                ahead: String(Boolean(difference >= 0)),
+              })
             }
           />
         )}
@@ -529,17 +582,17 @@ function TrendChart({
           }}
         >
           {hasTarget && (
-            <Stat label={lang === "ja" ? "本日時点の目標額" : "Target pace today"}>
+            <Stat label={t("targetPaceToday")}>
               ¥{formatAmount(Math.round(paceNow))}
             </Stat>
           )}
 
           {hasTarget && (
-            <Stat label={lang === "ja" ? "月間目標" : "Monthly target"}>¥{formatAmount(totalTarget)}</Stat>
+            <Stat label={t("monthlyTarget")}>¥{formatAmount(totalTarget)}</Stat>
           )}
 
           {showBestDay && (
-            <Stat label={lang === "ja" ? "入金額が最も多い日" : "Best day"}>
+            <Stat label={t("bestDay")}>
               {formatDayLabel(bestDay.date)}, ¥{formatAmount(bestDay.amount)}
             </Stat>
           )}
@@ -554,9 +607,7 @@ function TrendChart({
         ref={wrapRef}
         tabIndex={0}
         role="group"
-        aria-label={lang === "ja"
-          ? "入金推移グラフ。左右の矢印キーで各日のデータを確認できます。"
-          : "Collection trend chart. Use the left and right arrow keys to inspect each day."}
+        aria-label={t("chartInstructions")}
         onBlur={() => setHover(null)}
         onKeyDown={(event) => {
           if (lastIndex < 0) {
@@ -594,9 +645,11 @@ function TrendChart({
             width={width}
             height={height}
             role="img"
-            aria-label={lang === "ja"
-                ? `累計入金額は${formatCompact(collected)}です。${hasTarget ? `目標ペースは${formatCompact(paceNow)}です。` : ""}`
-                : `Cumulative collections reached ${formatCompact(collected)}${hasTarget ? ` against a target pace of ${formatCompact(paceNow)}` : ""}.`}
+            aria-label={t("chartSummary", {
+              collected: formatCompact(collected),
+              hasTarget: String(Boolean(hasTarget)),
+              targetPace: formatCompact(paceNow),
+            })}
             onPointerMove={handlePointer}
             onPointerDown={handlePointer}
             onPointerLeave={() => setHover(null)}
@@ -754,16 +807,16 @@ function TrendChart({
             <Box sx={{ fontWeight: 700 }}>{formatDayLabel(activeDay.date)}</Box>
 
             <Box sx={{ fontWeight: 400 }}>
-              {lang === "ja" ? "当日" : "That day"}: ¥{formatAmount(activeDay.amount)}
+              {t("thatDay")}: ¥{formatAmount(activeDay.amount)}
             </Box>
 
             <Box sx={{ fontWeight: 600 }}>
-              {lang === "ja" ? "累計" : "Total"}: ¥{formatAmount(cumulative[active])}
+              {t("total")}: ¥{formatAmount(cumulative[active])}
             </Box>
 
             {hasTarget && (
               <Box sx={{ fontWeight: 400, color: "rgba(255,255,255,0.72)" }}>
-                {lang === "ja" ? "目標ペース" : "Pace"}: ¥{formatAmount(Math.round(paceAt(active)))}
+                {t("pace")}: ¥{formatAmount(Math.round(paceAt(active)))}
               </Box>
             )}
           </Box>
@@ -788,13 +841,13 @@ function TrendChart({
       >
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
           <LegendDot color={BRAND} />
-          {lang === "ja" ? "入金額" : "Collected"}
+          {t("collected")}
         </Box>
 
         {hasTarget && (
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
             <LegendDot color={INK_MUTED} dashed />
-            {lang === "ja" ? "目標ペース" : "Target pace"}
+            {t("targetPace")}
           </Box>
         )}
       </Box>
@@ -803,15 +856,15 @@ function TrendChart({
 }
 
 export default function CollectionTrend({ data }: Props) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const { selectedMonth, overview, charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
   const todayKey = dateFormatter.format(new Date());
 
   return (
     <ChartCard
-      title={lang === "ja" ? "入金推移" : "Collection trend"}
-      subtitle={lang === "ja" ? "累計入金額と目標ペースの比較" : "Cumulative collections against the target pace"}
+      title={t("collectionTrend")}
+      subtitle={t("description")}
       icon={<ShowChartOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <TrendChart

@@ -9,13 +9,38 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import LinearProgress from "@mui/material/LinearProgress";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
 import type { useAdminDashboard } from "./hook";
+
+const messages = {
+  en: {
+    monthlyCollectionTarget: "Monthly Collection Target",
+    achievement: "Achievement",
+    collected: "Collected",
+    totalTarget: "Total Target",
+    remaining: "Remaining"
+  },
+  ja: {
+    monthlyCollectionTarget: "月間入金目標",
+    achievement: "達成率",
+    collected: "入金額",
+    totalTarget: "目標総額",
+    remaining: "残額"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -201,6 +226,7 @@ function Stat({ label, value, color, lead, countTo }: StatProps) {
 }
 
 export default function MonthlyTarget({ data }: Props) {
+  const t = useLocalTranslations();
   const { selectedMonth, overview } = data;
   const lang = useLocale();
   const reduceMotion = useReducedMotion();
@@ -308,7 +334,7 @@ export default function MonthlyTarget({ data }: Props) {
                 overflowWrap: "anywhere",
               }}
             >
-              {lang === "ja" ? "月間入金目標" : "Monthly Collection Target"}
+              {t("monthlyCollectionTarget")}
             </Typography>
 
             <Typography
@@ -320,7 +346,7 @@ export default function MonthlyTarget({ data }: Props) {
                 ...NUMERIC,
               }}
             >
-              {selectedMonth}
+              {formatMonth(selectedMonth, lang)}
             </Typography>
           </Box>
         </Box>
@@ -365,7 +391,7 @@ export default function MonthlyTarget({ data }: Props) {
               color: ON_BRAND_MUTED,
             }}
           >
-            {lang === "ja" ? "達成率" : "Achievement"}
+            {t("achievement")}
           </Typography>
         </Box>
 
@@ -373,7 +399,7 @@ export default function MonthlyTarget({ data }: Props) {
           <LinearProgress
             variant="determinate"
             value={shownProgress}
-            aria-label={lang === "ja" ? "月間入金目標" : "Monthly Collection Target"}
+            aria-label={t("monthlyCollectionTarget")}
             aria-valuenow={Math.round(targetProgress)}
             sx={{
               height: 6,
@@ -436,7 +462,7 @@ export default function MonthlyTarget({ data }: Props) {
       >
         <Stat
           lead
-          label={lang === "ja" ? "入金額" : "Collected"}
+          label={t("collected")}
           value={`¥${formatAmount(overview.monthlyCollected)}`}
           countTo={overview.monthlyCollected}
           color={MINT}
@@ -452,12 +478,17 @@ export default function MonthlyTarget({ data }: Props) {
         />
 
         <Stat
-          label={lang === "ja" ? "目標総額" : "Total Target"}
+          label={t("totalTarget")}
           value={`¥${formatAmount(overview.totalTarget)}`}
         />
 
-        <Stat label={lang === "ja" ? "残額" : "Remaining"} value={`¥${formatAmount(targetRemaining)}`} />
+        <Stat label={t("remaining")} value={`¥${formatAmount(targetRemaining)}`} />
       </Box>
     </Paper>
   );
+}
+
+function formatMonth(value: string, locale: string) {
+  const date = new Date(`${value}-01T00:00:00+09:00`);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locale, {year: "numeric", month: "long", timeZone: "Asia/Tokyo"}).format(date);
 }

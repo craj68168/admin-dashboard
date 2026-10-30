@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState, type ReactNode } from "react";
 import { useInView } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -9,6 +9,43 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import DonutLargeOutlinedIcon from "@mui/icons-material/DonutLargeOutlined";
 import type { useAdminDashboard } from "../hook";
 import type { DashboardCharts } from "../type";
+
+const messages = {
+  en: {
+    noPaymentsRecordedThisMonth: "No payments recorded this month.",
+    totalPayments: "total payments",
+    paymentsByStatus: "{total} payments by status: {breakdown}.",
+    paymentStatus: "Payment status",
+    statusCompleted: "Completed",
+    statusCancelled: "Cancelled",
+    statusRefunded: "Refunded",
+    paymentCount: "{count} {count, plural, one {payment} other {payments}}",
+    description: "Payment counts by status in the selected month",
+    statusCount: "{label} {count}",
+    listSeparator: ", "
+  },
+  ja: {
+    noPaymentsRecordedThisMonth: "今月の入金記録はありません。",
+    totalPayments: "入金総件数",
+    paymentsByStatus: "入金総件数{total}件のステータス別内訳：{breakdown}。",
+    paymentStatus: "入金ステータス",
+    statusCompleted: "完了",
+    statusCancelled: "キャンセル",
+    statusRefunded: "返金済み",
+    paymentCount: "{count}件",
+    description: "選択した月のステータス別入金件数",
+    statusCount: "{label} {count}件",
+    listSeparator: "、"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<ReturnType<typeof useAdminDashboard>, "charts">;
@@ -204,7 +241,7 @@ type SliceLegendProps = {
 };
 
 function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   return (
     <Box
       sx={{ display: "flex", flexDirection: "column", gap: 0.5, minWidth: 0 }}
@@ -273,7 +310,7 @@ function SliceLegend({ slices, total, activeKey, onActive }: SliceLegendProps) {
                     ...NUMERIC,
                   }}
                 >
-                  {lang === "ja" ? `${slice.count}件` : `${slice.count} ${slice.count === 1 ? "payment" : "payments"}`}
+                  {t("paymentCount", { count: slice.count })}
                 </Typography>
               </Box>
 
@@ -337,7 +374,7 @@ const STROKE = 12;
 const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 function DonutChart({ slices }: { slices: Slice[] }) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
@@ -350,7 +387,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
   const total = slices.reduce((sum, slice) => sum + slice.count, 0);
 
   if (total <= 0) {
-    return <EmptyNote message={lang === "ja" ? "今月の入金記録はありません。" : "No payments recorded this month."} />;
+    return <EmptyNote message={t("noPaymentsRecordedThisMonth")} />;
   }
 
   const visible = slices.filter((slice) => slice.count > 0);
@@ -378,7 +415,7 @@ function DonutChart({ slices }: { slices: Slice[] }) {
 
   const active = slices.find((slice) => slice.key === activeKey) ?? null;
   const centerValue = active ? active.count : total;
-  const centerLabel = active ? active.label : lang === "ja" ? "入金総件数" : "total payments";
+  const centerLabel = active ? active.label : t("totalPayments");
 
   return (
     <Box
@@ -399,9 +436,10 @@ function DonutChart({ slices }: { slices: Slice[] }) {
           width="100%"
           height="100%"
           role="img"
-          aria-label={lang === "ja"
-            ? `入金総件数${total}件のステータス別内訳：${slices.map((slice) => `${slice.label} ${slice.count}件`).join("、")}。`
-            : `${total} payments by status: ${slices.map((slice) => `${slice.label} ${slice.count}`).join(", ")}.`}
+          aria-label={t("paymentsByStatus", {
+            total,
+            breakdown: slices.map((slice) => t("statusCount", {label: slice.label, count: slice.count})).join(t("listSeparator")),
+          })}
         >
           <circle
             cx={CENTER}
@@ -489,25 +527,20 @@ function DonutChart({ slices }: { slices: Slice[] }) {
 }
 
 export default function PaymentStatus({ data }: Props) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const { charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
 
   return (
     <ChartCard
-      title={lang === "ja" ? "入金ステータス" : "Payment status"}
-      subtitle={lang === "ja" ? "選択した月のステータス別入金件数" : "Payment counts by status in the selected month"}
+      title={t("paymentStatus")}
+      subtitle={t("description")}
       icon={<DonutLargeOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <DonutChart
         slices={chartData.paymentsByStatus.map((item) => ({
           key: item.status,
-          label: lang === "ja"
-            ? item.status === "Completed" ? "完了"
-              : item.status === "Refunded" ? "返金済み"
-              : item.status === "Cancelled" ? "キャンセル"
-              : item.status
-            : item.status,
+          label: translatePaymentStatus(item.status, t),
           amount: item.amount,
           count: item.count,
           color: STATUS_COLORS[item.status] ?? INK_MUTED,
@@ -515,4 +548,11 @@ export default function PaymentStatus({ data }: Props) {
       />
     </ChartCard>
   );
+}
+
+function translatePaymentStatus(status: string, t: ReturnType<typeof useLocalTranslations>) {
+  const key = `status${status}`;
+  return t.has(key as keyof typeof messages.en)
+    ? t(key as keyof typeof messages.en)
+    : status;
 }

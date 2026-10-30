@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -20,6 +20,34 @@ import CollectionTrend from "./charts/CollectionTrend";
 import StaffPerformance from "./charts/StaffPerformance";
 import PaymentMethods from "./charts/PaymentMethods";
 import PaymentStatus from "./charts/PaymentStatus";
+
+const messages = {
+  en: {
+    loadFailure: "Dashboard data is unavailable. Please try again.",
+    loadingDashboard: "Loading dashboard",
+    retry: "Retry",
+    updatingDashboard: "Updating dashboard",
+    dashboard: "Dashboard",
+    refreshFailure: "Dashboard refresh failed. Please try again."
+  },
+  ja: {
+    loadFailure: "ダッシュボードのデータを読み込めません。もう一度お試しください。",
+    loadingDashboard: "ダッシュボードを読み込み中",
+    retry: "再試行",
+    updatingDashboard: "ダッシュボードを更新中",
+    dashboard: "ダッシュボード",
+    refreshFailure: "ダッシュボードの更新に失敗しました。もう一度お試しください。"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 const BRAND = "#107A64";
 const BRAND_BRIGHT = "#1E9A7C";
 const CANVAS = "#F2F6F3";
@@ -54,6 +82,7 @@ function AnimatedSection({
 }
 
 export default function AdminDashboard() {
+  const t = useLocalTranslations();
   const lang = useLocale();
   const data = useAdminDashboard();
   const [showFilters, setShowFilters] = useState(false);
@@ -69,7 +98,7 @@ export default function AdminDashboard() {
         }}
       >
         <CircularProgress
-          aria-label={lang === "ja" ? "ダッシュボードを読み込み中" : "Loading dashboard"}
+          aria-label={t("loadingDashboard")}
           size={28}
           sx={{
             color: BRAND,
@@ -90,14 +119,12 @@ export default function AdminDashboard() {
               disabled={isFetching}
               onClick={() => void refetch()}
             >
-              {lang === "ja" ? "再試行" : "Retry"}
+              {t("retry")}
             </Button>
           }
           sx={{ maxWidth: 1320, mx: "auto", borderRadius: `${RADIUS}px` }}
         >
-          {lang === "ja"
-            ? "ダッシュボードのデータを読み込めません。もう一度お試しください。"
-            : loadError || "Dashboard data is unavailable. Please try again."}
+          {lang === "ja" ? t("loadFailure") : loadError || t("loadFailure")}
         </Alert>
       </Box>
     );
@@ -122,7 +149,7 @@ export default function AdminDashboard() {
     >
       {isFetching && (
         <LinearProgress
-          aria-label={lang === "ja" ? "ダッシュボードを更新中" : "Updating dashboard"}
+          aria-label={t("updatingDashboard")}
           sx={{
             position: "fixed",
             top: 0,
@@ -156,7 +183,7 @@ export default function AdminDashboard() {
           <Breadcrumb
             items={[
               {
-                label: lang === "ja" ? "ダッシュボード" : "Dashboard",
+                label: t("dashboard"),
                 current: true,
               },
             ]}
@@ -178,7 +205,7 @@ export default function AdminDashboard() {
               border: "1px solid rgba(211,47,47,0.14)",
             }}
           >
-            {lang === "ja" ? "ダッシュボードの更新に失敗しました。もう一度お試しください。" : loadError}
+            {lang === "ja" ? t("refreshFailure") : loadError}
           </Alert>
         )}
 

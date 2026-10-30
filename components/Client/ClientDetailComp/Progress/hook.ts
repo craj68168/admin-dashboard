@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
@@ -410,7 +410,10 @@ export const useProgressHook = (clientId: string) => {
 
       setAddStageSubmitError("");
 
-      toast.success(response.message || "Client stage created successfully.");
+      useNotificationStore.getState().showNotification(
+        response.message || "Client stage created successfully.",
+        "success",
+      );
     } catch (error) {
       console.error("CREATE CLIENT STAGE ERROR:", error);
 
@@ -418,7 +421,10 @@ export const useProgressHook = (clientId: string) => {
 
       setAddStageSubmitError(message);
 
-      toast.error(message);
+      useNotificationStore.getState().showNotification(
+        message,
+        "error",
+      );
     }
   };
 
@@ -533,11 +539,12 @@ export const useProgressHook = (clientId: string) => {
 
       setFormErrors({});
 
-      toast.success(
+      useNotificationStore.getState().showNotification(
         response.message ||
           (requiresPayment
             ? `Payment of ¥${selectedStageAmount.toLocaleString()} completed and stage updated.`
             : "Stage updated successfully."),
+        "success",
       );
     } catch (error) {
       console.error("UPDATE CLIENT STAGE ERROR:", error);
@@ -546,7 +553,10 @@ export const useProgressHook = (clientId: string) => {
 
       setSubmitError(message);
 
-      toast.error(message);
+      useNotificationStore.getState().showNotification(
+        message,
+        "error",
+      );
     }
   };
 

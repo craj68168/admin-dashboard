@@ -1,5 +1,5 @@
 "use client";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,6 +14,227 @@ import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import type { useAdminDashboard } from "./hook";
 import type { DashboardFilters } from "./type";
+import { NATIONALITIES, JAPANESE_LEVELS } from "@/components/constant";
+
+const messages = {
+  en: {
+    legacyPayment: "Legacy Payment",
+    nationalitynepali: "Nepali",
+    nationalityindian: "Indian",
+    nationalitypakistani: "Pakistani",
+    nationalitybangladeshi: "Bangladeshi",
+    nationalitysriLankan: "Sri Lankan",
+    nationalityvietnamese: "Vietnamese",
+    nationalitymyanmar: "Myanmar",
+    nationalityindonesian: "Indonesian",
+    nationalityfilipino: "Filipino",
+    nationalitychinese: "Chinese",
+    nationalityother: "Other",
+    japaneseLeveln1: "N1",
+    japaneseLeveln2: "N2",
+    japaneseLeveln3: "N3",
+    japaneseLeveln4: "N4",
+    japaneseLeveln5: "N5",
+    japaneseLevelnone: "No JLPT / None",
+    noOptionsFound: "No options found",
+    clear: "Clear",
+    open: "Open",
+    close: "Close",
+    all: "All",
+    student: "Student",
+    dependent: "Dependent",
+    designatedActivitiesJobHunting: "Designated Activities - Job Hunting",
+    designatedActivities: "Designated Activities",
+    engineerHumanitiesInternationalServices: "Engineer / Humanities / International Services",
+    specifiedSkilledWorker2: "Specified Skilled Worker 2",
+    skilledLabor: "Skilled Labor",
+    technicalInternTraining: "Technical Intern Training",
+    intraCompanyTransferee: "Intra-company Transferee",
+    nursingCare: "Nursing Care",
+    highlySkilledProfessional: "Highly Skilled Professional",
+    businessManager: "Business Manager",
+    permanentResident: "Permanent Resident",
+    spouseChildOfJapaneseNational: "Spouse / Child of Japanese National",
+    spouseChildOfPermanentResident: "Spouse / Child of Permanent Resident",
+    longTermResident: "Long Term Resident",
+    other: "Other",
+    newJob: "New Job",
+    jobChange: "Job Change",
+    dependentVisaRenewal: "Dependent Visa Renewal",
+    visaServiceRenewal: "Visa Service - Renewal",
+    visaServiceChange: "Visa Service - Change",
+    otherVisaService: "Other Visa Service",
+    inactive: " - Inactive",
+    staff: "Staff",
+    stage: "Stage",
+    visa: "Visa",
+    category: "Category",
+    nationality: "Nationality",
+    japanese: "Japanese",
+    paymentStatus: "Payment status",
+    paymentMethod: "Payment method",
+    paymentStage: "Payment stage",
+    dashboardFilters: "Dashboard Filters",
+    activeFilters: "{activeFilterCount} active filters",
+    reset: "Reset",
+    search: "Search",
+    assignedStaff: "Assigned Staff",
+    allStaff: "All Staff",
+    currentStage: "Current Stage",
+    allStages: "All Stages",
+    visaStatus: "Visa Status",
+    allVisaTypes: "All Visa Types",
+    preferredCategory: "Preferred Category",
+    allCategories: "All Categories",
+    allNationalities: "All Nationalities",
+    japaneseLevel: "Japanese Level",
+    allLevels: "All Levels",
+    allPaymentStatuses: "All Payment Statuses",
+    allPaymentMethods: "All Payment Methods",
+    allPaymentStages: "All Payment Stages",
+    updatingDashboard: "Updating dashboard...",
+    removeFilter: "Remove {label} filter: {value}",
+    stageRegistrationPending: "Registration Pending",
+    stageRegisteredVacancySearching: "Registered / Vacancy Searching",
+    stageInterviewPreparation: "Interview Fixed / Preparation",
+    stageInterviewFailed: "Interview Failed",
+    stageJobOfferReceived: "Naitei / Job Offer Received",
+    stageVisaDocumentsSubmitted: "Visa Documents Submitted",
+    stageVisaResultWaiting: "Visa Applied / Result Waiting",
+    stageVisaApproved: "Visa Approved",
+    stageVisaRejected: "Visa Rejected",
+    stageCompanyJoining: "Waiting for Nyusha / Company Joining",
+    stageReturnToNepal: "Return to Nepal",
+    statusCompleted: "Completed",
+    statusCancelled: "Cancelled",
+    statusRefunded: "Refunded",
+    methodCash: "Cash",
+    methodBankTransfer: "Bank Transfer",
+    methodOnlinePayment: "Online Payment",
+    methodCheque: "Cheque",
+    methodOther: "Other",
+    toggleFilters: "{showFilters, select, true {Hide filters} other {Show filters}}",
+    searchPlaceholder: "Client ID, name, phone, email, staff, stage...",
+    collectionScopeNote: "Collections include completed payments only. Payment status filters the payment table; client stages show the current snapshot.",
+    paymentStatusField: "Payment Status",
+    paymentMethodField: "Payment Method",
+    paymentStageField: "Payment Stage",
+    specifiedSkilledWorker1: "Specified Skilled Worker 1"
+  },
+  ja: {
+    legacyPayment: "過去の入金",
+    nationalitynepali: "ネパール",
+    nationalityindian: "インド",
+    nationalitypakistani: "パキスタン",
+    nationalitybangladeshi: "バングラデシュ",
+    nationalitysriLankan: "スリランカ",
+    nationalityvietnamese: "ベトナム",
+    nationalitymyanmar: "ミャンマー",
+    nationalityindonesian: "インドネシア",
+    nationalityfilipino: "フィリピン",
+    nationalitychinese: "中国",
+    nationalityother: "その他",
+    japaneseLeveln1: "N1",
+    japaneseLeveln2: "N2",
+    japaneseLeveln3: "N3",
+    japaneseLeveln4: "N4",
+    japaneseLeveln5: "N5",
+    japaneseLevelnone: "JLPTなし / 未取得",
+    noOptionsFound: "該当する項目はありません",
+    clear: "クリア",
+    open: "開く",
+    close: "閉じる",
+    all: "すべて",
+    student: "留学",
+    dependent: "家族滞在",
+    designatedActivitiesJobHunting: "特定活動（就職活動）",
+    designatedActivities: "特定活動",
+    engineerHumanitiesInternationalServices: "技術・人文知識・国際業務",
+    specifiedSkilledWorker2: "特定技能2号",
+    skilledLabor: "技能",
+    technicalInternTraining: "技能実習",
+    intraCompanyTransferee: "企業内転勤",
+    nursingCare: "介護",
+    highlySkilledProfessional: "高度専門職",
+    businessManager: "経営・管理",
+    permanentResident: "永住者",
+    spouseChildOfJapaneseNational: "日本人の配偶者等",
+    spouseChildOfPermanentResident: "永住者の配偶者等",
+    longTermResident: "定住者",
+    other: "その他",
+    newJob: "新規就職",
+    jobChange: "転職",
+    dependentVisaRenewal: "家族滞在ビザ更新",
+    visaServiceRenewal: "ビザサービス（更新）",
+    visaServiceChange: "ビザサービス（変更）",
+    otherVisaService: "その他のビザサービス",
+    inactive: " - 非アクティブ",
+    staff: "スタッフ",
+    stage: "ステージ",
+    visa: "ビザ",
+    category: "カテゴリー",
+    nationality: "国籍",
+    japanese: "日本語",
+    paymentStatus: "入金ステータス",
+    paymentMethod: "支払方法",
+    paymentStage: "入金ステージ",
+    dashboardFilters: "ダッシュボードの絞り込み",
+    activeFilters: "{activeFilterCount}件のフィルターが適用中",
+    reset: "リセット",
+    search: "検索",
+    assignedStaff: "担当スタッフ",
+    allStaff: "すべてのスタッフ",
+    currentStage: "現在のステージ",
+    allStages: "すべてのステージ",
+    visaStatus: "在留資格",
+    allVisaTypes: "すべての在留資格",
+    preferredCategory: "希望カテゴリー",
+    allCategories: "すべてのカテゴリー",
+    allNationalities: "すべての国籍",
+    japaneseLevel: "日本語レベル",
+    allLevels: "すべてのレベル",
+    allPaymentStatuses: "すべての入金ステータス",
+    allPaymentMethods: "すべての支払方法",
+    allPaymentStages: "すべての入金ステージ",
+    updatingDashboard: "ダッシュボードを更新中…",
+    removeFilter: "{label}フィルターを解除：{value}",
+    stageRegistrationPending: "登録待ち",
+    stageRegisteredVacancySearching: "登録済み / 求人検索中",
+    stageInterviewPreparation: "面接確定 / 準備中",
+    stageInterviewFailed: "面接不合格",
+    stageJobOfferReceived: "内定 / オファー受領",
+    stageVisaDocumentsSubmitted: "ビザ書類提出済み",
+    stageVisaResultWaiting: "ビザ申請済み / 結果待ち",
+    stageVisaApproved: "ビザ承認",
+    stageVisaRejected: "ビザ却下",
+    stageCompanyJoining: "入社待ち",
+    stageReturnToNepal: "ネパールへ帰国",
+    statusCompleted: "完了",
+    statusCancelled: "キャンセル",
+    statusRefunded: "返金済み",
+    methodCash: "現金",
+    methodBankTransfer: "銀行振込",
+    methodOnlinePayment: "オンライン決済",
+    methodCheque: "小切手",
+    methodOther: "その他",
+    toggleFilters: "{showFilters, select, true {フィルターを非表示} other {フィルターを表示}}",
+    searchPlaceholder: "顧客ID、氏名、電話番号、メール、スタッフ、ステージ…",
+    collectionScopeNote: "入金額には完了済みの入金のみが含まれます。入金ステータスは入金一覧を絞り込み、顧客ステージは現在の状態を表示します。",
+    paymentStatusField: "入金ステータス",
+    paymentMethodField: "支払方法",
+    paymentStageField: "入金ステージ",
+    specifiedSkilledWorker1: "特定技能1号"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 type Props = {
   showFilters: boolean;
   onToggleFilters: () => void;
@@ -104,7 +325,7 @@ function FilterAutocomplete({
   allLabel,
   disabled = false,
 }: FilterAutocompleteProps) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const selectedOption =
     options.find((option) => option.value === value) ?? null;
   return (
@@ -122,10 +343,10 @@ function FilterAutocomplete({
       onChange={(_event, option) => {
         onChange(option?.value ?? "");
       }}
-      noOptionsText={lang === "ja" ? "該当する項目はありません" : "No options found"}
-      clearText={lang === "ja" ? "クリア" : "Clear"}
-      openText={lang === "ja" ? "開く" : "Open"}
-      closeText={lang === "ja" ? "閉じる" : "Close"}
+      noOptionsText={t("noOptionsFound")}
+      clearText={t("clear")}
+      openText={t("open")}
+      closeText={t("close")}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
         return (
@@ -146,7 +367,7 @@ function FilterAutocomplete({
           {...params}
           size="small"
           label={label}
-          placeholder={allLabel ?? (lang === "ja" ? "すべて" : "All")}
+          placeholder={allLabel ?? (t("all"))}
           sx={fieldSx}
         />
       )}
@@ -163,46 +384,46 @@ export default function DashboardFilters({
   showFilters,
   onToggleFilters,
 }: Props) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const VISA_OPTIONS = [
-    { value: "student", label: lang === "ja" ? "留学" : "Student" },
-    { value: "dependent", label: lang === "ja" ? "家族滞在" : "Dependent" },
+    { value: "student", label: t("student") },
+    { value: "dependent", label: t("dependent") },
     {
       value: "designatedActivitiesJobHunting",
-      label: lang === "ja" ? "特定活動（就職活動）" : "Designated Activities - Job Hunting",
+      label: t("designatedActivitiesJobHunting"),
     },
-    { value: "designatedActivities", label: lang === "ja" ? "特定活動" : "Designated Activities" },
+    { value: "designatedActivities", label: t("designatedActivities") },
     {
       value: "engineerHumanitiesInternationalServices",
-      label: lang === "ja" ? "技術・人文知識・国際業務" : "Engineer / Humanities / International Services",
+      label: t("engineerHumanitiesInternationalServices"),
     },
-    { value: "specifiedSkilledWorker1", label: lang === "ja" ? "特定技能1号" : "Specified Skilled Worker 1" },
-    { value: "specifiedSkilledWorker2", label: lang === "ja" ? "特定技能2号" : "Specified Skilled Worker 2" },
-    { value: "skilledLabor", label: lang === "ja" ? "技能" : "Skilled Labor" },
-    { value: "technicalInternTraining", label: lang === "ja" ? "技能実習" : "Technical Intern Training" },
-    { value: "intra-companyTransferee", label: lang === "ja" ? "企業内転勤" : "Intra-company Transferee" },
-    { value: "nursingCare", label: lang === "ja" ? "介護" : "Nursing Care" },
-    { value: "highlySkilledProfessional", label: lang === "ja" ? "高度専門職" : "Highly Skilled Professional" },
-    { value: "businessManager", label: lang === "ja" ? "経営・管理" : "Business Manager" },
-    { value: "permanentResident", label: lang === "ja" ? "永住者" : "Permanent Resident" },
+    { value: "specifiedSkilledWorker1", label: t("specifiedSkilledWorker1") },
+    { value: "specifiedSkilledWorker2", label: t("specifiedSkilledWorker2") },
+    { value: "skilledLabor", label: t("skilledLabor") },
+    { value: "technicalInternTraining", label: t("technicalInternTraining") },
+    { value: "intra-companyTransferee", label: t("intraCompanyTransferee") },
+    { value: "nursingCare", label: t("nursingCare") },
+    { value: "highlySkilledProfessional", label: t("highlySkilledProfessional") },
+    { value: "businessManager", label: t("businessManager") },
+    { value: "permanentResident", label: t("permanentResident") },
     {
       value: "spouseChildOfJapaneseNational",
-      label: lang === "ja" ? "日本人の配偶者等" : "Spouse / Child of Japanese National",
+      label: t("spouseChildOfJapaneseNational"),
     },
     {
       value: "spouseChildOfPermanentResident",
-      label: lang === "ja" ? "永住者の配偶者等" : "Spouse / Child of Permanent Resident",
+      label: t("spouseChildOfPermanentResident"),
     },
-    { value: "longTermResident", label: lang === "ja" ? "定住者" : "Long Term Resident" },
-    { value: "other", label: lang === "ja" ? "その他" : "Other" },
+    { value: "longTermResident", label: t("longTermResident") },
+    { value: "other", label: t("other") },
   ];
   const CATEGORY_OPTIONS = [
-    { value: "newJob", label: lang === "ja" ? "新規就職" : "New Job" },
-    { value: "jobChange", label: lang === "ja" ? "転職" : "Job Change" },
-    { value: "dependentVisaRenewal", label: lang === "ja" ? "家族滞在ビザ更新" : "Dependent Visa Renewal" },
-    { value: "visaServiceOnlyRenewal", label: lang === "ja" ? "ビザサービス（更新）" : "Visa Service - Renewal" },
-    { value: "visaServiceOnlyChange", label: lang === "ja" ? "ビザサービス（変更）" : "Visa Service - Change" },
-    { value: "otherVisaService", label: lang === "ja" ? "その他のビザサービス" : "Other Visa Service" },
+    { value: "newJob", label: t("newJob") },
+    { value: "jobChange", label: t("jobChange") },
+    { value: "dependentVisaRenewal", label: t("dependentVisaRenewal") },
+    { value: "visaServiceOnlyRenewal", label: t("visaServiceRenewal") },
+    { value: "visaServiceOnlyChange", label: t("visaServiceChange") },
+    { value: "otherVisaService", label: t("otherVisaService") },
   ];
 
   const {
@@ -216,39 +437,45 @@ export default function DashboardFilters({
     filterOptions,
     isFetching,
   } = data;
+  const nationalityLabel = (value: string) => {
+    const option = NATIONALITIES.find((option) => option.value === value);
+    return option ? t(`nationality${option.key}`) : value;
+  };
+  const japaneseLevelLabel = (value: string) => {
+    const option = JAPANESE_LEVELS.find((option) => option.value === value);
+    return option ? t(`japaneseLevel${option.key}`) : value;
+  };
   const stageOptions = filterOptions.stages.map((stage) => ({
     value: stage.key,
-    label: stage.name,
+    label: translateStage(stage.name, t),
   }));
   const staffOptions = filterOptions.staff.map((staff) => ({
     value: staff.staffId,
-    label: `${staff.name} (${staff.staffId})${staff.isActive ? "" : (lang === "ja" ? " - 非アクティブ" : " - Inactive")}`,
+    label: `${staff.name} (${staff.staffId})${staff.isActive ? "" : t("inactive")}`,
   }));
   const nationalityOptions = filterOptions.nationalities.map((nationality) => ({
     value: nationality,
-    label: nationality,
+    label: nationalityLabel(nationality),
   }));
   const japaneseLevelOptions = filterOptions.japaneseLevels.map((level) => ({
     value: level,
-    label: level,
+    label: japaneseLevelLabel(level),
   }));
   const paymentStatusOptions = PAYMENT_STATUS_OPTIONS.map((status) => ({
     value: status,
-    label: lang === "ja"
-      ? status === "Completed" ? "完了" : status === "Cancelled" ? "キャンセル" : status === "Refunded" ? "返金済み" : status
-      : status,
+    label: translatePaymentStatus(status, t),
   }));
   const paymentMethodOptions = PAYMENT_METHOD_OPTIONS.map((method) => ({
     value: method,
-    label: lang === "ja"
-      ? method === "Cash" ? "現金" : method === "Bank Transfer" ? "銀行振込" : method === "Online Payment" ? "オンライン決済" : method === "Cheque" ? "小切手" : method === "Other" ? "その他" : method
-      : method,
+    label: translatePaymentMethod(method, t),
   }));
   // =================================================
   // ACTIVE FILTER CHIPS
   // =================================================
-  const stageNameOf = (key: string) =>
-    filterOptions.stages.find((stage) => stage.key === key)?.name || key;
+  const stageNameOf = (key: string) => {
+    const name = filterOptions.stages.find((stage) => stage.key === key)?.name || key;
+    return translateStage(name, t);
+  };
   const staffNameOf = (id: string) => {
     const staff = filterOptions.staff.find((item) => item.staffId === id);
     return staff ? `${staff.name} (${staff.staffId})` : id;
@@ -261,21 +488,21 @@ export default function DashboardFilters({
   if (filters.staffId) {
     activeChips.push({
       key: "staffId",
-      label: lang === "ja" ? "スタッフ" : "Staff",
+      label: t("staff"),
       value: staffNameOf(filters.staffId),
     });
   }
   if (filters.currentStage) {
     activeChips.push({
       key: "currentStage",
-      label: lang === "ja" ? "ステージ" : "Stage",
+      label: t("stage"),
       value: stageNameOf(filters.currentStage),
     });
   }
   if (filters.currentVisaStatus) {
     activeChips.push({
       key: "currentVisaStatus",
-      label: lang === "ja" ? "ビザ" : "Visa",
+      label: t("visa"),
       value:
         VISA_OPTIONS.find(
           (option) => option.value === filters.currentVisaStatus,
@@ -285,7 +512,7 @@ export default function DashboardFilters({
   if (filters.preferCategory) {
     activeChips.push({
       key: "preferCategory",
-      label: lang === "ja" ? "カテゴリー" : "Category",
+      label: t("category"),
       value:
         CATEGORY_OPTIONS.find(
           (option) => option.value === filters.preferCategory,
@@ -295,35 +522,35 @@ export default function DashboardFilters({
   if (filters.nationality) {
     activeChips.push({
       key: "nationality",
-      label: lang === "ja" ? "国籍" : "Nationality",
-      value: filters.nationality,
+      label: t("nationality"),
+      value: nationalityLabel(filters.nationality),
     });
   }
   if (filters.japaneseLevel) {
     activeChips.push({
       key: "japaneseLevel",
-      label: lang === "ja" ? "日本語" : "Japanese",
-      value: filters.japaneseLevel,
+      label: t("japanese"),
+      value: japaneseLevelLabel(filters.japaneseLevel),
     });
   }
   if (filters.paymentStatus) {
     activeChips.push({
       key: "paymentStatus",
-      label: lang === "ja" ? "入金ステータス" : "Payment status",
+      label: t("paymentStatus"),
       value: paymentStatusOptions.find((option) => option.value === filters.paymentStatus)?.label || filters.paymentStatus,
     });
   }
   if (filters.paymentMethod) {
     activeChips.push({
       key: "paymentMethod",
-      label: lang === "ja" ? "支払方法" : "Payment method",
+      label: t("paymentMethod"),
       value: paymentMethodOptions.find((option) => option.value === filters.paymentMethod)?.label || filters.paymentMethod,
     });
   }
   if (filters.paymentStage) {
     activeChips.push({
       key: "paymentStage",
-      label: lang === "ja" ? "入金ステージ" : "Payment stage",
+      label: t("paymentStage"),
       value: stageNameOf(filters.paymentStage),
     });
   }
@@ -398,13 +625,13 @@ export default function DashboardFilters({
                 color: INK,
               }}
             >
-              {lang === "ja" ? "ダッシュボードの絞り込み" : "Dashboard Filters"}
+              {t("dashboardFilters")}
             </Typography>
 
             {activeFilterCount > 0 && (
               <Box
                 component="span"
-                aria-label={lang === "ja" ? `${activeFilterCount}件のフィルターが適用中` : `${activeFilterCount} active filters`}
+                aria-label={t("activeFilters", { activeFilterCount: activeFilterCount })}
                 sx={{
                   px: 1,
                   py: 0.25,
@@ -439,7 +666,7 @@ export default function DashboardFilters({
                 fontWeight: 600,
               }}
             >
-              {lang === "ja" ? (showFilters ? "フィルターを非表示" : "フィルターを表示") : (showFilters ? "Hide filters" : "Show filters")}
+              {t("toggleFilters", { showFilters: String(Boolean(showFilters)) })}
             </Typography>
 
             <ExpandMoreOutlinedIcon
@@ -469,7 +696,7 @@ export default function DashboardFilters({
               },
             }}
           >
-            {lang === "ja" ? "リセット" : "Reset"}
+            {t("reset")}
           </Button>
         )}
       </Box>
@@ -502,8 +729,8 @@ export default function DashboardFilters({
             <TextField
               fullWidth
               size="small"
-              label={lang === "ja" ? "検索" : "Search"}
-              placeholder={lang === "ja" ? "顧客ID、氏名、電話番号、メール、スタッフ、ステージ…" : "Client ID, name, phone, email, staff, stage..."}
+              label={t("search")}
+              placeholder={t("searchPlaceholder")}
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               sx={fieldSx}
@@ -529,7 +756,7 @@ export default function DashboardFilters({
                 },
               }}
             >
-              {lang === "ja" ? "検索" : "Search"}
+              {t("search")}
             </Button>
           </Box>
 
@@ -546,77 +773,77 @@ export default function DashboardFilters({
             }}
           >
             <FilterAutocomplete
-              label={lang === "ja" ? "担当スタッフ" : "Assigned Staff"}
+              label={t("assignedStaff")}
               value={filters.staffId}
               onChange={(value) => handleFilterChange("staffId", value)}
               options={staffOptions}
-              allLabel={lang === "ja" ? "すべてのスタッフ" : "All Staff"}
+              allLabel={t("allStaff")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "現在のステージ" : "Current Stage"}
+              label={t("currentStage")}
               value={filters.currentStage}
               onChange={(value) => handleFilterChange("currentStage", value)}
               options={stageOptions}
-              allLabel={lang === "ja" ? "すべてのステージ" : "All Stages"}
+              allLabel={t("allStages")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "在留資格" : "Visa Status"}
+              label={t("visaStatus")}
               value={filters.currentVisaStatus}
               onChange={(value) =>
                 handleFilterChange("currentVisaStatus", value)
               }
               options={VISA_OPTIONS}
-              allLabel={lang === "ja" ? "すべての在留資格" : "All Visa Types"}
+              allLabel={t("allVisaTypes")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "希望カテゴリー" : "Preferred Category"}
+              label={t("preferredCategory")}
               value={filters.preferCategory}
               onChange={(value) => handleFilterChange("preferCategory", value)}
               options={CATEGORY_OPTIONS}
-              allLabel={lang === "ja" ? "すべてのカテゴリー" : "All Categories"}
+              allLabel={t("allCategories")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "国籍" : "Nationality"}
+              label={t("nationality")}
               value={filters.nationality}
               onChange={(value) => handleFilterChange("nationality", value)}
               options={nationalityOptions}
-              allLabel={lang === "ja" ? "すべての国籍" : "All Nationalities"}
+              allLabel={t("allNationalities")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "日本語レベル" : "Japanese Level"}
+              label={t("japaneseLevel")}
               value={filters.japaneseLevel}
               onChange={(value) => handleFilterChange("japaneseLevel", value)}
               options={japaneseLevelOptions}
-              allLabel={lang === "ja" ? "すべてのレベル" : "All Levels"}
+              allLabel={t("allLevels")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "入金ステータス" : "Payment Status"}
+              label={t("paymentStatusField")}
               value={filters.paymentStatus}
               onChange={(value) => handleFilterChange("paymentStatus", value)}
               options={paymentStatusOptions}
-              allLabel={lang === "ja" ? "すべての入金ステータス" : "All Payment Statuses"}
+              allLabel={t("allPaymentStatuses")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "支払方法" : "Payment Method"}
+              label={t("paymentMethodField")}
               value={filters.paymentMethod}
               onChange={(value) => handleFilterChange("paymentMethod", value)}
               options={paymentMethodOptions}
-              allLabel={lang === "ja" ? "すべての支払方法" : "All Payment Methods"}
+              allLabel={t("allPaymentMethods")}
             />
 
             <FilterAutocomplete
-              label={lang === "ja" ? "入金ステージ" : "Payment Stage"}
+              label={t("paymentStageField")}
               value={filters.paymentStage}
               onChange={(value) => handleFilterChange("paymentStage", value)}
               options={stageOptions}
-              allLabel={lang === "ja" ? "すべての入金ステージ" : "All Payment Stages"}
+              allLabel={t("allPaymentStages")}
             />
           </Box>
 
@@ -629,8 +856,8 @@ export default function DashboardFilters({
             }}
           >
             {isFetching
-              ? (lang === "ja" ? "ダッシュボードを更新中…" : "Updating dashboard...")
-              : (lang === "ja" ? "入金額には完了済みの入金のみが含まれます。入金ステータスは入金一覧を絞り込み、顧客ステージは現在の状態を表示します。" : "Collections include completed payments only. Payment status filters the payment table; client stages show the current snapshot.")}
+              ? (t("updatingDashboard"))
+              : (t("collectionScopeNote"))}
           </Typography>
         </Box>
       </Collapse>
@@ -651,7 +878,7 @@ export default function DashboardFilters({
               key={chip.key}
               component="button"
               type="button"
-              aria-label={lang === "ja" ? `${chip.label}フィルターを解除：${chip.value}` : `Remove ${chip.label} filter: ${chip.value}`}
+              aria-label={t("removeFilter", { label: chip.label, value: chip.value })}
               onClick={() => handleFilterChange(chip.key, "")}
               sx={{
                 display: "inline-flex",
@@ -711,4 +938,26 @@ export default function DashboardFilters({
       )}
     </Paper>
   );
+}
+
+function translateStage(name: string, t: ReturnType<typeof useLocalTranslations>) {
+  // Stage masters can contain custom names; translate only recognized labels.
+  const key = Object.entries(messages.en).find(([key, value]) =>
+    (key.startsWith("stage") || key === "legacyPayment") && value === name,
+  )?.[0];
+  return key ? t(key as keyof typeof messages.en) : name;
+}
+
+function translatePaymentStatus(status: string, t: ReturnType<typeof useLocalTranslations>) {
+  const key = `status${status}`;
+  return t.has(key as keyof typeof messages.en)
+    ? t(key as keyof typeof messages.en)
+    : status;
+}
+
+function translatePaymentMethod(method: string, t: ReturnType<typeof useLocalTranslations>) {
+  const key = `method${method.replace(/\s/g, "")}`;
+  return t.has(key as keyof typeof messages.en)
+    ? t(key as keyof typeof messages.en)
+    : method;
 }

@@ -7,7 +7,7 @@ import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth-store";
@@ -699,11 +699,12 @@ export const useClientFormHook = (clientId?: string) => {
         }),
       ]);
 
-      toast.success(
+      useNotificationStore.getState().showNotification(
         response.message ||
           (isEditMode
             ? "Client updated successfully."
             : `¥${registrationAmount.toLocaleString()} registration payment confirmed and client created.`),
+        "success",
       );
 
       if (savedClientId) {
@@ -723,7 +724,10 @@ export const useClientFormHook = (clientId?: string) => {
 
       setSubmitError(message);
 
-      toast.error(message);
+      useNotificationStore.getState().showNotification(
+        message,
+        "error",
+      );
     }
   };
 
