@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -23,6 +24,173 @@ import {
   createStaffEditSchema,
   type StaffEditFormValues,
 } from "./types";
+
+const messages = {
+  en: {
+    backToStaff: "Back to Staff",
+    title: "Edit Staff Member",
+    description: "Update the staff member's account details.",
+    loading: "Loading staff details...",
+    notFound: "Staff member could not be found.",
+    saveChanges: "Save changes",
+    saving: "Saving...",
+    updateError: "Unable to update staff member.",
+    fields: {
+      name: {
+        label: "Name",
+        placeholder: "Enter staff name"
+      },
+      phone: {
+        label: "Phone",
+        placeholder: "Enter phone number"
+      },
+      email: {
+        label: "Email",
+        placeholder: "yamada@example.com"
+      },
+      location: {
+        label: "Location",
+        placeholder: "Select location"
+      }
+    },
+    locations: {
+      USA: "USA",
+      Japan: "Japan",
+      Nepal: "Nepal",
+      Other: "Other"
+    },
+    validation: {
+      nameRequired: "Name is required",
+      emailInvalid: "Please enter a valid email address",
+      locationRequired: "Location is required",
+      phoneRequired: "Phone is required",
+      invalid: "Please check this field."
+    },
+    loadError: "Unable to load staff details. Please try again.",
+    requestTimeout: "The request timed out. Please try again.",
+    requestFailed: "Request failed with status code {status}.",
+    errors: {
+      staffNotFound: "Staff not found.",
+      failedToGetStaff: "Failed to get staff.",
+      failedToUpdateStaff: "Failed to update staff.",
+      nameRequired: "Name cannot be empty.",
+      phoneRequired: "Phone cannot be empty.",
+      locationRequired: "Location cannot be empty.",
+      emailRequired: "Email cannot be empty.",
+      emailInUse: "Another staff member already uses this email.",
+      adminEmailInUse: "This email is already used by an Admin account.",
+      duplicateStaff: "Email or Staff ID already exists.",
+      passwordMin: "Password must be at least 6 characters.",
+      network: "Network Error",
+      fetch: "Failed to fetch",
+      aborted: "Request aborted",
+      canceled: "canceled",
+      authentication: "Authentication required",
+      tokenFormat: "Invalid token format",
+      missingToken: "Token not provided",
+      invalidRole: "Invalid user role",
+      accountRemoved: "User account no longer exists",
+      accountDisabled: "Your account has been disabled",
+      tokenExpired: "Token expired",
+      invalidToken: "Invalid or expired token",
+      forbidden: "You are not authorized to access this resource",
+      internalServer: "Internal Server Error",
+      server: "Server error"
+    }
+  },
+  ja: {
+    backToStaff: "スタッフ一覧へ戻る",
+    title: "スタッフを編集",
+    description: "スタッフのアカウント情報を更新します。",
+    loading: "スタッフ詳細を読み込み中...",
+    notFound: "スタッフが見つかりませんでした。",
+    saveChanges: "変更を保存",
+    saving: "保存中...",
+    updateError: "スタッフを更新できませんでした。",
+    fields: {
+      name: {
+        label: "氏名",
+        placeholder: "スタッフ名を入力"
+      },
+      phone: {
+        label: "電話番号",
+        placeholder: "電話番号を入力"
+      },
+      email: {
+        label: "メール",
+        placeholder: "yamada@example.com"
+      },
+      location: {
+        label: "所在地",
+        placeholder: "所在地を選択"
+      }
+    },
+    locations: {
+      USA: "アメリカ",
+      Japan: "日本",
+      Nepal: "ネパール",
+      Other: "その他"
+    },
+    validation: {
+      nameRequired: "氏名は必須です",
+      emailInvalid: "有効なメールアドレスを入力してください",
+      locationRequired: "所在地は必須です",
+      phoneRequired: "電話番号は必須です",
+      invalid: "入力内容を確認してください。"
+    },
+    loadError: "スタッフ情報を読み込めませんでした。もう一度お試しください。",
+    requestTimeout: "リクエストがタイムアウトしました。もう一度お試しください。",
+    requestFailed: "リクエストに失敗しました（ステータスコード：{status}）。",
+    errors: {
+      staffNotFound: "スタッフが見つかりません。",
+      failedToGetStaff: "スタッフ情報を取得できませんでした。",
+      failedToUpdateStaff: "スタッフ情報を更新できませんでした。",
+      nameRequired: "氏名を入力してください。",
+      phoneRequired: "電話番号を入力してください。",
+      locationRequired: "所在地を選択してください。",
+      emailRequired: "メールアドレスを入力してください。",
+      emailInUse: "このメールアドレスは別のスタッフが使用しています。",
+      adminEmailInUse: "このメールアドレスは管理者アカウントで使用されています。",
+      duplicateStaff: "メールアドレスまたはスタッフIDがすでに使用されています。",
+      passwordMin: "パスワードは6文字以上で入力してください。",
+      network: "ネットワークに接続できません。接続を確認してください。",
+      fetch: "データを取得できませんでした。接続を確認してください。",
+      aborted: "リクエストが中断されました。",
+      canceled: "リクエストがキャンセルされました。",
+      authentication: "ログインが必要です。",
+      tokenFormat: "認証トークンの形式が正しくありません。",
+      missingToken: "認証トークンが指定されていません。",
+      invalidRole: "ユーザー権限が正しくありません。",
+      accountRemoved: "ユーザーアカウントが存在しません。",
+      accountDisabled: "アカウントは無効になっています。",
+      tokenExpired: "認証トークンの有効期限が切れています。",
+      invalidToken: "認証トークンが無効か、期限切れです。",
+      forbidden: "この情報にアクセスする権限がありません。",
+      internalServer: "サーバー内部でエラーが発生しました。",
+      server: "サーバーエラーが発生しました。"
+    }
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return useMemo(
+    () => createTranslator({
+      locale,
+      messages: messages[locale === "ja" ? "ja" : "en"],
+    }),
+    [locale],
+  );
+}
+
+// Store message keys so existing field errors follow language changes immediately.
+const staffEditSchema = createStaffEditSchema({
+  nameRequired: "validation.nameRequired",
+  emailInvalid: "validation.emailInvalid",
+  locationRequired: "validation.locationRequired",
+  phoneRequired: "validation.phoneRequired",
+});
+
 
 // =================================================
 // THEME TOKENS (matches Add Staff / dashboards / sidebar)
@@ -103,19 +271,11 @@ const defaultValues: StaffEditFormValues = {
 };
 
 export default function EditStaff() {
-  const t = useTranslations("editStaff");
+  const locale = useLocale();
+  const t = useLocalTranslations();
   const { staff, isLoading, isError, errorMessage, updateStaff } =
     useEditStaffHook();
-  const staffEditSchema = useMemo(
-    () =>
-      createStaffEditSchema({
-        nameRequired: t("validation.nameRequired"),
-        emailInvalid: t("validation.emailInvalid"),
-        locationRequired: t("validation.locationRequired"),
-        phoneRequired: t("validation.phoneRequired"),
-      }),
-    [t],
-  );
+
 
   const {
     register,
@@ -149,7 +309,11 @@ export default function EditStaff() {
   if (isError || !staff) {
     return (
       <StatusScreen
-        message={errorMessage || t("notFound")}
+        message={
+          isError
+            ? translateStaffError(errorMessage, locale, t, "loadError")
+            : t("notFound")
+        }
       />
     );
   }
@@ -279,7 +443,7 @@ export default function EditStaff() {
               id="name"
               label={t("fields.name.label")}
               register={register("name")}
-              error={errors.name?.message}
+              error={translateValidationError(errors.name?.message, t)}
               placeholder={t("fields.name.placeholder")}
               autoFocus
             />
@@ -289,7 +453,7 @@ export default function EditStaff() {
               label={t("fields.phone.label")}
               type="tel"
               register={register("phone")}
-              error={errors.phone?.message}
+              error={translateValidationError(errors.phone?.message, t)}
               placeholder={t("fields.phone.placeholder")}
             />
 
@@ -298,7 +462,7 @@ export default function EditStaff() {
               label={t("fields.email.label")}
               type="email"
               register={register("email")}
-              error={errors.email?.message}
+              error={translateValidationError(errors.email?.message, t)}
               placeholder={t("fields.email.placeholder")}
             />
 
@@ -328,7 +492,7 @@ export default function EditStaff() {
                 ))}
               </Select>
 
-              <ErrorMessage message={errors.location?.message} />
+              <ErrorMessage message={translateValidationError(errors.location?.message, t)} />
             </Box>
 
             {/* Actions */}
@@ -392,7 +556,7 @@ export default function EditStaff() {
               role="alert"
               sx={{ mt: 2, fontSize: 13, color: "#DC2626" }}
             >
-              {getErrorMessage(updateStaff.error, t("updateError"))}
+              {translateStaffError(updateStaff.error, locale, t, "updateError")}
             </Typography>
           )}
         </Paper>
@@ -508,6 +672,33 @@ function StatusScreen({
   );
 }
 
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
+type StaffTranslator = ReturnType<typeof useLocalTranslations>;
+
+function translateValidationError(message: string | undefined, t: StaffTranslator) {
+  if (!message) return undefined;
+  const key = (Object.keys(messages.en.validation) as Array<keyof typeof messages.en.validation>)
+    .find((key) => `validation.${key}` === message);
+  return t(key ? `validation.${key}` : "validation.invalid");
+}
+
+function translateStaffError(
+  error: unknown,
+  locale: string,
+  t: StaffTranslator,
+  fallback: "loadError" | "updateError",
+) {
+  const message = (typeof error === "string" ? error : getApiErrorMessage(error)).trim();
+  if (!message || message === "Something went wrong") return t(fallback);
+
+  const normalize = (value: string) => value.replace(/[.!]+$/, "").toLowerCase();
+  const key = (Object.keys(messages.en.errors) as Array<keyof typeof messages.en.errors>)
+    .find((key) => normalize(messages.en.errors[key]) === normalize(message));
+  if (key) return t(`errors.${key}`);
+
+  const status = /^Request failed with status code (\d+)\.?$/i.exec(message);
+  if (status) return t("requestFailed", { status: status[1] });
+  if (/^timeout of \d+ms exceeded$/i.test(message)) return t("requestTimeout");
+
+  // Keep English diagnostics; unexpected errors still get a Japanese fallback.
+  return locale === "ja" ? t(fallback) : message;
 }
