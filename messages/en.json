@@ -192,6 +192,25 @@
     }
   },
   "staffDashboard": {
+    "loading": "Loading dashboard",
+    "loadFailed": "Unable to update dashboard data. Please try again.",
+    "targetRemaining": "Target Remaining",
+    "payingClients": "{count, plural, one {# paying client} other {# paying clients}}",
+    "payingClientsLabel": "Paying Clients",
+    "completedPayments": "Completed Payments",
+    "completedAllTime": "{count} completed all time",
+    "collectionSummary": "Collection Summary",
+    "allTime": "All time",
+    "allTimeCollected": "All-Time Collected",
+    "visaStatus": "Visa Status",
+    "fullStagePaymentsCredited": "Full stage payments credited to you",
+    "paymentMethods": {
+      "cash": "Cash",
+      "bankTransfer": "Bank Transfer",
+      "onlinePayment": "Online Payment",
+      "cheque": "Cheque",
+      "other": "Other"
+    },
     "dashboard": "Dashboard",
     "welcome": "Welcome, {name}",
     "description": "Your clients, collections and monthly performance.",

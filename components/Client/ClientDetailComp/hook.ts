@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 import { api } from "@/lib/axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { getPortalPaths } from "@/lib/portal-routes";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -29,7 +29,6 @@ const getDownloadFileName = (contentDisposition?: string) => {
 };
 
 export const useClientDetailHook = () => {
-  const t = useTranslations("clientDetail");
   const router = useRouter();
   const role = useAuthStore((state) => state.user?.role);
   const paths = getPortalPaths(role);
@@ -151,7 +150,7 @@ export const useClientDetailHook = () => {
     } catch (error) {
       console.error("Generate Japanese CV error:", error);
 
-      let message = "Failed to generate Japanese CV.";
+      let message = "messages.cvFailed";
 
       if (axios.isAxiosError(error)) {
         const responseData = error.response?.data;
@@ -162,13 +161,17 @@ export const useClientDetailHook = () => {
 
             const parsed = JSON.parse(text);
 
-            message = parsed?.message || message;
+            if (typeof parsed?.message === "string" && parsed.message.trim()) {
+              message = parsed.message;
+            }
           } catch {
             // Keep fallback message.
           }
-        } else if (responseData?.message) {
-          message = responseData.message;
+        } else {
+          message = getApiErrorMessage(error);
         }
+      } else {
+        message = getApiErrorMessage(error);
       }
 
       setCvError(message);
@@ -181,15 +184,7 @@ export const useClientDetailHook = () => {
   // DETAIL ERROR
   // =================================================
 
-  let errorMessage = "";
-
-  if (isError) {
-    if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || t("messages.loadFailed");
-    } else {
-      errorMessage = t("messages.loadFailed");
-    }
-  }
+  const errorMessage = isError ? getApiErrorMessage(error) : "";
 
   return {
     clientId,

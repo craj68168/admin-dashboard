@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 
@@ -66,18 +66,20 @@ export function useForgotPasswordHook(loginPath = "/login") {
         setEmail(values.email.trim());
         setStep("otp");
 
-        toast.success(
+        useNotificationStore.getState().showNotification(
           response.message ||
             "Password reset OTP sent",
+          "success",
         );
       },
 
       onError: (error) => {
-        toast.error(
+        useNotificationStore.getState().showNotification(
           getErrorMessage(
             error,
             "Failed to send password reset OTP",
           ),
+          "error",
         );
       },
     });
@@ -105,18 +107,20 @@ export function useForgotPasswordHook(loginPath = "/login") {
         );
         setStep("reset");
 
-        toast.success(
+        useNotificationStore.getState().showNotification(
           response.message ||
             "OTP verified successfully",
+          "success",
         );
       },
 
       onError: (error) => {
-        toast.error(
+        useNotificationStore.getState().showNotification(
           getErrorMessage(
             error,
             "Failed to verify OTP",
           ),
+          "error",
         );
       },
     });
@@ -141,20 +145,22 @@ export function useForgotPasswordHook(loginPath = "/login") {
       },
 
       onSuccess: (response) => {
-        toast.success(
+        useNotificationStore.getState().showNotification(
           response.message ||
             "Password reset successfully",
+          "success",
         );
 
         router.replace(loginPath);
       },
 
       onError: (error) => {
-        toast.error(
+        useNotificationStore.getState().showNotification(
           getErrorMessage(
             error,
             "Failed to reset password",
           ),
+          "error",
         );
       },
     });

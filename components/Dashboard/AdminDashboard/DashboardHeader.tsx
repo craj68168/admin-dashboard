@@ -1,11 +1,32 @@
 "use client";
 
 import { motion, useReducedMotion, type Variants } from "motion/react";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { useAdminDashboard } from "./hook";
+
+const messages = {
+  en: {
+    title: "Admin Dashboard",
+    description: "Recruitment, collections and staff performance overview.",
+    performanceMonth: "Performance Month"
+  },
+  ja: {
+    title: "管理者ダッシュボード",
+    description: "採用、入金、スタッフ実績の概要を確認できます。",
+    performanceMonth: "実績対象月"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -106,7 +127,7 @@ const fieldSx = {
 
 export default function DashboardHeader({ data }: Props) {
   const { selectedMonth, handleMonthChange } = data;
-  const t = useTranslations("adminDashboard");
+  const t = useLocalTranslations();
   const reduceMotion = useReducedMotion();
 
   return (

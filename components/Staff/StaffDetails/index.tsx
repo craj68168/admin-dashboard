@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -27,6 +27,88 @@ import { formatCreatedAt } from "@/utils/format-date";
 import { useStaffDetails } from "./hook";
 import Performance from "./Performance";
 import PerformanceHistory from "./PerformanceHistory";
+
+const messages = {
+  en: {
+    backToStaff: "Back to Staff",
+    loading: "Loading staff details...",
+    notFound: "Staff member could not be found.",
+    staffMember: "Staff member",
+    staffId: "Staff ID: {id}",
+    notAvailable: "N/A",
+    status: {
+      active: "Active",
+      inactive: "Inactive"
+    },
+    details: {
+      email: "Email",
+      phone: "Phone",
+      location: "Location",
+      role: "Role",
+      assignedClients: "Assigned clients",
+      createdAt: "Created at"
+    },
+    actions: {
+      viewClients: "View staff clients",
+      edit: "Edit staff"
+    },
+    locations: {
+      USA: "USA",
+      Japan: "Japan",
+      Nepal: "Nepal",
+      Other: "Other"
+    },
+    roles: {
+      staff: "Staff",
+      admin: "Admin",
+      superadmin: "Super admin"
+    }
+  },
+  ja: {
+    backToStaff: "スタッフ一覧へ戻る",
+    loading: "スタッフ詳細を読み込み中...",
+    notFound: "スタッフが見つかりませんでした。",
+    staffMember: "スタッフ",
+    staffId: "スタッフID: {id}",
+    notAvailable: "該当なし",
+    status: {
+      active: "有効",
+      inactive: "無効"
+    },
+    details: {
+      email: "メール",
+      phone: "電話番号",
+      location: "所在地",
+      role: "権限",
+      assignedClients: "担当顧客数",
+      createdAt: "作成日"
+    },
+    actions: {
+      viewClients: "担当顧客を表示",
+      edit: "スタッフを編集"
+    },
+    locations: {
+      USA: "アメリカ",
+      Japan: "日本",
+      Nepal: "ネパール",
+      Other: "その他"
+    },
+    roles: {
+      staff: "スタッフ",
+      admin: "管理者",
+      superadmin: "最高管理者"
+    }
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 
 // =================================================
 // THEME TOKENS (matches Staff list / Add-Edit Staff / dashboards / sidebar)
@@ -116,8 +198,7 @@ function getInitials(name?: string | null) {
 
 export default function StaffDetails() {
   const router = useRouter();
-  const t = useTranslations("staffDetails");
-  const tList = useTranslations("staffList");
+  const t = useLocalTranslations();
   const role = useAuthStore((state) => state.user?.role);
   const { staff, isLoading, isError, staffId } = useStaffDetails();
 
@@ -277,7 +358,7 @@ export default function StaffDetails() {
                     ...focusRing,
                   }}
                 >
-                  {tList("actions.viewClients")}
+                  {t("actions.viewClients")}
                 </Button>
 
                 {role === "superadmin" && (
@@ -298,7 +379,7 @@ export default function StaffDetails() {
                       ...focusRing,
                     }}
                   >
-                    {tList("actions.edit")}
+                    {t("actions.edit")}
                   </Button>
                 )}
               </Box>
@@ -337,13 +418,13 @@ export default function StaffDetails() {
               <Detail
                 icon={<PlaceOutlinedIcon fontSize="small" />}
                 label={t("details.location")}
-                value={staff.location}
+                value={translateLocation(staff.location, t)}
                 fallback={fallback}
               />
               <Detail
                 icon={<BadgeOutlinedIcon fontSize="small" />}
                 label={t("details.role")}
-                value={staff.role}
+                value={translateRole(staff.role, t)}
                 fallback={fallback}
                 capitalize
               />
@@ -356,7 +437,7 @@ export default function StaffDetails() {
               <Detail
                 icon={<CalendarTodayOutlinedIcon fontSize="small" />}
                 label={t("details.createdAt")}
-                value={formatCreatedAt(staff.createdAt)}
+                value={staff.createdAt ? formatCreatedAt(staff.createdAt) : undefined}
                 fallback={fallback}
               />
             </Box>
@@ -430,14 +511,14 @@ function Detail({
   icon,
   label,
   value,
-  fallback = "N/A",
+  fallback,
   href,
   capitalize,
 }: {
   icon: ReactNode;
   label: string;
   value?: string | number | null;
-  fallback?: string;
+  fallback: string;
   href?: string;
   capitalize?: boolean;
 }) {
@@ -637,4 +718,13 @@ function NotFoundScreen({
       </Paper>
     </Box>
   );
+}
+function translateLocation(value: string | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  const key = (["USA", "Japan", "Nepal", "Other"] as const).find((key) => key.toLowerCase() === value?.toLowerCase());
+  return key ? t(`locations.${key}`) : value;
+}
+
+function translateRole(value: string | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  const key = (["staff", "admin", "superadmin"] as const).find((key) => key === value?.toLowerCase());
+  return key ? t(`roles.${key}`) : value;
 }

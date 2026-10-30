@@ -9,11 +9,44 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import type { useAdminDashboard } from "./hook";
+
+const messages = {
+  en: {
+    allTimeSummary: "<paymentCount>{payments}</paymentCount> {payments, plural, one {payment} other {payments}} from <clientCount>{clients}</clientCount> {clients, plural, one {client} other {clients}}",
+    totalClients: "Total Clients",
+    payingThisMonth: " paying this month",
+    activeStaff: "Active Staff",
+    collectedThisMonth: "Collected this month",
+    totalCollected: "Total collected",
+    completedPayments: "{count, plural, one { completed payment} other { completed payments}}",
+    totalStaffPrefix: "of ",
+    totalStaffSuffix: " total staff"
+  },
+  ja: {
+    allTimeSummary: "<clientCount>{clients}</clientCount>名から<paymentCount>{payments}</paymentCount>件の入金",
+    totalClients: "総顧客数",
+    payingThisMonth: "名が今月入金",
+    activeStaff: "稼働中スタッフ",
+    collectedThisMonth: "今月の入金額",
+    totalCollected: "入金総額",
+    completedPayments: "件の完了済み入金",
+    totalStaffPrefix: "スタッフ総数 ",
+    totalStaffSuffix: "名"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<ReturnType<typeof useAdminDashboard>, "overview"> & {
@@ -298,8 +331,8 @@ function SummaryCard({
 }
 
 export default function OverviewCards({ data }: Props) {
+  const t = useLocalTranslations();
   const { overview } = data;
-  const lang = useLocale();
   const reduceMotion = useReducedMotion();
 
   return (
@@ -322,61 +355,54 @@ export default function OverviewCards({ data }: Props) {
     >
       <SummaryCard
         tone="quiet"
-        label={lang === "ja" ? "総顧客数" : "Total Clients"}
+        label={t("totalClients")}
         value={String(overview.totalClients)}
         subtitle={
           <>
             <Num>{overview.monthlyClientCount}</Num>
-            {lang === "ja" ? "名が今月入金" : " paying this month"}
+            {t("payingThisMonth")}
           </>
         }
       />
 
       <SummaryCard
         tone="quiet"
-        label={lang === "ja" ? "稼働中スタッフ" : "Active Staff"}
+        label={t("activeStaff")}
         value={String(overview.activeStaff)}
         subtitle={
           <>
-            {lang === "ja" ? "スタッフ総数 " : "of "}
+            {t("totalStaffPrefix")}
             <Num>{overview.totalStaff}</Num>
-            {lang === "ja" ? "名" : " total staff"}
+            {t("totalStaffSuffix")}
           </>
         }
       />
 
       <SummaryCard
         tone="primary"
-        label={lang === "ja" ? "今月の入金額" : "Collected this month"}
+        label={t("collectedThisMonth")}
         value={formatYen(overview.monthlyCollected)}
         countTo={overview.monthlyCollected}
         subtitle={
           <>
             <Num>{overview.monthlyPaymentCount}</Num>
-            {lang === "ja" ? "件の完了済み入金" : overview.monthlyPaymentCount === 1 ? " completed payment" : " completed payments"}
+            {t("completedPayments", { count: overview.monthlyPaymentCount })}
           </>
         }
       />
 
       <SummaryCard
-        label={lang === "ja" ? "入金総額" : "Total collected"}
+        label={t("totalCollected")}
         value={formatYen(overview.totalCollectedAllTime)}
         countTo={overview.totalCollectedAllTime}
         subtitle={
           <>
-            {lang === "ja" ? (
-              <>
-                <Num>{overview.totalPayingClients}</Num>名から
-                <Num>{overview.totalCompletedPayments}</Num>件の入金
-              </>
-            ) : (
-              <>
-                <Num>{overview.totalCompletedPayments}</Num>
-                {overview.totalCompletedPayments === 1 ? " payment from " : " payments from "}
-                <Num>{overview.totalPayingClients}</Num>
-                {overview.totalPayingClients === 1 ? " client" : " clients"}
-              </>
-            )}
+            {t.rich("allTimeSummary", {
+              payments: overview.totalCompletedPayments,
+              clients: overview.totalPayingClients,
+              paymentCount: (chunks) => <Num>{chunks}</Num>,
+              clientCount: (chunks) => <Num>{chunks}</Num>,
+            })}
           </>
         }
       />

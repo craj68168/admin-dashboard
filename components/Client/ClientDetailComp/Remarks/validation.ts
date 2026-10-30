@@ -3,10 +3,10 @@ import { z } from "zod";
 import { REMARK_MEDIUMS } from "./type";
 
 const defaultMessages = {
-  dateRequired: "Date is required",
-  mediumRequired: "Medium is required",
-  memoRequired: "Memo is required",
-  memoMax: "Memo cannot exceed 5000 characters",
+  dateRequired: "validation.dateRequired",
+  mediumRequired: "validation.mediumRequired",
+  memoRequired: "validation.memoRequired",
+  memoMax: "validation.memoMax",
 };
 
 export const createRemarkSchema = (

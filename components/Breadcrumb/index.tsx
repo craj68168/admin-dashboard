@@ -1,6 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { createTranslator, useLocale } from "next-intl";
+
+const messages = {
+  en: { navigation: "Breadcrumb" },
+  ja: { navigation: "パンくずリスト" },
+};
 
 type BreadcrumbItem = {
   label: string;
@@ -14,8 +20,13 @@ type BreadcrumbProps = {
 };
 
 export default function Breadcrumb({ items }: BreadcrumbProps) {
+  const locale = useLocale();
+  const t = createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
   return (
-    <nav aria-label="Breadcrumb" className="text-sm text-gray-500 mb-4">
+    <nav aria-label={t("navigation")} className="text-sm text-gray-500 mb-4">
       <ol className="flex items-center flex-wrap gap-2">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

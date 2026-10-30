@@ -20,9 +20,9 @@ export const PAYMENT_METHOD_OPTIONS = [
 // =================================================
 
 export const progressFormSchema = z.object({
-  stage: z.string().trim().min(1, "Please select the next stage."),
+  stage: z.string().trim().min(1, "validation.stageRequired"),
 
-  note: z.string().trim().max(2000, "Note must be 2000 characters or less."),
+  note: z.string().trim().max(2000, "validation.noteMax"),
 
   paymentMethod: z.union([
     z.literal(""),
@@ -35,17 +35,17 @@ export const progressFormSchema = z.object({
   referenceNumber: z
     .string()
     .trim()
-    .max(200, "Reference number must be 200 characters or less."),
+    .max(200, "validation.referenceMax"),
 
   receiptNumber: z
     .string()
     .trim()
-    .max(200, "Receipt number must be 200 characters or less."),
+    .max(200, "validation.receiptMax"),
 
   bankName: z
     .string()
     .trim()
-    .max(200, "Bank name must be 200 characters or less."),
+    .max(200, "validation.bankMax"),
 });
 
 export type ProgressValidationErrors = Partial<
@@ -72,11 +72,11 @@ export const validateProgressForm = (
 
   if (requiresPayment) {
     if (!values.paymentMethod) {
-      errors.paymentMethod = "Payment method is required.";
+      errors.paymentMethod = "validation.paymentMethodRequired";
     }
 
     if (!values.paymentDate) {
-      errors.paymentDate = "Payment date is required.";
+      errors.paymentDate = "validation.paymentDateRequired";
     }
   }
 
@@ -94,16 +94,16 @@ export const addStageFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Stage name is required.")
-    .max(150, "Stage name must be 150 characters or less."),
+    .min(1, "validation.nameRequired")
+    .max(150, "validation.nameMax"),
 
   amount: z
     .string()
     .trim()
-    .min(1, "Stage amount is required.")
+    .min(1, "validation.amountRequired")
     .refine(
       (value) => /^\d+$/.test(value),
-      "Amount must be a whole number of yen.",
+      "validation.amountWhole",
     ),
 });
 

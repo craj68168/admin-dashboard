@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
@@ -17,6 +17,138 @@ import BarChartRoundedIcon from "@mui/icons-material/BarChartRounded";
 import type { PerformanceHistoryProps, PerformanceHistoryStatus } from "./type";
 
 import { usePerformanceHistoryHook } from "./hook";
+
+const messages = {
+  en: {
+    title: "Performance History",
+    description: "Monthly target and collection history for this staff member.",
+    empty: "No performance history is available yet.",
+    refreshing: "Refreshing...",
+    loadFailed: "Failed to load performance history.",
+    columns: {
+      month: "Month",
+      target: "Target",
+      collected: "Collected",
+      remaining: "Remaining",
+      achievement: "Achievement",
+      payments: "Payments",
+      clients: "Clients",
+      status: "Status"
+    },
+    status: {
+      noTarget: "No Target",
+      notStarted: "Not Started",
+      inProgress: "In Progress",
+      achieved: "Achieved"
+    },
+    serverMessages: {
+      aTargetAlreadyExistsForThisStaffMemberAndMonth: "A target already exists for this staff member and month.",
+      authenticationRequired: "Authentication required",
+      cannotAssignATargetToAnInactiveStaffMember: "Cannot assign a target to an inactive staff member.",
+      failedToCreateStaffTarget: "Failed to create staff target.",
+      failedToGetStaffPerformanceHistory: "Failed to get staff performance history.",
+      failedToGetStaffTarget: "Failed to get staff target.",
+      failedToUpdateStaffTarget: "Failed to update staff target.",
+      internalServerError: "Internal Server Error",
+      invalidOrExpiredToken: "Invalid or expired token",
+      invalidTargetID: "Invalid target ID.",
+      invalidTokenFormat: "Invalid token format",
+      invalidUserRole: "Invalid user role",
+      monthMustBeInYYYYMMFormat: "Month must be in YYYY-MM format.",
+      noteCannotExceed2000Characters: "Note cannot exceed 2000 characters.",
+      serverError: "Server error",
+      staffIDIsRequired: "Staff ID is required.",
+      staffNotFound: "Staff not found.",
+      staffTargetCreatedSuccessfully: "Staff target created successfully.",
+      staffTargetNotFound: "Staff target not found.",
+      staffTargetUpdatedSuccessfully: "Staff target updated successfully.",
+      targetAmountMustBeGreaterThan0: "Target amount must be greater than 0.",
+      targetMonthMustBeInYYYYMMFormat: "Target month must be in YYYY-MM format.",
+      tokenExpired: "Token expired",
+      tokenNotProvided: "Token not provided",
+      userAccountNoLongerExists: "User account no longer exists",
+      youAreNotAuthorizedToAccessThisResource: "You are not authorized to access this resource",
+      youAreNotAuthorizedToViewAnotherStaffMemberSPerformance: "You are not authorized to view another staff member's performance.",
+      youAreNotAuthorizedToViewAnotherStaffMemberSTarget: "You are not authorized to view another staff member's target.",
+      yourAccountHasBeenDisabled: "Your account has been disabled",
+      networkError: "Network Error",
+      failedToFetch: "Failed to fetch",
+      requestAborted: "Request aborted",
+      canceled: "canceled"
+    },
+    requestFailed: "Request failed with status code {status}.",
+    requestTimeout: "The request timed out. Please try again."
+  },
+  ja: {
+    title: "実績履歴",
+    description: "このスタッフの月間目標と入金履歴を確認できます。",
+    empty: "実績履歴はまだありません。",
+    refreshing: "更新中...",
+    loadFailed: "実績履歴を読み込めませんでした。",
+    columns: {
+      month: "月",
+      target: "目標",
+      collected: "入金額",
+      remaining: "残額",
+      achievement: "達成率",
+      payments: "入金件数",
+      clients: "顧客数",
+      status: "ステータス"
+    },
+    status: {
+      noTarget: "目標なし",
+      notStarted: "未開始",
+      inProgress: "進行中",
+      achieved: "達成"
+    },
+    serverMessages: {
+      aTargetAlreadyExistsForThisStaffMemberAndMonth: "このスタッフの対象月の目標はすでに存在します。",
+      authenticationRequired: "ログインが必要です。",
+      cannotAssignATargetToAnInactiveStaffMember: "無効なスタッフに目標を設定することはできません。",
+      failedToCreateStaffTarget: "スタッフの目標を作成できませんでした。",
+      failedToGetStaffPerformanceHistory: "スタッフの実績履歴を取得できませんでした。",
+      failedToGetStaffTarget: "スタッフの目標を取得できませんでした。",
+      failedToUpdateStaffTarget: "スタッフの目標を更新できませんでした。",
+      internalServerError: "サーバー内部でエラーが発生しました。",
+      invalidOrExpiredToken: "認証トークンが無効か、期限切れです。",
+      invalidTargetID: "目標IDが正しくありません。",
+      invalidTokenFormat: "認証トークンの形式が正しくありません。",
+      invalidUserRole: "ユーザー権限が正しくありません。",
+      monthMustBeInYYYYMMFormat: "月はYYYY-MM形式で入力してください。",
+      noteCannotExceed2000Characters: "メモは2000文字以内で入力してください。",
+      serverError: "サーバーエラーが発生しました。",
+      staffIDIsRequired: "スタッフIDを指定してください。",
+      staffNotFound: "スタッフが見つかりません。",
+      staffTargetCreatedSuccessfully: "スタッフの目標を作成しました。",
+      staffTargetNotFound: "スタッフの目標が見つかりません。",
+      staffTargetUpdatedSuccessfully: "スタッフの目標を更新しました。",
+      targetAmountMustBeGreaterThan0: "目標額は0より大きい金額で入力してください。",
+      targetMonthMustBeInYYYYMMFormat: "目標月はYYYY-MM形式で入力してください。",
+      tokenExpired: "認証トークンの有効期限が切れています。",
+      tokenNotProvided: "認証トークンが指定されていません。",
+      userAccountNoLongerExists: "ユーザーアカウントが存在しません。",
+      youAreNotAuthorizedToAccessThisResource: "この情報にアクセスする権限がありません。",
+      youAreNotAuthorizedToViewAnotherStaffMemberSPerformance: "他のスタッフの実績を閲覧する権限がありません。",
+      youAreNotAuthorizedToViewAnotherStaffMemberSTarget: "他のスタッフの目標を閲覧する権限がありません。",
+      yourAccountHasBeenDisabled: "アカウントは無効になっています。",
+      networkError: "ネットワークに接続できません。接続を確認してください。",
+      failedToFetch: "データを取得できませんでした。接続を確認してください。",
+      requestAborted: "リクエストが中断されました。",
+      canceled: "リクエストがキャンセルされました。"
+    },
+    requestFailed: "リクエストに失敗しました（ステータスコード：{status}）。",
+    requestTimeout: "リクエストがタイムアウトしました。もう一度お試しください。"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 
 // =================================================
 // DESIGN SYSTEM
@@ -222,7 +354,7 @@ function MetaItem({
 export default function PerformanceHistory({
   staffId,
 }: PerformanceHistoryProps) {
-  const t = useTranslations("staffPerformanceHistory");
+  const t = useLocalTranslations();
   const locale = useLocale();
   const headingId = useId();
 
@@ -542,7 +674,7 @@ export default function PerformanceHistory({
             "& .MuiAlert-icon": { color: "#DC2626" },
           }}
         >
-          {loadError}
+          {translateServerMessage(loadError, locale, t, "loadFailed")}
         </Alert>
       )}
 
@@ -634,4 +766,17 @@ export default function PerformanceHistory({
       )}
     </Box>
   );
+}
+type LocalTranslator = ReturnType<typeof useLocalTranslations>;
+
+function translateServerMessage(message: string, locale: string, t: LocalTranslator, fallback: "loadFailed") {
+  if (!message || message === "Something went wrong") return t(fallback);
+  const normalize = (value: string) => value.trim().replace(/[.!]+$/, "").toLowerCase();
+  const key = (Object.keys(messages.en.serverMessages) as Array<keyof typeof messages.en.serverMessages>)
+    .find((key) => normalize(messages.en.serverMessages[key]) === normalize(message));
+  if (key) return t(`serverMessages.${key}`);
+  const status = /^Request failed with status code (\d+)\.?$/i.exec(message);
+  if (status) return t("requestFailed", { status: status[1] });
+  if (/^timeout of \d+ms exceeded$/i.test(message)) return t("requestTimeout");
+  return locale === "ja" ? t(fallback) : message;
 }

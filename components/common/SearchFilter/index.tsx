@@ -17,9 +17,51 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import { useSearchFilter } from "./hook";
 import type { FilterValues, SearchFilterProps } from "./types";
+
+const messages = {
+  en: {
+    title: "What are you looking for?",
+    filters: "Filters",
+    search: "Search",
+    searching: "Searching...",
+    clear: "Clear",
+    clearSearchText: "Clear search text",
+    searchPlaceholder: "Search...",
+    allField: "All {field}",
+    from: "from",
+    to: "to",
+    noOptions: "No options found",
+    open: "Open",
+    close: "Close"
+  },
+  ja: {
+    title: "検索条件を入力してください",
+    filters: "フィルター",
+    search: "検索",
+    searching: "検索中...",
+    clear: "クリア",
+    clearSearchText: "検索テキストをクリア",
+    searchPlaceholder: "検索...",
+    allField: "すべての{field}",
+    from: "開始",
+    to: "終了",
+    noOptions: "該当する項目はありません",
+    open: "開く",
+    close: "閉じる"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 
 // =================================================
 // THEME TOKENS (same palette as the Staff page)
@@ -123,7 +165,7 @@ const pillButtonSx = {
 export default function SearchFilter<T extends FilterValues>(
   props: SearchFilterProps<T>,
 ) {
-  const t = useTranslations("commonSearchFilter");
+  const t = useLocalTranslations();
 
   const {
     searchField,
@@ -326,6 +368,10 @@ export default function SearchFilter<T extends FilterValues>(
 
                         <Autocomplete
                           id={inputId}
+                          noOptionsText={t("noOptions")}
+                          clearText={t("clear")}
+                          openText={t("open")}
+                          closeText={t("close")}
                           options={field.options}
                           value={
                             field.options.find(

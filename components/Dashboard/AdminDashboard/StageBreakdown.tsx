@@ -1,10 +1,54 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import type { useAdminDashboard } from "./hook";
+
+const messages = {
+  en: {
+    legacyPayment: "Legacy Payment",
+    clientProgress: "Client Progress",
+    noClientData: "No client data yet.",
+    stageRegistrationPending: "Registration Pending",
+    stageRegisteredVacancySearching: "Registered / Vacancy Searching",
+    stageInterviewPreparation: "Interview Fixed / Preparation",
+    stageInterviewFailed: "Interview Failed",
+    stageJobOfferReceived: "Naitei / Job Offer Received",
+    stageVisaDocumentsSubmitted: "Visa Documents Submitted",
+    stageVisaResultWaiting: "Visa Applied / Result Waiting",
+    stageVisaApproved: "Visa Approved",
+    stageVisaRejected: "Visa Rejected",
+    stageCompanyJoining: "Waiting for Nyusha / Company Joining",
+    stageReturnToNepal: "Return to Nepal"
+  },
+  ja: {
+    legacyPayment: "過去の入金",
+    clientProgress: "顧客進捗",
+    noClientData: "顧客データはまだありません。",
+    stageRegistrationPending: "登録待ち",
+    stageRegisteredVacancySearching: "登録済み / 求人検索中",
+    stageInterviewPreparation: "面接確定 / 準備中",
+    stageInterviewFailed: "面接不合格",
+    stageJobOfferReceived: "内定 / オファー受領",
+    stageVisaDocumentsSubmitted: "ビザ書類提出済み",
+    stageVisaResultWaiting: "ビザ申請済み / 結果待ち",
+    stageVisaApproved: "ビザ承認",
+    stageVisaRejected: "ビザ却下",
+    stageCompanyJoining: "入社待ち",
+    stageReturnToNepal: "ネパールへ帰国"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 type Props = {
   data: Pick<ReturnType<typeof useAdminDashboard>, "stageBreakdown">;
 };
@@ -136,7 +180,7 @@ function StageRow({
 }
 export default function StageBreakdown({ data }: Props) {
   const { stageBreakdown } = data;
-  const t = useTranslations("adminDashboard");
+  const t = useLocalTranslations();
   const maxStageCount = stageBreakdown.reduce(
     (highest, item) => Math.max(highest, item.count || 0),
     0,
@@ -208,7 +252,7 @@ export default function StageBreakdown({ data }: Props) {
           {stageBreakdown.map((item) => (
             <StageRow
               key={item.stage || item.stageName}
-              name={item.stageName}
+              name={translateStage(item.stageName, t)}
               count={item.count}
               max={maxStageCount}
             />
@@ -217,4 +261,12 @@ export default function StageBreakdown({ data }: Props) {
       )}
     </Paper>
   );
+}
+
+function translateStage(name: string, t: ReturnType<typeof useLocalTranslations>) {
+  // Stage masters can contain custom names; translate only recognized labels.
+  const key = Object.entries(messages.en).find(([key, value]) =>
+    (key.startsWith("stage") || key === "legacyPayment") && value === name,
+  )?.[0];
+  return key ? t(key as keyof typeof messages.en) : name;
 }

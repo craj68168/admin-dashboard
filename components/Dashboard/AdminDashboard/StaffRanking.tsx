@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -14,6 +14,67 @@ import Typography from "@mui/material/Typography";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import type { useAdminDashboard } from "./hook";
 import type { DashboardPerformanceStatus } from "./type";
+
+const messages = {
+  en: {
+    noTarget: "No Target",
+    notStarted: "Not Started",
+    inProgress: "In Progress",
+    achieved: "Achieved",
+    target: "Target",
+    remaining: "Remaining",
+    noStaffPerformanceDataFound: "No staff performance data found.",
+    staffRanking: "Staff Ranking",
+    rankedByMonthlyCollectionAmount: "Ranked by monthly collection amount.",
+    rank: "Rank",
+    staff: "Staff",
+    collected: "Collected",
+    targetRemaining: "Target Remaining",
+    achievement: "Achievement",
+    payments: "Payments",
+    clients: "Clients",
+    status: "Status",
+    rowsPerPage: "Rows per page:",
+    paymentCount: "{count} {count, plural, one {payment} other {payments}}",
+    clientCount: "{count} {count, plural, one {client} other {clients}}",
+    displayedRows: "{from}–{to} of {knownCount, select, true {{count}} other {more than {to}}}",
+    rowsPerPageAria: "Rows per page",
+    pageNavigation: "Go to {type} page"
+  },
+  ja: {
+    noTarget: "目標なし",
+    notStarted: "未開始",
+    inProgress: "進行中",
+    achieved: "達成",
+    target: "目標",
+    remaining: "残額",
+    noStaffPerformanceDataFound: "スタッフの実績データはありません。",
+    staffRanking: "スタッフランキング",
+    rankedByMonthlyCollectionAmount: "月間入金額順のランキングです。",
+    rank: "順位",
+    staff: "スタッフ",
+    collected: "入金額",
+    targetRemaining: "目標までの残額",
+    achievement: "達成率",
+    payments: "入金件数",
+    clients: "顧客数",
+    status: "ステータス",
+    rowsPerPage: "1ページの表示件数：",
+    paymentCount: "入金{count}件",
+    clientCount: "顧客{count}名",
+    displayedRows: "全{knownCount, select, true {{count}件} other {{to}件以上}}中 {from}–{to}件",
+    rowsPerPageAria: "1ページの表示件数",
+    pageNavigation: "{type, select, first {最初のページへ} last {最後のページへ} next {次のページへ} other {前のページへ}}"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -423,6 +484,7 @@ function RankBadge({ rank }: { rank: number }) {
 }
 
 export default function StaffRanking({ data }: Props) {
+  const t = useLocalTranslations();
   const {
     rankings,
     rankingPagination,
@@ -430,27 +492,23 @@ export default function StaffRanking({ data }: Props) {
     handleRankingLimitChange,
     handleStaffClick,
   } = data;
-  const lang = useLocale();
-  const ja = lang === "ja";
 
   const performanceStatusLabel: Record<DashboardPerformanceStatus, string> = {
-    "No Target": ja ? "目標なし" : "No Target",
-    "Not Started": ja ? "未開始" : "Not Started",
-    "In Progress": ja ? "進行中" : "In Progress",
-    Achieved: ja ? "達成" : "Achieved",
+    "No Target": t("noTarget"),
+    "Not Started": t("notStarted"),
+    "In Progress": t("inProgress"),
+    Achieved: t("achieved"),
   };
 
   // Short labels for the lines that stand in for hidden columns.
-  const targetLabel = ja ? "目標" : "Target";
-  const remainingLabel = ja ? "残額" : "Remaining";
+  const targetLabel = t("target");
+  const remainingLabel = t("remaining");
   const paymentsText = (n: number) =>
-    ja ? `入金${n}件` : `${n} ${n === 1 ? "payment" : "payments"}`;
+    t("paymentCount", { count: n });
   const clientsText = (n: number) =>
-    ja ? `顧客${n}` : `${n} ${n === 1 ? "client" : "clients"}`;
+    t("clientCount", { count: n });
 
-  const emptyText = ja
-    ? "スタッフの実績データはありません。"
-    : "No staff performance data found.";
+  const emptyText = t("noStaffPerformanceDataFound");
 
   return (
     <Paper
@@ -466,9 +524,9 @@ export default function StaffRanking({ data }: Props) {
       }}
     >
       <SectionHeader
-        title={ja ? "スタッフランキング" : "Staff Ranking"}
+        title={t("staffRanking")}
         subtitle={
-          ja ? "月間入金額順のランキングです。" : "Ranked by monthly collection amount."
+          t("rankedByMonthlyCollectionAmount")
         }
         icon={<EmojiEventsOutlinedIcon sx={{ fontSize: 18 }} />}
       />
@@ -478,10 +536,10 @@ export default function StaffRanking({ data }: Props) {
           <TableHead>
             <TableRow>
               <TableCell sx={{ ...headCellSx, ...edgeLeft }}>
-                {ja ? "順位" : "Rank"}
+                {t("rank")}
               </TableCell>
 
-              <TableCell sx={headCellSx}>{ja ? "スタッフ" : "Staff"}</TableCell>
+              <TableCell sx={headCellSx}>{t("staff")}</TableCell>
 
               <TableCell
                 align="right"
@@ -491,39 +549,39 @@ export default function StaffRanking({ data }: Props) {
               </TableCell>
 
               <TableCell align="right" sx={{ ...headCellSx, ...amountEdge }}>
-                {ja ? "入金額" : "Collected"}
+                {t("collected")}
               </TableCell>
 
               <TableCell
                 align="right"
                 sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
               >
-                {ja ? "目標までの残額" : "Target Remaining"}
+                {t("targetRemaining")}
               </TableCell>
 
               <TableCell
                 align="right"
                 sx={{ ...headCellSx, ...cellFrom(BP.mid) }}
               >
-                {ja ? "達成率" : "Achievement"}
+                {t("achievement")}
               </TableCell>
 
               <TableCell
                 align="center"
                 sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
               >
-                {ja ? "入金件数" : "Payments"}
+                {t("payments")}
               </TableCell>
 
               <TableCell
                 align="center"
                 sx={{ ...headCellSx, ...cellFrom(BP.wide) }}
               >
-                {ja ? "顧客数" : "Clients"}
+                {t("clients")}
               </TableCell>
 
               <TableCell sx={{ ...headCellSx, ...statusEdge }}>
-                {ja ? "ステータス" : "Status"}
+                {t("status")}
               </TableCell>
             </TableRow>
           </TableHead>
@@ -734,22 +792,12 @@ export default function StaffRanking({ data }: Props) {
 
       <TablePagination
         component="div"
-        labelRowsPerPage={ja ? "1ページの表示件数：" : "Rows per page:"}
+        labelRowsPerPage={t("rowsPerPage")}
         labelDisplayedRows={({ from, to, count }) =>
-          ja
-            ? `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`
-            : `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`
+          t("displayedRows", { knownCount: String(Boolean(count !== -1)), count: count, to: to, from: from })
         }
         getItemAriaLabel={(type) =>
-          ja
-            ? type === "first"
-              ? "最初のページへ"
-              : type === "last"
-                ? "最後のページへ"
-                : type === "next"
-                  ? "次のページへ"
-                  : "前のページへ"
-            : `Go to ${type} page`
+          t("pageNavigation", {type})
         }
         count={rankingPagination.total}
         page={Math.max(rankingPagination.currentPage - 1, 0)}
@@ -758,7 +806,7 @@ export default function StaffRanking({ data }: Props) {
         slotProps={{
           select: {
             inputProps: {
-              "aria-label": ja ? "1ページの表示件数" : "Rows per page",
+              "aria-label": t("rowsPerPageAria"),
             },
           },
         }}

@@ -1,6 +1,6 @@
 import { z } from "zod";
 export const createStageSchema = z.object({
-  name: z.string().trim().min(1, "Stage name is required"),
+  name: z.string().trim().min(1, "validation.nameRequired"),
   amount: z
     .string()
     .trim()
@@ -12,7 +12,7 @@ export const createStageSchema = z.object({
         );
       },
       {
-        message: "Amount must be 0 or a positive whole number",
+        message: "validation.amountWhole",
       },
     ),
 });

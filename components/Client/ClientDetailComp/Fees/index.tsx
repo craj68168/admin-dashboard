@@ -18,13 +18,277 @@ import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 
 import { Controller } from "react-hook-form";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 
 import ConfirmActionDialog from "@/components/common/ConfirmActionDialog";
 
 import { useClientFeesHook } from "./hook";
 
 import type { ClientFeesProps, PaymentProgressStatus } from "./type";
+
+const messages = {
+  "en": {
+    "title": "Client Fees",
+    "description": "Required fees, payments and outstanding balances.",
+    "feeRequirements": "Fee Requirements",
+    "empty": "No fee requirements have been created.",
+    "due": "Due: {date}",
+    "createdBy": "Created By",
+    "summary": {
+      "totalExpected": "Total Expected",
+      "totalPaid": "Total Paid",
+      "outstanding": "Outstanding",
+      "expected": "Expected",
+      "paid": "Paid"
+    },
+    "form": {
+      "addTitle": "Add Fee",
+      "editTitle": "Edit Fee",
+      "feeName": "Fee Name",
+      "expectedAmount": "Expected Amount",
+      "dueDate": "Due Date",
+      "note": "Note"
+    },
+    "actions": {
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "cancelEdit": "Cancel Edit",
+      "saving": "Saving...",
+      "addFee": "Add Fee",
+      "updateFee": "Update Fee"
+    },
+    "dialog": {
+      "title": "Cancel Fee",
+      "description": "Are you sure you want to cancel {feeName}? The fee will remain in the financial history.",
+      "confirm": "Cancel Fee",
+      "keep": "Keep Fee"
+    },
+    "statuses": {
+      "Active": "Active",
+      "Cancelled": "Cancelled"
+    },
+    "paymentStatuses": {
+      "Unpaid": "Unpaid",
+      "Partial": "Partial",
+      "Paid": "Paid",
+      "Cancelled": "Cancelled"
+    },
+    "validation": {
+      "feeNameRequired": "Fee name is required",
+      "feeNameMax": "Fee name cannot exceed 150 characters",
+      "expectedAmountRequired": "Expected amount is required",
+      "expectedAmountPositive": "Expected amount must be greater than 0",
+      "noteMax": "Note cannot exceed 3000 characters",
+      "invalid": "Please check this field."
+    },
+    "messages": {
+      "created": "Fee created successfully.",
+      "updated": "Fee updated successfully.",
+      "cancelled": "Fee cancelled successfully.",
+      "saveFailed": "Failed to save fee.",
+      "cancelFailed": "Failed to cancel fee.",
+      "loadFailed": "Failed to load client fees."
+    },
+    "showLess": "Show less",
+    "showAll": "Show all {count} fees",
+    "minimumExpectedAmount": "Expected amount cannot be less than the already paid amount of {amount}.",
+    "serverMessages": {
+      "aCancelledFeeCannotBeEdited": "A cancelled fee cannot be edited.",
+      "anActiveFeeWithThisNameAlreadyExistsForThisClient": "An active fee with this name already exists for this client.",
+      "authenticatedUserIDWasNotFound": "Authenticated user ID was not found.",
+      "authenticatedUserInformationIsMissing": "Authenticated user information is missing.",
+      "authenticationRequired": "Authentication required",
+      "clientIDIsRequired": "Client ID is required.",
+      "clientFeeRequirementCancelledSuccessfully": "Client fee requirement cancelled successfully.",
+      "clientFeeRequirementCreatedSuccessfully": "Client fee requirement created successfully.",
+      "clientFeeRequirementUpdatedSuccessfully": "Client fee requirement updated successfully.",
+      "clientNotFound": "Client not found.",
+      "duplicateDataExists": "Duplicate data exists.",
+      "expectedAmountMustBeGreaterThan0": "Expected amount must be greater than 0.",
+      "failedToCancelClientFeeRequirement": "Failed to cancel client fee requirement.",
+      "failedToCreateClientFeeRequirement": "Failed to create client fee requirement.",
+      "failedToGetClientFees": "Failed to get client fees.",
+      "failedToUpdateClientFeeRequirement": "Failed to update client fee requirement.",
+      "feeIsAlreadyCancelled": "Fee is already cancelled.",
+      "feeNameCannotBeEmpty": "Fee name cannot be empty.",
+      "feeNameCannotExceed150Characters": "Fee name cannot exceed 150 characters.",
+      "feeNameIsRequired": "Fee name is required.",
+      "feeRequirementNotFound": "Fee requirement not found.",
+      "internalServerError": "Internal Server Error",
+      "invalidDueDate": "Invalid due date.",
+      "invalidFeeID": "Invalid fee ID.",
+      "invalidOrExpiredToken": "Invalid or expired token",
+      "invalidTokenFormat": "Invalid token format",
+      "invalidUserRole": "Invalid user role",
+      "noteCannotExceed3000Characters": "Note cannot exceed 3000 characters.",
+      "serverError": "Server error",
+      "tokenExpired": "Token expired",
+      "tokenNotProvided": "Token not provided",
+      "userAccountNoLongerExists": "User account no longer exists",
+      "youAreNotAuthorizedToAccessThisResource": "You are not authorized to access this resource",
+      "youAreNotAuthorizedToViewThisClientSFees": "You are not authorized to view this client's fees.",
+      "yourAccountHasBeenDisabled": "Your account has been disabled",
+      "somethingWentWrong": "Something went wrong",
+      "networkError": "Network Error",
+      "failedToFetch": "Failed to fetch",
+      "requestAborted": "Request aborted",
+      "canceled": "canceled",
+      "validationError": "Please check the submitted information."
+    },
+    "requestFailed": "Request failed with status code {status}.",
+    "requestTimeout": "The request timed out. Please try again."
+  },
+  "ja": {
+    "title": "顧客料金",
+    "description": "必要な料金、支払い、未払い残高を管理します。",
+    "feeRequirements": "料金項目",
+    "empty": "料金項目はまだ作成されていません。",
+    "due": "期日: {date}",
+    "createdBy": "作成者",
+    "summary": {
+      "totalExpected": "予定総額",
+      "totalPaid": "支払総額",
+      "outstanding": "未払い",
+      "expected": "予定額",
+      "paid": "支払済み"
+    },
+    "form": {
+      "addTitle": "料金を追加",
+      "editTitle": "料金を編集",
+      "feeName": "料金名",
+      "expectedAmount": "予定金額",
+      "dueDate": "期日",
+      "note": "メモ"
+    },
+    "actions": {
+      "edit": "編集",
+      "cancel": "キャンセル",
+      "cancelEdit": "編集をキャンセル",
+      "saving": "保存中...",
+      "addFee": "料金を追加",
+      "updateFee": "料金を更新"
+    },
+    "dialog": {
+      "title": "料金をキャンセル",
+      "description": "「{feeName}」をキャンセルしてもよろしいですか？この料金は財務履歴に残ります。",
+      "confirm": "料金をキャンセル",
+      "keep": "料金を保持"
+    },
+    "statuses": {
+      "Active": "有効",
+      "Cancelled": "キャンセル済み"
+    },
+    "paymentStatuses": {
+      "Unpaid": "未払い",
+      "Partial": "一部支払い",
+      "Paid": "支払済み",
+      "Cancelled": "キャンセル済み"
+    },
+    "validation": {
+      "feeNameRequired": "料金名は必須です",
+      "feeNameMax": "料金名は150文字以内で入力してください",
+      "expectedAmountRequired": "予定金額は必須です",
+      "expectedAmountPositive": "予定金額は0より大きい必要があります",
+      "noteMax": "メモは3000文字以内で入力してください",
+      "invalid": "入力内容を確認してください。"
+    },
+    "messages": {
+      "created": "料金を作成しました。",
+      "updated": "料金を更新しました。",
+      "cancelled": "料金をキャンセルしました。",
+      "saveFailed": "料金を保存できませんでした。",
+      "cancelFailed": "料金をキャンセルできませんでした。",
+      "loadFailed": "顧客料金を読み込めませんでした。"
+    },
+    "showLess": "表示を減らす",
+    "showAll": "料金をすべて表示（{count}件）",
+    "minimumExpectedAmount": "予定額は入金済みの金額{amount}以上にしてください。",
+    "serverMessages": {
+      "aCancelledFeeCannotBeEdited": "キャンセル済みの料金は編集できません。",
+      "anActiveFeeWithThisNameAlreadyExistsForThisClient": "この顧客には同じ名前の有効な料金がすでに存在します。",
+      "authenticatedUserIDWasNotFound": "認証済みユーザーのIDが見つかりません。",
+      "authenticatedUserInformationIsMissing": "認証済みユーザーの情報がありません。",
+      "authenticationRequired": "ログインが必要です。",
+      "clientIDIsRequired": "顧客IDを指定してください。",
+      "clientFeeRequirementCancelledSuccessfully": "顧客の料金設定をキャンセルしました。",
+      "clientFeeRequirementCreatedSuccessfully": "顧客の料金設定を作成しました。",
+      "clientFeeRequirementUpdatedSuccessfully": "顧客の料金設定を更新しました。",
+      "clientNotFound": "顧客が見つかりません。",
+      "duplicateDataExists": "データが重複しています。",
+      "expectedAmountMustBeGreaterThan0": "予定額は0より大きい金額で入力してください。",
+      "failedToCancelClientFeeRequirement": "顧客の料金設定をキャンセルできませんでした。",
+      "failedToCreateClientFeeRequirement": "顧客の料金設定を作成できませんでした。",
+      "failedToGetClientFees": "顧客の料金を取得できませんでした。",
+      "failedToUpdateClientFeeRequirement": "顧客の料金設定を更新できませんでした。",
+      "feeIsAlreadyCancelled": "この料金はすでにキャンセルされています。",
+      "feeNameCannotBeEmpty": "料金名を入力してください。",
+      "feeNameCannotExceed150Characters": "料金名は150文字以内で入力してください。",
+      "feeNameIsRequired": "料金名を入力してください。",
+      "feeRequirementNotFound": "料金設定が見つかりません。",
+      "internalServerError": "サーバー内部でエラーが発生しました。",
+      "invalidDueDate": "支払期限が正しくありません。",
+      "invalidFeeID": "料金IDが正しくありません。",
+      "invalidOrExpiredToken": "認証トークンが無効か、期限切れです。",
+      "invalidTokenFormat": "認証トークンの形式が正しくありません。",
+      "invalidUserRole": "ユーザー権限が正しくありません。",
+      "noteCannotExceed3000Characters": "メモは3000文字以内で入力してください。",
+      "serverError": "サーバーエラーが発生しました。",
+      "tokenExpired": "認証トークンの有効期限が切れています。",
+      "tokenNotProvided": "認証トークンが指定されていません。",
+      "userAccountNoLongerExists": "ユーザーアカウントが存在しません。",
+      "youAreNotAuthorizedToAccessThisResource": "この情報にアクセスする権限がありません。",
+      "youAreNotAuthorizedToViewThisClientSFees": "この顧客の料金を閲覧する権限がありません。",
+      "yourAccountHasBeenDisabled": "アカウントは無効になっています。",
+      "somethingWentWrong": "エラーが発生しました。もう一度お試しください。",
+      "networkError": "ネットワークに接続できません。接続を確認してください。",
+      "failedToFetch": "データを取得できませんでした。接続を確認してください。",
+      "requestAborted": "リクエストが中断されました。",
+      "canceled": "リクエストがキャンセルされました。",
+      "validationError": "送信した情報に誤りがあります。入力内容を確認してください。"
+    },
+    "requestFailed": "リクエストに失敗しました（ステータスコード：{status}）。",
+    "requestTimeout": "リクエストがタイムアウトしました。もう一度お試しください。"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({locale, messages: messages[locale === "ja" ? "ja" : "en"]});
+}
+
+const normalizeMessage = (value: string) => value.trim().replace(/\.+$/, "").toLowerCase();
+const serverMessageKeys = new Map(
+  Object.entries(messages.en.serverMessages).map(([key, value]) => [normalizeMessage(value), key]),
+);
+
+// Resolve stored message keys and known API messages when rendering so locale changes
+// also update messages already on screen.
+function translateServerMessage(
+  message: string | null | undefined,
+  locale: string,
+  t: ReturnType<typeof useLocalTranslations>,
+  fallback: keyof typeof messages.en.messages,
+) {
+  if (typeof message !== "string" || !message.trim()) return t(("messages." + fallback) as never);
+  if (message.startsWith("messages.") && t.has(message as never)) return t(message as never);
+  const key = serverMessageKeys.get(normalizeMessage(message));
+  if (key) return t(("serverMessages." + key) as never);
+  const httpError = /^Request failed with status code (\d+)\.?$/i.exec(message.trim());
+  if (httpError) return t("requestFailed", {status: httpError[1]});
+  if (/^timeout of \d+ms exceeded/i.test(message)) return t("requestTimeout");
+  const minimum = /^Expected amount cannot be less than the already paid amount of (.+?)\.?$/i.exec(message.trim());
+  if (minimum) return t("minimumExpectedAmount", {amount: minimum[1]});
+  if (locale !== "ja" || /^[\u3040-\u30ff\u3400-\u9fff]/u.test(message)) return message;
+  if (/validation failed|cast to .+ failed/i.test(message)) return t("serverMessages.validationError");
+  if (/E11000|duplicate key/i.test(message)) return t("serverMessages.duplicateDataExists");
+  return t(("messages." + fallback) as never);
+}
+
+function translateValidationError(message: string | undefined, t: ReturnType<typeof useLocalTranslations>) {
+  if (!message) return undefined;
+  return t.has(message as never) ? t(message as never) : t("validation.invalid");
+}
+
 
 // =================================================
 // DESIGN TOKENS
@@ -125,7 +389,7 @@ const chipSx = {
 const formatAmount = (value: number) =>
   new Intl.NumberFormat("ja-JP").format(Number(value || 0));
 
-const formatTokyoDate = (value?: string | null) => {
+const formatTokyoDate = (value: string | null | undefined, locale: string) => {
   if (!value) {
     return "-";
   }
@@ -136,7 +400,7 @@ const formatTokyoDate = (value?: string | null) => {
     return "-";
   }
 
-  return new Intl.DateTimeFormat("en-CA", {
+  return new Intl.DateTimeFormat(locale === "ja" ? "ja-JP" : "en-CA", {
     timeZone: "Asia/Tokyo",
     year: "numeric",
     month: "2-digit",
@@ -289,7 +553,8 @@ const Money = ({
 // =================================================
 
 const ClientFees = ({ clientId }: ClientFeesProps) => {
-  const t = useTranslations("clientFees");
+  const locale = useLocale();
+  const t = useLocalTranslations();
 
   const {
     isAdmin,
@@ -417,7 +682,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
 
       {serverError && (
         <Alert severity="error" sx={{ ...errorAlertSx, mb: 1.5 }}>
-          {serverError}
+          {translateServerMessage(serverError, locale, t, "saveFailed")}
         </Alert>
       )}
 
@@ -433,13 +698,13 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
             "& .MuiAlert-icon": { color: BRAND },
           }}
         >
-          {successMessage}
+          {translateServerMessage(successMessage, locale, t, "created")}
         </Alert>
       )}
 
       {loadError && (
         <Alert severity="error" sx={{ ...errorAlertSx, mb: 1.5 }}>
-          {loadError}
+          {translateServerMessage(loadError, locale, t, "loadFailed")}
         </Alert>
       )}
 
@@ -588,7 +853,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                               fontVariantNumeric: "tabular-nums",
                             }}
                           >
-                            {t("due", { date: formatTokyoDate(fee.dueDate) })}
+                            {t("due", { date: formatTokyoDate(fee.dueDate, locale) })}
                           </Typography>
                         </Box>
 
@@ -807,8 +1072,8 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     }}
                   >
                     {showAllFees
-                      ? "Show less"
-                      : `Show all ${fees.length} fees`}
+                      ? t("showLess")
+                      : t("showAll", {count: fees.length})}
                   </Button>
                 </Box>
               )}
@@ -861,7 +1126,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     size="small"
                     label={t("form.feeName")}
                     error={Boolean(errors.feeName)}
-                    helperText={errors.feeName?.message}
+                    helperText={translateValidationError(errors.feeName?.message, t)}
                     sx={fieldSx}
                   />
                 )}
@@ -891,7 +1156,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                       type="number"
                       label={t("form.expectedAmount")}
                       error={Boolean(errors.expectedAmount)}
-                      helperText={errors.expectedAmount?.message}
+                      helperText={translateValidationError(errors.expectedAmount?.message, t)}
                       sx={fieldSx}
                     />
                   )}
@@ -926,7 +1191,7 @@ const ClientFees = ({ clientId }: ClientFeesProps) => {
                     size="small"
                     label={t("form.note")}
                     error={Boolean(errors.note)}
-                    helperText={errors.note?.message}
+                    helperText={translateValidationError(errors.note?.message, t)}
                     sx={fieldSx}
                   />
                 )}

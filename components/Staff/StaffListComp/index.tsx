@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -29,6 +29,7 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { enUS, jaJP } from "@mui/x-data-grid/locales";
 
 import Breadcrumb from "@/components/Breadcrumb";
 import { useAuthStore } from "@/store/auth-store";
@@ -42,6 +43,186 @@ import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
 
 import { useStaffHook } from "./hook";
 import type { StaffFilterValues, StaffRecord } from "./type";
+
+const messages = {
+  en: {
+    breadcrumbs: {
+      dashboard: "Dashboard",
+      staff: "Staff"
+    },
+    title: "Staff",
+    description: "Manage staff accounts, access and status.",
+    addStaff: "Add Staff",
+    thisStaffMember: "this staff member",
+    filters: {
+      search: {
+        label: "What are you looking for?",
+        placeholder: "Staff ID, name, email, or phone"
+      },
+      staffMember: {
+        label: "Staff member",
+        placeholder: "All staff members"
+      },
+      location: {
+        label: "Location",
+        placeholder: "All locations",
+        options: {
+          USA: "USA",
+          Japan: "Japan",
+          Nepal: "Nepal",
+          Other: "Other"
+        }
+      },
+      accountStatus: {
+        label: "Account status",
+        placeholder: "All statuses",
+        options: {
+          active: "Active",
+          inactive: "Inactive"
+        }
+      },
+      searchButton: "Search staff",
+      clearButton: "Clear"
+    },
+    columns: {
+      id: "ID",
+      fullName: "Full name",
+      email: "Email",
+      location: "Location",
+      status: "Status",
+      createdAt: "Created At",
+      action: "Action"
+    },
+    status: {
+      active: "Active",
+      inactive: "Inactive"
+    },
+    actions: {
+      viewClients: "View staff clients",
+      viewDetails: "View staff details",
+      edit: "Edit staff",
+      disable: "Disable staff",
+      activate: "Activate staff"
+    },
+    confirmStatus: {
+      disableTitle: "Disable Staff",
+      activateTitle: "Activate Staff",
+      disableWarning: "This staff member will not be able to log in while the account is disabled.",
+      disableConfirm: "Yes, Disable",
+      activateConfirm: "Yes, Activate",
+      cancel: "No",
+      disableDescription: "Are you sure you want to <action>disable</action> <staffName>{name}</staffName>?",
+      activateDescription: "Are you sure you want to <action>activate</action> <staffName>{name}</staffName>?"
+    },
+    error: {
+      title: "Unable to load staff",
+      description: "Something went wrong while loading the staff list.",
+      retry: "Try Again"
+    },
+    views: {
+      table: "Table view",
+      cards: "Card view",
+      swipeHint: "Swipe table horizontally to see more columns"
+    },
+    pagination: {
+      itemLabel: "staff members"
+    },
+    notAvailable: "N/A"
+  },
+  ja: {
+    breadcrumbs: {
+      dashboard: "ダッシュボード",
+      staff: "スタッフ"
+    },
+    title: "スタッフ",
+    description: "スタッフアカウント、アクセス権、ステータスを管理します。",
+    addStaff: "スタッフを追加",
+    thisStaffMember: "このスタッフ",
+    filters: {
+      search: {
+        label: "検索条件を入力してください",
+        placeholder: "スタッフID、氏名、メール、電話番号"
+      },
+      staffMember: {
+        label: "スタッフ",
+        placeholder: "すべてのスタッフ"
+      },
+      location: {
+        label: "所在地",
+        placeholder: "すべての所在地",
+        options: {
+          USA: "アメリカ",
+          Japan: "日本",
+          Nepal: "ネパール",
+          Other: "その他"
+        }
+      },
+      accountStatus: {
+        label: "アカウント状態",
+        placeholder: "すべての状態",
+        options: {
+          active: "有効",
+          inactive: "無効"
+        }
+      },
+      searchButton: "スタッフを検索",
+      clearButton: "クリア"
+    },
+    columns: {
+      id: "ID",
+      fullName: "氏名",
+      email: "メール",
+      location: "所在地",
+      status: "ステータス",
+      createdAt: "作成日",
+      action: "操作"
+    },
+    status: {
+      active: "有効",
+      inactive: "無効"
+    },
+    actions: {
+      viewClients: "担当顧客を表示",
+      viewDetails: "スタッフ詳細を表示",
+      edit: "スタッフを編集",
+      disable: "スタッフを無効化",
+      activate: "スタッフを有効化"
+    },
+    confirmStatus: {
+      disableTitle: "スタッフを無効化",
+      activateTitle: "スタッフを有効化",
+      disableWarning: "アカウントが無効の間、このスタッフはログインできません。",
+      disableConfirm: "はい、無効化",
+      activateConfirm: "はい、有効化",
+      cancel: "いいえ",
+      disableDescription: "<staffName>{name}</staffName>を<action>無効化</action>してもよろしいですか？",
+      activateDescription: "<staffName>{name}</staffName>を<action>有効化</action>してもよろしいですか？"
+    },
+    error: {
+      title: "スタッフ一覧を読み込めません",
+      description: "スタッフ一覧の読み込み中にエラーが発生しました。",
+      retry: "再試行"
+    },
+    views: {
+      table: "表形式で表示",
+      cards: "カード形式で表示",
+      swipeHint: "表を横にスワイプすると、ほかの列を確認できます。"
+    },
+    pagination: {
+      itemLabel: "スタッフ"
+    },
+    notAvailable: "情報なし"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
+
 
 // =================================================
 // THEME TOKENS
@@ -203,7 +384,7 @@ function StaffAvatar({
 }
 
 function StaffStatus({ active }: { active: boolean }) {
-  const t = useTranslations("staffList");
+  const t = useLocalTranslations();
   return (
     <Typography
       component="span"
@@ -282,7 +463,7 @@ function RowActions({
   onEdit,
   onToggleStatus,
 }: RowActionsProps) {
-  const t = useTranslations("staffList");
+  const t = useLocalTranslations();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const closeMenu = () => setAnchorEl(null);
 
@@ -587,7 +768,7 @@ function StaffListItem({
   RowActionsProps,
   "row" | "variant"
 >) {
-  const t = useTranslations("staffList");
+  const t = useLocalTranslations();
 
   return (
     <Box
@@ -654,11 +835,14 @@ function StaffListItem({
         }}
       >
         <MetaItem label={t("columns.id")} value={row.staffId} />
-        <MetaItem label={t("columns.location")} value={row.location || "-"} />
+        <MetaItem
+          label={t("columns.location")}
+          value={translateLocation(row.location, t)}
+        />
         <Box sx={{ gridColumn: { xs: "span 2", sm: "span 1" } }}>
           <MetaItem
             label={t("columns.createdAt")}
-            value={String(formatCreatedAt(row.createdAt) ?? "-")}
+            value={formatStaffCreatedAt(row.createdAt, t)}
           />
         </Box>
       </Box>
@@ -690,7 +874,7 @@ function StaffListSkeleton() {
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
-  const t = useTranslations("staffList");
+  const t = useLocalTranslations();
   return (
     <Box
       role="alert"
@@ -741,8 +925,9 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
 // =================================================
 
 export default function StaffPage() {
+  const locale = useLocale();
   const router = useRouter();
-  const t = useTranslations("staffList");
+  const t = useLocalTranslations();
   const role = useAuthStore((state) => state.user?.role);
   const canManage = role === "superadmin";
 
@@ -784,8 +969,8 @@ export default function StaffPage() {
       name: "location",
       label: t("filters.location.label"),
       placeholder: t("filters.location.placeholder"),
-      options: ["USA", "Japan", "Nepal", "Other"].map((value) => ({
-        label: t(`filters.location.options.${value}` as never),
+      options: (["USA", "Japan", "Nepal", "Other"] as const).map((value) => ({
+        label: t(`filters.location.options.${value}`),
         value,
       })),
     },
@@ -840,7 +1025,7 @@ export default function StaffPage() {
     setStatusDialog({
       open: true,
       staffId: row.staffId,
-      name: row.name ?? t("thisStaffMember"),
+      name: row.name || t("thisStaffMember"),
       isActive: row.isActive,
     });
 
@@ -940,7 +1125,7 @@ export default function StaffPage() {
       minWidth: 95,
       renderCell: (params) => (
         <Typography noWrap sx={{ fontSize: 13.5, color: INK_MUTED }}>
-          {params.value || "-"}
+          {translateLocation(params.value, t)}
         </Typography>
       ),
     },
@@ -957,7 +1142,7 @@ export default function StaffPage() {
       headerName: t("columns.createdAt"),
       flex: 0.75,
       minWidth: 125,
-      valueGetter: (_value, row) => formatCreatedAt(row.createdAt),
+      valueGetter: (_value, row) => formatStaffCreatedAt(row.createdAt, t),
       renderCell: (params) => (
         <Typography noWrap sx={{ fontSize: 13, color: INK_MUTED }}>
           {params.value}
@@ -1159,7 +1344,7 @@ export default function StaffPage() {
                 count={pagination?.total ?? 0}
                 from={pagination?.from ?? null}
                 to={pagination?.to ?? null}
-                itemLabel="staff members"
+                itemLabel={t("pagination.itemLabel")}
               />
 
               {/* View Switcher: allows user to toggle Table / Card mode on any screen */}
@@ -1173,10 +1358,10 @@ export default function StaffPage() {
                   border: `1px solid ${HAIRLINE}`,
                 }}
               >
-                <Tooltip title="Table View">
+                <Tooltip title={t("views.table")}>
                   <IconButton
                     size="small"
-                    aria-label="Table view"
+                    aria-label={t("views.table")}
                     onClick={() => setViewMode("table")}
                     sx={{
                       p: 0.6,
@@ -1196,10 +1381,10 @@ export default function StaffPage() {
                     <TableRowsOutlinedIcon sx={{ fontSize: 18 }} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="Card View">
+                <Tooltip title={t("views.cards")}>
                   <IconButton
                     size="small"
-                    aria-label="Card view"
+                    aria-label={t("views.cards")}
                     onClick={() => setViewMode("cards")}
                     sx={{
                       p: 0.6,
@@ -1240,7 +1425,7 @@ export default function StaffPage() {
                 }}
               >
                 <SwapHorizIcon sx={{ fontSize: 15, color: BRAND }} />
-                <span>Swipe table horizontally to see more columns</span>
+                <span>{t("views.swipeHint")}</span>
               </Box>
             )}
 
@@ -1249,6 +1434,9 @@ export default function StaffPage() {
               <ErrorState onRetry={() => void refetch()} />
             ) : isGrid ? (
               <DataGrid
+                localeText={
+                  (locale === "ja" ? jaJP : enUS).components.MuiDataGrid.defaultProps.localeText
+                }
                 rows={rows}
                 getRowId={(row) => row.staffId}
                 columns={columns}
@@ -1400,13 +1588,16 @@ export default function StaffPage() {
         }
         description={
           <>
-            {t("confirmStatus.descriptionPrefix")}{" "}
-            <strong>
-              {statusDialog.isActive
-                ? t("confirmStatus.disableVerb")
-                : t("confirmStatus.activateVerb")}
-            </strong>{" "}
-            <strong>{statusDialog.name}</strong>?
+            {t.rich(
+              statusDialog.isActive
+                ? "confirmStatus.disableDescription"
+                : "confirmStatus.activateDescription",
+              {
+                name: statusDialog.name,
+                action: (chunks) => <strong>{chunks}</strong>,
+                staffName: (chunks) => <strong>{chunks}</strong>,
+              },
+            )}
             {statusDialog.isActive && (
               <div style={{ marginTop: 12 }}>
                 {t("confirmStatus.disableWarning")}
@@ -1427,4 +1618,22 @@ export default function StaffPage() {
       />
     </Box>
   );
+}
+
+function translateLocation(
+  value: string | null | undefined,
+  t: ReturnType<typeof useLocalTranslations>,
+) {
+  const location = (["USA", "Japan", "Nepal", "Other"] as const).find(
+    (location) => location === value,
+  );
+  return location ? t(`filters.location.options.${location}`) : value || "-";
+}
+
+function formatStaffCreatedAt(
+  value: string | null | undefined,
+  t: ReturnType<typeof useLocalTranslations>,
+) {
+  const formatted = formatCreatedAt(value);
+  return formatted === "N/A" ? t("notAvailable") : formatted;
 }

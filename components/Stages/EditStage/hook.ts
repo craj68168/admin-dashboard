@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import axios from "axios";
-import toast from "react-hot-toast";
+import { useNotificationStore } from "@/store/notification-store";
 
 import { api } from "@/lib/axios";
 
@@ -164,7 +164,10 @@ export function useEditStageHook() {
     },
 
     onSuccess: async (response) => {
-      toast.success(response.message || "Stage updated successfully");
+      useNotificationStore.getState().showNotification(
+        response.message || "Stage updated successfully",
+        "success",
+      );
 
       await Promise.all([
         queryClient.invalidateQueries({
@@ -185,12 +188,18 @@ export function useEditStageHook() {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message;
 
-        toast.error(message || "Failed to update stage");
+        useNotificationStore.getState().showNotification(
+          message || "Failed to update stage",
+          "error",
+        );
 
         return;
       }
 
-      toast.error("Failed to update stage");
+      useNotificationStore.getState().showNotification(
+        "Failed to update stage",
+        "error",
+      );
     },
   });
 
@@ -200,13 +209,19 @@ export function useEditStageHook() {
 
   const handleUpdateStage = (values: EditStageFormValues) => {
     if (!stageId) {
-      toast.error("Stage ID is missing");
+      useNotificationStore.getState().showNotification(
+        "Stage ID is missing",
+        "error",
+      );
 
       return;
     }
 
     if (!stage) {
-      toast.error("Stage not found");
+      useNotificationStore.getState().showNotification(
+        "Stage not found",
+        "error",
+      );
 
       return;
     }

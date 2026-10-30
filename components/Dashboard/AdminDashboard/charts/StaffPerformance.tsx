@@ -1,7 +1,7 @@
 "use client";
 import { useRef, type ReactNode } from "react";
 import { useInView } from "motion/react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import Paper from "@mui/material/Paper";
@@ -10,6 +10,41 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import type { useAdminDashboard } from "../hook";
 import type { DashboardCharts } from "../type";
+
+const messages = {
+  en: {
+    staffCollectionsAndTargets: "Staff collections and targets",
+    noStaffCollectionsOrTargetsThisMonth: "No staff collections or targets this month.",
+    target: "Target",
+    targetMet: "Target met",
+    inProgress: "In progress",
+    collectedVsTargetByStaff: "Collected vs target by staff",
+    staffSummary: "{staffName}: collected {collected} yen{hasTarget, select, true { of {target} yen target} other {}}",
+    targetSummary: "{hasTarget, select, true { of {target}} other { no target}}",
+    description: "Select a staff member to open their page",
+    staffCount: "{total} staff"
+  },
+  ja: {
+    staffCollectionsAndTargets: "スタッフ別の入金額と目標",
+    noStaffCollectionsOrTargetsThisMonth: "今月のスタッフの入金額や目標はありません。",
+    target: "目標",
+    targetMet: "目標達成",
+    inProgress: "進行中",
+    collectedVsTargetByStaff: "スタッフ別の入金額と目標",
+    staffSummary: "{staffName}：入金額{collected}円{hasTarget, select, true {、目標額{target}円} other {}}",
+    targetSummary: "{hasTarget, select, true { / 目標 {target}} other { 目標なし}}",
+    description: "スタッフを選択すると詳細ページが開きます",
+    staffCount: "スタッフ{total}名"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -186,6 +221,7 @@ function StaffBars({
   total: number;
   onSelect: (staffId: string) => void;
 }) {
+  const t = useLocalTranslations();
   const lang = useLocale();
   const compactFormatter = new Intl.NumberFormat(lang === "ja" ? "ja" : "en", {
     notation: "compact",
@@ -212,7 +248,7 @@ function StaffBars({
     >
       <Box
         role="region"
-        aria-label={lang === "ja" ? "スタッフ別の入金額と目標" : "Staff collections and targets"}
+        aria-label={t("staffCollectionsAndTargets")}
         tabIndex={0}
         sx={{
           flex: 1,
@@ -231,7 +267,7 @@ function StaffBars({
         }}
       >
         {rows.length === 0 && (
-          <EmptyNote message={lang === "ja" ? "今月のスタッフの入金額や目標はありません。" : "No staff collections or targets this month."} />
+          <EmptyNote message={t("noStaffCollectionsOrTargetsThisMonth")} />
         )}
         {rows.map((row) => {
           const fill = Math.max(
@@ -249,9 +285,12 @@ function StaffBars({
             <ButtonBase
               key={row.staffId}
               onClick={() => onSelect(row.staffId)}
-              aria-label={lang === "ja"
-                ? `${row.staffName}：入金額${formatAmount(row.totalCollected)}円${hasTarget ? `、目標額${formatAmount(row.targetAmount)}円` : ""}`
-                : `${row.staffName}: collected ${formatAmount(row.totalCollected)} yen${hasTarget ? ` of ${formatAmount(row.targetAmount)} yen target` : ""}`}
+              aria-label={t("staffSummary", {
+                staffName: row.staffName,
+                collected: formatAmount(row.totalCollected),
+                hasTarget: String(Boolean(hasTarget)),
+                target: formatAmount(row.targetAmount),
+              })}
               sx={{
                 display: "block",
                 flexShrink: 0,
@@ -300,9 +339,10 @@ function StaffBars({
                     {formatCompact(row.totalCollected)}
                   </Box>
 
-                  {lang === "ja"
-                    ? hasTarget ? ` / 目標 ${formatCompact(row.targetAmount)}` : " 目標なし"
-                    : hasTarget ? ` of ${formatCompact(row.targetAmount)}` : " no target"}
+                  {t("targetSummary", {
+                    hasTarget: String(Boolean(hasTarget)),
+                    target: formatCompact(row.targetAmount),
+                  })}
                 </Typography>
               </Box>
 
@@ -404,7 +444,7 @@ function StaffBars({
               component="span"
               sx={{ width: 2, height: 12, borderRadius: 1, bgcolor: INK }}
             />
-            {lang === "ja" ? "目標" : "Target"}
+            {t("target")}
           </Box>
 
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
@@ -412,7 +452,7 @@ function StaffBars({
               component="span"
               sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: BRAND }}
             />
-            {lang === "ja" ? "目標達成" : "Target met"}
+            {t("targetMet")}
           </Box>
 
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
@@ -425,12 +465,12 @@ function StaffBars({
                 bgcolor: BRAND_PROGRESS,
               }}
             />
-            {lang === "ja" ? "進行中" : "In progress"}
+            {t("inProgress")}
           </Box>
         </Box>
 
         <span>
-          {lang === "ja" ? `スタッフ${total}名` : `${total} staff`}
+          {t("staffCount", { total: total })}
         </span>
       </Box>
     </Box>
@@ -438,7 +478,7 @@ function StaffBars({
 }
 
 export default function StaffPerformance({ data }: Props) {
-  const lang = useLocale();
+  const t = useLocalTranslations();
   const { handleStaffClick, charts } = data;
   const chartData: ChartsData = charts ?? EMPTY_CHARTS;
 
@@ -448,8 +488,8 @@ export default function StaffPerformance({ data }: Props) {
 
   return (
     <ChartCard
-      title={lang === "ja" ? "スタッフ別の入金額と目標" : "Collected vs target by staff"}
-      subtitle={lang === "ja" ? "スタッフを選択すると詳細ページが開きます" : "Select a staff member to open their page"}
+      title={t("collectedVsTargetByStaff")}
+      subtitle={t("description")}
       icon={<BarChartOutlinedIcon sx={{ fontSize: 18 }} />}
     >
       <StaffBars

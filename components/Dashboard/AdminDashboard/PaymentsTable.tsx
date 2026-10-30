@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { useLocale } from "next-intl";
+import { createTranslator, useLocale } from "next-intl";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -14,6 +14,105 @@ import Typography from "@mui/material/Typography";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import type { useAdminDashboard } from "./hook";
 import type { DashboardPaymentStatus } from "./type";
+
+const messages = {
+  en: {
+    legacyPayment: "Legacy Payment",
+    payments: "Payments",
+    client: "Client",
+    stage: "Stage",
+    amount: "Amount",
+    method: "Method",
+    status: "Status",
+    staff: "Staff",
+    date: "Date",
+    emptyTitle: "No payments found",
+    emptyBody: "Try another month or adjust the filters.",
+    rowsPerPage: "Rows per page:",
+    rowsPerPageAria: "Rows per page",
+    paymentsFor: "Payments for {month}",
+    count: "{count, plural, one {# payment} other {# payments}}",
+    openClient: "Open client {hasName, select, true {{name}, } other {}}{id}",
+    displayedRows: "{from}–{to} of {count}",
+    knownCount: "{count, number}",
+    unknownCount: "more than {to}",
+    firstPage: "Go to first page",
+    lastPage: "Go to last page",
+    nextPage: "Go to next page",
+    previousPage: "Go to previous page",
+    cash: "Cash",
+    bankTransfer: "Bank Transfer",
+    onlinePayment: "Online Payment",
+    cheque: "Cheque",
+    other: "Other",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    refunded: "Refunded",
+    stageRegistrationPending: "Registration Pending",
+    stageRegisteredVacancySearching: "Registered / Vacancy Searching",
+    stageInterviewPreparation: "Interview Fixed / Preparation",
+    stageInterviewFailed: "Interview Failed",
+    stageJobOfferReceived: "Naitei / Job Offer Received",
+    stageVisaDocumentsSubmitted: "Visa Documents Submitted",
+    stageVisaResultWaiting: "Visa Applied / Result Waiting",
+    stageVisaApproved: "Visa Approved",
+    stageVisaRejected: "Visa Rejected",
+    stageCompanyJoining: "Waiting for Nyusha / Company Joining",
+    stageReturnToNepal: "Return to Nepal"
+  },
+  ja: {
+    legacyPayment: "過去の入金",
+    payments: "入金一覧",
+    client: "顧客",
+    stage: "ステージ",
+    amount: "金額",
+    method: "支払方法",
+    status: "ステータス",
+    staff: "スタッフ",
+    date: "日付",
+    emptyTitle: "入金が見つかりません",
+    emptyBody: "別の月を選択するか、絞り込み条件を変更してください。",
+    rowsPerPage: "1ページの表示件数：",
+    rowsPerPageAria: "1ページの表示件数",
+    paymentsFor: "{month}の入金",
+    count: "{count, number}件の入金",
+    openClient: "顧客{hasName, select, true {{name}、} other {}}{id}の詳細を開く",
+    displayedRows: "全{count}中 {from}–{to}件",
+    knownCount: "{count, number}件",
+    unknownCount: "{to}件以上",
+    firstPage: "最初のページへ",
+    lastPage: "最後のページへ",
+    nextPage: "次のページへ",
+    previousPage: "前のページへ",
+    cash: "現金",
+    bankTransfer: "銀行振込",
+    onlinePayment: "オンライン決済",
+    cheque: "小切手",
+    other: "その他",
+    completed: "完了",
+    cancelled: "キャンセル",
+    refunded: "返金済み",
+    stageRegistrationPending: "登録待ち",
+    stageRegisteredVacancySearching: "登録済み / 求人検索中",
+    stageInterviewPreparation: "面接確定 / 準備中",
+    stageInterviewFailed: "面接不合格",
+    stageJobOfferReceived: "内定 / オファー受領",
+    stageVisaDocumentsSubmitted: "ビザ書類提出済み",
+    stageVisaResultWaiting: "ビザ申請済み / 結果待ち",
+    stageVisaApproved: "ビザ承認",
+    stageVisaRejected: "ビザ却下",
+    stageCompanyJoining: "入社待ち",
+    stageReturnToNepal: "ネパールへ帰国"
+  }
+};
+
+function useLocalTranslations() {
+  const locale = useLocale();
+  return createTranslator({
+    locale,
+    messages: messages[locale === "ja" ? "ja" : "en"],
+  });
+}
 
 type Props = {
   data: Pick<
@@ -86,73 +185,35 @@ type Copy = {
   pageAria: (type: string) => string;
 };
 
-const EN: Copy = {
-  payments: "Payments",
-  paymentsFor: (month) => `Payments for ${month}`,
-  count: (total) =>
-    `${formatAmount(total)}${total === 1 ? " payment" : " payments"}`,
-  client: "Client",
-  stage: "Stage",
-  amount: "Amount",
-  method: "Method",
-  status: "Status",
-  staff: "Staff",
-  date: "Date",
-  emptyTitle: "No payments found",
-  emptyBody: "Try another month or adjust the filters.",
-  methods: {},
-  statuses: {},
-  openClient: (name, id) => `Open client ${name ? `${name}, ` : ""}${id}`,
-  rowsPerPage: "Rows per page:",
-  rowsPerPageAria: "Rows per page",
-  displayedRows: ({ from, to, count }) =>
-    `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`,
-  pageAria: (type) => `Go to ${type} page`,
-};
-
-const JA: Copy = {
-  payments: "入金一覧",
-  paymentsFor: (month) => `${month}の入金`,
-  count: (total) => `${formatAmount(total)}件の入金`,
-  client: "顧客",
-  stage: "ステージ",
-  amount: "金額",
-  method: "支払方法",
-  status: "ステータス",
-  staff: "スタッフ",
-  date: "日付",
-  emptyTitle: "入金が見つかりません",
-  emptyBody: "別の月を選択するか、絞り込み条件を変更してください。",
-  methods: {
-    Cash: "現金",
-    "Bank Transfer": "銀行振込",
-    "Online Payment": "オンライン決済",
-    Cheque: "小切手",
-    Other: "その他",
-  },
-  statuses: {
-    Completed: "完了",
-    Cancelled: "キャンセル",
-    Refunded: "返金済み",
-  },
-  openClient: (name, id) => `顧客${name ? `${name}、` : ""}${id}の詳細を開く`,
-  rowsPerPage: "1ページの表示件数：",
-  rowsPerPageAria: "1ページの表示件数",
-  displayedRows: ({ from, to, count }) =>
-    `全${count !== -1 ? `${count}件` : `${to}件以上`}中 ${from}–${to}件`,
-  pageAria: (type) =>
-    type === "first"
-      ? "最初のページへ"
-      : type === "last"
-        ? "最後のページへ"
-        : type === "next"
-          ? "次のページへ"
-          : "前のページへ",
-};
-
 function useCopy() {
   const lang = useLocale();
-  return { lang, c: lang === "ja" ? JA : EN };
+  const t = useLocalTranslations();
+  const c: Copy = {
+    payments: t("payments"),
+    client: t("client"),
+    stage: t("stage"),
+    amount: t("amount"),
+    method: t("method"),
+    status: t("status"),
+    staff: t("staff"),
+    date: t("date"),
+    emptyTitle: t("emptyTitle"),
+    emptyBody: t("emptyBody"),
+    rowsPerPage: t("rowsPerPage"),
+    rowsPerPageAria: t("rowsPerPageAria"),
+    paymentsFor: (month) => t("paymentsFor", {month: formatMonth(month, lang)}),
+    count: (count) => t("count", {count}),
+    methods: {Cash: t("cash"), "Bank Transfer": t("bankTransfer"), "Online Payment": t("onlinePayment"), Cheque: t("cheque"), Other: t("other")},
+    statuses: {Completed: t("completed"), Cancelled: t("cancelled"), Refunded: t("refunded")},
+    openClient: (name, id) => t("openClient", {hasName: String(Boolean(name)), name: name || "", id}),
+    displayedRows: ({from, to, count}) => t("displayedRows", {
+      from,
+      to,
+      count: count === -1 ? t("unknownCount", {to}) : t("knownCount", {count}),
+    }),
+    pageAria: (type) => t(type === "first" ? "firstPage" : type === "last" ? "lastPage" : type === "next" ? "nextPage" : "previousPage"),
+  };
+  return {lang, c, t};
 }
 
 const formatJapanDate = (value: string, lang: string) => {
@@ -609,7 +670,7 @@ const amountSx = (status: DashboardPaymentStatus) => ({
 // =================================================
 
 export default function PaymentsTable({ data }: Props) {
-  const { lang, c } = useCopy();
+  const { lang, c, t } = useCopy();
   const {
     selectedMonth,
     payments,
@@ -705,7 +766,7 @@ export default function PaymentsTable({ data }: Props) {
                       onOpen={handleClientClick}
                       below={
                         <Box sx={detailsUnderClient}>
-                          <span>{payment.stageName}</span>
+                          <span>{translateStage(payment.stageName, t)}</span>
                           <span>{method}</span>
                           <span style={{ fontVariantNumeric: "tabular-nums" }}>
                             {date}
@@ -718,7 +779,7 @@ export default function PaymentsTable({ data }: Props) {
 
                   {/* STAGE */}
                   <TableCell sx={{ ...bodyCellSx, ...cellFrom(BP.mid) }}>
-                    {payment.stageName}
+                    {translateStage(payment.stageName, t)}
                   </TableCell>
 
                   {/* AMOUNT (method / status stack under it when needed) */}
@@ -824,4 +885,16 @@ export default function PaymentsTable({ data }: Props) {
       />
     </Paper>
   );
+}
+function translateStage(name: string, t: ReturnType<typeof useLocalTranslations>) {
+  // Stage masters can contain custom names; translate only recognized labels.
+  const key = Object.entries(messages.en).find(([key, value]) =>
+    (key.startsWith("stage") || key === "legacyPayment") && value === name,
+  )?.[0];
+  return key ? t(key as keyof typeof messages.en) : name;
+}
+
+function formatMonth(value: string, locale: string) {
+  const date = new Date(`${value}-01T00:00:00+09:00`);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(locale, {year: "numeric", month: "long", timeZone: "Asia/Tokyo"}).format(date);
 }

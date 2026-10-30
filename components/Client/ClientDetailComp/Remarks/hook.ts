@@ -1,9 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-import axios from "axios";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,9 +9,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { api } from "@/lib/axios";
+import { getApiErrorMessage } from "@/lib/api-message";
 import { useAuthStore } from "@/store/auth-store";
 
-import { createRemarkSchema } from "./validation";
+import { remarkSchema } from "./validation";
 
 import type {
   CreateRemarkResponse,
@@ -36,24 +34,11 @@ const getTokyoDate = () => {
 };
 
 export const useRemarksHook = (clientId: string) => {
-  const t = useTranslations("clientRemarks");
-
   const queryClient = useQueryClient();
 
   const user = useAuthStore((state) => state.user);
 
   const [serverError, setServerError] = useState("");
-
-  const schema = useMemo(
-    () =>
-      createRemarkSchema({
-        dateRequired: t("validation.dateRequired"),
-        mediumRequired: t("validation.mediumRequired"),
-        memoRequired: t("validation.memoRequired"),
-        memoMax: t("validation.memoMax"),
-      }),
-    [t],
-  );
 
   // =================================================
   // FORM
@@ -66,7 +51,7 @@ export const useRemarksHook = (clientId: string) => {
 
     formState: { errors, isSubmitting },
   } = useForm<RemarkFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(remarkSchema),
 
     defaultValues: {
       remarkDate: getTokyoDate(),
@@ -153,15 +138,7 @@ export const useRemarksHook = (clientId: string) => {
     } catch (error) {
       console.error("Create remark error:", error);
 
-      if (axios.isAxiosError(error)) {
-        setServerError(
-          error.response?.data?.message || t("messages.saveFailed"),
-        );
-
-        return;
-      }
-
-      setServerError(t("messages.saveFailed"));
+      setServerError(getApiErrorMessage(error));
     }
   };
 
@@ -169,16 +146,7 @@ export const useRemarksHook = (clientId: string) => {
   // LOAD ERROR
   // =================================================
 
-  let loadError = "";
-
-  if (isRemarksError) {
-    if (axios.isAxiosError(remarksError)) {
-      loadError =
-        remarksError.response?.data?.message || t("messages.loadFailed");
-    } else {
-      loadError = t("messages.loadFailed");
-    }
-  }
+  const loadError = isRemarksError ? getApiErrorMessage(remarksError) : "";
 
   return {
     user,
