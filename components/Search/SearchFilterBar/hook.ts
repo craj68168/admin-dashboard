@@ -1,5 +1,6 @@
 import {
   FormEvent,
+  useCallback,
   useEffect,
   useMemo,
   useReducer,
@@ -75,14 +76,14 @@ export const useSearchFilterBar = ({
   /*
    * Read current filter values from URL.
    */
-  const getFiltersFromUrl = () => {
+  const getFiltersFromUrl = useCallback(() => {
     return Object.fromEntries(
       filterKeys.map((key) => [
         key,
         searchParams.get(key) ?? "",
       ])
     );
-  };
+  }, [filterKeys, searchParams]);
 
   /*
    * STAGED LOCAL STATE

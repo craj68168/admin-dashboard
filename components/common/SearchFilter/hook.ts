@@ -6,10 +6,6 @@
   } from "react";
 
   import type {
-    ClientFilterValues,
-  } from "./types";
-
-  import type {
     FilterValues,
     SearchFilterProps,
   } from "./types";

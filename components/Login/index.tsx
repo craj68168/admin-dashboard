@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { createTranslator, useLocale } from "next-intl";
@@ -114,7 +114,6 @@ const BRAND = "#107A64";
 const BRAND_DEEP = "#0B5546";
 const BRAND_SOFT = "rgba(16, 122, 100, 0.08)";
 const PAGE_BG = "#F2F6F3";
-const HAIRLINE = "rgba(17, 24, 39, 0.08)";
 const INK = "#0F172A";
 const INK_MUTED = "#5B6A7E";
 const DANGER = "#DC2626";
@@ -419,7 +418,7 @@ function RoleSwitch({
 // PAGE
 // =================================================
 
-const LoginComponent = ({ role = ADMIN_ROLE }: LoginComponentProps) => {
+const LoginPanel = ({ role = ADMIN_ROLE }: LoginComponentProps) => {
   const locale = useLocale();
   const currentLocale: AppLocale = locale === "ja" ? "ja" : "en";
   const t = createTranslator({ locale, messages: messages[currentLocale] });
@@ -438,12 +437,8 @@ const LoginComponent = ({ role = ADMIN_ROLE }: LoginComponentProps) => {
   const isStaff = activeRole === STAFF_ROLE;
   const theme = isStaff ? THEMES.staff : THEMES.admin;
 
-  useEffect(() => {
-    setActiveRole(role);
-  }, [role]);
-
   // +1 slides content in from the right (admin to staff), -1 from the left.
-  const directionRef = useRef(1);
+  const [slideDirection, setSlideDirection] = useState(1);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -473,13 +468,13 @@ const LoginComponent = ({ role = ADMIN_ROLE }: LoginComponentProps) => {
       return;
     }
 
-    directionRef.current = next === STAFF_ROLE ? 1 : -1;
+    setSlideDirection(next === STAFF_ROLE ? 1 : -1);
     setActiveRole(next);
     setShowPassword(false);
     reset();
   };
 
-  const direction = reduce ? 0 : directionRef.current;
+  const direction = reduce ? 0 : slideDirection;
 
   const panelTransition = "background-color 500ms ease, color 500ms ease";
 
@@ -914,4 +909,6 @@ const LoginComponent = ({ role = ADMIN_ROLE }: LoginComponentProps) => {
   );
 };
 
-export default LoginComponent;
+export default function LoginComponent({ role = ADMIN_ROLE }: LoginComponentProps) {
+  return <LoginPanel key={role} role={role} />;
+}
