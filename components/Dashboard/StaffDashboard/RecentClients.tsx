@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useStageLabel } from "./useStageLabel";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -37,6 +38,7 @@ type Props = {
 
 export default function RecentClients({ clients: recentClients, onClientClick: handleClientClick }: Props) {
   const t = useTranslations("staffDashboard");
+  const stageLabel = useStageLabel();
   const visaT = useTranslations("createClient.options.currentVisaStatus");
 
   const visaLabel = (value?: string) => {
@@ -111,7 +113,7 @@ export default function RecentClients({ clients: recentClients, onClientClick: h
                 <TableCell sx={bodyCellSx}>
                   <Chip
                     size="small"
-                    label={client.currentStageName}
+                    label={stageLabel(client.currentStageName)}
                     sx={{
                       height: 22,
                       borderRadius: 1.5,

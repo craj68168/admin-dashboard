@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useStageLabel } from "./useStageLabel";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -46,6 +47,7 @@ const formatJapanDate = (value: string, locale: string) => {
 
 export default function RecentPayments({ payments: recentPayments, onClientClick: handleClientClick }: Props) {
   const t = useTranslations("staffDashboard");
+  const stageLabel = useStageLabel();
   const locale = useLocale();
 
   const paymentMethodLabel = (method: string) => {
@@ -129,7 +131,7 @@ export default function RecentPayments({ payments: recentPayments, onClientClick
                   </Typography>
                 </TableCell>
 
-                <TableCell sx={bodyCellSx}>{payment.stageName}</TableCell>
+                <TableCell sx={bodyCellSx}>{stageLabel(payment.stageName)}</TableCell>
 
                 <TableCell sx={bodyCellSx}>
                   <Chip

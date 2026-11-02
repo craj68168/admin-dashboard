@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useStageLabel } from "./useStageLabel";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -11,6 +12,7 @@ type Props = { stageBreakdown: StaffStageBreakdown[] };
 
 export default function StageBreakdown({ stageBreakdown }: Props) {
   const t = useTranslations("staffDashboard");
+  const stageLabel = useStageLabel();
 
   const stageMax = Math.max(1, ...stageBreakdown.map((s) => s.count));
 
@@ -27,7 +29,7 @@ export default function StageBreakdown({ stageBreakdown }: Props) {
           {stageBreakdown.map((item) => (
             <Box key={item.stage || item.stageName}>
               <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1.5, mb: 0.5 }}>
-                <Typography sx={{ fontSize: 12.5, color: INK_BODY }}>{item.stageName}</Typography>
+                <Typography sx={{ fontSize: 12.5, color: INK_BODY }}>{stageLabel(item.stageName)}</Typography>
 
                 <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: BRAND }}>
                   {item.count}
