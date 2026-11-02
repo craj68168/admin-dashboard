@@ -73,6 +73,9 @@ export type StaffRecentPayment = {
 
   clientId: string;
 
+  // Client's full name, returned by GET /dashboard/staff.
+  clientName?: string;
+
   stageKey: string;
 
   stageName: string;

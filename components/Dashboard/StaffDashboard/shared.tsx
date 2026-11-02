@@ -23,7 +23,7 @@ export const INK_BODY = "#1F2937";
 export const INK_MUTED = "#64748B";
 
 export const card = {
-  borderRadius: 4,
+  borderRadius: 3,
   border: "1px solid",
   borderColor: HAIRLINE,
   bgcolor: "#ffffff",
@@ -31,7 +31,7 @@ export const card = {
 };
 
 export const sectionTitleSx = {
-  fontSize: 16,
+  fontSize: 15,
   fontWeight: 700,
   color: INK,
   letterSpacing: -0.2,
@@ -40,25 +40,25 @@ export const sectionTitleSx = {
 export const headCellSx = {
   fontSize: 11,
   fontWeight: 600,
-  letterSpacing: 0.7,
+  letterSpacing: 0.5,
   textTransform: "uppercase",
   color: INK_MUTED,
   bgcolor: "#FAFBFA",
   borderBottomColor: HAIRLINE,
-  py: 1.25,
+  py: 1,
   whiteSpace: "nowrap",
 };
 
 export const bodyCellSx = {
-  fontSize: 14,
+  fontSize: 13,
   color: INK_BODY,
   borderBottomColor: "rgba(15, 23, 42, 0.05)",
-  py: 1.5,
+  py: 1,
 };
 
-export const edgePl = { pl: { xs: 2.5, md: 3 } };
+export const edgePl = { pl: { xs: 2, md: 2.5 } };
 
-export const edgePr = { pr: { xs: 2.5, md: 3 } };
+export const edgePr = { pr: { xs: 2, md: 2.5 } };
 
 export const rowSx = {
   transition: "background-color 160ms ease",
@@ -83,8 +83,8 @@ export function SectionHeader({ title, aside }: { title: string; aside?: ReactNo
   return (
     <Box
       sx={{
-        px: { xs: 2.5, md: 3 },
-        py: 2,
+        px: { xs: 2, md: 2.5 },
+        py: 1.5,
         display: "flex",
         flexWrap: "wrap",
         alignItems: "center",
@@ -94,9 +94,8 @@ export function SectionHeader({ title, aside }: { title: string; aside?: ReactNo
       }}
     >
       <Typography sx={sectionTitleSx}>{title}</Typography>
-      {aside && (
-        <Typography sx={{ fontSize: 12, color: INK_MUTED }}>{aside}</Typography>
-      )}
+
+      {aside && <Typography sx={{ fontSize: 12, color: INK_MUTED }}>{aside}</Typography>}
     </Box>
   );
 }

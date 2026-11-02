@@ -11,26 +11,30 @@ type Props = { stageBreakdown: StaffStageBreakdown[] };
 
 export default function StageBreakdown({ stageBreakdown }: Props) {
   const t = useTranslations("staffDashboard");
+
   const stageMax = Math.max(1, ...stageBreakdown.map((s) => s.count));
+
   return (
-    <Paper elevation={0} sx={{ ...card, p: { xs: 2.5, md: 3 } }}>
+    <Paper elevation={0} sx={{ ...card, p: { xs: 2, md: 2.5 } }}>
       <Typography sx={sectionTitleSx}>{t("myClientProgress")}</Typography>
 
       {stageBreakdown.length === 0 ? (
-        <Typography sx={{ mt: 2, fontSize: 14, color: INK_MUTED }}>
+        <Typography sx={{ mt: 1.5, fontSize: 13, color: INK_MUTED }}>
           {t("noAssignedClients")}
         </Typography>
       ) : (
-        <Box sx={{ mt: 2.5, display: "flex", flexDirection: "column", gap: 1.75 }}>
+        <Box sx={{ mt: 1.5, display: "flex", flexDirection: "column", gap: 1.25 }}>
           {stageBreakdown.map((item) => (
             <Box key={item.stage || item.stageName}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1.5, mb: 0.75 }}>
-                <Typography sx={{ fontSize: 13, color: INK_BODY }}>{item.stageName}</Typography>
-                <Typography sx={{ fontSize: 13, fontWeight: 700, color: BRAND }}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1.5, mb: 0.5 }}>
+                <Typography sx={{ fontSize: 12.5, color: INK_BODY }}>{item.stageName}</Typography>
+
+                <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: BRAND }}>
                   {item.count}
                 </Typography>
               </Box>
-              <Box sx={{ height: 6, borderRadius: 999, bgcolor: "rgba(15,23,42,0.06)", overflow: "hidden" }}>
+
+              <Box sx={{ height: 5, borderRadius: 999, bgcolor: "rgba(15,23,42,0.06)", overflow: "hidden" }}>
                 <Box
                   sx={{
                     height: "100%",
