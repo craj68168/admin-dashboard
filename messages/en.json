@@ -1785,6 +1785,7 @@
     }
   },
   "profile": {
+    "title": "Profile",
     "unavailable": "Profile is unavailable.",
     "backToDashboard": "Back to dashboard",
     "accountInformation": "Account Information",

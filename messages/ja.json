@@ -1791,6 +1791,7 @@
     }
   },
   "profile": {
+    "title": "プロフィール",
     "unavailable": "プロフィール情報を利用できません。",
     "backToDashboard": "ダッシュボードに戻る",
     "accountInformation": "アカウント情報",
