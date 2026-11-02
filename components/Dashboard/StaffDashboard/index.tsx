@@ -45,39 +45,42 @@ export default function StaffDashboard() {
         bgcolor: PAGE_BG,
         minHeight: "100vh",
         px: { xs: 2, sm: 3, md: 4 },
-        py: { xs: 3, md: 4 },
+        py: { xs: 2, md: 3 },
       }}
     >
       <Box sx={{ maxWidth: 1180, mx: "auto" }}>
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 1.5 }}>
           <Breadcrumb items={[{ label: t("dashboard"), current: true }]} />
         </Box>
 
         <DashboardHeader staff={staff} selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
 
         {loadError && (
-          <Alert severity="error" sx={{ mt: 2.5, borderRadius: 3 }}>
+          <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
             {t("loadFailed")}
           </Alert>
         )}
 
         <MonthlyPerformance overview={overview} selectedMonth={selectedMonth} isFetching={isFetching} />
+
         <OverviewCards overview={overview} />
 
         <Box
           sx={{
-            mt: 2,
+            mt: 1.5,
             display: "grid",
-            gap: 2,
+            gap: 1.5,
             gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" },
             alignItems: "stretch",
           }}
         >
           <StageBreakdown stageBreakdown={stageBreakdown} />
+
           <CollectionSummary overview={overview} />
         </Box>
 
         <RecentClients clients={recentClients} onClientClick={handleClientClick} />
+
         <RecentPayments payments={recentPayments} onClientClick={handleClientClick} />
       </Box>
     </Box>

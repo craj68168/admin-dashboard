@@ -25,49 +25,50 @@ export default function DashboardHeader({ staff, selectedMonth, onMonthChange: h
         flexWrap: "wrap",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 2.5,
+        gap: 1.5,
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
         <Avatar
           sx={{
-            width: 52,
-            height: 52,
+            width: 40,
+            height: 40,
             bgcolor: BRAND,
             fontWeight: 700,
-            fontSize: 18,
+            fontSize: 15,
           }}
         >
           {initials(staff.name)}
         </Avatar>
-        <Box>
+
+        <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: { xs: 22, md: 28 },
+              fontSize: { xs: 18, md: 22 },
               fontWeight: 700,
-              letterSpacing: -0.6,
+              letterSpacing: -0.4,
               color: INK,
               lineHeight: 1.2,
             }}
           >
             {t("welcome", { name: staff.name })}
           </Typography>
-          <Box sx={{ mt: 0.75, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+
+          <Box sx={{ mt: 0.5, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Chip
               size="small"
               label={staff.staffId}
               sx={{
-                height: 22,
-                fontSize: 12,
+                height: 20,
+                fontSize: 11,
                 fontWeight: 600,
                 bgcolor: BRAND_SOFT,
                 color: BRAND,
                 borderRadius: 1.5,
               }}
             />
-            <Typography sx={{ fontSize: 14, color: INK_MUTED }}>
-              {t("description")}
-            </Typography>
+
+            <Typography sx={{ fontSize: 13, color: INK_MUTED }}>{t("description")}</Typography>
           </Box>
         </Box>
       </Box>
@@ -80,10 +81,11 @@ export default function DashboardHeader({ staff, selectedMonth, onMonthChange: h
         onChange={(event) => handleMonthChange(event.target.value)}
         slotProps={{ inputLabel: { shrink: true } }}
         sx={{
-          width: { xs: "100%", sm: 220 },
+          width: { xs: "100%", sm: 190 },
           "& .MuiOutlinedInput-root": {
-            borderRadius: 3,
+            borderRadius: 2,
             bgcolor: "#ffffff",
+            fontSize: 14,
             "& fieldset": { borderColor: "rgba(15, 23, 42, 0.12)" },
             "&:hover fieldset": { borderColor: "rgba(16, 122, 100, 0.4)" },
             "&.Mui-focused fieldset": { borderColor: BRAND, borderWidth: 1 },
@@ -93,4 +95,4 @@ export default function DashboardHeader({ staff, selectedMonth, onMonthChange: h
       />
     </Box>
   );
-}
+} 

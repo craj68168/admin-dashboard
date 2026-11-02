@@ -66,6 +66,7 @@ type NavbarWithMenuProps = NavbarProps & {
 export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
   const { user, initials } = useNavbar();
   const tSidebar = useTranslations("sidebar");
+  const t = useTranslations("navbar");
   const profilePath = getPortalPaths(user?.role).profile;
 
   return (
@@ -183,7 +184,7 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
           <Box
             component={Link}
             href={profilePath}
-            aria-label={`Open profile (${user.name})`}
+            aria-label={t("openProfile", { name: user.name })}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -298,7 +299,7 @@ export default function Navbar({ title, onMenuClick }: NavbarWithMenuProps) {
                       bgcolor: BRAND,
                     }}
                   />
-                  {user.role}
+                  {t(`roles.${user.role}`)}
                 </Box>
 
                 {user.location && (

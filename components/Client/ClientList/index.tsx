@@ -21,6 +21,7 @@ import NoDataOverlay from "@/components/common/NoDataOverlay";
 import Pagination from "@/components/common/Pagination";
 import PaginationRowsLabel from "@/components/common/PaginationRowsLabel";
 import SearchFilter from "@/components/common/SearchFilter";
+import StaffClientFilters from "./StaffClientFilters";
 import type { FilterField } from "@/components/common/SearchFilter/types";
 import {
   CURRENT_VISA_STATUS_OPTIONS,
@@ -383,13 +384,32 @@ const HAIRLINE = "rgba(17, 24, 39, 0.06)";
 const INK = "#111827";
 const INK_MUTED = "#374151";
 const DANGER = "#DC2626";
+
 const softCard = {
   bgcolor: "#ffffff",
   border: `1px solid ${HAIRLINE}`,
   borderRadius: 3,
-  boxShadow:
-    "0 1px 2px rgba(17,24,39,0.03), 0 12px 32px -22px rgba(17,24,39,0.30)",
+  boxShadow: "0 1px 2px rgba(17,24,39,0.04)",
 };
+
+const paginationBarSx = {
+  display: "flex",
+  alignItems: { xs: "stretch", sm: "center" },
+  justifyContent: "space-between",
+  flexDirection: { xs: "column", sm: "row" },
+  gap: 1.5,
+  px: { xs: 2, sm: 2.5 },
+  py: 1,
+  bgcolor: "#FAFAFA",
+} as const;
+
+const iconButtonSx = {
+  width: 32,
+  height: 32,
+  borderRadius: 2,
+  "& .MuiSvgIcon-root": { fontSize: 18 },
+} as const;
+
 // =================================================
 // DELETE DIALOG
 // =================================================
@@ -398,6 +418,7 @@ type DeleteDialogState = {
   clientId: string;
   clientName: string;
 };
+
 // =================================================
 // CLIENT LIST
 // =================================================
@@ -423,6 +444,8 @@ const ClientListPage = () => {
     exportingFormat,
   } = useClientHook();
   const paths = getPortalPaths(role);
+  const ClientFilters = role === "staff" ? StaffClientFilters : SearchFilter<ClientFilterValues>;
+
   // =================================================
   // DISPLAY HELPERS
   // =================================================
@@ -435,6 +458,7 @@ const ClientListPage = () => {
     }
     return t(`options.currentVisaStatus.${option.key}` as never);
   };
+
   const getPreferCategoryLabel = (value?: string) => {
     if (!value) {
       return "-";
@@ -445,6 +469,7 @@ const ClientListPage = () => {
     }
     return t(`options.preferCategory.${option.key}` as never);
   };
+
   // =================================================
   // FILTER FIELDS
   // =================================================
@@ -508,6 +533,7 @@ const ClientListPage = () => {
         ]
       : []),
   ];
+
   // =================================================
   // DELETE DIALOG
   // =================================================
@@ -516,6 +542,7 @@ const ClientListPage = () => {
     clientId: "",
     clientName: "",
   });
+
   const closeDeleteDialog = () => {
     setDeleteDialog({
       open: false,
@@ -523,6 +550,7 @@ const ClientListPage = () => {
       clientName: "",
     });
   };
+
   const handleConfirmDelete = () => {
     if (!deleteDialog.clientId) {
       return;
@@ -533,6 +561,7 @@ const ClientListPage = () => {
       },
     });
   };
+
   // =================================================
   // COLUMNS
   // =================================================
@@ -603,7 +632,7 @@ const ClientListPage = () => {
     {
       field: "actions",
       headerName: t("columns.action"),
-      width: role === "superadmin" ? 150 : 110,
+      width: role === "superadmin" ? 130 : 96,
       resizable: false,
       disableColumnMenu: true,
       sortable: false,
@@ -620,48 +649,31 @@ const ClientListPage = () => {
           <Tooltip title={t("actions.view")}>
             <IconButton
               aria-label={t("actions.view")}
-              onClick={() =>
-                router.push(paths.client(row.clientId))
-              }
+              onClick={() => router.push(paths.client(row.clientId))}
               sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 2,
+                ...iconButtonSx,
                 color: BRAND,
-                "&:hover": {
-                  bgcolor: BRAND_SOFT,
-                },
-                "& .MuiSvgIcon-root": {
-                  fontSize: 19,
-                },
+                "&:hover": { bgcolor: BRAND_SOFT },
               }}
             >
               <RemoveRedEyeIcon />
             </IconButton>
           </Tooltip>
+
           <Tooltip title={t("actions.edit")}>
             <IconButton
               aria-label={t("actions.edit")}
-              onClick={() =>
-                router.push(paths.editClient(row.clientId))
-              }
+              onClick={() => router.push(paths.editClient(row.clientId))}
               sx={{
-                width: 34,
-                height: 34,
-                borderRadius: 2,
+                ...iconButtonSx,
                 color: INK_MUTED,
-                "&:hover": {
-                  bgcolor: BRAND_SOFT,
-                  color: BRAND,
-                },
-                "& .MuiSvgIcon-root": {
-                  fontSize: 19,
-                },
+                "&:hover": { bgcolor: BRAND_SOFT, color: BRAND },
               }}
             >
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
+
           {role === "superadmin" && (
             <Tooltip title={t("actions.delete")}>
               <span>
@@ -676,19 +688,10 @@ const ClientListPage = () => {
                     })
                   }
                   sx={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 2,
+                    ...iconButtonSx,
                     color: DANGER,
-                    "&:hover": {
-                      bgcolor: "#FEF2F2",
-                    },
-                    "&.Mui-disabled": {
-                      color: "rgba(220, 38, 38, 0.35)",
-                    },
-                    "& .MuiSvgIcon-root": {
-                      fontSize: 19,
-                    },
+                    "&:hover": { bgcolor: "#FEF2F2" },
+                    "&.Mui-disabled": { color: "rgba(220, 38, 38, 0.35)" },
                   }}
                 >
                   <DeleteIcon />
@@ -700,17 +703,19 @@ const ClientListPage = () => {
       ),
     },
   ];
+
   // =================================================
   // EXPORT BUTTON STYLE
   // =================================================
   const exportButtonSx = {
-    minHeight: 38,
-    px: 1.5,
+    minHeight: 34,
+    px: 1.25,
     borderRadius: 2,
     textTransform: "none",
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: 600,
   } as const;
+
   // =================================================
   // UI
   // =================================================
@@ -720,33 +725,13 @@ const ClientListPage = () => {
         sx={{
           minHeight: "100vh",
           bgcolor: "#F7F8F6",
-          px: {
-            xs: 2,
-            sm: 3,
-            md: 4,
-          },
-          pb: {
-            xs: 3,
-            md: 4,
-          },
+          px: { xs: 2, sm: 3, md: 4 },
+          pb: { xs: 2.5, md: 3 },
         }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: 1450,
-            mx: "auto",
-          }}
-        >
+        <Box sx={{ width: "100%", maxWidth: 1450, mx: "auto" }}>
           {/* BREADCRUMB */}
-          <Box
-            sx={{
-              mb: {
-                xs: 2.5,
-                md: 3,
-              },
-            }}
-          >
+          <Box sx={{ mb: { xs: 1.5, md: 2 } }}>
             <Breadcrumb
               items={[
                 {
@@ -760,18 +745,13 @@ const ClientListPage = () => {
               ]}
             />
           </Box>
+
           {/* ADD CLIENT */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: {
-                xs: "stretch",
-                sm: "flex-end",
-              },
-              mb: {
-                xs: 2.5,
-                md: 3,
-              },
+              justifyContent: { xs: "stretch", sm: "flex-end" },
+              mb: { xs: 1.5, md: 2 },
             }}
           >
             <Button
@@ -780,16 +760,13 @@ const ClientListPage = () => {
               startIcon={<AddIcon />}
               onClick={handleCreateClient}
               sx={{
-                width: {
-                  xs: "100%",
-                  sm: "auto",
-                },
-                minHeight: 42,
-                px: 2.25,
+                width: { xs: "100%", sm: "auto" },
+                minHeight: 38,
+                px: 2,
                 bgcolor: BRAND,
                 color: "#ffffff",
-                borderRadius: 2.5,
-                fontSize: 14,
+                borderRadius: 2,
+                fontSize: 13.5,
                 fontWeight: 600,
                 textTransform: "none",
                 boxShadow: "none",
@@ -802,17 +779,11 @@ const ClientListPage = () => {
               {t("addClient")}
             </Button>
           </Box>
+
           {/* FILTERS */}
-          <Box
-            sx={{
-              mb: {
-                xs: 2.5,
-                md: 3,
-              },
-            }}
-          >
-            <SearchFilter<ClientFilterValues>
-              key={JSON.stringify(clientFilters)}
+          <Box sx={{ mb: { xs: 1.5, md: 2 } }}>
+            <ClientFilters
+              key={role === "staff" ? "staff-filters" : JSON.stringify(clientFilters)}
               searchField={{
                 name: "keyword",
                 label: t("search.label"),
@@ -853,6 +824,7 @@ const ClientListPage = () => {
                   >
                     {exportingFormat === "csv" ? t("export.downloading") : t("export.csv")}
                   </Button>
+
                   {/* PDF */}
                   <Button
                     type="button"
@@ -872,6 +844,7 @@ const ClientListPage = () => {
                   >
                     {exportingFormat === "pdf" ? t("export.downloading") : t("export.pdf")}
                   </Button>
+
                   {/* EXCEL */}
                   <Button
                     type="button"
@@ -895,6 +868,7 @@ const ClientListPage = () => {
               }
             />
           </Box>
+
           {/* TABLE */}
           <Box
             sx={{
@@ -904,33 +878,13 @@ const ClientListPage = () => {
             }}
           >
             {/* TOP PAGINATION */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: {
-                  xs: "stretch",
-                  sm: "center",
-                },
-                justifyContent: "space-between",
-                flexDirection: {
-                  xs: "column",
-                  sm: "row",
-                },
-                gap: 2,
-                px: {
-                  xs: 2,
-                  sm: 2.5,
-                },
-                py: 1.25,
-                borderBottom: `1px solid ${HAIRLINE}`,
-                bgcolor: "#FAFAFA",
-              }}
-            >
+            <Box sx={{ ...paginationBarSx, borderBottom: `1px solid ${HAIRLINE}` }}>
               <PaginationRowsLabel
                 count={pagination?.total ?? 0}
                 from={pagination?.from ?? null}
                 to={pagination?.to ?? null}
               />
+
               <Pagination
                 page={pagination?.current_page ?? 1}
                 total={pagination?.total ?? 0}
@@ -939,6 +893,7 @@ const ClientListPage = () => {
                 onPageChange={onPageChange}
               />
             </Box>
+
             {/* DATA GRID */}
             <DataGrid
               localeText={(locale === "ja" ? jaJP : enUS).components.MuiDataGrid.defaultProps.localeText}
@@ -950,7 +905,7 @@ const ClientListPage = () => {
               disableRowSelectionOnClick
               hideFooter
               autoHeight
-              columnHeaderHeight={44}
+              columnHeaderHeight={40}
               slots={{
                 noRowsOverlay: NoDataOverlay,
               }}
@@ -958,13 +913,13 @@ const ClientListPage = () => {
                 border: 0,
                 bgcolor: "#ffffff",
                 color: INK,
-                fontSize: 14,
+                fontSize: 13,
                 "& .MuiDataGrid-columnHeaders": {
                   bgcolor: "#F9FAFB",
                   borderBottom: `1px solid ${HAIRLINE}`,
                 },
                 "& .MuiDataGrid-columnHeader": {
-                  bgcolor: "#6ec5c2",
+                  bgcolor: "#F9FAFB",
                   "&:focus, &:focus-within": {
                     outline: "none",
                   },
@@ -975,14 +930,14 @@ const ClientListPage = () => {
                   lineHeight: 1.2,
                   fontWeight: 700,
                   textTransform: "uppercase",
-                  letterSpacing: "0.08em",
+                  letterSpacing: "0.06em",
                 },
                 "& .MuiDataGrid-columnSeparator": {
                   display: "none",
                 },
                 "& .MuiDataGrid-row": {
-                  minHeight: "58px !important",
-                  maxHeight: "58px !important",
+                  minHeight: "48px !important",
+                  maxHeight: "48px !important",
                   borderBottom: `1px solid ${HAIRLINE}`,
                   bgcolor: "#ffffff",
                   transition: "background-color 200ms ease",
@@ -1035,34 +990,15 @@ const ClientListPage = () => {
                 },
               }}
             />
+
             {/* BOTTOM PAGINATION */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: {
-                  xs: "stretch",
-                  sm: "center",
-                },
-                justifyContent: "space-between",
-                flexDirection: {
-                  xs: "column",
-                  sm: "row",
-                },
-                gap: 2,
-                px: {
-                  xs: 2,
-                  sm: 2.5,
-                },
-                py: 1.25,
-                borderTop: `1px solid ${HAIRLINE}`,
-                bgcolor: "#FAFAFA",
-              }}
-            >
+            <Box sx={{ ...paginationBarSx, borderTop: `1px solid ${HAIRLINE}` }}>
               <PaginationRowsLabel
                 count={pagination?.total ?? 0}
                 from={pagination?.from ?? null}
                 to={pagination?.to ?? null}
               />
+
               <Pagination
                 page={pagination?.current_page ?? 1}
                 total={pagination?.total ?? 0}
@@ -1074,6 +1010,7 @@ const ClientListPage = () => {
           </Box>
         </Box>
       </Box>
+
       {/* DELETE CONFIRMATION */}
       <ConfirmActionDialog
         open={deleteDialog.open}
@@ -1103,4 +1040,5 @@ const ClientListPage = () => {
     </>
   );
 };
+
 export default ClientListPage;

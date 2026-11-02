@@ -7,23 +7,28 @@ import Typography from "@mui/material/Typography";
 import type { StaffDashboardOverview } from "./type";
 import { BRAND, BRAND_SOFT, INK, INK_MUTED, card, sectionTitleSx, yen } from "./shared";
 
-type Props = { overview: Pick<StaffDashboardOverview, "allTimeCollected" | "allTimePaymentCount" | "allTimePayingClientCount"> };
+type Props = {
+  overview: Pick<
+    StaffDashboardOverview,
+    "allTimeCollected" | "allTimePaymentCount" | "allTimePayingClientCount"
+  >;
+};
 
 function MiniStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <Box
       sx={{
-        flex: "1 1 140px",
-        p: 2,
-        borderRadius: 3,
+        flex: "1 1 120px",
+        p: 1.5,
+        borderRadius: 2,
         bgcolor: accent ? BRAND_SOFT : "#F8FAF9",
       }}
     >
-      <Typography sx={{ fontSize: 12, color: INK_MUTED }}>{label}</Typography>
+      <Typography sx={{ fontSize: 11, color: INK_MUTED }}>{label}</Typography>
       <Typography
         sx={{
-          mt: 0.5,
-          fontSize: 20,
+          mt: 0.25,
+          fontSize: 17,
           fontWeight: 700,
           color: accent ? BRAND : INK,
           fontVariantNumeric: "tabular-nums",
@@ -39,12 +44,16 @@ export default function CollectionSummary({ overview }: Props) {
   const t = useTranslations("staffDashboard");
 
   return (
-    <Paper elevation={0} sx={{ ...card, p: { xs: 2.5, md: 3 } }}>
+    <Paper elevation={0} sx={{ ...card, p: { xs: 2, md: 2.5 } }}>
       <Typography sx={sectionTitleSx}>{t("collectionSummary")}</Typography>
-      <Typography sx={{ mt: 0.5, fontSize: 12, color: INK_MUTED }}>{t("allTime")}</Typography>
-      <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
+
+      <Typography sx={{ mt: 0.25, fontSize: 11, color: INK_MUTED }}>{t("allTime")}</Typography>
+
+      <Box sx={{ mt: 1.5, display: "flex", flexWrap: "wrap", gap: 1 }}>
         <MiniStat label={t("allTimeCollected")} value={yen(overview.allTimeCollected)} accent />
+
         <MiniStat label={t("completedPayments")} value={String(overview.allTimePaymentCount)} />
+
         <MiniStat label={t("payingClientsLabel")} value={String(overview.allTimePayingClientCount)} />
       </Box>
     </Paper>

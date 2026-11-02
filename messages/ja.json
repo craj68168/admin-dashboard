@@ -297,6 +297,13 @@
       "achieved": "達成"
     }
   },
+  "navbar": {
+    "openProfile": "プロフィールを開く（{name}）",
+    "roles": {
+      "superadmin": "管理者",
+      "staff": "スタッフ"
+    }
+  },
   "sidebar": {
     "goToDashboard": "ダッシュボードへ移動",
     "logoAlt": "Fortune Link ロゴ",
@@ -1791,6 +1798,7 @@
     }
   },
   "profile": {
+    "title": "プロフィール",
     "unavailable": "プロフィール情報を利用できません。",
     "backToDashboard": "ダッシュボードに戻る",
     "accountInformation": "アカウント情報",

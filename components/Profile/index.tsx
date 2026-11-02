@@ -31,6 +31,7 @@ const softCard = {
 
 export default function Profile() {
   const t = useTranslations("profile");
+  const tRole = useTranslations("navbar.roles");
   const user = useAuthStore((state) => state.user);
 
   if (!user) {
@@ -65,7 +66,7 @@ export default function Profile() {
     },
     {
       label: t("fields.role"),
-      value: user.role,
+      value: tRole(user.role),
       icon: WorkspacesRoundedIcon,
     },
     {

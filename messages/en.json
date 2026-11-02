@@ -297,6 +297,13 @@
       "achieved": "Achieved"
     }
   },
+  "navbar": {
+    "openProfile": "Open profile ({name})",
+    "roles": {
+      "superadmin": "Superadmin",
+      "staff": "Staff"
+    }
+  },
   "sidebar": {
     "goToDashboard": "Go to dashboard",
     "logoAlt": "Fortune Link logo",
@@ -1785,6 +1792,7 @@
     }
   },
   "profile": {
+    "title": "Profile",
     "unavailable": "Profile is unavailable.",
     "backToDashboard": "Back to dashboard",
     "accountInformation": "Account Information",

@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -11,6 +12,7 @@ import Navbar from "@/components/Navbar";
 import { useAuthStore } from "@/store/auth-store";
 
 export default function StaffLayout({ children }: { children: ReactNode }) {
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
@@ -67,8 +69,10 @@ export default function StaffLayout({ children }: { children: ReactNode }) {
       ? "Clients"
       : "";
   const title = pathname.startsWith("/staff/profile")
-    ? "Profile"
-    : selected;
+    ? t("profile.title")
+    : selected
+      ? t(`sidebar.items.${selected}`)
+      : "";
 
   return (
     <Box

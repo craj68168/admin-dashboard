@@ -15,6 +15,8 @@ type Props = {
   isFetching: boolean;
 };
 
+const RING_SIZE = 96;
+
 const STATUS_STYLE: Record<StaffDashboardStatus, { bg: string; fg: string; dot: string }> = {
   Achieved: { bg: "rgba(127,209,181,0.22)", fg: "#E8FFF6", dot: BRAND_LIGHT },
   "In Progress": { bg: "rgba(251,191,36,0.20)", fg: "#FFF4D6", dot: "#FBBF24" },
@@ -24,14 +26,12 @@ const STATUS_STYLE: Record<StaffDashboardStatus, { bg: string; fg: string; dot: 
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.65)" }}>
-        {label}
-      </Typography>
+    <Box sx={{ minWidth: 100 }}>
+      <Typography sx={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>{label}</Typography>
       <Typography
         sx={{
-          mt: 0.5,
-          fontSize: 18,
+          mt: 0.25,
+          fontSize: 15,
           fontWeight: 700,
           color: "#ffffff",
           fontVariantNumeric: "tabular-nums",
@@ -53,27 +53,28 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
     Achieved: t("status.achieved"),
   };
   const status = STATUS_STYLE[overview.performanceStatus] ?? STATUS_STYLE["Not Started"];
+
   return (
     <Paper
       elevation={0}
       sx={{
-        mt: 3,
-        p: { xs: 2.5, md: 3.5 },
-        borderRadius: 5,
+        mt: 2,
+        p: { xs: 2, md: 2.5 },
+        borderRadius: 3,
         color: "#ffffff",
         position: "relative",
         overflow: "hidden",
         background: `linear-gradient(135deg, ${BRAND_DEEP} 0%, ${BRAND} 60%, #1A9A7E 100%)`,
-        boxShadow: "0 24px 48px -28px rgba(11,85,70,0.65)",
+        boxShadow: "0 12px 28px -20px rgba(11,85,70,0.6)",
         "&::after": {
           content: '""',
           position: "absolute",
-          right: -80,
-          top: -80,
-          width: 260,
-          height: 260,
+          right: -60,
+          top: -60,
+          width: 180,
+          height: 180,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255,255,255,0.14), transparent 70%)",
+          background: "radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%)",
           pointerEvents: "none",
         },
       }}
@@ -81,7 +82,7 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
       <Box
         sx={{
           display: "grid",
-          gap: { xs: 3, md: 4 },
+          gap: { xs: 2, md: 3 },
           gridTemplateColumns: { xs: "1fr", md: "auto 1fr" },
           alignItems: "center",
           position: "relative",
@@ -89,12 +90,12 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
         }}
       >
         {/* Ring */}
-        <Box sx={{ position: "relative", width: 132, height: 132, mx: { xs: "auto", md: 0 } }}>
+        <Box sx={{ position: "relative", width: RING_SIZE, height: RING_SIZE, mx: { xs: "auto", md: 0 } }}>
           <CircularProgress
             aria-hidden="true"
             variant="determinate"
             value={100}
-            size={132}
+            size={RING_SIZE}
             thickness={4}
             sx={{ color: "rgba(255,255,255,0.15)", position: "absolute" }}
           />
@@ -102,7 +103,7 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
             aria-label={t("achievement")}
             variant="determinate"
             value={progressValue}
-            size={132}
+            size={RING_SIZE}
             thickness={4}
             sx={{
               color: BRAND_LIGHT,
@@ -112,10 +113,10 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
           />
           <Box sx={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", textAlign: "center" }}>
             <Box>
-              <Typography sx={{ fontSize: 28, fontWeight: 800, lineHeight: 1, letterSpacing: -0.8 }}>
+              <Typography sx={{ fontSize: 20, fontWeight: 800, lineHeight: 1, letterSpacing: -0.5 }}>
                 {overview.achievementPercentage}%
               </Typography>
-              <Typography sx={{ mt: 0.5, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+              <Typography sx={{ mt: 0.25, fontSize: 10, color: "rgba(255,255,255,0.7)" }}>
                 {t("achievement")}
               </Typography>
             </Box>
@@ -123,9 +124,9 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
         </Box>
 
         {/* Details */}
-        <Box>
-          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5 }}>
-            <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>
+        <Box sx={{ minWidth: 0 }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1 }}>
+            <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>
               {t("monthlyPerformance")} · {selectedMonth}
             </Typography>
             <Box
@@ -133,12 +134,12 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 0.75,
-                px: 1.25,
-                py: 0.35,
+                px: 1,
+                py: 0.25,
                 borderRadius: 999,
                 bgcolor: status.bg,
                 color: status.fg,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 600,
               }}
             >
@@ -149,16 +150,16 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
 
           <Typography
             sx={{
-              mt: 1,
-              fontSize: { xs: 30, md: 38 },
+              mt: 0.5,
+              fontSize: { xs: 24, md: 28 },
               fontWeight: 800,
-              letterSpacing: -1,
-              lineHeight: 1.1,
+              letterSpacing: -0.6,
+              lineHeight: 1.15,
               fontVariantNumeric: "tabular-nums",
             }}
           >
             {yen(overview.totalCollected)}
-            <Box component="span" sx={{ ml: 1, fontSize: 16, fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
+            <Box component="span" sx={{ ml: 1, fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.65)" }}>
               / {yen(overview.targetAmount)}
             </Box>
           </Typography>
@@ -168,8 +169,8 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
             variant="determinate"
             value={progressValue}
             sx={{
-              mt: 2,
-              height: 8,
+              mt: 1.5,
+              height: 6,
               borderRadius: 999,
               bgcolor: "rgba(255,255,255,0.15)",
               "& .MuiLinearProgress-bar": {
@@ -180,14 +181,14 @@ export default function MonthlyPerformance({ overview, selectedMonth, isFetching
             }}
           />
 
-          <Box sx={{ mt: 2.5, display: "flex", flexWrap: "wrap", gap: { xs: 2.5, md: 4 } }}>
+          <Box sx={{ mt: 1.5, display: "flex", flexWrap: "wrap", gap: { xs: 2, md: 3 } }}>
             <HeroStat label={t("target")} value={yen(overview.targetAmount)} />
             <HeroStat label={t("collected")} value={yen(overview.totalCollected)} />
             <HeroStat label={t("targetRemaining")} value={yen(overview.remainingAmount)} />
           </Box>
 
           {isFetching && (
-            <Typography sx={{ mt: 1.5, fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+            <Typography sx={{ mt: 1, fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
               {t("refreshing")}
             </Typography>
           )}
